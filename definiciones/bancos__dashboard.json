@@ -1,0 +1,347 @@
+{
+ "fuente_definicion": "Claude (arquitecto), 2026-11-02, a partir de bcb_ifdata__bancos_balances.json y del supuesto S4 del esqueleto; tickers a validar por Pablo",
+ "nota": "color = null: el sitio resalta el banco activo en navy y deja al resto en acero claro (spec web §5). Los cotizados con ADR en EE.UU. (NU, INTR, XP, STNE, PAGS) pueden no entregar ITR a la CVM.",
+ "bancos": [
+  {
+   "cod_inst": "C0080099",
+   "nombre_corto": "Itaú Unibanco",
+   "slug": "itau",
+   "cotizado": true,
+   "ticker": "ITUB4",
+   "ticker_estado": "validar",
+   "ficha": "completa",
+   "color": null
+  },
+  {
+   "cod_inst": "C0080075",
+   "nombre_corto": "Bradesco",
+   "slug": "bradesco",
+   "cotizado": true,
+   "ticker": "BBDC4",
+   "ticker_estado": "validar",
+   "ficha": "completa",
+   "color": null
+  },
+  {
+   "cod_inst": "C0080329",
+   "nombre_corto": "Banco do Brasil",
+   "slug": "bb",
+   "cotizado": true,
+   "ticker": "BBAS3",
+   "ticker_estado": "validar",
+   "ficha": "completa",
+   "color": null
+  },
+  {
+   "cod_inst": "C0080185",
+   "nombre_corto": "Santander Brasil",
+   "slug": "santander",
+   "cotizado": true,
+   "ticker": "SANB11",
+   "ticker_estado": "validar",
+   "ficha": "completa",
+   "color": null
+  },
+  {
+   "cod_inst": "C0080336",
+   "nombre_corto": "BTG Pactual",
+   "slug": "btg",
+   "cotizado": true,
+   "ticker": "BPAC11",
+   "ticker_estado": "validar",
+   "ficha": "completa",
+   "color": null
+  },
+  {
+   "cod_inst": "C0084693",
+   "nombre_corto": "Nubank",
+   "slug": "nubank",
+   "cotizado": true,
+   "ticker": "NU",
+   "ticker_estado": "validar",
+   "ficha": "completa",
+   "color": null,
+   "nota": "No es Nu Holdings: excluye México y Colombia y el capital que queda en la holding, así que su ROE es mayor que el consolidado publicado."
+  },
+  {
+   "cod_inst": "C0082475",
+   "nombre_corto": "XP",
+   "slug": "xp",
+   "cotizado": true,
+   "ticker": "XP",
+   "ticker_estado": "validar",
+   "ficha": "completa",
+   "color": null
+  },
+  {
+   "cod_inst": "C0080109",
+   "nombre_corto": "Safra",
+   "slug": "safra",
+   "cotizado": false,
+   "ticker": null,
+   "ticker_estado": null,
+   "ficha": "panel",
+   "color": null
+  },
+  {
+   "cod_inst": "C0084844",
+   "nombre_corto": "C6 Bank",
+   "slug": "c6",
+   "cotizado": false,
+   "ticker": null,
+   "ticker_estado": null,
+   "ficha": "panel",
+   "color": null
+  },
+  {
+   "cod_inst": "C0080484",
+   "nombre_corto": "Votorantim",
+   "slug": "votorantim",
+   "cotizado": false,
+   "ticker": null,
+   "ticker_estado": null,
+   "ficha": "panel",
+   "color": null
+  },
+  {
+   "cod_inst": "C0080996",
+   "nombre_corto": "Inter",
+   "slug": "inter",
+   "cotizado": true,
+   "ticker": "INTR",
+   "ticker_estado": "validar",
+   "ficha": "completa",
+   "color": null
+  },
+  {
+   "cod_inst": "C0081744",
+   "nombre_corto": "Daycoval",
+   "slug": "daycoval",
+   "cotizado": false,
+   "ticker": null,
+   "ticker_estado": null,
+   "ficha": "panel",
+   "color": null
+  },
+  {
+   "cod_inst": "C0080312",
+   "nombre_corto": "ABC Brasil",
+   "slug": "abc",
+   "cotizado": true,
+   "ticker": "ABCB4",
+   "ticker_estado": "validar",
+   "ficha": "completa",
+   "color": null
+  },
+  {
+   "cod_inst": "C0083694",
+   "nombre_corto": "Agibank",
+   "slug": "agibank",
+   "cotizado": false,
+   "ticker": null,
+   "ticker_estado": null,
+   "ficha": "panel",
+   "color": null
+  },
+  {
+   "cod_inst": "C0080178",
+   "nombre_corto": "BMG",
+   "slug": "bmg",
+   "cotizado": true,
+   "ticker": "BMGB4",
+   "ticker_estado": "validar",
+   "ficha": "completa",
+   "color": null
+  },
+  {
+   "cod_inst": "C0080123",
+   "nombre_corto": "Mercantil do Brasil",
+   "slug": "mercantil",
+   "cotizado": false,
+   "ticker": null,
+   "ticker_estado": null,
+   "ficha": "panel",
+   "color": null
+  },
+  {
+   "cod_inst": "C0080374",
+   "nombre_corto": "Pine",
+   "slug": "pine",
+   "cotizado": false,
+   "ticker": null,
+   "ticker_estado": null,
+   "ficha": "panel",
+   "color": null
+  },
+  {
+   "cod_inst": "C0080271",
+   "nombre_corto": "Sofisa",
+   "slug": "sofisa",
+   "cotizado": false,
+   "ticker": null,
+   "ticker_estado": null,
+   "ficha": "panel",
+   "color": null
+  },
+  {
+   "cod_inst": "C0080903",
+   "nombre_corto": "Original",
+   "slug": "original",
+   "cotizado": false,
+   "ticker": null,
+   "ticker_estado": null,
+   "ficha": "panel",
+   "color": null
+  },
+  {
+   "cod_inst": "C0080154",
+   "nombre_corto": "Banrisul",
+   "slug": "banrisul",
+   "cotizado": true,
+   "ticker": "BRSR6",
+   "ticker_estado": "validar",
+   "ficha": "completa",
+   "color": null
+  },
+  {
+   "cod_inst": "C0080147",
+   "nombre_corto": "Banestes",
+   "slug": "banestes",
+   "cotizado": false,
+   "ticker": null,
+   "ticker_estado": null,
+   "ficha": "panel",
+   "color": null
+  },
+  {
+   "cod_inst": "C0081249",
+   "nombre_corto": "Banco da Amazônia",
+   "slug": "basa",
+   "cotizado": false,
+   "ticker": null,
+   "ticker_estado": null,
+   "ficha": "panel",
+   "color": null
+  },
+  {
+   "cod_inst": "C0081593",
+   "nombre_corto": "Banco do Nordeste",
+   "slug": "bnb",
+   "cotizado": false,
+   "ticker": null,
+   "ticker_estado": null,
+   "ficha": "panel",
+   "color": null
+  },
+  {
+   "cod_inst": "C0080738",
+   "nombre_corto": "Caixa",
+   "slug": "caixa",
+   "cotizado": false,
+   "ticker": null,
+   "ticker_estado": null,
+   "ficha": "panel",
+   "color": null
+  },
+  {
+   "cod_inst": "C0081847",
+   "nombre_corto": "BNDES",
+   "slug": "bndes",
+   "cotizado": false,
+   "ticker": null,
+   "ticker_estado": null,
+   "ficha": "panel",
+   "color": null
+  },
+  {
+   "cod_inst": "C0080288",
+   "nombre_corto": "BRB",
+   "slug": "brb",
+   "cotizado": false,
+   "ticker": null,
+   "ticker_estado": null,
+   "ficha": "panel",
+   "color": null
+  },
+  {
+   "cod_inst": "C0084820",
+   "nombre_corto": "Mercado Pago",
+   "slug": "mercadopago",
+   "cotizado": false,
+   "ticker": null,
+   "ticker_estado": null,
+   "ficha": "panel",
+   "color": null
+  },
+  {
+   "cod_inst": "C0084813",
+   "nombre_corto": "PagSeguro",
+   "slug": "pagseguro",
+   "cotizado": true,
+   "ticker": "PAGS",
+   "ticker_estado": "validar",
+   "ficha": "completa",
+   "color": null
+  },
+  {
+   "cod_inst": "C0084686",
+   "nombre_corto": "Stone",
+   "slug": "stone",
+   "cotizado": true,
+   "ticker": "STNE",
+   "ticker_estado": "validar",
+   "ficha": "completa",
+   "color": null
+  },
+  {
+   "cod_inst": "C0088022",
+   "nombre_corto": "PicPay",
+   "slug": "picpay",
+   "cotizado": false,
+   "ticker": null,
+   "ticker_estado": null,
+   "ficha": "panel",
+   "color": null
+  },
+  {
+   "cod_inst": "C0085702",
+   "nombre_corto": "Neon",
+   "slug": "neon",
+   "cotizado": false,
+   "ticker": null,
+   "ticker_estado": null,
+   "ficha": "panel",
+   "color": null
+  },
+  {
+   "cod_inst": "C0084710",
+   "nombre_corto": "Cielo",
+   "slug": "cielo",
+   "cotizado": false,
+   "ticker": null,
+   "ticker_estado": null,
+   "ficha": "panel",
+   "color": null
+  },
+  {
+   "cod_inst": "C0086581",
+   "nombre_corto": "CloudWalk",
+   "slug": "cloudwalk",
+   "cotizado": false,
+   "ticker": null,
+   "ticker_estado": null,
+   "ficha": "panel",
+   "color": null
+  },
+  {
+   "cod_inst": "C0080642",
+   "nombre_corto": "Porto Seguro",
+   "slug": "porto",
+   "cotizado": false,
+   "ticker": null,
+   "ticker_estado": null,
+   "ficha": "panel",
+   "color": null
+  }
+ ]
+}

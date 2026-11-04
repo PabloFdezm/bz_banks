@@ -1,0 +1,175 @@
+{
+  "fuente": "bcb_ifdata",
+  "datasets": [
+    "valores (informes 8, 11, 13 y 16)"
+  ],
+  "nota": "Modalidades de crédito de IF.data para las hojas 'Crédito: panorama' y 'Crédito: calidad' del PBIP dual (doc 41). La clave es el texto del campo Grupo del informe (portugués, tal como lo sirve el BCB); la etiqueta es la de la página. Las etiquetas son únicas en todo el modelo (Power BI usa el texto como clave de color y orden): por eso las tres modalidades que se repiten entre personas y empresas llevan '(empresas)'.",
+  "tipos": {
+    "PF": {
+      "etiqueta": "Personas",
+      "informe": 11,
+      "total_reportado": "Total da Carteira de Pessoa Física",
+      "modalidades": [
+        {
+          "grupo_bcb": "Cartão de Crédito",
+          "id": "pf_tarjeta",
+          "etiqueta": "Tarjeta de crédito"
+        },
+        {
+          "grupo_bcb": "Empréstimo com Consignação em Folha",
+          "id": "pf_consignado",
+          "etiqueta": "Consignado"
+        },
+        {
+          "grupo_bcb": "Empréstimo sem Consignação em Folha",
+          "id": "pf_personal",
+          "etiqueta": "Personal sin consignación"
+        },
+        {
+          "grupo_bcb": "Veículos",
+          "id": "pf_vehiculos",
+          "etiqueta": "Vehículos"
+        },
+        {
+          "grupo_bcb": "Habitação",
+          "id": "pf_hipotecario",
+          "etiqueta": "Hipotecario"
+        },
+        {
+          "grupo_bcb": "Rural e Agroindustrial",
+          "id": "pf_rural",
+          "etiqueta": "Rural y agroindustrial"
+        },
+        {
+          "grupo_bcb": "Outros Créditos",
+          "id": "pf_otros",
+          "etiqueta": "Otros (personas)"
+        }
+      ],
+      "total_exterior": "Total Exterior Pessoa Física"
+    },
+    "PJ": {
+      "etiqueta": "Empresas",
+      "informe": 13,
+      "total_reportado": "Total da Carteira de Pessoa Jurídica",
+      "modalidades": [
+        {
+          "grupo_bcb": "Capital de Giro",
+          "id": "pj_giro",
+          "etiqueta": "Capital de giro"
+        },
+        {
+          "grupo_bcb": [
+            "Capital de Giro Rotativo",
+            "Cheque Especial e Conta Garantida"
+          ],
+          "id": "pj_giro_rotativo",
+          "etiqueta": "Rotativo (cheque especial y cuenta garantizada)",
+          "nota": "El BCB cambió el nombre en 2021-12: 'Capital de Giro Rotativo' (hasta 2021-09) pasa a 'Cheque Especial e Conta Garantida'. Mismo concepto; continuidad verificada en preparar_credito_paginas_powerbi.verificar."
+        },
+        {
+          "grupo_bcb": "Investimento",
+          "id": "pj_inversion",
+          "etiqueta": "Inversión"
+        },
+        {
+          "grupo_bcb": "Comércio Exterior",
+          "id": "pj_comex",
+          "etiqueta": "Comercio exterior"
+        },
+        {
+          "grupo_bcb": "Operações com Recebíveis",
+          "id": "pj_recebibles",
+          "etiqueta": "Recebibles"
+        },
+        {
+          "grupo_bcb": "Financiamento de Infraestrutura/Desenvolvimento/Projeto e Outros Créditos",
+          "id": "pj_infra",
+          "etiqueta": "Infraestructura y proyectos"
+        },
+        {
+          "grupo_bcb": "Habitacional",
+          "id": "pj_inmobiliario",
+          "etiqueta": "Inmobiliario (empresas)"
+        },
+        {
+          "grupo_bcb": "Rural e Agroindustrial",
+          "id": "pj_rural",
+          "etiqueta": "Rural (empresas)"
+        },
+        {
+          "grupo_bcb": "Outros Créditos",
+          "id": "pj_otros",
+          "etiqueta": "Otros (empresas)"
+        }
+      ],
+      "total_exterior": "Total Exterior Pessoa Jurídica"
+    }
+  },
+  "columna_saldo_modalidad": "Total",
+  "columna_vencido_modalidad": "Vencido a Partir de 15 Dias",
+  "npl": {
+    "hasta_2024": {
+      "informe": 8,
+      "escopo": "financeiro",
+      "numerador": [
+        "E",
+        "F",
+        "G",
+        "H"
+      ],
+      "denominador": [
+        "AA",
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+        "G",
+        "H"
+      ],
+      "fuente_definicion": "IF.data informe 8 'Carteira de crédito ativa - por nível de risco da operação' (Res. 2.682); E–H = la definición pedida por Pablo el 2026-10-13",
+      "nota": "AA–H excluye el exterior (AA..H + Total Exterior = Total Geral, verificado Itaú 2014-T2)."
+    },
+    "desde_2025": {
+      "informe": 16,
+      "escopo": "prudencial",
+      "numerador": [
+        "Ativos problemáticos"
+      ],
+      "denominador": [
+        "Total Geral"
+      ],
+      "fuente_definicion": "IF.data informe 16 'Carteira de crédito ativa - por carteiras de instrumentos financeiros' (Res. 4.966); 'Ativos problemáticos' = atraso de 90 días o más o indicio de deterioro, lo más parecido a E–H",
+      "denominador_resta": [
+        "Total Exterior"
+      ],
+      "nota": "Total Geral incluye el exterior (Itaú 2026-T2: R$ 388 mil millones de R$ 1.193); se resta para que el denominador sea Brasil, como AA–H del informe 8."
+    },
+    "por_modalidad": {
+      "fuente_definicion": "IF.data informes 11 y 13: 'Vencido a Partir de 15 Dias' / 'Total' de la modalidad; único dato de atraso que IF.data publica por modalidad"
+    }
+  },
+  "opticas_derivadas": {
+    "fintech": {
+      "etiqueta": "Tradicional vs Fintech",
+      "regla": "Fintechs = modelo_negocio Digitales o Pagos (definiciones/bcb_ifdata__bancos_balances.json); el resto, Tradicionales",
+      "fuente_definicion": "Pablo, 2026-10-13"
+    }
+  },
+  "fuente_definicion": "Campo Grupo de los informes 11 y 13 de IF.data, verificado en 201406 (financeiro) y 202603 (prudencial); etiquetas en castellano: criterio propio",
+  "nota_exterior": "El 'Total da Carteira' del BCB incluye las operaciones en el exterior (Itaú 2014-T2: R$ 124 mil millones solo en empresas). Las páginas usan el crédito en Brasil = Σ modalidades; la validación exige Σ modalidades + exterior = total publicado.",
+  "trimestres_anomalos": {
+    "202412": {
+      "informes": [
+        8,
+        11,
+        13
+      ],
+      "motivo": "La cartera por modalidad del panel salta +20 % en 2024-T4 y vuelve en 2025-T1 (Itaú +67 % y −36 %; empresas 'Outros Créditos' +270 %), mientras el crédito del balance crece 4 %. De 2024-T3 a 2025-T1 el panel crece 8 %, coherente con el balance. Re-descargado el 2026-10-13: mismo sha256, el BCB sirve ese dato. Se deja vacío (sin interpolar); las variaciones que lo usan quedan vacías. El NPL E–H de ese trimestre (informe 8) tiene el mismo problema en el denominador (panel 6,1 % → 5,5 % → 6,7 %): también vacío.",
+      "fuente_definicion": "Revisión propia 2026-10-13 (preparar_credito_paginas_powerbi.verificar)"
+    }
+  },
+  "nota_duplicados": "El BCB sirvió 2025-09 (informes 11, 13 y 16) con cada fila tres veces; el preparador quita duplicados exactos y falla si queda una clave (banco, grupo, cuenta, columna) repetida."
+}

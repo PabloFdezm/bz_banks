@@ -1,0 +1,274 @@
+/* Monitor Brasil «desde cero» · layout, cabecera, apertura, secciones, tarjetas, tablas, responsive.
+   Porteado del markup de AM0_plantilla.html + SPEC_WEB_00_GENERAL.md §4 y §5.
+   Solo colores de tokens.css. Sin sombras, sin degradados. */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--fondo);
+  font-family: var(--fuente);
+  color: var(--texto);
+  font-size: var(--t-cuerpo);
+}
+
+a { color: inherit; text-decoration: none; }
+
+/* ---------- 4.1 Cabecera ---------- */
+.cabecera {
+  height: 96px;
+  flex: none;
+  padding: 0 var(--margen);
+  background: var(--tarjeta);
+  border-bottom: 1px solid var(--borde);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap);
+}
+.cabecera-identidad { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.cabecera-marca {
+  font-size: var(--t-nota); font-weight: 600;
+  letter-spacing: .08em; color: var(--navy);
+}
+.cabecera-nombre {
+  font-size: var(--t-pagina); font-weight: 300; color: var(--navy);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.cabecera-nav { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+.pestana {
+  font-size: 13px; color: var(--texto);
+  border: 1px solid var(--borde-fuerte); border-radius: var(--radio);
+  padding: 7px 13px; white-space: nowrap;
+}
+.pestana[aria-current="page"] {
+  font-weight: 600; color: #FFFFFF; background: var(--navy);
+  border-color: var(--navy); padding: 8px 14px;
+}
+.cabecera-ultimo { margin-left: 16px; font-size: var(--t-sub); color: var(--texto-2); white-space: nowrap; }
+
+/* ---------- 4.2 Contenedor ---------- */
+.contenedor {
+  max-width: var(--ancho-max);
+  margin: 0 auto;
+  padding: 32px var(--margen) 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+}
+
+/* ---------- 4.3 Apertura ---------- */
+.apertura {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: var(--gap);
+  align-items: end;
+}
+.apertura-texto { grid-column: span 8; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.apertura-rotulo {
+  font-size: var(--t-nota); font-weight: 600;
+  letter-spacing: .08em; color: var(--navy);
+}
+.apertura-titular {
+  margin: 0; font-size: var(--t-titular); line-height: 1.15;
+  font-weight: 300; color: var(--navy);
+}
+.apertura-intro { margin: 0; font-size: 15px; line-height: 1.6; }
+
+.indice {
+  grid-column: span 4;
+  display: flex; flex-direction: column;
+  border-left: 2px solid var(--navy);
+  padding-left: 16px;
+}
+.indice-rotulo {
+  font-size: var(--t-nota); font-weight: 600; letter-spacing: .06em;
+  color: var(--texto-2); padding-bottom: 6px;
+}
+.indice-item { font-size: var(--t-cuerpo); color: var(--navy); padding: 5px 0; }
+.indice-num { color: var(--texto-3); font-variant-numeric: tabular-nums; margin-right: 12px; }
+
+/* ---------- 4.4 Tira «Qué cambió» ---------- */
+.que-cambio-envoltura { margin-top: -24px; }
+.que-cambio-envoltura[hidden] { display: none; }
+.que-cambio {
+  height: 64px;
+  background: var(--tarjeta);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  padding: 0 20px;
+  display: flex; align-items: center; gap: 20px;
+}
+.que-cambio-rotulo {
+  font-size: var(--t-nota); font-weight: 600; letter-spacing: .06em;
+  color: var(--texto-2); flex: none;
+}
+.que-cambio-texto { margin: 0; font-size: var(--t-cuerpo); line-height: 1.4; flex: 1; }
+
+/* ---------- 4.5 Secciones ---------- */
+.seccion {
+  border-top: 2px solid var(--texto);
+  padding-top: 16px;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: var(--gap);
+  align-items: start;
+  scroll-margin-top: 16px;
+}
+.riel { grid-column: span 3; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.riel-numero { font-size: 13px; font-weight: 600; color: var(--navy); font-variant-numeric: tabular-nums; }
+.riel-nombre { font-size: var(--t-seccion); font-weight: 600; line-height: 1.2; margin: 0; }
+.riel-frecuencia { font-size: var(--t-nota); color: var(--texto-3); }
+.riel-pregunta { margin: 6px 0 8px; font-size: var(--t-cuerpo); line-height: 1.6; }
+.riel-pregunta.por-defecto { font-style: italic; color: var(--texto-2); }
+
+.riel-bloque { border-top: 1px solid var(--borde); padding-top: 10px; display: flex; flex-direction: column; gap: 4px; }
+.riel-bloque-rotulo {
+  font-size: var(--t-nota); font-weight: 600; letter-spacing: .06em; color: var(--texto-2);
+}
+.riel-bloque-cifra { font-size: var(--t-kpi); font-weight: 600; font-variant-numeric: tabular-nums; color: var(--navy); }
+.riel-bloque-nota { font-size: var(--t-sub); color: var(--texto-2); line-height: 1.5; }
+.riel-nota { font-size: 13px; line-height: 1.5; color: var(--texto-2); }
+
+.cuerpo {
+  grid-column: span 9;
+  display: grid;
+  grid-template-columns: repeat(9, minmax(0, 1fr));
+  gap: var(--gap);
+  min-width: 0;
+}
+
+/* ---------- 5.2 Tarjeta ---------- */
+.tarjeta {
+  margin: 0;
+  background: var(--tarjeta);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  padding: 16px 20px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow: hidden;
+  min-width: 0;
+}
+.tarjeta-cabecera { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.tarjeta-titulo { margin: 0; font-size: var(--t-titulo-tarjeta); font-weight: 600; line-height: 1.3; }
+.tarjeta-sub { margin: 2px 0 0; font-size: var(--t-sub); color: var(--texto-2); line-height: 1.4; }
+.pastilla {
+  flex: none; font-size: var(--t-nota); background: var(--fondo);
+  border-radius: 999px; padding: 4px 10px; color: var(--texto-2); white-space: nowrap;
+}
+.pastilla b { font-weight: 600; color: var(--navy); font-variant-numeric: tabular-nums; }
+
+.leyenda { display: flex; flex-wrap: wrap; gap: 12px; font-size: var(--t-nota); color: var(--texto-2); }
+.leyenda-item { display: flex; align-items: center; gap: 5px; }
+.leyenda-trazo { width: 14px; height: 3px; flex: none; border-radius: 1px; }
+.leyenda-trazo.discontinua {
+  height: 0; border-top: 2px dashed currentColor; background: none !important;
+}
+.leyenda-caja { width: 10px; height: 10px; flex: none; border-radius: 1px; }
+
+.tarjeta-zona { flex: 1; min-height: 0; position: relative; }
+.tarjeta-nota { font-size: var(--t-nota); color: var(--texto-3); line-height: 1.5; }
+.tarjeta-pie { font-size: var(--t-nota); color: var(--texto-3); line-height: 1.5; }
+
+/* estado «en preparación» (§7.5) */
+.preparacion {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  text-align: center; padding: 0 24px;
+  background: var(--fondo);
+  border: 1px dashed var(--borde);
+  border-radius: var(--radio);
+  font-size: var(--t-sub); color: var(--texto-3); line-height: 1.5;
+}
+.esqueleto { position: absolute; inset: 0; background: var(--regla); border-radius: var(--radio); }
+.error-dato {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  text-align: center; padding: 0 24px; font-size: var(--t-sub); color: var(--peor);
+}
+
+/* ---------- tablas (componente `tabla`, patrones T4/T8) ---------- */
+.tabla-datos { width: 100%; border-collapse: collapse; font-size: var(--t-sub); }
+.tabla-datos thead th {
+  font-size: var(--t-nota); font-weight: 600; color: var(--texto-3); text-align: left;
+  border-bottom: 1px solid var(--borde); padding: 6px 8px 6px 0; white-space: nowrap;
+}
+.tabla-datos tbody td {
+  border-bottom: 1px solid var(--regla); padding: 6px 8px 6px 0;
+  font-variant-numeric: tabular-nums; vertical-align: middle;
+}
+.tabla-datos th.num, .tabla-datos td.num { text-align: right; }
+.tabla-datos tbody tr:last-child td { border-bottom: none; }
+.tabla-scroll { overflow-x: auto; flex: 1; min-height: 0; }
+
+/* ---------- 4.7 Cierre ---------- */
+.cierre {
+  border-top: 1px solid var(--borde-fuerte);
+  padding-top: 16px;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: var(--gap);
+}
+.cierre-bloque { grid-column: span 6; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.cierre-rotulo { font-size: var(--t-nota); font-weight: 600; letter-spacing: .06em; color: var(--texto-2); }
+.cierre-texto { margin: 0; font-size: var(--t-sub); line-height: 1.6; color: var(--texto-3); }
+.cierre-bloque.como-leer .cierre-texto { color: var(--texto); }
+
+/* ---------- 4.6 Portada ---------- */
+.portada-titular { margin: 0; font-size: var(--t-titular); font-weight: 300; color: var(--navy); }
+.portada-grilla {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 608px));
+  gap: var(--gap);
+}
+.portada-tarjeta {
+  height: 220px;
+  background: var(--tarjeta);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  padding: 20px 24px;
+  display: flex; flex-direction: column; gap: 8px;
+  overflow: hidden;
+}
+.portada-tarjeta:hover { border-color: var(--borde-fuerte); }
+.portada-nombre { font-size: 20px; font-weight: 600; color: var(--navy); margin: 0; }
+.portada-pregunta { margin: 0; font-size: 13px; line-height: 1.55; color: var(--texto-2); flex: 1; }
+.portada-dato { font-size: var(--t-nota); color: var(--texto-3); font-variant-numeric: tabular-nums; }
+.portada-ver { font-size: var(--t-sub); color: var(--navy); font-weight: 600; }
+
+/* ---------- 5.6 Responsive ---------- */
+/* 1024-1439: el riel pasa arriba del cuerpo, a todo el ancho, bloques en fila */
+@media (max-width: 1439px) {
+  .riel { grid-column: span 12; flex-direction: row; flex-wrap: wrap; align-items: flex-end; gap: 16px 24px; }
+  .riel-numero, .riel-nombre, .riel-frecuencia { flex: none; }
+  .riel-nombre { font-size: 20px; }
+  .riel-pregunta { flex: 1 1 320px; margin: 0; }
+  .riel-bloque { flex: 1 1 220px; border-top: 1px solid var(--borde); }
+  .cuerpo { grid-column: span 12; grid-template-columns: repeat(12, minmax(0, 1fr)); }
+  .apertura-texto { grid-column: span 7; }
+  .indice { grid-column: span 5; }
+}
+
+/* <1024: tarjetas a ancho completo; pestañas en menú */
+@media (max-width: 1023px) {
+  .cabecera { height: auto; padding: 12px var(--margen); flex-direction: column; align-items: flex-start; gap: 10px; }
+  .cabecera-nav { width: 100%; justify-content: flex-start; }
+  .cuerpo { grid-template-columns: minmax(0, 1fr); }
+  .tarjeta { height: auto !important; min-height: 320px; }
+  .tarjeta-zona { min-height: 260px; }
+  .apertura-texto, .indice { grid-column: span 12; }
+}
+
+/* <600: apertura en una columna, índice oculto, titular 28 */
+@media (max-width: 599px) {
+  .contenedor { padding: 20px 16px 32px; gap: 32px; }
+  .indice { display: none; }
+  .apertura-titular, .portada-titular { font-size: 28px; }
+  .portada-grilla { grid-template-columns: minmax(0, 1fr); }
+  .cierre-bloque { grid-column: span 12; }
+}
+
+@media print { .cabecera-nav { display: none; } }

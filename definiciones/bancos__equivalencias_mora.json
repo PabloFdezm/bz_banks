@@ -1,0 +1,23 @@
+{
+ "fuente_definicion": "Arquitecto (Claude), 2026-11-03. Modalidades de definiciones/bcb_ifdata__credito_modalidades.json ↔ series de mora > 90 días del SGS en pb/Banks/bk_sistema_q.parquet.",
+ "nota": "Definiciones distintas: el NPL del panel es atraso ≥ 15 días; la mora del SGS es > 90 días. La mora implícita sirve para leer evolución y diferencias entre bancos, no para comparar niveles con el NPL. calidad: exacta = misma modalidad; proxy = serie más amplia que contiene la modalidad; sin_dato = no hay serie del SGS en bk_sistema (la modalidad queda fuera y baja la cobertura).",
+ "nota_21114": "21114 es crédito personal NO consignado: su saldo (SGS 20574) es R$ 400 mil millones contra R$ 792 mil millones del consignado (20576-20578), y la mora ponderada con el consignado da 6,2 %, el 'Personal total' de hogares_modalidades. Corrige la decisión del 2026-11-02 que la tomaba como total.",
+ "equivalencias": {
+  "pf_tarjeta":       {"serie_id": "mora90_cartao_total",       "sgs": 21129, "calidad": "exacta"},
+  "pf_consignado":    {"serie_id": "mora90_consignado_total",   "sgs": 21119, "calidad": "exacta"},
+  "pf_personal":      {"serie_id": "mora90_personal",           "sgs": 21114, "calidad": "exacta"},
+  "pf_vehiculos":     {"serie_id": "mora90_vehiculos",          "sgs": 21121, "calidad": "exacta"},
+  "pf_hipotecario":   {"serie_id": "mora90_inmobiliario_total", "sgs": 21151, "calidad": "exacta"},
+  "pf_rural":         {"serie_id": null, "sgs": null, "calidad": "sin_dato", "pendiente": "ubicar la mora del crédito rural PF dirigido en el catálogo SGS (validar 21145/21148)"},
+  "pf_otros":         {"serie_id": "mora90_pf_livre",           "sgs": 21112, "calidad": "proxy"},
+  "pj_giro":          {"serie_id": "mora90_pj_livre",           "sgs": 21086, "calidad": "proxy"},
+  "pj_giro_rotativo": {"serie_id": "mora90_pj_livre",           "sgs": 21086, "calidad": "proxy"},
+  "pj_comex":         {"serie_id": "mora90_pj_livre",           "sgs": 21086, "calidad": "proxy"},
+  "pj_recebibles":    {"serie_id": "mora90_pj_livre",           "sgs": 21086, "calidad": "proxy"},
+  "pj_otros":         {"serie_id": "mora90_pj_livre",           "sgs": 21086, "calidad": "proxy"},
+  "pj_inversion":     {"serie_id": null, "sgs": null, "calidad": "sin_dato", "pendiente": "mora PJ dirigida (BNDES) no está en bk_sistema"},
+  "pj_infra":         {"serie_id": null, "sgs": null, "calidad": "sin_dato", "pendiente": "ídem"},
+  "pj_inmobiliario":  {"serie_id": null, "sgs": null, "calidad": "sin_dato", "pendiente": "ídem"},
+  "pj_rural":         {"serie_id": null, "sgs": null, "calidad": "sin_dato", "pendiente": "ídem"}
+ }
+}

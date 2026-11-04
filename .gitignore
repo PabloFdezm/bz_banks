@@ -1,0 +1,11 @@
+# Datos: viven solo en el equipo (crudo IF.Data/SCR/SGS, intermedio y gold). Ver README.
+datos/
+sitio/data/
+deploy_netlify/
+.netlify/
+herramientas/_capturas/
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv*/
+node_modules/

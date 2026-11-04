@@ -1,0 +1,492 @@
+/* Bancos Brasil · solo lo propio del sitio de bancos (SPEC_WEB_BANCOS_00_GENERAL.md §2).
+   Va después de monitor.css. Solo colores de tokens.css. Sin sombras, sin degradados. */
+
+:focus-visible { outline: 2px solid var(--navy); outline-offset: 2px; }
+
+/* ---------- §3 Barra de banco activo (48 px, fija bajo la cabecera) ---------- */
+.barra-banco {
+  position: sticky; top: 0; z-index: 50;
+  min-height: 48px;
+  background: var(--tarjeta);
+  border-bottom: 1px solid var(--borde);
+  padding: 6px var(--margen);
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px 20px;
+  font-size: 13px;
+}
+.barra-activo {
+  flex: 1 1 200px; min-width: 0;
+  color: var(--texto-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.barra-activo.con-banco { color: var(--navy); }
+.barra-activo b { font-weight: 600; }
+.barra-campo { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.barra-rotulo { font-size: var(--t-nota); font-weight: 600; color: var(--texto-2); letter-spacing: .04em; }
+.barra-buscar, .barra-sel, .barra-quitar {
+  height: 30px; font: inherit; font-size: 13px; color: var(--texto);
+  background: #FFFFFF; border: 1px solid var(--borde-fuerte); border-radius: var(--radio);
+  padding: 0 8px; min-width: 0;
+}
+.barra-buscar { width: 120px; }
+.barra-sel { max-width: 210px; }
+.barra-quitar { color: var(--navy); cursor: pointer; padding: 0 10px; }
+.barra-quitar[hidden] { display: none; }
+.boton-presentar {
+  font: inherit; font-size: 13px; color: var(--texto); white-space: nowrap;
+  background: #FFFFFF; border: 1px solid var(--borde-fuerte); border-radius: var(--radio);
+  padding: 7px 13px; cursor: pointer;
+}
+
+/* ---------- §4 Modo presentación ---------- */
+.presentacion {
+  position: fixed; inset: 0; z-index: 1000;
+  background: var(--fondo); overflow: hidden;
+}
+.pres-lamina {
+  position: absolute; left: 50%; top: 50%;
+  width: 1920px; min-height: 1080px; box-sizing: border-box;
+  padding: 48px;
+  display: flex; flex-direction: column; gap: 16px;
+  background: var(--fondo);
+  transform-origin: center;
+}
+.pres-cab { flex: none; display: flex; flex-direction: column; gap: 4px; }
+.pres-num { font-size: 13px; font-weight: 600; color: var(--navy); font-variant-numeric: tabular-nums; }
+.pres-nombre { margin: 0; font-size: 32px; font-weight: 300; line-height: 1.2; color: var(--navy); }
+.pres-pregunta { margin: 0; font-size: 18px; line-height: 1.4; color: var(--texto-2); }
+.pres-cuerpo { flex: none; width: 100%; }
+.pres-cuerpo > .cuerpo { width: 100%; }
+.pres-pie {
+  flex: none; height: 64px; margin-top: auto;
+  border-top: 1px solid var(--borde-fuerte);
+  display: flex; align-items: center; gap: 24px; padding-top: 8px;
+}
+.pres-kpi-rotulo { font-size: var(--t-nota); font-weight: 600; letter-spacing: .06em; color: var(--texto-2); }
+.pres-kpi { font-size: var(--t-kpi); font-weight: 600; color: var(--navy); font-variant-numeric: tabular-nums; }
+.pres-kpi-nota { font-size: var(--t-sub); color: var(--texto-2); }
+.pres-frecuencia { margin-left: auto; font-size: var(--t-sub); color: var(--texto-3); }
+.pres-contador { font-size: var(--t-sub); color: var(--texto-3); font-variant-numeric: tabular-nums; }
+body.modo-presentacion { overflow: hidden; }
+body.modo-presentacion #app { display: none; }
+
+/* pie de hoja: solo se ve al imprimir */
+.hoja-pie { display: none; }
+
+/* ---------- §6 percentiles (HTML) ---------- */
+.pct-lista { display: flex; flex-direction: column; height: 100%; overflow: auto; }
+.pct-fila {
+  flex: none; height: 40px;
+  display: flex; align-items: center; gap: 12px;
+  border-bottom: 1px solid var(--regla);
+}
+.pct-nombre { flex: 0 0 34%; min-width: 0; font-size: 13px; line-height: 1.2; }
+.pct-escala { position: relative; flex: 1; min-width: 0; height: 28px; }
+.pct-rango { position: absolute; top: 10px; height: 8px; background: var(--regla); border-radius: 2px; }
+.pct-mediana { position: absolute; top: 4px; width: 2px; height: 20px; margin-left: -1px; background: var(--texto-2); }
+.pct-enlace { position: absolute; top: 13.5px; height: 1px; background: var(--texto-3); }
+.pct-punto, .pct-punto-t4 { position: absolute; top: 50%; border-radius: 50%; transform: translate(-50%, -50%); }
+.pct-punto { width: 10px; height: 10px; background: var(--navy); }
+.pct-punto-t4 { width: 8px; height: 8px; background: var(--acero-claro); }
+.pct-valor { flex: 0 0 84px; text-align: right; font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.pct-sin { font-size: var(--t-nota); color: var(--texto-3); }
+
+/* ---------- §6 cascada_doble (HTML, banco y grupo en paralelo) ---------- */
+.cas { display: flex; flex-direction: column; height: 100%; overflow: auto; }
+.cas-fila {
+  flex: none; display: grid; align-items: center; gap: 12px;
+  grid-template-columns: minmax(120px, 1.1fr) minmax(0, 2fr) minmax(0, 2fr) 76px;
+  min-height: 34px; border-bottom: 1px solid var(--regla); font-size: var(--t-sub);
+}
+.cas-cab { min-height: 26px; font-size: var(--t-nota); font-weight: 600; color: var(--texto-3); border-bottom-color: var(--borde); }
+.cas-total { font-weight: 600; }
+.cas-nombre { line-height: 1.25; }
+.cas-pista { position: relative; height: 22px; }
+.cas-cero { position: absolute; top: 0; bottom: 0; width: 1px; background: var(--referencia); }
+.cas-barra { position: absolute; top: 4px; height: 14px; border-radius: 2px; }
+.cas-etiqueta {
+  position: absolute; top: 50%; transform: translate(6px, -50%);
+  font-size: var(--t-nota); color: var(--texto-2); white-space: nowrap; font-variant-numeric: tabular-nums;
+}
+.cas-brecha { text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; }
+.cas-pos { color: var(--mejor); }
+.cas-neg { color: var(--peor); }
+
+/* ---------- §6 small_multiples_bancos ---------- */
+.sm-grid { display: grid; gap: 8px 10px; height: 100%; overflow: auto; align-content: start; }
+.sm-panel {
+  margin: 0; min-width: 0;
+  border: 1px solid var(--regla); border-radius: var(--radio);
+  padding: 6px 8px 4px;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.sm-destacado { border: 2px solid var(--navy); padding: 5px 7px 3px; }
+.sm-cab { display: flex; flex-direction: column; gap: 1px; font-size: var(--t-nota); min-width: 0; }
+.sm-nombre { min-width: 0; line-height: 1.25; color: var(--texto); }
+.sm-valor { color: var(--texto-2); font-variant-numeric: tabular-nums; }
+.sm-panel svg { display: block; width: 100%; height: 40px; }
+
+/* ---------- §6 comparador (tabla ordenable, filtros, sparklines, CSV) ---------- */
+.cmp { display: flex; flex-direction: column; gap: 8px; }
+.cmp-barra { flex: none; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; font-size: var(--t-sub); }
+.cmp-chips { flex: 1 1 auto; display: flex; flex-wrap: wrap; gap: 6px 16px; }
+.cmp-grupo { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
+.cmp-rotulo { margin-right: 2px; font-size: var(--t-nota); font-weight: 600; color: var(--texto-3); }
+.cmp-chip {
+  font: inherit; font-size: var(--t-nota); color: var(--texto);
+  background: #FFFFFF; border: 1px solid var(--borde-fuerte); border-radius: 999px;
+  padding: 2px 9px; cursor: pointer;
+}
+.cmp-chip[aria-pressed="true"] { background: var(--navy); border-color: var(--navy); color: #FFFFFF; }
+.cmp-cuenta { font-size: var(--t-nota); color: var(--texto-3); font-variant-numeric: tabular-nums; }
+.cmp-csv {
+  font: inherit; font-size: var(--t-sub); color: var(--navy);
+  background: #FFFFFF; border: 1px solid var(--borde-fuerte); border-radius: var(--radio);
+  padding: 3px 10px; cursor: pointer;
+}
+.cmp-scroll { flex: 1; min-height: 0; overflow: auto; }
+.cmp-tabla th, .cmp-tabla td { white-space: nowrap; }
+.cmp-tabla thead th { position: sticky; top: 0; z-index: 1; background: var(--tarjeta); }
+.cmp-orden { font: inherit; font-size: var(--t-nota); font-weight: 600; color: var(--texto-3); background: none; border: 0; padding: 0; cursor: pointer; }
+.cmp-orden:disabled { cursor: default; }
+.cmp-tabla tbody tr { cursor: pointer; }
+.cmp-tabla tbody tr:hover td { background: var(--fondo); }
+.cmp-tabla tbody tr.cmp-activo td { background: var(--fondo); font-weight: 600; }
+.cmp-spark svg { display: block; width: 80px; height: 18px; }
+
+/* ---------- §4 impresión: una lámina 1920 × 1080 por hoja, con fuente y fecha al pie ---------- */
+@media print {
+  @page { size: 1920px 1080px; margin: 0; }
+  body { background: #FFFFFF; }
+  .cabecera, .barra-banco, .apertura, .que-cambio-envoltura, .cierre, .presentacion { display: none !important; }
+  .contenedor { max-width: none; padding: 0; gap: 0; }
+  .seccion {
+    break-after: page; width: 1920px; height: 1080px; box-sizing: border-box;
+    padding: 48px; position: relative; overflow: hidden; border-top: 0;
+  }
+  .seccion:last-child { break-after: auto; }
+  .hoja-pie {
+    display: block; position: absolute; left: 48px; right: 48px; bottom: 20px;
+    margin: 0; padding-top: 6px; border-top: 1px solid var(--borde);
+    font-size: var(--t-nota); color: var(--texto-3);
+  }
+  .tarjeta { break-inside: avoid; }
+}
+
+/* bancos: caja con nota bajo el cuerpo de la tarjeta (quiebres y notas del banco) */
+.con-nota-caja { height: 100%; display: flex; flex-direction: column; }
+.con-nota-cuerpo { flex: 1 1 auto; min-height: 0; position: relative; }
+.con-nota { flex: 0 0 auto; margin: 6px 0 0; font-size: var(--t-nota); color: var(--texto-3); line-height: 1.45; }
+
+/* bancos: las tablas de la Ficha no se salen de su tarjeta: se desplazan dentro de la zona */
+.tarjeta-zona .tabla-scroll { position: absolute; inset: 0; overflow: auto; scrollbar-gutter: stable; scrollbar-width: thin; scrollbar-color: var(--borde-fuerte) transparent; }
+/* tablas dentro de una tarjeta: ancho de la tarjeta (sin desbordar a la derecha), filas compactas,
+   encabezado que envuelve y se queda arriba al desplazar; si no cabe en alto, la barra de desplazamiento queda visible */
+.tarjeta-zona .tabla-datos { table-layout: fixed; }
+.tarjeta-zona .tabla-datos thead th { position: sticky; top: 0; z-index: 1; background: var(--tarjeta); white-space: normal; line-height: 1.25; vertical-align: bottom; padding-top: 4px; padding-bottom: 4px; }
+.tarjeta-zona .tabla-datos tbody td { white-space: normal; overflow-wrap: anywhere; padding-top: 3px; padding-bottom: 3px; line-height: 1.3; }
+.tarjeta-zona .tabla-datos td.num { white-space: nowrap; }
+
+/* ---------- encargo 76 · piezas nuevas (charts_bancos.js) ---------- */
+/* apilada_100 */
+.ap { display: flex; flex-direction: column; height: 100%; min-height: 0; }
+.ap-lista { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; justify-content: space-evenly; overflow: auto; }
+.ap-fila { display: grid; grid-template-columns: minmax(110px, 1fr) minmax(0, 3fr); align-items: center; gap: 12px; font-size: var(--t-sub); }
+.ap-nombre { min-width: 0; line-height: 1.25; }
+.ap-barra { display: flex; height: 26px; min-width: 0; }
+.ap-seg { position: relative; height: 100%; min-width: 0; box-sizing: border-box; border-right: 2px solid #FFFFFF; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.ap-seg:last-child { border-right: 0; }
+.ap-rotulo { font-size: var(--t-nota); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.ap-leyenda { flex: none; display: flex; flex-wrap: wrap; gap: 6px 16px; padding-top: 8px; font-size: var(--t-nota); color: var(--texto-2); }
+.ap-leyenda span { display: inline-flex; align-items: center; gap: 6px; }
+.ap-leyenda i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; }
+
+/* pesas */
+.pes { display: flex; flex-direction: column; height: 100%; min-height: 0; }
+.pes-lista { flex: 1 1 auto; min-height: 0; overflow: auto; display: flex; flex-direction: column; }
+.pes-fila {
+  flex: none; display: grid; grid-template-columns: minmax(120px, 1fr) minmax(0, 2fr) 190px; align-items: center; gap: 12px;
+  min-height: 38px; border-bottom: 1px solid var(--regla); font-size: var(--t-sub);
+}
+.pes-cab { min-height: 26px; font-size: var(--t-nota); font-weight: 600; color: var(--texto-3); border-bottom-color: var(--borde); }
+.pes-cab .pes-escala::before { display: none; }
+.pes-destacada .pes-nombre { font-weight: 600; }
+.pes-nombre { min-width: 0; line-height: 1.25; }
+.pes-escala { position: relative; height: 22px; }
+.pes-escala::before { content: ''; position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: var(--regla); }
+.pes-tramo { position: absolute; top: 50%; height: 4px; margin-top: -2px; border-radius: 2px; }
+.pes-antes, .pes-ahora { position: absolute; top: 50%; border-radius: 50%; transform: translate(-50%, -50%); }
+.pes-antes { width: 10px; height: 10px; background: var(--acero-claro); }
+.pes-ahora { width: 12px; height: 12px; }
+.pes-texto { text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+/* dispersion: textos de cuadrante en las esquinas de la zona */
+.dis-cuadrante { position: absolute; font-size: var(--t-nota); font-weight: 600; color: var(--texto-3); pointer-events: none; }
+.dis-tl { left: 56px; top: 6px; }
+.dis-tr { right: 12px; top: 6px; }
+.dis-bl { left: 56px; bottom: 26px; }
+.dis-br { right: 12px; bottom: 26px; }
+
+/* barras_ic */
+.ic { display: flex; flex-direction: column; height: 100%; min-height: 0; }
+.ic-lista { flex: 1 1 auto; min-height: 0; overflow: auto; display: flex; flex-direction: column; justify-content: space-evenly; }
+.ic-fila { display: grid; grid-template-columns: minmax(110px, 1fr) minmax(0, 2fr) 76px auto; align-items: center; gap: 10px; min-height: 30px; font-size: var(--t-sub); }
+.ic-activo .ic-nombre { font-weight: 600; color: var(--navy); }
+.ic-nombre { min-width: 0; line-height: 1.25; }
+.ic-pista { position: relative; height: 22px; }
+.ic-cero { position: absolute; top: 0; bottom: 0; width: 1px; background: var(--referencia); }
+.ic-barra { position: absolute; top: 5px; height: 12px; border-radius: 2px; }
+.ic-int { position: absolute; top: 50%; height: 0; border-top: 1.5px solid var(--texto-2); }
+.ic-int::before, .ic-int::after { content: ''; position: absolute; top: -5px; width: 1.5px; height: 10px; background: var(--texto-2); }
+.ic-int::before { left: 0; }
+.ic-int::after { right: 0; }
+.ic-valor { text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; }
+.ic-marca { font-size: var(--t-nota); color: var(--texto-3); white-space: nowrap; border: 1px solid var(--borde-fuerte); border-radius: 999px; padding: 1px 8px; }
+
+/* small_multiples genérico: años inicial y final bajo cada panel */
+.sm-anios { display: flex; justify-content: space-between; font-size: var(--t-nota); color: var(--texto-3); font-variant-numeric: tabular-nums; }
+
+/* riel: KPI con flechas de 1 y 4 trimestres, y selector de sección */
+.riel-kpi .riel-kpi-cifra { font-size: var(--t-kpi); font-weight: 600; line-height: 1.1; color: var(--navy); font-variant-numeric: tabular-nums; }
+.riel-kpi-flechas { display: flex; gap: 14px; font-size: var(--t-nota); font-weight: 600; font-variant-numeric: tabular-nums; }
+.riel-seg { display: inline-flex; align-self: flex-start; border: 1px solid var(--borde-fuerte); border-radius: var(--radio); overflow: hidden; }
+.riel-seg-op { font: inherit; font-size: var(--t-sub); color: var(--texto-2); background: #FFFFFF; border: 0; padding: 4px 10px; cursor: pointer; }
+.riel-seg-op + .riel-seg-op { border-left: 1px solid var(--borde-fuerte); }
+.riel-seg-op[aria-pressed="true"] { background: var(--navy); color: #FFFFFF; }
+
+/* =====================================================================================
+   v2 (3-nov) · Piel FARO con la paleta del Monitor suavizada.
+   Canvas «Bancos Brasil — propuesta visual». Solo presentación: no cambia datos ni tarjetas.
+   ===================================================================================== */
+body { font-family: var(--fuente); font-size: 13px; background: var(--fondo); }
+#app { padding-left: var(--rail); }
+
+/* Menú lateral fijo */
+.cabecera {
+  position: fixed; inset: 0 auto 0 0; width: var(--rail); height: auto; z-index: 40;
+  flex-direction: column; align-items: stretch; justify-content: flex-start; gap: 0;
+  padding: 0; background: var(--tarjeta); border-bottom: 0; border-right: 1px solid var(--borde);
+  overflow-y: auto;
+}
+.cabecera-identidad { flex-direction: row; align-items: flex-start; gap: 10px; padding: 16px 18px 18px; border-bottom: 1px solid var(--borde); }
+.cabecera-sello { width: 26px; height: 26px; flex: none; border: 1px solid var(--borde-fuerte); display: grid; place-items: center; margin-top: 2px; }
+.cabecera-sello span { width: 10px; height: 10px; background: var(--navy); display: block; }
+.cabecera-textos { display: flex; flex-direction: column; gap: 6px; }
+.cabecera-marca { font-family: var(--fuente-display); font-size: 16px; font-weight: 700; letter-spacing: .04em; color: var(--texto); line-height: 1; }
+.cabecera-sub { font-family: var(--fuente-mono); font-size: 9.5px; letter-spacing: .06em; color: var(--texto-3); }
+.cabecera-nav { flex-direction: column; align-items: stretch; gap: 0; flex-wrap: nowrap; justify-content: flex-start; }
+.cabecera-rotulo { font-family: var(--fuente-mono); font-size: 9.5px; letter-spacing: .14em; color: var(--texto-3); padding: 20px 18px 8px; }
+.cabecera .pestana {
+  display: grid; grid-template-columns: 22px 1fr; gap: 8px; align-items: center;
+  height: auto; padding: 10px 18px 10px 16px; border: 0; border-left: 2px solid transparent; border-radius: 0;
+  background: none; color: var(--texto-2); font-size: 13px; font-weight: 400;
+}
+.cabecera .pestana:hover { background: var(--fondo); color: var(--texto); }
+.cabecera .pestana[aria-current="page"] { border-left-color: var(--navy); background: var(--suave-activo); color: var(--texto); font-weight: 500; }
+.pestana-num { font-family: var(--fuente-mono); font-size: 10px; color: var(--texto-3); }
+.pestana[aria-current="page"] .pestana-num { color: var(--navy); }
+.cabecera .boton-presentar { margin: 16px 18px 0; height: 30px; border: 1px solid var(--borde-fuerte); border-radius: var(--radio); background: var(--tarjeta); font: inherit; font-size: 12px; color: var(--texto); cursor: pointer; }
+.cabecera .boton-presentar:hover { background: var(--texto); color: var(--tarjeta); }
+.cabecera-ultimo { margin: auto 0 0; padding: 14px 18px; border-top: 1px solid var(--borde); font-family: var(--fuente-mono); font-size: 10px; color: var(--texto-3); white-space: normal; }
+
+/* Barra superior: título de la página + banco, grupo y trimestre */
+.barra-banco {
+  position: sticky; top: 0; z-index: 30; flex-wrap: wrap; gap: 12px 14px; padding: 10px 28px;
+  background: color-mix(in srgb, var(--fondo) 88%, transparent); backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--borde);
+}
+.barra-titulo { display: flex; flex-direction: column; gap: 2px; min-width: 0; margin-right: auto; }
+.barra-titulo-rotulo { font-family: var(--fuente-mono); font-size: 9.5px; letter-spacing: .13em; color: var(--texto-3); text-transform: uppercase; }
+.barra-titulo-nombre { font-family: var(--fuente-display); font-size: 19px; font-weight: 600; letter-spacing: -.01em; color: var(--texto); line-height: 1.15; }
+.barra-activo { order: 2; font-size: 12px; }
+.barra-rotulo { font-family: var(--fuente-mono); font-size: 9.5px; font-weight: 400; letter-spacing: .1em; text-transform: uppercase; color: var(--texto-3); }
+.barra-buscar, .barra-sel, .barra-quitar { border-radius: var(--radio); border-color: var(--borde); font-family: var(--fuente); font-size: 12.5px; }
+
+/* Apertura: sin titular repetido; queda el índice de la página en una línea */
+.contenedor { max-width: none; padding: 0 0 56px; gap: 0; }
+.apertura { display: flex; align-items: center; gap: 16px; padding: 14px 28px; border-bottom: 1px solid var(--borde); }
+.apertura-texto { display: none; }
+.indice { flex-direction: row; flex-wrap: wrap; align-items: center; gap: 4px 18px; border: 0; padding: 0; }
+.indice-rotulo { font-family: var(--fuente-mono); font-size: 9.5px; letter-spacing: .14em; color: var(--texto-3); margin: 0 6px 0 0; }
+.indice-item { font-size: 12.5px; color: var(--texto-2); padding: 2px 0; }
+.indice-item:hover { color: var(--navy); }
+.indice-num { font-family: var(--fuente-mono); font-size: 10px; margin-right: 6px; }
+.que-cambio-envoltura { margin: 0; }
+
+/* Secciones a todo el ancho, separadas por una línea fina; el riel pasa a ser la cabecera de la sección */
+.seccion { display: block; border-top: 0; border-bottom: 1px solid var(--borde); padding: 24px 28px 28px; scroll-margin-top: 72px; }
+.seccion-vacia { display: none; }
+.riel { flex-direction: row; flex-wrap: wrap; align-items: baseline; gap: 6px 16px; margin-bottom: 16px; }
+.riel-numero { font-family: var(--fuente-mono); font-size: 10px; font-weight: 400; letter-spacing: .14em; color: var(--texto-3); }
+.riel-nombre { font-family: var(--fuente-display); font-size: 20px; font-weight: 600; letter-spacing: -.01em; }
+.riel-frecuencia { font-family: var(--fuente-mono); font-size: 10px; letter-spacing: .06em; text-transform: uppercase; }
+.riel-pregunta { flex-basis: 100%; margin: 0; font-size: 13px; color: var(--texto-2); }
+.riel-pregunta.por-defecto { font-style: normal; }
+.riel-bloque { border-top: 0; border-left: 1px solid var(--borde); padding: 2px 0 2px 14px; }
+.riel-bloque-rotulo { font-family: var(--fuente-mono); font-size: 9.5px; font-weight: 400; letter-spacing: .11em; color: var(--texto-3); text-transform: uppercase; }
+.riel-bloque-cifra, .riel-kpi-cifra { font-family: var(--fuente-display); font-size: 30px; font-weight: 600; letter-spacing: -.03em; color: var(--texto); font-variant-numeric: tabular-nums; }
+.riel-bloque-nota, .riel-nota { font-size: 12px; }
+.cuerpo { gap: 14px; }
+
+/* Tarjetas: superficie blanca, línea fina, sin sombra */
+.tarjeta { border-color: var(--borde); border-radius: var(--radio); padding: 14px 18px 10px; gap: 6px; }
+.tarjeta-vacia { display: none !important; }
+.tarjeta-titulo { font-family: var(--fuente); font-size: 13.5px; font-weight: 600; letter-spacing: .005em; }
+.tarjeta-sub { font-size: 12px; }
+.tarjeta-nota, .tarjeta-pie { font-size: 11px; }
+.tarjeta-pie { font-family: var(--fuente-mono); font-size: 10px; letter-spacing: .03em; text-transform: uppercase; color: var(--texto-3); }
+.leyenda { font-family: var(--fuente-mono); font-size: 10.5px; }
+
+/* Todo número en mono tabular */
+.tabla-datos { font-size: 12px; }
+.tabla-datos thead th { font-family: var(--fuente-mono); font-size: 9.5px; font-weight: 400; letter-spacing: .1em; text-transform: uppercase; color: var(--texto-3); }
+.tabla-datos td.num, .tabla-datos th.num, .pastilla b { font-family: var(--fuente-mono); font-variant-numeric: tabular-nums; }
+
+/* Pantallas angostas: el menú lateral pasa arriba */
+@media (max-width: 1199px) { /* 4-nov: antes 900 px; bajo 1200 el menú lateral se come el ancho de la tabla */
+  #app { padding-left: 0; }
+  .cabecera { position: static; width: auto; border-right: 0; border-bottom: 1px solid var(--borde); }
+  .cabecera-nav { flex-direction: row; flex-wrap: wrap; }
+  .cabecera-rotulo, .cabecera-ultimo { display: none; }
+}
+@media print { #app { padding-left: 0; } }
+
+/* =====================================================================================
+   v3 (3-nov) · Estructura del canvas: franja de indicadores, secciones con un gráfico claro.
+   ===================================================================================== */
+.franja { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 1px; background: var(--borde); border-bottom: 1px solid var(--borde); }
+.franja-celda { background: var(--fondo); padding: 17px 20px 0; display: flex; flex-direction: column; min-width: 0; overflow: hidden; }
+.franja-cab { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.franja-rotulo { font-family: var(--fuente-mono); font-size: 9.5px; letter-spacing: .11em; text-transform: uppercase; color: var(--texto-2); }
+.franja-corte { font-family: var(--fuente-mono); font-size: 9px; color: var(--texto-3); white-space: nowrap; }
+.franja-valor { margin-top: 12px; font-family: var(--fuente-display); font-size: 34px; font-weight: 600; letter-spacing: -.03em; line-height: 1; color: var(--texto); font-variant-numeric: tabular-nums; }
+.franja-sin { font-size: 18px; color: var(--texto-3); }
+.franja-pie { margin-top: 10px; display: flex; gap: 7px; align-items: baseline; font-family: var(--fuente-mono); font-size: 11px; }
+.franja-delta { font-weight: 500; }
+.franja-base { font-size: 9px; letter-spacing: .1em; color: var(--texto-3); }
+.franja-ventana { margin-left: auto; font-size: 9.5px; color: var(--texto-3); }
+.franja-serie { display: block; width: calc(100% + 40px); height: 46px; margin: 10px -20px 0; }
+.franja-linea { fill: none; stroke-width: 1.5; vector-effect: non-scaling-stroke; }
+.franja-hueco { fill: rgba(176, 122, 62, .14); }
+.franja-hoy { stroke: var(--borde-fuerte); stroke-width: 1; stroke-dasharray: 3 3; vector-effect: non-scaling-stroke; }
+.tono-neutro { color: var(--texto-2); } .tono-mejora { color: var(--mejor); } .tono-deterioro { color: var(--peor); }
+.franja-serie.tono-neutro .franja-linea { stroke: #5B6573; } .franja-serie.tono-neutro .franja-area { fill: rgba(91,101,115,.08); }
+.franja-serie.tono-mejora .franja-linea { stroke: var(--mejor); } .franja-serie.tono-mejora .franja-area { fill: rgba(47,122,134,.12); }
+.franja-serie.tono-deterioro .franja-linea { stroke: var(--peor); } .franja-serie.tono-deterioro .franja-area { fill: rgba(168,94,36,.12); }
+
+/* Tarjeta plana: el gráfico va directo sobre la sección, sin caja */
+.tarjeta-plana { background: transparent; border: 0; padding: 0; }
+.tarjeta-plana .tarjeta-titulo { font-family: var(--fuente-display); font-size: 17px; font-weight: 600; letter-spacing: -.01em; }
+
+/* barras_simple */
+.v3-barras { position: absolute; inset: 0; overflow: auto; border-top: 1px solid var(--borde); }
+.v3-barras-fila { display: grid; grid-template-columns: 150px minmax(0, 1fr) 76px; gap: 12px; align-items: center; padding: 9px 0; border-bottom: 1px solid var(--borde); font-size: 13px; }
+.v3-barras-fila.destacar .v3-barras-nombre { font-weight: 600; color: var(--navy); }
+.v3-barras-pista { height: 10px; background: var(--regla); }
+.v3-barras-barra { height: 10px; background: var(--acero-claro); }
+.v3-barras-fila.destacar .v3-barras-barra { background: var(--navy); }
+.v3-barras-valor { font-family: var(--fuente-mono); text-align: right; }
+
+/* mix_banco */
+.v3-mix { position: absolute; inset: 0; display: flex; flex-direction: column; gap: 16px; overflow: auto; }
+.v3-mix-barra { display: flex; height: 34px; border: 1px solid var(--borde); flex: none; }
+.v3-mix-seg { display: flex; align-items: center; justify-content: center; overflow: hidden; font-family: var(--fuente-mono); font-size: 10.5px; color: var(--texto); }
+.v3-mix-leyenda { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 24px; }
+.v3-mix-item { display: flex; align-items: center; gap: 8px; padding: 7px 0; border-bottom: 1px solid var(--borde); font-size: 13px; }
+.v3-mix-cuadro { width: 10px; height: 10px; flex: none; }
+.v3-mix-nombre { flex-grow: 1; }
+.v3-mix-valor { font-family: var(--fuente-mono); }
+
+@media (max-width: 1100px) { .franja { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 700px) { .franja { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+/* v3 · Presentación como diapositiva: 1920 × 1080 fijos, la fila de tarjetas llena el alto disponible */
+.pres-lamina { height: 1080px; min-height: 0; padding: 56px 72px 40px; gap: 22px; background: var(--fondo); font-family: var(--fuente); }
+.pres-cab { gap: 8px; }
+.pres-num { font-family: var(--fuente-mono); font-size: 14px; font-weight: 400; letter-spacing: .14em; color: var(--texto-3); }
+.pres-nombre { font-family: var(--fuente-display); font-size: 48px; font-weight: 600; letter-spacing: -.02em; line-height: 1.05; color: var(--texto); }
+.pres-pregunta { font-size: 20px; color: var(--texto-2); }
+.pres-selectores { display: flex; flex-wrap: wrap; gap: 24px; margin-top: 6px; }
+.pres-selectores .riel-bloque { border-left: 0; padding: 0; }
+.pres-cuerpo { flex: 1 1 auto; min-height: 0; display: flex; }
+.pres-cuerpo > .cuerpo { flex: 1; height: 100%; grid-auto-rows: minmax(0, 1fr); }
+.pres-cuerpo .tarjeta { height: 100% !important; min-height: 0; }
+.pres-cuerpo .tarjeta-zona { overflow: hidden; }
+.pres-cuerpo .tarjeta-plana .tarjeta-titulo { font-size: 22px; }
+.pres-cuerpo .tabla-datos { font-size: 16px; }
+.pres-cuerpo .tabla-datos thead th { font-size: 11px; }
+.pres-cuerpo .tabla-datos tbody td { padding-top: 10px; padding-bottom: 10px; }
+.pres-pie { height: 44px; border-top: 1px solid var(--borde); }
+.pres-frecuencia, .pres-contador { font-family: var(--fuente-mono); font-size: 13px; letter-spacing: .06em; }
+.barra-presentar { order: 10; height: 32px; padding: 0 14px; border: 1px solid var(--navy); border-radius: var(--radio); background: var(--navy); color: #FFFFFF; font: inherit; font-size: 12.5px; font-weight: 500; cursor: pointer; }
+.barra-presentar:hover { background: #24324A; border-color: #24324A; }
+
+/* v3b · barra: solo el banco (sin buscador, grupo ni trimestre); en la Portada, ni eso */
+.barra-banco .barra-buscar { display: none; }
+.barra-banco .barra-campo:has(select[aria-label="Grupo de comparación"]),
+.barra-banco .barra-campo:has(select[aria-label="Trimestre"]) { display: none; }
+.barra-banco.sin-banco > :not(.barra-titulo):not(.barra-presentar) { display: none !important; }
+
+/* v3b · lámina apilada: gráfico arriba (llena el alto), tabla descriptiva abajo con su alto natural */
+.seccion-apilada > .cuerpo > .tarjeta { grid-column: span 9 !important; }
+.pres-cuerpo > .cuerpo.apilada { display: flex; flex-direction: column; gap: 18px; }
+.pres-cuerpo > .cuerpo.apilada > .tarjeta:first-child { flex: 1 1 auto; height: auto !important; min-height: 0; }
+.pres-cuerpo > .cuerpo.apilada > .tarjeta + .tarjeta { flex: none; height: var(--alto-tabla, 300px) !important; }
+
+/* v3b · tabla estándar: mismo formato en todas */
+.tabla-estandar .tabla-datos { table-layout: fixed; width: 100%; }
+.tabla-estandar .tabla-datos thead th { background: transparent; border-bottom: 1px solid var(--borde-fuerte); padding: 6px 8px; }
+.tabla-estandar .tabla-datos tbody td { padding: 8px; border-bottom: 1px solid var(--borde); font-size: 13px; }
+.tabla-estandar .tabla-datos td.num, .tabla-estandar .tabla-datos th.num { text-align: right; }
+.tabla-estandar .tabla-datos td:first-child { font-family: var(--fuente); }
+.pres-cuerpo .tabla-estandar .tabla-datos tbody td { font-size: 17px; padding: 9px 10px; }
+/* v3c · láminas idénticas: selectores con alto fijo, título de una línea, gráfico izquierda y tabla derecha arriba */
+.pres-selectores { min-height: 54px; align-items: flex-end; }
+.pres-pregunta { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pres-cuerpo .tarjeta { justify-content: flex-start; }
+.tabla-estandar .tabla-datos td { color: var(--texto) !important; font-weight: 400 !important; }
+.pres-cuerpo .tabla-estandar .tabla-datos tbody td { font-size: 15px; padding: 9px 6px; }
+.tabla-estandar .tabla-datos td.num, .tabla-estandar .tabla-datos th.num { white-space: nowrap; }
+/* v3d · tabla_estandar (componente único) */
+.tabla-estandar-cuerpo { position: absolute; inset: 0; overflow: auto; }
+.tabla-estandar-cuerpo .tabla-datos { table-layout: fixed; width: 100%; }
+.tabla-estandar-cuerpo .tabla-datos thead th { background: transparent; border-bottom: 1px solid var(--borde-fuerte); padding: 6px 6px; font-family: var(--fuente-mono); font-size: 9.5px; font-weight: 400; letter-spacing: .08em; text-transform: uppercase; color: var(--texto-3); white-space: nowrap; }
+.tabla-estandar-cuerpo .tabla-datos tbody td { padding: 8px 6px; border-bottom: 1px solid var(--borde); font-size: 13px; color: var(--texto); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tabla-estandar-cuerpo td.num, .tabla-estandar-cuerpo th.num { text-align: right; font-family: var(--fuente-mono); }
+.tabla-estandar-cuerpo .tabla-datos tr.fila-total td { font-weight: 600; border-top: 1px solid var(--borde-fuerte); }
+.pres-cuerpo .tabla-estandar-cuerpo .tabla-datos tbody td { font-size: 15px; padding: 10px 6px; }
+
+/* 4-nov · tabla estándar con fuentes reales: cifras en Plex Sans tabular (Plex Mono no cabía y cortaba con «…») */
+.tabla-estandar-cuerpo .tabla-datos td.num { font-family: var(--fuente); font-variant-numeric: tabular-nums; font-size: 12px; padding: 8px 4px; }
+.tabla-estandar-cuerpo .tabla-datos td:first-child { padding-left: 4px; }
+.tabla-estandar-cuerpo .tabla-datos thead th { padding: 6px 4px; }
+.pres-cuerpo .tabla-estandar-cuerpo .tabla-datos tbody td.num { font-size: 15px; padding: 10px 4px; }
+.tabla-estandar-cuerpo .tabla-datos td:first-child { white-space: normal; overflow: visible; line-height: 1.25; }
+/* 4-nov · bajo 1440 px el cuerpo pasaba a 12 columnas (plantilla Monitor) y las tarjetas 4+5 dejaban 3 columnas vacías */
+@media (min-width: 1024px) and (max-width: 1439px) { .cuerpo { grid-template-columns: repeat(9, minmax(0, 1fr)); } }
+/* 4-nov (b) · la tabla escala su letra con el ancho real de la tarjeta (container query) y nunca corta con «…»:
+   si aun así no cabe (pantallas < 1200 px), aparece barra horizontal. */
+.tabla-estandar-cuerpo { container-type: inline-size; overflow-x: auto; overflow-y: auto; }
+.tabla-estandar-cuerpo .tabla-datos tbody td, .tabla-estandar-cuerpo .tabla-datos thead th { text-overflow: clip; overflow: visible; }
+.tabla-estandar-cuerpo .tabla-datos { min-width: 430px; }
+.tabla-estandar-cuerpo .tabla-datos tbody td.num { font-size: clamp(10px, calc(100cqw / 44), 13px); }
+.tabla-estandar-cuerpo .tabla-datos tbody td:first-child { font-size: clamp(11px, calc(100cqw / 42), 13.5px); }
+.pres-cuerpo .tabla-estandar-cuerpo .tabla-datos tbody td.num { font-size: clamp(12px, calc(100cqw / 44), 16px); }
+.pres-cuerpo .tabla-estandar-cuerpo .tabla-datos tbody td:first-child { font-size: clamp(12px, calc(100cqw / 42), 16px); }
+.tabla-estandar-cuerpo .tabla-datos tbody td { padding-top: 6px; padding-bottom: 6px; }
+.tabla-estandar-cuerpo .tabla-datos tbody td:first-child { font-size: clamp(11px, calc(100cqw / 44), 13px); }
+/* 4-nov · lámina: leyendas, notas, fuentes y selectores a tamaño de diapositiva */
+.pres-cuerpo .tarjeta-plana .tarjeta-titulo { font-size: 26px; }
+.pres-cuerpo .leyenda { font-size: 15px; gap: 22px; }
+.pres-cuerpo .leyenda-trazo { width: 18px; }
+.pres-cuerpo .tarjeta-nota { font-size: 14px; }
+.pres-cuerpo .tarjeta-pie { font-size: 13px; }
+.pres-selectores .riel-bloque-rotulo { font-size: 12px; }
+.pres-selectores .riel-seg-op { font-size: 16px; padding: 7px 14px; }
+.pres-cuerpo .tabla-estandar-cuerpo .tabla-datos thead th { font-size: 12px; }
+/* 4-nov · regla de Pablo: gráfico a la izquierda y tabla a la derecha, nunca apilados.
+   La plantilla Monitor apilaba todo bajo 1024 px; se mantiene la grilla de 9 columnas y el alto fijo hasta 700 px. */
+@media (min-width: 700px) and (max-width: 1023px) {
+  .contenedor .cuerpo { grid-template-columns: repeat(9, minmax(0, 1fr)); }
+  .contenedor .cuerpo > .tarjeta { height: var(--alto, auto) !important; }
+  .contenedor .cuerpo > .tarjeta .tarjeta-zona { min-height: 0; }
+}
+@media (max-width: 1199px) { .cabecera .boton-presentar { display: none; } } /* 4-nov: con el menú arriba queda el botón de la barra */

@@ -1,0 +1,11 @@
+# Pipeline
+pandas>=2.0
+numpy
+pyarrow>=15
+requests>=2.25
+openpyxl>=3.1
+truststore>=0.9; python_version >= "3.10"   # redes con proxy HTTPS (ver pipeline/certificados.py)
+# Verificación del sitio (herramientas/verificar_f1.py)
+playwright
+# Tests
+pytest>=7

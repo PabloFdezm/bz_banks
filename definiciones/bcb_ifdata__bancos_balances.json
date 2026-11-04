@@ -1,0 +1,729 @@
+{
+  "fuente": "bcb_ifdata",
+  "datasets": [
+    "bancos"
+  ],
+  "nota": "Universo y crosswalk conservador del panel de balances/resultados bancarios. El crudo sigue siendo IF.data completo por trimestre/escopo/informe; aquí solo se declara qué bancos y qué conceptos continuos usa la capa derivada. Lo que no tiene equivalencia segura no se inventa: queda disponible con su cuenta original y sin concepto continuo.",
+  "bancos": [
+    {
+      "cod_inst": "C0080099",
+      "nombre_corto": "Itaú Unibanco",
+      "categoria": "nucleo",
+      "nota": null,
+      "fuente_definicion": "IfDataCadastro 202606; ranking Ativo Total 202606; selección de Pablo 2026-10-08",
+      "modelo_negocio": "Grandes"
+    },
+    {
+      "cod_inst": "C0080075",
+      "nombre_corto": "Bradesco",
+      "categoria": "nucleo",
+      "nota": null,
+      "fuente_definicion": "IfDataCadastro 202606; ranking Ativo Total 202606; selección de Pablo 2026-10-08",
+      "modelo_negocio": "Grandes"
+    },
+    {
+      "cod_inst": "C0080329",
+      "nombre_corto": "Banco do Brasil",
+      "categoria": "nucleo",
+      "nota": null,
+      "fuente_definicion": "IfDataCadastro 202606; ranking Ativo Total 202606; selección de Pablo 2026-10-08",
+      "modelo_negocio": "Grandes"
+    },
+    {
+      "cod_inst": "C0080185",
+      "nombre_corto": "Santander Brasil",
+      "categoria": "nucleo",
+      "nota": null,
+      "fuente_definicion": "IfDataCadastro 202606; ranking Ativo Total 202606; selección de Pablo 2026-10-08",
+      "modelo_negocio": "Grandes"
+    },
+    {
+      "cod_inst": "C0080336",
+      "nombre_corto": "BTG Pactual",
+      "categoria": "nucleo",
+      "nota": "Incluye Banco Pan en el conglomerado prudencial; Pan no es separable en escopo prudencial.",
+      "fuente_definicion": "IfDataCadastro 202606; vínculo CodConglomeradoPrudencial de 59285411 BANCO PAN S.A.; selección de Pablo 2026-10-08",
+      "modelo_negocio": "Grandes"
+    },
+    {
+      "cod_inst": "C0084693",
+      "nombre_corto": "Nubank",
+      "categoria": "nucleo",
+      "nota": "Conglomerado prudencial NU PAGAMENTOS; el conglomerado financiero es C0052058.",
+      "fuente_definicion": "IfDataCadastro 202606; selección de Pablo 2026-10-08",
+      "modelo_negocio": "Digitales"
+    },
+    {
+      "cod_inst": "C0082475",
+      "nombre_corto": "XP",
+      "categoria": "nucleo",
+      "nota": null,
+      "fuente_definicion": "IfDataCadastro 202606; ranking Ativo Total 202606; selección de Pablo 2026-10-08",
+      "modelo_negocio": "Digitales"
+    },
+    {
+      "cod_inst": "C0080109",
+      "nombre_corto": "Safra",
+      "categoria": "nucleo",
+      "nota": null,
+      "fuente_definicion": "IfDataCadastro 202606; ranking Ativo Total 202606; selección de Pablo 2026-10-08",
+      "modelo_negocio": "Medianos y nicho"
+    },
+    {
+      "cod_inst": "C0084844",
+      "nombre_corto": "C6 Bank",
+      "categoria": "nucleo",
+      "nota": null,
+      "fuente_definicion": "IfDataCadastro 202606; ranking Ativo Total 202606; selección de Pablo 2026-10-08",
+      "modelo_negocio": "Digitales"
+    },
+    {
+      "cod_inst": "C0080484",
+      "nombre_corto": "Votorantim",
+      "categoria": "nucleo",
+      "nota": null,
+      "fuente_definicion": "IfDataCadastro 202606; ranking Ativo Total 202606; selección de Pablo 2026-10-08",
+      "modelo_negocio": "Medianos y nicho"
+    },
+    {
+      "cod_inst": "C0080996",
+      "nombre_corto": "Inter",
+      "categoria": "nucleo",
+      "nota": null,
+      "fuente_definicion": "IfDataCadastro 202606; ranking Ativo Total 202606; selección de Pablo 2026-10-08",
+      "modelo_negocio": "Digitales"
+    },
+    {
+      "cod_inst": "C0081744",
+      "nombre_corto": "Daycoval",
+      "categoria": "nucleo",
+      "nota": null,
+      "fuente_definicion": "IfDataCadastro 202606; ranking Ativo Total 202606; selección de Pablo 2026-10-08",
+      "modelo_negocio": "Medianos y nicho"
+    },
+    {
+      "cod_inst": "C0080312",
+      "nombre_corto": "ABC Brasil",
+      "categoria": "nucleo",
+      "nota": null,
+      "fuente_definicion": "IfDataCadastro 202606; ranking Ativo Total 202606; selección de Pablo 2026-10-08",
+      "modelo_negocio": "Medianos y nicho"
+    },
+    {
+      "cod_inst": "C0083694",
+      "nombre_corto": "Agibank",
+      "categoria": "nucleo",
+      "nota": null,
+      "fuente_definicion": "IfDataCadastro 202606; ranking Ativo Total 202606; selección de Pablo 2026-10-08",
+      "modelo_negocio": "Digitales"
+    },
+    {
+      "cod_inst": "C0080178",
+      "nombre_corto": "BMG",
+      "categoria": "nucleo",
+      "nota": null,
+      "fuente_definicion": "IfDataCadastro 202606; ranking Ativo Total 202606; selección de Pablo 2026-10-08",
+      "modelo_negocio": "Medianos y nicho"
+    },
+    {
+      "cod_inst": "C0080123",
+      "nombre_corto": "Mercantil do Brasil",
+      "categoria": "nucleo",
+      "nota": null,
+      "fuente_definicion": "IfDataCadastro 202606; ranking Ativo Total 202606; selección de Pablo 2026-10-08",
+      "modelo_negocio": "Medianos y nicho"
+    },
+    {
+      "cod_inst": "C0080374",
+      "nombre_corto": "Pine",
+      "categoria": "nucleo",
+      "nota": null,
+      "fuente_definicion": "IfDataCadastro 202606; ranking Ativo Total 202606; selección de Pablo 2026-10-08",
+      "modelo_negocio": "Medianos y nicho"
+    },
+    {
+      "cod_inst": "C0080271",
+      "nombre_corto": "Sofisa",
+      "categoria": "nucleo",
+      "nota": null,
+      "fuente_definicion": "IfDataCadastro 202606; ranking Ativo Total 202606; selección de Pablo 2026-10-08",
+      "modelo_negocio": "Medianos y nicho"
+    },
+    {
+      "cod_inst": "C0080903",
+      "nombre_corto": "Original",
+      "categoria": "nucleo",
+      "nota": null,
+      "fuente_definicion": "IfDataCadastro 202606; ranking Ativo Total 202606; selección de Pablo 2026-10-08",
+      "modelo_negocio": "Digitales"
+    },
+    {
+      "cod_inst": "C0080154",
+      "nombre_corto": "Banrisul",
+      "categoria": "nucleo",
+      "nota": null,
+      "fuente_definicion": "IfDataCadastro 202606; ranking Ativo Total 202606; selección de Pablo 2026-10-08",
+      "modelo_negocio": "Medianos y nicho"
+    },
+    {
+      "cod_inst": "C0080147",
+      "nombre_corto": "Banestes",
+      "categoria": "publico_listado_regional",
+      "nota": null,
+      "fuente_definicion": "IfDataCadastro 202606; selección de Pablo 2026-10-08",
+      "modelo_negocio": "Medianos y nicho"
+    },
+    {
+      "cod_inst": "C0081249",
+      "nombre_corto": "Banco da Amazônia",
+      "categoria": "publico_listado_regional",
+      "nota": null,
+      "fuente_definicion": "IfDataCadastro 202606; selección de Pablo 2026-10-08",
+      "modelo_negocio": "Desarrollo"
+    },
+    {
+      "cod_inst": "C0081593",
+      "nombre_corto": "Banco do Nordeste",
+      "categoria": "publico_listado_regional",
+      "nota": null,
+      "fuente_definicion": "IfDataCadastro 202606; selección de Pablo 2026-10-08",
+      "modelo_negocio": "Desarrollo"
+    },
+    {
+      "cod_inst": "C0080738",
+      "nombre_corto": "Caixa",
+      "categoria": "publico_no_listado",
+      "nota": null,
+      "fuente_definicion": "IfDataCadastro 202606; selección de Pablo 2026-10-08",
+      "modelo_negocio": "Grandes"
+    },
+    {
+      "cod_inst": "C0081847",
+      "nombre_corto": "BNDES",
+      "categoria": "publico_no_listado",
+      "nota": null,
+      "fuente_definicion": "IfDataCadastro 202606; selección de Pablo 2026-10-08",
+      "modelo_negocio": "Desarrollo"
+    },
+    {
+      "cod_inst": "C0080288",
+      "nombre_corto": "BRB",
+      "categoria": "publico_no_listado",
+      "nota": null,
+      "fuente_definicion": "IfDataCadastro 202606; selección de Pablo 2026-10-08",
+      "modelo_negocio": "Medianos y nicho"
+    },
+    {
+      "cod_inst": "C0084820",
+      "nombre_corto": "Mercado Pago",
+      "categoria": "fintech_pago",
+      "nota": "Institución de pago dentro de conglomerado prudencial.",
+      "fuente_definicion": "IfDataCadastro 202606; selección de Pablo 2026-10-08",
+      "modelo_negocio": "Pagos"
+    },
+    {
+      "cod_inst": "C0084813",
+      "nombre_corto": "PagSeguro",
+      "categoria": "fintech_pago",
+      "nota": null,
+      "fuente_definicion": "IfDataCadastro 202606; selección de Pablo 2026-10-08",
+      "modelo_negocio": "Pagos"
+    },
+    {
+      "cod_inst": "C0084686",
+      "nombre_corto": "Stone",
+      "categoria": "fintech_pago",
+      "nota": "Institución de pago dentro de conglomerado prudencial.",
+      "fuente_definicion": "IfDataCadastro 202606; selección de Pablo 2026-10-08",
+      "modelo_negocio": "Pagos"
+    },
+    {
+      "cod_inst": "C0088022",
+      "nombre_corto": "PicPay",
+      "categoria": "fintech_pago",
+      "nota": null,
+      "fuente_definicion": "IfDataCadastro 202606; selección de Pablo 2026-10-08",
+      "modelo_negocio": "Pagos"
+    },
+    {
+      "cod_inst": "C0085702",
+      "nombre_corto": "Neon",
+      "categoria": "fintech_pago",
+      "nota": "Institución de pago dentro de conglomerado prudencial.",
+      "fuente_definicion": "IfDataCadastro 202606; selección de Pablo 2026-10-08",
+      "modelo_negocio": "Digitales"
+    },
+    {
+      "cod_inst": "C0084710",
+      "nombre_corto": "Cielo",
+      "categoria": "fintech_pago",
+      "nota": "Institución de pago dentro de conglomerado prudencial.",
+      "fuente_definicion": "IfDataCadastro 202606; selección de Pablo 2026-10-08",
+      "modelo_negocio": "Pagos"
+    },
+    {
+      "cod_inst": "C0086581",
+      "nombre_corto": "CloudWalk",
+      "categoria": "fintech_pago",
+      "nota": "Institución de pago dentro de conglomerado prudencial.",
+      "fuente_definicion": "IfDataCadastro 202606; selección de Pablo 2026-10-08",
+      "modelo_negocio": "Pagos"
+    },
+    {
+      "cod_inst": "C0080642",
+      "nombre_corto": "Porto Seguro",
+      "categoria": "fintech_pago",
+      "nota": "Grupo financiero/asegurador; no es banco comercial tradicional.",
+      "fuente_definicion": "IfDataCadastro 202606; selección de Pablo 2026-10-08",
+      "modelo_negocio": "Medianos y nicho"
+    }
+  ],
+  "excepciones_stock": {
+    "4": [
+      "ativo total"
+    ]
+  },
+  "conceptos": {
+    "ativo_total": {
+      "num_informe": 2,
+      "tipo_valor": "stock",
+      "cuentas_base": [
+        "ativo total"
+      ],
+      "fuente_definicion": "Inventarios IF.data 202412/202606; código 78182 viejo y 140220 nuevo; revisión manual 2026-10-08"
+    },
+    "operacoes_credito": {
+      "num_informe": 2,
+      "tipo_valor": "stock",
+      "cuentas_base": [
+        {
+          "cuenta_base": "operacoes de credito",
+          "era": "cosif_pre2025"
+        },
+        {
+          "cuenta_base": "valor contabil bruto",
+          "era": "cosif_2025",
+          "grupo_norm": "operacoes de credito"
+        }
+      ],
+      "fuente_definicion": "Cartera BRUTA (antes de provisiones). COSIF viejo 78191 = [16000001]-[16900008]; COSIF 2025 140201 'valor contábil bruto' del grupo Operações de Crédito. Corregido 2026-10-09: hasta ese día la era 2025 usaba 140205 (neto de pérdida esperada) y el panel caía −4,4 % falso en 2025-T1; con 140201 da +2,4 %."
+    },
+    "operacoes_credito_liquidas": {
+      "num_informe": 2,
+      "tipo_valor": "stock",
+      "cuentas_base": [
+        {
+          "cuenta_base": "operacoes de credito liquidas de provisao",
+          "era": "cosif_pre2025"
+        },
+        {
+          "cuenta_base": "operacoes de credito",
+          "era": "cosif_2025"
+        }
+      ],
+      "fuente_definicion": "Cartera NETA de provisiones. COSIF viejo 78193 = [16000001]; COSIF 2025 140205 = [1600000007]. Cambio de norma en 2025 (provisión incurrida → pérdida esperada, Res. CMN 4.966): el neto salta en la frontera por definición."
+    },
+    "depositos": {
+      "num_informe": 3,
+      "tipo_valor": "stock",
+      "cuentas_base": [
+        "deposito total",
+        "depositos"
+      ],
+      "fuente_definicion": "Inventarios IF.data 202412/202606; códigos 78287 y 140228; revisión manual 2026-10-08"
+    },
+    "captacoes": {
+      "num_informe": 3,
+      "tipo_valor": "stock",
+      "cuentas_base": [
+        "captacoes"
+      ],
+      "fuente_definicion": "Inventarios IF.data 202412/202606; códigos 78185 y 140239; revisión manual 2026-10-08"
+    },
+    "passivo_total": {
+      "num_informe": 3,
+      "tipo_valor": "stock",
+      "cuentas_base": [
+        "passivo total"
+      ],
+      "fuente_definicion": "Inventarios IF.data 202412/202606; códigos 78300 y 140247; revisión manual 2026-10-08"
+    },
+    "patrimonio_liquido": {
+      "num_informe": 3,
+      "tipo_valor": "stock",
+      "cuentas_base": [
+        "patrimonio liquido"
+      ],
+      "fuente_definicion": "Inventarios IF.data 202412/202606; códigos 78186 y 140246; revisión manual 2026-10-08"
+    },
+    "ativo_total_memo_dr": {
+      "num_informe": 4,
+      "tipo_valor": "stock",
+      "cuentas_base": [
+        "ativo total"
+      ],
+      "fuente_definicion": "Verificado contra informe 2 en 202503–202606: diferencia máxima 0.0 R$ en 204 pares banco-trimestre"
+    },
+    "rendas_operacoes_credito": {
+      "num_informe": 4,
+      "tipo_valor": "flujo",
+      "cuentas_base": [
+        "rendas de operacoes de credito"
+      ],
+      "fuente_definicion": "Inventarios IF.data 202412/202606; códigos 78203 y 141835; revisión manual 2026-10-08"
+    },
+    "rendas_tarifas_bancarias": {
+      "num_informe": 4,
+      "tipo_valor": "flujo",
+      "cuentas_base": [
+        "rendas de tarifas bancarias"
+      ],
+      "fuente_definicion": "Inventarios IF.data 202412/202606; códigos 78217 y 141856; revisión manual 2026-10-08"
+    },
+    "resultado_intermediacao_financeira": {
+      "num_informe": 4,
+      "tipo_valor": "flujo",
+      "cuentas_base": [
+        "resultado de intermediacao financeira"
+      ],
+      "fuente_definicion": "Inventarios IF.data 202412/202606; códigos 78215 y 141851; revisión manual 2026-10-08"
+    },
+    "outras_receitas_despesas": {
+      "num_informe": 4,
+      "tipo_valor": "flujo",
+      "cuentas_base": [
+        "outras receitas/despesas operacionais",
+        "outras receitas / despesas"
+      ],
+      "fuente_definicion": "Inventarios IF.data 202412/202606; códigos 78224 y 141866; revisión manual 2026-10-08"
+    },
+    "resultado_antes_tributacao_participacoes": {
+      "num_informe": 4,
+      "tipo_valor": "flujo",
+      "cuentas_base": [
+        "resultado antes da tributacao, lucro e participacao",
+        "resultado antes da tributacao e participacoes"
+      ],
+      "fuente_definicion": "Inventarios IF.data 202412/202606; códigos 78226 y 141867; revisión manual 2026-10-08"
+    },
+    "imposto_renda_contribuicao_social": {
+      "num_informe": 4,
+      "tipo_valor": "flujo",
+      "cuentas_base": [
+        "imposto de renda e contribuicao social"
+      ],
+      "fuente_definicion": "Inventarios IF.data 202412/202606; códigos 78228 y 141868; revisión manual 2026-10-08"
+    },
+    "participacoes_lucro": {
+      "num_informe": 4,
+      "tipo_valor": "flujo",
+      "cuentas_base": [
+        "participacao nos lucros",
+        "participacoes no lucro"
+      ],
+      "fuente_definicion": "Inventarios IF.data 202412/202606; códigos 78229 y 141869; revisión manual 2026-10-08"
+    },
+    "lucro_liquido": {
+      "num_informe": 4,
+      "tipo_valor": "flujo",
+      "cuentas_base": [
+        "lucro liquido"
+      ],
+      "fuente_definicion": "Inventarios IF.data 202412/202606; códigos 78187 y 141870; revisión manual 2026-10-08"
+    },
+    "despesas_pessoal": {
+      "num_informe": 4,
+      "tipo_valor": "flujo",
+      "cuentas_base": [
+        "despesas de pessoal"
+      ],
+      "fuente_definicion": "Inventarios IF.data 202412/202606; códigos 78218 y 141858; revisión manual 2026-10-08"
+    },
+    "despesas_administrativas": {
+      "num_informe": 4,
+      "tipo_valor": "flujo",
+      "cuentas_base": [
+        "despesas administrativas"
+      ],
+      "fuente_definicion": "Inventarios IF.data 202412/202606; códigos 78219 y 141859; revisión manual 2026-10-08"
+    },
+    "despesas_tributarias": {
+      "num_informe": 4,
+      "tipo_valor": "flujo",
+      "cuentas_base": [
+        "despesas tributarias"
+      ],
+      "fuente_definicion": "Inventarios IF.data 202412/202606; códigos 78220 y 141862; revisión manual 2026-10-08"
+    },
+    "resultado_participacoes": {
+      "num_informe": 4,
+      "tipo_valor": "flujo",
+      "cuentas_base": [
+        "resultado de participacoes"
+      ],
+      "fuente_definicion": "Inventarios IF.data 202412/202606; códigos 78221 y 141863; revisión manual 2026-10-08"
+    },
+    "provisoes_credito": {
+      "num_informe": 4,
+      "tipo_valor": "flujo",
+      "cuentas_base": [
+        "resultado de provisao para creditos de dificil liquidacao",
+        "resultado com perda esperada"
+      ],
+      "fuente_definicion": "Inventarios IF.data 202412/202606; códigos 78213 (PCLD, COSIF viejo) y 141842 (perda esperada total, COSIF 2025); ambos dentro del resultado de intermediación. Revisión 2026-10-09: Itaú ~-9 bn por trimestre a ambos lados de la frontera. Cambio de norma (pérdida incurrida → esperada, Res. CMN 4.966), no solo de código."
+    },
+    "resultado_transacoes_pagamento": {
+      "num_informe": 4,
+      "tipo_valor": "flujo",
+      "cuentas_base": [
+        "resultado com transacoes de pagamento"
+      ],
+      "fuente_definicion": "Inventario IF.data 202606; código 141855, grupo nuevo de COSIF 2025. Antes de 2025 esos ingresos estaban dentro de 'outras receitas/despesas operacionais' (rendas de prestação de serviços): no hay par en la era vieja, queda null."
+    },
+    "resultado_nao_operacional": {
+      "num_informe": 4,
+      "tipo_valor": "flujo",
+      "cuentas_base": [
+        "resultado nao operacional"
+      ],
+      "fuente_definicion": "Inventario IF.data 202412; código 78227. COSIF 2025 lo absorbe en otras líneas: no hay par en la era nueva, queda null."
+    },
+    "rendas_prestacao_servicos": {
+      "num_informe": 4,
+      "tipo_valor": "flujo",
+      "cuentas_base": [
+        "rendas de prestacao de servicos",
+        "outras rendas de prestacao de servicos"
+      ],
+      "fuente_definicion": "Inventarios IF.data 202412/202606; códigos 78216 y 141857, ambos sin tarifas bancarias. Desde 2025 los servicios de pago salen de esta línea y van a resultado_transacoes_pagamento."
+    }
+  },
+  "columnas": {
+    "periodo": {
+      "descripcion": "Trimestre de referencia IF.data, AAAAMM del mes de cierre (202606 = abril-junio de 2026)",
+      "unidad": "trimestre (AAAAMM)",
+      "fuente_definicion": "IF.data / OLinda; verificado sobre el dato 201403–202606"
+    },
+    "fecha": {
+      "descripcion": "Fecha de fin del trimestre, derivada de periodo",
+      "unidad": "fecha",
+      "fuente_definicion": "preparar_bancos_powerbi.py a partir de periodo IF.data"
+    },
+    "anio": {
+      "descripcion": "Año del trimestre",
+      "unidad": "año",
+      "fuente_definicion": "preparar_bancos_powerbi.py a partir de periodo IF.data"
+    },
+    "trimestre": {
+      "descripcion": "Trimestre calendario 1-4",
+      "unidad": "trimestre (1-4)",
+      "fuente_definicion": "preparar_bancos_powerbi.py a partir de periodo IF.data"
+    },
+    "escopo": {
+      "descripcion": "Escopo de consolidación prudencial (TipoInstituicao=1)",
+      "unidad": "categoría",
+      "fuente_definicion": "ifdata.py::TIPOS"
+    },
+    "cod_inst": {
+      "descripcion": "Código del conglomerado prudencial en IF.data",
+      "unidad": "identificador",
+      "fuente_definicion": "IF.data / OLinda (IfDataCadastro)"
+    },
+    "institucion_bcb": {
+      "descripcion": "Nombre oficial del conglomerado en el cadastro del mismo trimestre",
+      "unidad": "texto",
+      "fuente_definicion": "IF.data / OLinda (IfDataCadastro)"
+    },
+    "nombre_corto": {
+      "descripcion": "Nombre corto elegido para el panel",
+      "unidad": "texto",
+      "fuente_definicion": "definiciones/bcb_ifdata__bancos_balances.json"
+    },
+    "categoria": {
+      "descripcion": "Grupo del universo: nucleo, publico_listado_regional, publico_no_listado o fintech_pago",
+      "unidad": "categoría",
+      "fuente_definicion": "definiciones/bcb_ifdata__bancos_balances.json; selección de Pablo 2026-10-08"
+    },
+    "num_informe": {
+      "descripcion": "Número del informe: 2 Ativo, 3 Passivo, 4 Demonstração de Resultado",
+      "unidad": "identificador numérico",
+      "fuente_definicion": "IF.data / OLinda (ListaDeRelatorio)"
+    },
+    "informe": {
+      "descripcion": "Nombre oficial del informe en portugués",
+      "unidad": "texto",
+      "fuente_definicion": "IF.data / OLinda (ListaDeRelatorio)"
+    },
+    "era": {
+      "descripcion": "cosif_pre2025 hasta 202412 y cosif_2025 desde 202503; la frontera marca la renumeración de cuentas",
+      "unidad": "categoría",
+      "fuente_definicion": "IF.data / COSIF 2025; Instrucciones Normativas BCB 426-433"
+    },
+    "cod_cuenta": {
+      "descripcion": "Código de cuenta era-dependiente; no cruza 2025-03",
+      "unidad": "identificador",
+      "fuente_definicion": "IF.data / OLinda (IfDataValores, campo Conta)"
+    },
+    "cuenta": {
+      "descripcion": "Nombre oficial de la cuenta en portugués, con saltos de línea colapsados",
+      "unidad": "texto",
+      "fuente_definicion": "IF.data / OLinda (IfDataValores, campo NomeColuna)"
+    },
+    "cuenta_base": {
+      "descripcion": "Nombre normalizado sin acentos, sin etiqueta alfabética y sin fórmula; usada para el crosswalk conservador",
+      "unidad": "texto",
+      "fuente_definicion": "preparar_bancos_powerbi.py sobre NomeColuna de IF.data"
+    },
+    "grupo": {
+      "descripcion": "Agrupación oficial de la cuenta dentro del informe",
+      "unidad": "texto",
+      "fuente_definicion": "IF.data / OLinda (IfDataValores, campo Grupo)"
+    },
+    "grupo_norm": {
+      "descripcion": "Grupo normalizado sin acentos y sin fórmula",
+      "unidad": "texto",
+      "fuente_definicion": "preparar_bancos_powerbi.py sobre Grupo de IF.data"
+    },
+    "composicion": {
+      "descripcion": "Fórmula COSIF o descripción oficial de la cuenta",
+      "unidad": "texto",
+      "fuente_definicion": "IF.data / OLinda (IfDataValores, campo DescricaoColuna)"
+    },
+    "cuenta_id": {
+      "descripcion": "Clave técnica de la presentación concreta: informe, código, nombre original normalizado y grupo",
+      "unidad": "identificador",
+      "fuente_definicion": "preparar_bancos_powerbi.py"
+    },
+    "concepto_era": {
+      "descripcion": "Clave de concepto dentro de la era; usa cuenta_base y, si es ambigua, grupo_norm",
+      "unidad": "identificador",
+      "fuente_definicion": "preparar_bancos_powerbi.py"
+    },
+    "concepto": {
+      "descripcion": "Concepto continuo entre eras cuando hay equivalencia segura; null si no la hay",
+      "unidad": "identificador",
+      "fuente_definicion": "definiciones/bcb_ifdata__bancos_balances.json"
+    },
+    "tipo_valor": {
+      "descripcion": "stock o flujo. Informes 2 y 3 son stock; informe 4 es flujo acumulado, excepto el memo Ativo Total",
+      "unidad": "categoría",
+      "fuente_definicion": "IF.data nota oficial Lei 4.595; verificación empírica 202503–202606 contra informe 2"
+    },
+    "valor_publicado": {
+      "descripcion": "Valor tal como lo publica IF.data: stock en balances y flujo acumulado en resultados",
+      "unidad": "R$ (unidades)",
+      "fuente_definicion": "IF.data / OLinda (IfDataValores, campo Saldo)"
+    },
+    "valor": {
+      "descripcion": "Valor usable en el panel: stock sin cambios o flujo trimestral puro tras des-acumular el informe 4",
+      "unidad": "R$ (unidades)",
+      "fuente_definicion": "preparar_bancos_powerbi.py; Q1=Mar, Q2=Jun-Mar, Q3=Sep, Q4=Dec-Sep"
+    },
+    "es_acumulado": {
+      "descripcion": "True cuando valor_publicado es un flujo acumulado del informe 4",
+      "unidad": "booleano",
+      "fuente_definicion": "IF.data nota oficial Lei 4.595"
+    },
+    "ativo_total": {
+      "descripcion": "Activo total publicado en el informe 2",
+      "unidad": "R$ (unidades)",
+      "fuente_definicion": "IF.data informe 2, cuenta Ativo Total"
+    },
+    "operacoes_credito": {
+      "descripcion": "Operaciones de crédito del activo, cartera bruta (antes de provisiones)",
+      "unidad": "R$ (unidades)",
+      "fuente_definicion": "IF.data informe 2, grupo Operações de Crédito"
+    },
+    "operacoes_credito_liquidas": {
+      "descripcion": "Operaciones de crédito del activo, neto de provisiones (PCLD hasta 2024, pérdida esperada desde 2025)",
+      "unidad": "R$ (unidades)",
+      "fuente_definicion": "IF.data informe 2, grupo Operações de Crédito"
+    },
+    "depositos": {
+      "descripcion": "Total de depósitos del pasivo",
+      "unidad": "R$ (unidades)",
+      "fuente_definicion": "IF.data informe 3, cuenta Depósito Total / Depósitos"
+    },
+    "captacoes": {
+      "descripcion": "Total de captaciones del pasivo",
+      "unidad": "R$ (unidades)",
+      "fuente_definicion": "IF.data informe 3, cuenta Captações"
+    },
+    "passivo_total": {
+      "descripcion": "Pasivo total, igual al activo total salvo error de redondeo de la fuente",
+      "unidad": "R$ (unidades)",
+      "fuente_definicion": "IF.data informe 3, cuenta Passivo Total"
+    },
+    "patrimonio_liquido": {
+      "descripcion": "Patrimonio líquido",
+      "unidad": "R$ (unidades)",
+      "fuente_definicion": "IF.data informe 3, conta Patrimônio Líquido"
+    },
+    "resultado_intermediacion_financeira": {
+      "descripcion": "Resultado de intermediación financiera del trimestre puro",
+      "unidad": "R$ (unidades)",
+      "fuente_definicion": "IF.data informe 4; des-acumulado por preparar_bancos_powerbi.py"
+    },
+    "outras_receitas_despesas": {
+      "descripcion": "Otras receitas/despesas del trimestre puro",
+      "unidad": "R$ (unidades)",
+      "fuente_definicion": "IF.data informe 4; des-acumulado por preparar_bancos_powerbi.py"
+    },
+    "resultado_antes_tributacao_participacoes": {
+      "descripcion": "Resultado antes de tributación y participaciones del trimestre puro",
+      "unidad": "R$ (unidades)",
+      "fuente_definicion": "IF.data informe 4; des-acumulado por preparar_bancos_powerbi.py"
+    },
+    "imposto_renda_contribuicao_social": {
+      "descripcion": "Impuesto a la renta y contribución social del trimestre puro",
+      "unidad": "R$ (unidades)",
+      "fuente_definicion": "IF.data informe 4; des-acumulado por preparar_bancos_powerbi.py"
+    },
+    "participacoes_lucro": {
+      "descripcion": "Participaciones en el lucro del trimestre puro",
+      "unidad": "R$ (unidades)",
+      "fuente_definicion": "IF.data informe 4; des-acumulado por preparar_bancos_powerbi.py"
+    },
+    "lucro_liquido": {
+      "descripcion": "Lucro líquido del trimestre puro",
+      "unidad": "R$ (unidades)",
+      "fuente_definicion": "IF.data informe 4; des-acumulado por preparar_bancos_powerbi.py"
+    },
+    "despesas_pessoal": {
+      "descripcion": "Despesas de personal del trimestre puro",
+      "unidad": "R$ (unidades)",
+      "fuente_definicion": "IF.data informe 4; des-acumulado por preparar_bancos_powerbi.py"
+    },
+    "despesas_administrativas": {
+      "descripcion": "Despesas administrativas del trimestre puro",
+      "unidad": "R$ (unidades)",
+      "fuente_definicion": "IF.data informe 4; des-acumulado por preparar_bancos_powerbi.py"
+    },
+    "despesas_tributarias": {
+      "descripcion": "Despesas tributarias del trimestre puro",
+      "unidad": "R$ (unidades)",
+      "fuente_definicion": "IF.data informe 4; des-acumulado por preparar_bancos_powerbi.py"
+    },
+    "provisoes_credito": {
+      "descripcion": "Provisiones para crédito (PCLD hasta 2024, pérdida esperada desde 2025), trimestre puro; ya restadas dentro del resultado de intermediación",
+      "unidad": "R$ (unidades)",
+      "fuente_definicion": "IF.data informe 4; des-acumulado por preparar_bancos_powerbi.py"
+    },
+    "resultado_transacoes_pagamento": {
+      "descripcion": "Resultado con transacciones de pago (tarjetas, adquirencia), trimestre puro; solo desde 2025-03",
+      "unidad": "R$ (unidades)",
+      "fuente_definicion": "IF.data informe 4; des-acumulado por preparar_bancos_powerbi.py"
+    },
+    "resultado_nao_operacional": {
+      "descripcion": "Resultado no operacional, trimestre puro; solo hasta 2024-12",
+      "unidad": "R$ (unidades)",
+      "fuente_definicion": "IF.data informe 4; des-acumulado por preparar_bancos_powerbi.py"
+    },
+    "rendas_prestacao_servicos": {
+      "descripcion": "Ingresos por prestación de servicios sin tarifas bancarias, trimestre puro",
+      "unidad": "R$ (unidades)",
+      "fuente_definicion": "IF.data informe 4; des-acumulado por preparar_bancos_powerbi.py"
+    }
+  },
+  "nota_modelo_negocio": "modelo_negocio: criterio del analista (Opus), aprobado por Pablo 2026-10-09 para la hoja 8 del PBIP dual (docs/orquestacion/38). No es una clasificación del BCB; las oficiales son tc (control) y sr (segmento) del cadastro."
+}

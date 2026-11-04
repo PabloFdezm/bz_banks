@@ -1,0 +1,52 @@
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
+/* v2 (3-nov): paleta del Monitor suavizada + tipografía de FARO (canvas «Bancos Brasil — propuesta visual»).
+   Monitor Brasil «desde cero» · tokens del sistema visual.
+   Fuente de verdad: los HTML AMx_*.html y SPEC_WEB_00_GENERAL.md §5. No inventar colores fuera de esta lista. */
+:root {
+  /* Superficies y texto */
+  --fondo: #F6F7F8;          /* fondo de la página */
+  --tarjeta: #FFFFFF;        /* fondo de tarjetas y cabecera */
+  --borde: #E1E6EC;          /* borde de tarjetas (1 px) */
+  --borde-fuerte: #C9D2DC;   /* pestañas, línea del cierre */
+  --regla: #E6EAEF;          /* líneas de grilla, separadores de fila */
+  --texto: #24324A;          /* texto principal; también la línea de 2 px entre secciones */
+  --texto-2: #5B6573;        /* subtítulos, rótulos */
+  --texto-3: #6F7884;        /* fuentes, notas, ejes */
+
+  /* Serie (categóricos, en este orden; nunca cobre ni arena para una categoría) */
+  --navy: #2E5C8A;
+  --petroleo: #2F7A86;
+  --acero: #6C819B;
+  --ciruela: #7B5E8C;
+  --acero-claro: #A9B8CB;
+
+  /* Signo y referencia */
+  --mejor: #2F7A86;          /* navy = mejora (qué es «mejora» depende de la página, §5.4) */
+  --peor: #A85E24;           /* cobre-texto = deterioro */
+  --cobre: #C2773A;          /* cobre de relleno (barras/áreas de deterioro cuando el texto va en --peor) */
+  --arena: #EDC9A6;          /* relleno suave «falta / peor» */
+  --referencia: #8A8F96;     /* meta, promedio, contrafactual: siempre discontinua */
+
+  /* Tipografía */
+  --fuente: 'IBM Plex Sans', 'Segoe UI', system-ui, Arial, sans-serif;
+  --fuente-display: 'Bricolage Grotesque', 'IBM Plex Sans', Arial, sans-serif;
+  --fuente-mono: 'IBM Plex Mono', ui-monospace, Menlo, monospace;
+  --suave-activo: #E8EEF5;  /* fondo de selección (banco activo, página activa) */
+  --rail: 224px;
+  --t-min: 10px;             /* nunca menos */
+  --t-nota: 11px;
+  --t-sub: 12px;
+  --t-cuerpo: 14px;
+  --t-titulo-tarjeta: 14px;  /* semibold 600 */
+  --t-seccion: 22px;         /* nombre de la sección, 600 */
+  --t-kpi: 28px;             /* «dato de la sección», 600, tabular-nums */
+  --t-pagina: 30px;          /* nombre de la página en la cabecera, 300 */
+  --t-titular: 40px;         /* titular de la apertura, 300 */
+
+  /* Grilla */
+  --ancho-max: 1920px;
+  --margen: 32px;
+  --gap: 16px;
+  --alto-fila: 372px;        /* alto estándar de tarjeta en filas 5 + 4 */
+  --radio: 2px;
+}
