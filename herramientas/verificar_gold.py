@@ -26,7 +26,7 @@ Uso desde la raíz del repo:
 
     python herramientas/verificar_gold.py
     python herramientas/verificar_gold.py --json
-    python herramientas/verificar_gold.py --comparar bancos_web/staging/202609/metricas.parquet
+    python herramientas/verificar_gold.py --comparar <ruta>/metricas.parquet
     python herramientas/verificar_gold.py --estricto --auditoria
     python herramientas/verificar_gold.py --gold
 

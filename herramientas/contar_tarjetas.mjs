@@ -3,7 +3,7 @@
    B0 7, B1 11, B2 11, B3 8, B4 10, B5 6, B6 9, B7 6, B8 12, B9 1, B10 0.
    Lee los archivos como texto y reemplaza «export default» por «return» para poder evaluarlos
    sin un paso de build ni un package.json (los configs no importan nada).
-   Uso: node sitio_bancos/contar_tarjetas.mjs */
+   Uso: node herramientas/contar_tarjetas.mjs */
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';

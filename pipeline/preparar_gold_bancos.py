@@ -11,7 +11,7 @@ total (``datos/intermedio/metricas_bancos.parquet``); las dimensiones de los ban
 (``datos/gold/bank_instituciones.parquet`` y ``definiciones/bcb_ifdata__bancos_balances.json``); los
 cotizados y tickers (``definiciones/bancos__dashboard.json``); las ópticas de grupo que ya usa
 ``cre_*`` (``datos/intermedio/cre_institucion.parquet``) y el cruce IF.Data ↔ publicado
-(``bancos_web/backend/validacion.json``)— y lo entrega en seis tablas: ``bk_banco`` (34 bancos),
+(``definiciones/validacion_bancos.json``)— y lo entrega en seis tablas: ``bk_banco`` (34 bancos),
 ``bk_metrica`` (definición de cada métrica), ``bk_panel`` (banco × trimestre × métrica, con rezagos,
 percentiles del grupo y rankings), ``bk_grupo`` (óptica × grupo × trimestre × métrica, con muestra
 constante a/a), ``bk_puente`` y ``bk_manifiesto`` (filas, rangos, sha256 y último corte de cada
@@ -848,7 +848,7 @@ def _principal_base() -> None:
             "datos/intermedio/metricas_bancos.parquet", "datos/intermedio/cre_institucion.parquet",
             "datos/gold/bank_instituciones.parquet"]),
         "bk_puente.parquet": (puente, f"{puente['periodo'].min()}–{puente['periodo'].max()}", [
-            "bancos_web/backend/validacion.json"]),
+            "definiciones/validacion_bancos.json"]),
     }
 
     filas_man = []
