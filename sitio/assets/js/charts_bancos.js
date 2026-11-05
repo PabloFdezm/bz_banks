@@ -967,7 +967,7 @@ function mapa_cuotas(cont, e) {
 
 
 /* ---------- v3 · tabla_estandar: LA tabla descriptiva del sitio (una sola, para que todas sean iguales) ----------
-   Columnas fijas: Indicador · Último · m/m · 3m/3m · a/a · 12m/12m · Corte (trimestral: t/t · — · a/a · 4T/4T).
+   Columnas fijas (4-nov): Indicador · Corte · Último · Share · m/m · 3m/3m · a/a · 12m/12m (trimestral: t/t · — · a/a · 4T/4T).
    entrada: { filas: [{ fila, ultimo, d1, d3, d12, dventana, corte, unidad_ultimo?, unidad_cambio? }],
    unidadUltimo, unidadCambio, trimestral }. Unidades: pct (fracción → %), pct_nivel (ya en %), pp, brl_mm
    (R$ mil millones). Sin colores: el formato es el mismo en todas las páginas. */

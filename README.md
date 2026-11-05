@@ -13,6 +13,7 @@ Datos del BCB (IF.Data, SGS, SCR). Se publica en Netlify: https://banks-bz.netli
 | `herramientas/` | Verificadores: `verificar_f1.py` (sitio en Chromium), `contar_tarjetas.mjs`, `verificar_gold.py` |
 | `tests/` | `pytest` |
 | `docs/` | Especificaciones, esqueleto de páginas, pendientes y bitácora |
+| `spec/` | **Especificación completa del repo** (empezar por `spec/README.md`); `spec/generado/` se regenera con `herramientas/generar_spec.py` |
 | `datos/` | **No va a git.** `crudo/` (IF.Data, SCR, SGS), `derivado/`, `intermedio/`, `gold/` (parquets `bk_*`) |
 
 ## Uso diario
