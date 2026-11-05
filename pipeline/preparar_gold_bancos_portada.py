@@ -163,12 +163,12 @@ def roe() -> tuple[pd.DataFrame, list[dict]]:
 def cuotas() -> pd.DataFrame:
     banco = pd.read_parquet(BANKS / "bk_banco.parquet")[["cod_inst", "nombre_corto", "modelo"]]
     panel = pd.read_parquet(BANKS / "bk_panel.parquet", columns=["cod_inst", "periodo", "metrica", "valor"])
-    per = max(f.split("_")[1] for f in glob.glob(str(CRUDO_IFDATA / "valores_*_1_r3.csv")) for f in [Path(f).name])
+    per = max(p.name.split("_")[1] for p in A.glob_crudo(CRUDO_IFDATA, "valores_*_1_r3.csv"))   # CSV o parquet
 
     def informe(n):
-        d = pd.read_csv(CRUDO_IFDATA / f"valores_{per}_1_r{n}.csv", sep=None, engine="python")
+        d = A.leer_crudo_tabla(CRUDO_IFDATA / f"valores_{per}_1_r{n}.csv", ["CodInst", "NomeColuna", "Saldo"])
         d["Saldo"] = pd.to_numeric(d.Saldo.astype(str).str.replace(",", "."), errors="coerce")
-        d["CodInst"] = d.CodInst.astype(str)
+        d["CodInst"] = d.CodInst.astype(str)   # texto con ceros a la izquierda, como la lectura anterior (columna mixta)
         return d
 
     def col(d, pref):

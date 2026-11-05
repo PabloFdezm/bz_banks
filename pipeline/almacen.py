@@ -275,10 +275,15 @@ def verificar(d: Path) -> list[str]:
     problemas = []
     for nombre, meta in man.get("archivos", {}).items():
         p = d / nombre
+        pq = meta.get("parquet")
+        if not p.exists() and pq and (d / pq["archivo"]).exists():
+            if sha256_archivo(d / pq["archivo"]) != pq.get("sha256"):
+                problemas.append(f"{d}/{pq['archivo']}: sha256 no coincide (el parquet cambió)")
+            continue
         if not p.exists():
             problemas.append(f"{d}/{nombre}: declarado en el manifiesto pero no existe")
             continue
-        real = sha256(p.read_bytes())
+        real = sha256_archivo(p)
         if real != meta.get("sha256"):
             problemas.append(f"{d}/{nombre}: sha256 no coincide (el archivo cambió)")
     return problemas
@@ -334,3 +339,86 @@ if __name__ == "__main__":
         print(f"{len(filas)} archivos, {total / 1e6:.0f} MB")
         for f in filas:
             print(f"  [{f['capa']:8}] {f['bytes'] / 1e6:8.1f} MB  {f['ruta']}")
+
+
+# --- crudo tabular en parquet (4-nov-2026) ---------------------------------------------- #
+# Los CSV de IF.Data pesan ~80 veces más que el mismo contenido en parquet. El parquet guarda
+# TODAS las columnas como texto, tal cual venían en el CSV (sin inferir tipos, "" se conserva):
+# es una recodificación sin pérdida, así que sigue siendo capa cruda. El manifiesto conserva la
+# URL y el sha256 del CSV original y agrega los del parquet (clave "parquet").
+
+def ruta_parquet(ruta_csv: Path) -> Path:
+    return Path(ruta_csv).with_suffix(".parquet")
+
+
+def existe_crudo(ruta_csv: Path) -> bool:
+    """True si el crudo está como CSV o ya convertido a parquet."""
+    return Path(ruta_csv).exists() or ruta_parquet(ruta_csv).exists()
+
+
+def leer_crudo_tabla(ruta_csv: Path, columnas: list[str] | None = None, **opciones_csv):
+    """Lee un crudo tabular como texto: del parquet si existe, si no del CSV.
+
+    Devuelve lo mismo que ``pd.read_csv(ruta, dtype=str, keep_default_na=False, usecols=columnas)``.
+    ``opciones_csv`` (sep, encoding…) solo se usan si hay que leer el CSV.
+    """
+    import pandas as pd
+    pq = ruta_parquet(ruta_csv)
+    if pq.exists():
+        return pd.read_parquet(pq, columns=columnas)
+    return pd.read_csv(ruta_csv, dtype=str, keep_default_na=False, usecols=columnas, **opciones_csv)
+
+
+def csv_a_parquet(fuente: str, dataset: str, ruta_csv: Path, *, borrar_csv: bool = False,
+                  version: str = "actual", **opciones_csv) -> Path:
+    """Convierte un CSV crudo a parquet (todo texto, zstd), comprueba que no se perdió nada y
+    lo anota en el manifiesto. Con ``borrar_csv`` elimina el CSV después de comprobar."""
+    import io
+    import pandas as pd
+    ruta_csv = Path(ruta_csv)
+    d = ruta_cruda(fuente, dataset, version)
+    if ruta_csv.parent.resolve() != d.resolve():
+        raise ValueError(f"{ruta_csv} no está en {d}")
+    df = pd.read_csv(ruta_csv, dtype=str, keep_default_na=False, **opciones_csv)
+    buf = io.BytesIO()
+    df.to_parquet(buf, index=False, compression="zstd")
+    datos = buf.getvalue()
+    # comprobación: el parquet devuelve exactamente las mismas celdas
+    vuelta = pd.read_parquet(io.BytesIO(datos))
+    if not (vuelta.shape == df.shape and list(vuelta.columns) == list(df.columns) and vuelta.equals(df)):
+        raise ValueError(f"{ruta_csv.name}: el parquet no reproduce el CSV")
+    destino = ruta_parquet(ruta_csv)
+    escribir_atomico(destino, datos)
+    man = leer_manifiesto(d) or {"fuente": fuente, "dataset": dataset, "archivos": {}}
+    entrada = man["archivos"].setdefault(ruta_csv.name, {
+        "sha256": sha256_archivo(ruta_csv), "bytes": ruta_csv.stat().st_size, "descargado_en": None,
+        "nota": "CSV registrado al convertirlo a parquet"})
+    entrada["parquet"] = {
+        "archivo": destino.name, "sha256": sha256(datos), "bytes": len(datos), "filas": len(df),
+        "convertido_en": _ahora(),
+        "nota": "mismo contenido que el CSV: todas las columnas como texto, sin inferir tipos",
+    }
+    escribir_manifiesto(d, man)
+    if borrar_csv:
+        ruta_csv.unlink()
+    return destino
+
+
+def glob_crudo(carpeta: Path, patron_csv: str) -> list[Path]:
+    """Como ``carpeta.glob(patron_csv)``, pero cuenta también los que ya están en parquet.
+    Devuelve siempre la ruta con extensión .csv (el nombre lógico del crudo)."""
+    carpeta = Path(carpeta)
+    nombres = {p.name for p in carpeta.glob(patron_csv)}
+    nombres |= {p.with_suffix(".csv").name for p in carpeta.glob(patron_csv[:-4] + ".parquet")} if patron_csv.endswith(".csv") else set()
+    return [carpeta / n for n in sorted(nombres)]
+
+
+def crudo_con_datos(ruta_csv: Path, min_bytes: int = 200) -> bool:
+    """True si el crudo trae filas. En CSV se usa el tamaño (una respuesta vacía es solo la
+    cabecera, < min_bytes); en parquet, el número de filas de sus metadatos."""
+    ruta_csv = Path(ruta_csv)
+    pq = ruta_parquet(ruta_csv)
+    if pq.exists():
+        import pyarrow.parquet as papq
+        return papq.ParquetFile(pq).metadata.num_rows > 0
+    return ruta_csv.exists() and ruta_csv.stat().st_size > min_bytes

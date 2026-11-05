@@ -16,10 +16,11 @@ Estado al 4-nov-2026.
 1. Rehacer **Calidad, Rentabilidad y Ficha** con la estructura v3 (canvas → aprobación → construcción).
 2. Páginas nuevas: **Mora, Márgenes, Por banco, Productos** (ver `06_paginas.md`, «Estructura objetivo»).
    Actualizar el menú (`config.js`) cuando existan.
-3. **Pasar el crudo a parquet:** IF.Data 3,3 GB en CSV → <100 MB (prueba: 120 MB → 1,5 MB); 4 volcados
-   completos (225 MB) que el pipeline no lee; SCR 1,9 GB en ZIP solo se usa para rearmar historia. Hay que
-   cambiar las lecturas `read_csv` de `preparar_bancos_powerbi`, `preparar_credito_paginas_powerbi`,
-   `_portada`, `_sistema`, `_scr` y la escritura de `ifdata.py`; validar gold idéntico antes de borrar CSV.
+3. Crudo IF.Data en parquet: hecho el 4-nov (3,5 GB → 62 MB, gold idéntico). Falta borrar los CSV
+   originales (con permiso de Pablo). SCR sigue en ZIP.
+3b. **pandas distinto entre equipos:** en Windows `bk_panel` sale con 134.300 filas (incluye 29.904 con
+   `valor` nulo) y con pandas 2.3 (Linux) con 104.396; las filas comunes son idénticas. Fijar la versión de
+   pandas en `requirements.txt` o filtrar los nulos explícitamente en `preparar_gold_bancos.py`.
 4. **Entradas congeladas del macro** (`fh_deuda`, `tasa_real_exante`, `tasas_pnad`, `expectativas_focus`):
    leer las tres primeras del SGS; decidir la desocupación.
 5. Validar contra el catálogo del SGS los nombres de las series de modalidades y concesiones.

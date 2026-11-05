@@ -11,7 +11,7 @@
   --regla: #E6EAEF;          /* líneas de grilla, separadores de fila */
   --texto: #24324A;          /* texto principal; también la línea de 2 px entre secciones */
   --texto-2: #5B6573;        /* subtítulos, rótulos */
-  --texto-3: #6F7884;        /* fuentes, notas, ejes */
+  --texto-3: #5B6573;        /* fuentes, notas, ejes */
 
   /* Serie (categóricos, en este orden; nunca cobre ni arena para una categoría) */
   --navy: #2E5C8A;
@@ -32,21 +32,34 @@
   --fuente-display: 'Bricolage Grotesque', 'IBM Plex Sans', Arial, sans-serif;
   --fuente-mono: 'IBM Plex Mono', ui-monospace, Menlo, monospace;
   --suave-activo: #E8EEF5;  /* fondo de selección (banco activo, página activa) */
-  --rail: 224px;
-  --t-min: 10px;             /* nunca menos */
-  --t-nota: 11px;
-  --t-sub: 12px;
-  --t-cuerpo: 14px;
-  --t-titulo-tarjeta: 14px;  /* semibold 600 */
-  --t-seccion: 22px;         /* nombre de la sección, 600 */
+  --rail: 240px;
+  --t-min: 12px;             /* nunca menos */
+  --t-nota: 12px;
+  --t-sub: 14px;
+  --t-cuerpo: 16px;
+  --t-titulo-tarjeta: 18px;  /* semibold 600 */
+  --t-seccion: 24px;         /* nombre de la sección, 600 */
   --t-kpi: 28px;             /* «dato de la sección», 600, tabular-nums */
   --t-pagina: 30px;          /* nombre de la página en la cabecera, 300 */
   --t-titular: 40px;         /* titular de la apertura, 300 */
+
+  /* UI compartida: lectura, controles y ritmo. */
+  --espacio-1: 4px;
+  --espacio-2: 8px;
+  --espacio-3: 12px;
+  --espacio-4: 16px;
+  --espacio-6: 24px;
+  --espacio-8: 32px;
+  --control-alto: 44px;
+  --tabla-texto: 14px;
+  --tabla-min: 760px;
+  --barra-alto: 104px;
+  --movimiento: 180ms;
 
   /* Grilla */
   --ancho-max: 1920px;
   --margen: 32px;
   --gap: 16px;
   --alto-fila: 372px;        /* alto estándar de tarjeta en filas 5 + 4 */
-  --radio: 2px;
+  --radio: 4px;
 }

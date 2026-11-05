@@ -61,6 +61,21 @@ import requests
 
 import almacen as A
 
+# Los CSV de OLinda se guardan en parquet (todo texto, sin pérdida; ~80 veces menos espacio) y el CSV se borra.
+GUARDAR_PARQUET = True
+BORRAR_CSV = True
+
+
+def filas_crudo(archivo):
+    """Filas (dict de texto) de un crudo, desde el CSV o, si ya se convirtió, desde su parquet."""
+    archivo = Path(archivo)
+    if archivo.exists():
+        with open(archivo, newline="", encoding="utf-8") as f:
+            yield from csv.DictReader(f)
+    else:
+        import pandas as pd
+        yield from A.leer_crudo_tabla(archivo).to_dict("records")
+
 BASE = "https://olinda.bcb.gov.br/olinda/servico/IFDATA/versao/v1/odata"
 USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) bcb-scraper/ifdata-1.0"
 PRIMER_PERIODO = "200003"
@@ -305,8 +320,13 @@ class IFData:
         sha256 porque una respuesta vacia legitima tiene solo cabecera y antes se volvia
         a descargar en cada corrida.
         """
-        if self.refrescar or not destino.exists():
+        if self.refrescar:
             return False
+        if not destino.exists():
+            # convertido a parquet (y CSV borrado): vale si el parquet es el que anotó el manifiesto
+            pq = A.ruta_parquet(destino)
+            meta = (reg or {}).get("parquet")
+            return bool(pq.exists() and meta and meta.get("bytes") == pq.stat().st_size)
         tam = destino.stat().st_size
         if not reg:
             return tam > 200
@@ -359,7 +379,10 @@ class IFData:
             self._descargar(url, destino)
             A.registrar_crudo("bcb_ifdata", dataset, destino, url)
             self.log(f"[+] {destino.name} ({tamano(destino)})")
-        elif not self._registro_crudo(d, nombre):
+            if GUARDAR_PARQUET and destino.suffix == ".csv":
+                pq = A.csv_a_parquet("bcb_ifdata", dataset, destino, borrar_csv=BORRAR_CSV)
+                self.log(f"    -> {pq.name} ({tamano(pq)})")
+        elif destino.exists() and not self._registro_crudo(d, nombre):
             mtime = datetime.fromtimestamp(destino.stat().st_mtime, timezone.utc)
             A.registrar_crudo("bcb_ifdata", dataset, destino, url,
                               descargado_en=mtime.isoformat(),
@@ -414,8 +437,8 @@ class IFData:
 
     def leer_cadastro(self, ano_mes):
         archivo = self.archivo_cadastro(ano_mes)
-        with open(archivo, newline="", encoding="utf-8") as f:
-            for fila in csv.DictReader(f):
+        if True:
+            for fila in filas_crudo(archivo):
                 cod = nulo(fila.get("CodInst"))
                 yield {
                     "periodo": nulo(fila.get("Data")) or ano_mes,
@@ -481,8 +504,8 @@ class IFData:
             archivo = self.archivo_valores(ano_mes, tipo)
         else:
             completo = A.ruta_cruda("bcb_ifdata", "valores") / f"valores_{ano_mes}_{tipo}.csv"
-            if completo.exists() and not self.refrescar \
-                    and completo.stat().st_size > 200:
+            if A.existe_crudo(completo) and not self.refrescar \
+                    and A.crudo_con_datos(completo, 200):
                 archivo, filtro = completo, ("num", str(numero))
                 rel = str(completo.relative_to(A.DATOS))
                 if rel not in self.crudos_usados:
@@ -490,8 +513,7 @@ class IFData:
             else:
                 archivo = self.archivo_valores(ano_mes, tipo, numero)
                 if nombre:
-                    with open(archivo, newline="", encoding="utf-8") as f:
-                        primera = next(iter(csv.DictReader(f)), None)
+                    primera = next(iter(filas_crudo(archivo)), None)
                     if primera and \
                             normalizar(primera.get("NomeRelatorio")) != normalizar(nombre):
                         self.log(f"  [!] En {ano_mes} el informe {numero} no es "
@@ -499,9 +521,9 @@ class IFData:
                                  f"y se filtra por nombre")
                         archivo = self.archivo_valores(ano_mes, tipo)
                         filtro = ("nombre", nombre)
-        with open(archivo, newline="", encoding="utf-8") as f:
+        if True:
             vistos = set()
-            for fila in csv.DictReader(f):
+            for fila in filas_crudo(archivo):
                 if filtro:
                     if filtro[0] == "num":
                         if nulo(fila.get("NumeroRelatorio")) != filtro[1]:

@@ -149,9 +149,9 @@ def _escopo(periodo: str) -> str:
 def periodos_credito() -> list[str]:
     """Trimestres con los informes 11 y 13 en el escopo que corresponde; falla si hay huecos."""
     hay = {}
-    for ruta in CRUDO_VALORES.glob("valores_*_r1[13].csv"):
+    for ruta in A.glob_crudo(CRUDO_VALORES, "valores_*_r1[13].csv"):   # CSV o parquet
         m = re.fullmatch(r"valores_(\d{6})_([12])_r(1[13])\.csv", ruta.name)
-        if m and m.group(2) == _escopo(m.group(1)) and ruta.stat().st_size > 200:
+        if m and m.group(2) == _escopo(m.group(1)) and A.crudo_con_datos(ruta, 200):
             hay.setdefault(m.group(1), set()).add(m.group(3))
     periodos = sorted(p for p, inf in hay.items() if inf == {"11", "13"})
     if not periodos:
@@ -181,8 +181,8 @@ def unidades(periodo: str, panel: list[str]) -> dict[str, str]:
     """Unidad que publica IF.data en ese trimestre → banco del panel (prudencial)."""
     if _escopo(periodo) == "1":
         return {c: c for c in panel}
-    cad = pd.read_csv(CRUDO_CADASTRO / f"cadastro_{periodo}.csv", dtype=str, keep_default_na=False,
-                      usecols=["CodInst", "CodConglomeradoFinanceiro", "CodConglomeradoPrudencial"])
+    cad = A.leer_crudo_tabla(CRUDO_CADASTRO / f"cadastro_{periodo}.csv",
+                             ["CodInst", "CodConglomeradoFinanceiro", "CodConglomeradoPrudencial"])
     cad = cad[cad["CodConglomeradoPrudencial"].isin(panel) & (cad["CodInst"] != cad["CodConglomeradoPrudencial"])]
     unidad = cad["CodConglomeradoFinanceiro"].where(~cad["CodConglomeradoFinanceiro"].isin(["null", ""]),
                                                     cad["CodInst"])
@@ -196,10 +196,9 @@ def unidades(periodo: str, panel: list[str]) -> dict[str, str]:
 def leer_informe(periodo: str, informe: int, escopo: str, mapa: dict[str, str]) -> pd.DataFrame:
     """Filas del informe para las unidades del panel, con el banco prudencial y el saldo numérico."""
     ruta = CRUDO_VALORES / f"valores_{periodo}_{escopo}_r{informe}.csv"
-    if not ruta.exists():
+    if not A.existe_crudo(ruta):
         raise FileNotFoundError(f"Falta el crudo {ruta.name}: ifdata.py colectar (doc 41 §4)")
-    df = pd.read_csv(ruta, dtype=str, keep_default_na=False,
-                     usecols=["CodInst", "AnoMes", "Grupo", "Conta", "NomeColuna", "Saldo"])
+    df = A.leer_crudo_tabla(ruta, ["CodInst", "AnoMes", "Grupo", "Conta", "NomeColuna", "Saldo"])
     if len(df) and not (df["AnoMes"] == periodo).all():
         raise ValueError(f"{ruta.name} trae otro AnoMes")
     # El BCB sirvió 2025-09 con cada fila tres veces: fuera los duplicados exactos; una clave repetida con

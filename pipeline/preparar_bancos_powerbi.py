@@ -194,9 +194,9 @@ def periodos_disponibles() -> list[str]:
     conjuntos = []
     for informe in INFORMES:
         encontrados = set()
-        for ruta in VALORES.glob(f"valores_*_1_r{informe}.csv"):
+        for ruta in A.glob_crudo(VALORES, f"valores_*_1_r{informe}.csv"):   # CSV o parquet
             m = re.fullmatch(r"valores_(\d{6})_1_r\d+\.csv", ruta.name)
-            if m and ruta.stat().st_size > TAMANO_MINIMO_CRUDO:
+            if m and A.crudo_con_datos(ruta, TAMANO_MINIMO_CRUDO):
                 encontrados.add(m.group(1))
         conjuntos.append(encontrados)
     if not conjuntos or not all(conjuntos):
@@ -207,9 +207,9 @@ def periodos_disponibles() -> list[str]:
 def leer_cadastro(periodo: str, codes: set[str]) -> pd.DataFrame:
     ruta = CADASTRO / f"cadastro_{periodo}.csv"
     columnas = ["cod_inst", "institucion_bcb", "tcb", "td", "tc", "sr", "segmento", "actividad", "situacion"]
-    if not ruta.exists():
+    if not A.existe_crudo(ruta):
         return pd.DataFrame(columns=columnas)
-    df = pd.read_csv(ruta, dtype=str, keep_default_na=False, usecols=COLUMNAS_CADASTRO)
+    df = A.leer_crudo_tabla(ruta, COLUMNAS_CADASTRO)
     df = df[df["CodInst"].isin(codes)].copy()
     df = df.rename(columns={
         "CodInst": "cod_inst",
@@ -238,11 +238,14 @@ def nombres_por_periodo(periodos: list[str], codes: set[str]) -> dict[str, dict[
 
 def leer_valores(periodo: str, informe: int, codes: set[str]) -> pd.DataFrame:
     ruta = VALORES / f"valores_{periodo}_1_r{informe}.csv"
-    if not ruta.exists():
+    if not A.existe_crudo(ruta):
         raise FileNotFoundError(f"Falta el crudo {ruta.name}")
     partes = []
-    for chunk in pd.read_csv(ruta, dtype=str, keep_default_na=False, usecols=COLUMNAS_VALORES,
-                             chunksize=500_000):
+    if A.ruta_parquet(ruta).exists():
+        trozos = [A.leer_crudo_tabla(ruta, COLUMNAS_VALORES)]
+    else:
+        trozos = pd.read_csv(ruta, dtype=str, keep_default_na=False, usecols=COLUMNAS_VALORES, chunksize=500_000)
+    for chunk in trozos:
         chunk = chunk[chunk["CodInst"].isin(codes)]
         if len(chunk):
             partes.append(chunk)

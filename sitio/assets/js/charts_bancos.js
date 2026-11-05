@@ -981,29 +981,81 @@ function fmtEstandar(v, u, signo) {
   return n(v);
 }
 function tabla_estandar(cont, e) {
-  const tri = e.trimestral || e.filas.some((f) => f.trimestral);
+  const filas = e.filas || [];
+  const tri = e.trimestral || filas.some((f) => f.trimestral);
   const cab = tri ? ['t/t', '—', 'a/a', '4T/4T'] : ['m/m', '3m/3m', 'a/a', '12m/12m'];
-  // Orden fijo (3-nov): Indicador · Corte · Último · Share · cambios. Share «—» donde no aplica.
-  const anchos = ['25%', '10%', '13%', '9%', '10.75%', '10.75%', '10.75%', '10.75%'];
+  const anchos = ['22%', '10%', '14%', '10%', '11%', '11%', '11%', '11%'];
   const titulos = ['Indicador', 'Corte', 'Último', 'Share', ...cab];
+  const descripciones = ['Indicador', 'Fecha de corte', 'Último valor disponible', 'Participación en el total',
+    tri ? 'Variación trimestral' : 'Variación mensual', tri ? 'No aplica' : 'Variación de tres meses contra los tres meses anteriores',
+    'Variación interanual', tri ? 'Cuatro trimestres contra los cuatro anteriores' : 'Doce meses contra los doce anteriores'];
   const raiz = document.createElement('div');
   raiz.className = 'tabla-scroll tabla-estandar-cuerpo';
+  raiz.tabIndex = 0;
+  raiz.setAttribute('role', 'region');
+  raiz.setAttribute('aria-label', 'Tabla de indicadores. Desplázate para consultar todas las columnas.');
   const t = document.createElement('table');
   t.className = 'tabla-datos';
-  t.innerHTML = `<colgroup>${anchos.map((a) => `<col style="width:${a}">`).join('')}</colgroup><thead><tr>${titulos.map((x, i) => `<th class="${i === 0 ? '' : 'num'}">${x}</th>`).join('')}</tr></thead>`;
+  const caption = document.createElement('caption');
+  caption.className = 'solo-lector';
+  caption.textContent = 'Indicadores, fecha de corte, último valor, participación y variaciones. El guion indica un dato no disponible o no aplicable.';
+  t.append(caption);
+  const columnas = document.createElement('colgroup');
+  for (const ancho of anchos) {
+    const c = document.createElement('col');
+    c.style.width = ancho;
+    columnas.append(c);
+  }
+  t.append(columnas);
+  const head = document.createElement('thead');
+  const encabezado = document.createElement('tr');
+  titulos.forEach((titulo, i) => {
+    const th = document.createElement('th');
+    th.scope = 'col';
+    if (i) th.className = 'num';
+    const abbr = document.createElement('abbr');
+    abbr.title = descripciones[i];
+    abbr.textContent = titulo;
+    th.append(abbr);
+    encabezado.append(th);
+  });
+  head.append(encabezado);
+  t.append(head);
   const tb = document.createElement('tbody');
-  for (const f of e.filas) {
+  for (const f of filas) {
     const uu = f.unidad_ultimo || e.unidadUltimo, uc = f.unidad_cambio || e.unidadCambio;
     const share = f.share == null || Number.isNaN(f.share) ? '—' : (f.share >= 0.9995 ? '100 %' : `${(f.share * 100).toFixed(1).replace('.', ',')} %`);
     const celdas = [f.fila, f.corte || '—', fmtEstandar(f.ultimo, uu, uu === 'pp'), share, fmtEstandar(f.d1, uc, true), tri ? '—' : fmtEstandar(f.d3, uc, true),
       fmtEstandar(f.d12, uc, true), fmtEstandar(f.dventana, uc, true)];
     const tr = document.createElement('tr');
     if (f.destacar) tr.className = 'fila-total';
-    tr.innerHTML = celdas.map((c, i) => `<td class="${i === 0 ? '' : 'num'}">${c}</td>`).join('');
+    celdas.forEach((valor, i) => {
+      const celda = document.createElement(i ? 'td' : 'th');
+      if (i) celda.className = 'num';
+      else celda.scope = 'row';
+      celda.textContent = valor == null ? '—' : String(valor);
+      tr.append(celda);
+    });
     tb.append(tr);
   }
   t.append(tb);
-  raiz.append(t);
+  const ayuda = document.createElement('details');
+  ayuda.className = 'tabla-glosario';
+  const resumen = document.createElement('summary');
+  resumen.textContent = 'Cómo leer las columnas';
+  const glosario = document.createElement('dl');
+  titulos.forEach((titulo, i) => {
+    const dt = document.createElement('dt');
+    const dd = document.createElement('dd');
+    dt.textContent = titulo;
+    dd.textContent = descripciones[i];
+    glosario.append(dt, dd);
+  });
+  ayuda.append(resumen, glosario);
+  const aviso = document.createElement('p');
+  aviso.className = 'tabla-ayuda';
+  aviso.textContent = 'Desplaza la tabla para consultar todas las columnas.';
+  raiz.append(ayuda, aviso, t);
   cont.append(raiz);
   return null;
 }

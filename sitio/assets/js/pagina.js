@@ -7,8 +7,10 @@ import { mmm_aa, trimestre, token } from './formato.js';
 import { COMPONENTES, hay } from './charts.js';
 import { COMPONENTES_BANCOS, formatear } from './charts_bancos.js'; // bancos:
 import { leer, barra, enlazarCabecera, alCambiar, cargarBancos, bancoPorSlug } from './estado.js'; // bancos:
+import { crearColaVisual } from './fluidez.js';
 import * as presentacion from './presentacion.js'; // bancos:
 Object.assign(COMPONENTES, COMPONENTES_BANCOS); // bancos: componentes propios de bancos
+const COLA_VISUAL = crearColaVisual();
 const REDIBUJAR = new Set(); // bancos: tarjetas [banco] que se vuelven a dibujar al cambiar el estado
 let CFG = null; // bancos: configuración de la página montada
 const TITULAR_BANCO = new Set(['B8']); // bancos: solo la ficha cambia su titular con el banco activo
@@ -22,6 +24,8 @@ function actualizarApertura() {
   if (!CFG || !TITULAR_BANCO.has(CFG.clave)) return;
   const b = bancoPorSlug(leer().banco);
   const titular = document.querySelector('.apertura-titular');
+  const tituloVisible = document.querySelector('.barra-titulo-nombre');
+  if (tituloVisible) tituloVisible.textContent = b ? b.nombre : CFG.nombre;
   const rotulo = document.querySelector('.apertura-rotulo');
   if (titular) titular.textContent = b ? b.nombre : t(`${CFG.clave}.titular`, CFG.nombre);
   if (rotulo && CFG.rotulo) rotulo.textContent = b ? `${CFG.rotulo} · ${b.modelo.toUpperCase()}` : CFG.rotulo;
@@ -78,12 +82,8 @@ function cabecera(cfg, ultimoDato) {
     if (cfg.clave === p.clave) a.setAttribute('aria-current', 'page');
     nav.append(a);
   });
-  const botonPresentar = el('button', 'boton-presentar', 'Presentar'); // bancos:
-  botonPresentar.type = 'button'; // bancos:
-  botonPresentar.addEventListener('click', () => presentacion.entrar(0)); // bancos:
-  nav.append(botonPresentar); // bancos:
   h.append(id, nav);
-  if (ultimoDato) h.append(el('span', 'cabecera-ultimo', `Último dato ${ultimoDato}`));
+  h.append(el('span', 'cabecera-ultimo', ultimoDato ? `Último dato ${ultimoDato}` : 'Fuentes: BCB · IF.Data · SGS · SCR'));
   return h;
 }
 
@@ -145,8 +145,15 @@ function serieSvg(valores, tono, huecos) {
 }
 async function pintarFranja(cfg, nodo) {
   const tablas = [...new Set(cfg.franja.map((k) => (typeof k.tabla === 'function' ? null : k.tabla)).filter(Boolean))];
-  let d = {};
-  try { d = await cargarTodas(tablas); } catch { d = {}; }
+  const version = nodo._version = (nodo._version || 0) + 1;
+  nodo.setAttribute('aria-busy', 'true');
+  const resultados = await Promise.allSettled(tablas.map(async (tabla) => cargarTodas([tabla])));
+  if (nodo._version !== version) return;
+  const d = Object.assign({}, ...resultados.filter((r) => r.status === 'fulfilled').map((r) => r.value));
+  if (tablas.length && resultados.every((r) => r.status === 'rejected')) {
+    estadoDatos(nodo, 'No pudimos cargar los indicadores', 'Revisa tu conexión y vuelve a intentarlo.', () => pintarFranja(cfg, nodo));
+    return;
+  }
   const banco = bancoPorSlug(leer().banco);
   const celdas = [];
   for (const k of cfg.franja) {
@@ -160,7 +167,7 @@ async function pintarFranja(cfg, nodo) {
     const u = filas[filas.length - 1];
     if (!u) {
       cab.append(el('span', 'franja-corte', ''));
-      c.append(cab, el('span', 'franja-valor franja-sin', k.banco && !banco ? 'Elige un banco' : '—'));
+      c.append(cab, el('span', 'franja-valor franja-sin', k.banco && !banco ? 'Elige un banco' : 'Sin datos'));
       celdas.push(c);
       continue;
     }
@@ -183,13 +190,16 @@ async function pintarFranja(cfg, nodo) {
     celdas.push(c);
   }
   nodo.replaceChildren(...celdas);
+  nodo.setAttribute('aria-busy', 'false');
 }
 function franja(cfg) {
   const n = el('div', 'franja');
   n.setAttribute('role', 'region');
   n.setAttribute('aria-label', 'Indicadores principales');
   FRANJA = n;
-  return pintarFranja(cfg, n).then(() => n);
+  estadoDatos(n, 'Cargando indicadores…', '', null, true);
+  pintarFranja(cfg, n);
+  return n;
 }
 
 /* ---------- 4.4 Tira «Qué cambió» ---------- */
@@ -350,9 +360,38 @@ function tarjetaShell(cfgTar, alto) {
   return { figura: f, zona };
 }
 
+function estadoDatos(zona, titulo, detalle, reintentar = null, cargando = false) {
+  clearTimeout(zona._cargaTimer);
+  zona.classList.remove('actualizacion-visible');
+  liberar(zona);
+  zona._lista = false;
+  const mensaje = el('div', 'estado-datos od-stack');
+  mensaje.setAttribute('role', 'status');
+  mensaje.append(el('strong', '', titulo));
+  if (detalle) mensaje.append(el('p', '', detalle));
+  if (reintentar) {
+    const boton = el('button', '', 'Reintentar');
+    boton.type = 'button';
+    boton.addEventListener('click', reintentar);
+    mensaje.append(boton);
+  }
+  zona.setAttribute('aria-busy', String(cargando));
+  zona.replaceChildren(mensaje);
+  zona.closest('.tarjeta')?.classList.remove('tarjeta-vacia');
+}
+
 function enPreparacion(zona, motivo) {
-  zona.replaceChildren(el('div', 'preparacion', `En preparación: ${motivo}`));
-  zona.closest('.tarjeta')?.classList.add('tarjeta-vacia'); // v2: se oculta (CSS) y la fila se reparte
+  const requiereBanco = /elige|selecciona|sin banco/i.test(motivo || '');
+  const detalle = /función|componente|armar|implementad|error/i.test(motivo || '')
+    ? 'Este indicador todavía no está disponible. Puedes consultar los demás indicadores de la página.'
+    : (motivo || 'No hay observaciones disponibles para esta selección.');
+  estadoDatos(zona, requiereBanco ? 'Elige un banco para continuar' : 'Sin datos disponibles', detalle);
+  if (requiereBanco && document.getElementById('banco-activo')) {
+    const boton = el('button', '', 'Elegir banco');
+    boton.type = 'button';
+    boton.addEventListener('click', () => document.getElementById('banco-activo')?.focus());
+    zona.firstElementChild.append(boton);
+  }
 }
 
 /* v2: en cada fila, las tarjetas visibles se reparten las 9 columnas; una sección sin ninguna se oculta. */
@@ -370,7 +409,12 @@ function repartirFilas(s, filas) {
 
 /* bancos: libera las instancias de ECharts de una tarjeta antes de volver a dibujarla */
 function liberar(zona) {
-  for (const n of zona.querySelectorAll('*')) window.echarts?.getInstanceByDom(n)?.dispose();
+  zona._resizeObserver?.disconnect();
+  zona._resizeObserver = null;
+  for (const n of zona.querySelectorAll('*')) {
+    const chart = window.echarts?.getInstanceByDom(n);
+    if (chart) { COLA_VISUAL.quitar(chart); chart.dispose(); }
+  }
 }
 
 // 4-nov: carga explícita de las fuentes antes de dibujar (máx. 3 s; si no llegan se dibuja igual)
@@ -379,7 +423,25 @@ const FUENTES = document.fonts?.load
   : Promise.resolve();
 
 async function dibujar(clave, cfgTar, zona, figura, numeroSeccion) {
-  await FUENTES; // 4-nov: ECharts mide las etiquetas con la fuente real (antes cortaba nombres)
+  const version = zona._version = (zona._version || 0) + 1;
+  const vigente = () => zona._version === version;
+  clearTimeout(zona._cargaTimer);
+  zona.querySelector('.actualizacion-dato')?.remove();
+  zona.classList.remove('actualizacion-visible');
+  zona.setAttribute('aria-busy', 'true');
+  if (zona._lista) {
+    // Mantiene el resultado anterior. La carga solo se anuncia si la espera es perceptible.
+    zona._cargaTimer = setTimeout(() => {
+      if (!vigente()) return;
+      const aviso = el('span', 'actualizacion-dato', 'Actualizando…');
+      aviso.setAttribute('role', 'status');
+      zona.append(aviso);
+      zona.classList.add('actualizacion-visible');
+    }, 300);
+  } else estadoDatos(zona, 'Cargando indicador…', 'La vista se actualizará cuando lleguen los datos.', null, true);
+  const reintentar = () => programarDibujo(clave, cfgTar, zona, figura, numeroSeccion);
+  await FUENTES;
+  if (!vigente()) return; // 4-nov: ECharts mide las etiquetas con la fuente real (antes cortaba nombres)
   // 4-nov: ECharts mide el texto con su fuente por defecto pero el SVG lo dibuja con la de la página (Plex):
   // se fija la misma fuente en todos los gráficos para que medida y dibujo coincidan.
   if (window.echarts && !window.echarts.__fuenteFija) {
@@ -390,12 +452,12 @@ async function dibujar(clave, cfgTar, zona, figura, numeroSeccion) {
   // bancos: las tarjetas de una sección con selector se vuelven a dibujar al cambiarlo (solo esa sección)
   if (numeroSeccion && !zona._seccionRegistrada) {
     zona._seccionRegistrada = true;
-    SECCIONES.get(numeroSeccion)?.add(() => { liberar(zona); zona.replaceChildren(); dibujar(clave, cfgTar, zona, figura, numeroSeccion); });
+    SECCIONES.get(numeroSeccion)?.add(() => programarDibujo(clave, cfgTar, zona, figura, numeroSeccion));
   }
   // bancos: tarjetas [banco] se vuelven a dibujar cuando cambia el estado (solo filtran y resaltan)
   if (cfgTar.banco && !zona._registrada) {
     zona._registrada = true;
-    REDIBUJAR.add(() => { liberar(zona); zona.replaceChildren(); dibujar(clave, cfgTar, zona, figura); });
+    REDIBUJAR.add(() => programarDibujo(clave, cfgTar, zona, figura, numeroSeccion));
   }
   if (typeof cfgTar.armar !== 'function') { enPreparacion(zona, motivoEstado(cfgTar.estado)); return; }
   if (BLOQUEADOS.has((cfgTar.estado || '').toUpperCase())) {
@@ -407,30 +469,41 @@ async function dibujar(clave, cfgTar, zona, figura, numeroSeccion) {
     return;
   }
   figura.classList.remove('tarjeta-vacia'); // v2
-  zona.append(el('div', 'esqueleto'));
+  zona.setAttribute('aria-busy', 'true');
   let d;
   try {
     d = await cargarTodas(cfgTar.datos || []);
   } catch (e) {
-    zona.replaceChildren(el('div', 'error-dato', `No se pudieron cargar los datos: ${e.message}`));
+    if (!vigente()) return;
+    console.warn('No se pudieron cargar los datos de', clave, e);
+    estadoDatos(zona, 'No pudimos cargar este indicador', 'Revisa tu conexión y vuelve a intentarlo. El resto de la página sigue disponible.', reintentar);
     return;
   }
+  if (!vigente()) return;
   let entrada;
   try {
     entrada = cfgTar.armar ? await cfgTar.armar(d, { clave, ...leer(), seleccion: seleccionDe(numeroSeccion), codBanco: bancoPorSlug(leer().banco)?.cod || null, grupoBanco: bancoPorSlug(leer().banco)?.modelo || null }) : null; // bancos: armar recibe el estado (banco, optica, grupo, trimestre) y el selector de su sección
   } catch (e) {
-    zona.replaceChildren(el('div', 'error-dato', `Error al armar la tarjeta: ${e.message}`));
+    if (!vigente()) return;
+    console.warn('No se pudo preparar el indicador', clave, e);
+    estadoDatos(zona, 'No pudimos mostrar este indicador', 'Vuelve a intentarlo o consulta otra sección.', reintentar);
     return;
   }
+  if (!vigente()) return;
   if (!entrada) { enPreparacion(zona, cfgTar.motivo || 'la función armar() no devolvió datos'); return; }
   if (entrada.enPreparacion) { enPreparacion(zona, entrada.enPreparacion); return; }
 
-  const cont = el('div');
+  const desplazamientos = [...zona.querySelectorAll('.tabla-scroll')].map((n) => ({ izquierda: n.scrollLeft, arriba: n.scrollTop }));
+  const glosarioAbierto = !!zona.querySelector('.tabla-glosario[open]');
+  const cont = el('div', 'tarjeta-visual');
   cont.style.cssText = 'position:absolute;inset:0';
   if (!['tabla', 'comparador', 'percentiles', 'cascada_doble', 'apilada_100', 'pesas', 'barras_ic', 'small_multiples', 'small_multiples_bancos', 'barras_simple', 'mix_banco', 'puertas', 'tabla_estandar'].includes(cfgTar.componente)) { // bancos: los HTML no llevan role=img
     cont.setAttribute('role', 'img');
     cont.setAttribute('aria-label', entrada.ariaLabel || cfgTar.titulo || clave);
   }
+  clearTimeout(zona._cargaTimer);
+  zona.classList.remove('actualizacion-visible');
+  liberar(zona);
   zona.replaceChildren(cont);
   const fig = zona.closest('figure');
   if (fig && 'leyenda' in entrada) { // 3-nov: la leyenda depende de la vista elegida ([] = la dibuja el gráfico)
@@ -438,7 +511,30 @@ async function dibujar(clave, cfgTar, zona, figura, numeroSeccion) {
     if (entrada.leyenda && entrada.leyenda.length) fig.insertBefore(armarLeyenda(entrada.leyenda), zona);
   }
   const fn = COMPONENTES[entrada.componente || cfgTar.componente];
-  const chart = fn(cont, entrada, { clave });
+  let chart;
+  try {
+    chart = fn(cont, entrada, { clave });
+    zona._lista = true;
+    zona.setAttribute('aria-busy', 'false');
+  } catch (e) {
+    liberar(zona);
+    console.warn('No se pudo dibujar el indicador', clave, e);
+    estadoDatos(zona, 'No pudimos mostrar este indicador', 'Vuelve a intentarlo o consulta otra sección.', reintentar);
+    return;
+  }
+  if (!chart) {
+    const glosario = cont.querySelector('.tabla-glosario');
+    if (glosario) glosario.open = glosarioAbierto;
+    for (const [i, scroll] of [...cont.querySelectorAll('.tabla-scroll')].entries()) {
+      if (desplazamientos[i]) {
+        scroll.scrollLeft = desplazamientos[i].izquierda;
+        scroll.scrollTop = desplazamientos[i].arriba;
+      }
+      scroll.tabIndex = 0;
+      scroll.setAttribute('role', 'region');
+      scroll.setAttribute('aria-label', `${cfgTar.titulo || 'Tabla de datos'}. Desplázate para consultar todas las columnas.`);
+    }
+  }
   if (chart && zona.closest('.pres-lamina')) window.__escalaTextoPres?.(zona); // 4-nov: redibujo dentro de una lámina
   if (cfgTar.pastilla && entrada.pastilla) {
     const p = figura.querySelector('[data-pastilla]');
@@ -447,9 +543,25 @@ async function dibujar(clave, cfgTar, zona, figura, numeroSeccion) {
     }
   }
   if (chart) {
-    const ro = new ResizeObserver(() => chart.resize());
+    let ancho = Math.round(cont.clientWidth), alto = Math.round(cont.clientHeight);
+    const ro = new ResizeObserver(([entrada]) => {
+      const nuevoAncho = Math.round(entrada.contentRect.width), nuevoAlto = Math.round(entrada.contentRect.height);
+      if (!nuevoAncho || !nuevoAlto || (nuevoAncho === ancho && nuevoAlto === alto)) return;
+      ancho = nuevoAncho;
+      alto = nuevoAlto;
+      COLA_VISUAL.agendar(chart, () => {
+        if (cont.isConnected && !chart.isDisposed()) chart.resize();
+      });
+    });
     ro.observe(cont);
+    zona._resizeObserver = ro;
   }
+}
+
+function programarDibujo(clave, cfgTar, zona, figura, numeroSeccion) {
+  // Invalida el resultado pendiente inmediatamente; los clics del mismo fotograma se agrupan.
+  zona._version = (zona._version || 0) + 1;
+  COLA_VISUAL.agendar(zona, () => dibujar(clave, cfgTar, zona, figura, numeroSeccion));
 }
 
 /* ---------- 4.5 Secciones ---------- */
@@ -460,6 +572,7 @@ function seleccionDe(numero) {
 
 /* Al elegir una opción, se redibujan solo las tarjetas de su sección y se recalcula su riel. */
 function elegirSeleccion(numero, clave, valor, pintarRiel) {
+  if (SELECCION.get(numero)?.[clave] === valor) return;
   SELECCION.set(numero, { ...(SELECCION.get(numero) || {}), [clave]: valor });
   for (const redibujar of SECCIONES.get(numero) || []) redibujar();
   pintarRiel();
@@ -479,7 +592,7 @@ function seccion(cfg, sec) {
     if (previo[clave] === undefined) SELECCION.set(sec.numero, { ...previo, [clave]: b.defecto ?? b.opciones?.[0]?.valor });
   }
   SECCIONES.set(sec.numero, new Set());
-  return cargarTodas(tablas).then(async (d) => {
+  return cargarTodas(tablas).catch(() => ({})).then(async (d) => {
     let ult = null;
     if (sec.ultimo && d[sec.ultimo.tabla]) ult = maxFecha(d[sec.ultimo.tabla], sec.ultimo.columna || 'fecha');
     // las tablas de los KPI se cargan aparte: si una falla, ese KPI va en preparación y la sección sigue
@@ -495,7 +608,12 @@ function seccion(cfg, sec) {
       }
       const nuevo = riel(cfg, sec, ult, resultados, (clave, valor) => elegirSeleccion(sec.numero, clave, valor, pintarRiel));
       const viejo = s.querySelector(':scope > .riel');
-      if (viejo) viejo.replaceWith(nuevo); else s.prepend(nuevo);
+      if (viejo) {
+        const bloques = [...nuevo.querySelectorAll(':scope > .riel-bloque:not(.riel-selector)')];
+        [...viejo.querySelectorAll(':scope > .riel-bloque:not(.riel-selector)')].forEach((bloque, i) => {
+          if (bloques[i]) bloque.replaceWith(bloques[i]);
+        });
+      } else s.prepend(nuevo);
     };
     await pintarRiel();
     const cuerpo = el('div', sec.apilada ? 'cuerpo apilada' : 'cuerpo');
@@ -540,42 +658,96 @@ function cierre(cfg) {
 }
 
 /* ---------- montar una página ---------- */
-export async function montar(cfg) {
-  await leerTextos();
-  CFG = cfg; // bancos:
-  await cargarBancos(await tablasExportadas()); // bancos: lista de bancos desde bk_banco si el manifiesto la trae
-  const app = document.getElementById('app');
-  app.replaceChildren();
-  let ultimoDato = null;
-  if (cfg.ultimoDato) {
-    try {
-      const d = await cargarTodas([cfg.ultimoDato.tabla]);
-      ultimoDato = etiquetaFecha(maxFecha(d[cfg.ultimoDato.tabla], cfg.ultimoDato.columna || 'fecha'), cfg.trimestral);
-    } catch { ultimoDato = null; }
+function instalarIndice(contenedor) {
+  const enlaces = [...contenedor.querySelectorAll('.indice-item')];
+  const secciones = [...contenedor.querySelectorAll('section.seccion')];
+  const marcar = (id) => enlaces.forEach((a) => {
+    if (a.hash === `#${id}`) a.setAttribute('aria-current', 'location');
+    else a.removeAttribute('aria-current');
+  });
+  if (secciones.length) marcar(secciones[0].id);
+  if ('IntersectionObserver' in window) {
+    const visibles = new Set();
+    const observer = new IntersectionObserver((entradas) => {
+      for (const e of entradas) {
+        if (e.isIntersecting) visibles.add(e.target);
+        else visibles.delete(e.target);
+      }
+      const primera = secciones.find((sec) => visibles.has(sec));
+      if (primera) marcar(primera.id);
+    }, { rootMargin: '-15% 0px -45% 0px', threshold: 0 });
+    secciones.forEach((sec) => observer.observe(sec));
   }
-  app.append(cabecera(cfg, ultimoDato));
-  const b = barra(); // bancos: barra de banco activo (spec §3)
-  const titulo = el('div', 'barra-titulo'); // v2: el título de la página vive aquí, una sola vez
-  titulo.append(el('span', 'barra-titulo-rotulo', cfg.rotulo || 'BANCOS BRASIL'), el('span', 'barra-titulo-nombre', cfg.nombre));
+  for (const a of enlaces) a.addEventListener('click', () => marcar(a.hash.slice(1)));
+}
+
+export async function montar(cfg) {
+  CFG = cfg;
+  const app = document.getElementById('app');
+  app.replaceChildren(cabecera(cfg, null));
+  const espera = el('p', 'carga-inicial', 'Cargando indicadores…');
+  espera.setAttribute('role', 'status');
+  app.append(espera);
+  await Promise.all([leerTextos(), cargarBancos(await tablasExportadas())]);
+  espera.remove();
+  const b = barra();
+  const titulo = el('div', 'barra-titulo');
+  titulo.append(el('h1', 'barra-titulo-nombre', cfg.nombre));
+  if (cfg.rotulo) titulo.append(el('span', 'barra-titulo-rotulo', cfg.rotulo));
   b.prepend(titulo);
-  if (cfg.usaBanco === false) b.classList.add('sin-banco'); // v3: la Portada no usa banco activo
-  const presentarBarra = el('button', 'barra-presentar', 'Presentar ▸'); // v3: a la vista, en la barra superior
+  if (cfg.usaBanco === false) b.classList.add('sin-banco');
+  const presentarBarra = el('button', 'barra-presentar', 'Presentar');
   presentarBarra.type = 'button';
   presentarBarra.title = 'Cada sección es una lámina · tecla P';
+  presentarBarra.setAttribute('aria-keyshortcuts', 'p');
+  presentarBarra.disabled = true;
   presentarBarra.addEventListener('click', () => presentacion.entrar(0));
   b.append(presentarBarra);
   app.append(b);
-  if (cfg.franja?.length) app.append(await franja(cfg)); // v3
-  const cont = el('div', 'contenedor');
-  if (!cfg.franja?.length) cont.append(apertura(cfg));
-  cont.append(queCambio(cfg));
-  for (const sec of cfg.secciones) cont.append(await seccion(cfg, sec));
+  if ('ResizeObserver' in window) {
+    const barraObserver = new ResizeObserver(() => {
+      document.documentElement.style.setProperty('--barra-alto', window.innerWidth >= 1200 ? `${Math.ceil(b.getBoundingClientRect().height)}px` : '0px');
+    });
+    barraObserver.observe(b);
+  }
+  if (cfg.franja?.length) app.append(franja(cfg));
+  const cont = el('main', 'contenedor');
+  cont.id = 'contenido-principal';
+  cont.tabIndex = -1;
+  cont.append(apertura(cfg), queCambio(cfg));
+  app.append(cont);
+  const montajes = (cfg.secciones || []).map((sec) => {
+    const hueco = el('section', 'seccion');
+    hueco.id = `s${sec.numero}`;
+    estadoDatos(hueco, sec.nombre, 'Cargando sección…', null, true);
+    cont.append(hueco);
+    const montarSeccion = async () => {
+      estadoDatos(hueco, sec.nombre, 'Cargando sección…', null, true);
+      try {
+        const nueva = await seccion(cfg, sec);
+        hueco.replaceWith(nueva);
+      } catch (error) {
+        console.warn('No se pudo montar la sección', sec.numero, error);
+        estadoDatos(hueco, `No pudimos cargar ${sec.nombre}`, 'Vuelve a intentarlo. Las demás secciones siguen disponibles.', montarSeccion);
+      }
+    };
+    return montarSeccion();
+  });
   const pie = cierre(cfg);
   if (pie) cont.append(pie);
-  app.append(cont);
   document.title = `${cfg.nombre} · Bancos Brasil`;
-  actualizarApertura(); // bancos: titular y rótulo según el banco activo
-  presentacion.alMontar(); // bancos: hoja de impresión y entrada directa a presentación (#presentar=sNN)
+  if (cfg.ultimoDato) {
+    cargarTodas([cfg.ultimoDato.tabla]).then((d) => {
+      const fecha = etiquetaFecha(maxFecha(d[cfg.ultimoDato.tabla], cfg.ultimoDato.columna || 'fecha'), cfg.trimestral);
+      if (fecha !== '—') app.querySelector('.cabecera-ultimo').textContent = `Último dato ${fecha}`;
+    }).catch(() => {});
+  }
+  await Promise.all(montajes);
+  instalarIndice(cont);
+  actualizarApertura();
+  presentarBarra.disabled = !cont.querySelector('.seccion .cuerpo');
+  presentacion.alMontar();
+  if (/^#s\d+$/.test(location.hash)) document.getElementById(location.hash.slice(1))?.scrollIntoView({ behavior: 'instant', block: 'start' });
 }
 
 /* ---------- 4.6 Portada ---------- */

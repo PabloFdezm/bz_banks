@@ -6,7 +6,7 @@ Detalle exhaustivo de cada script (docstring completo, subcomandos y argumentos)
 
 | Fuente | Qué trae | Frecuencia y rezago | Acceso | Dónde queda |
 |---|---|---|---|---|
-| **IF.Data** | Estados financieros por institución: balance (informe 2 activo, 3 pasivo), resultados (4), cartera por modalidad PF (11) y PJ (13), otros | Trimestral (mar/jun/sep/dic), ~60 días de rezago (~90 en diciembre) | API OLinda (OData) `olinda.bcb.gov.br/olinda/servico/IFDATA/versao/v1/odata` | `datos/crudo/bcb_ifdata/{valores,cadastro,catalogo}/actual/` (CSV `valores_AAAAMM_<escopo>_r<informe>.csv`) |
+| **IF.Data** | Estados financieros por institución: balance (informe 2 activo, 3 pasivo), resultados (4), cartera por modalidad PF (11) y PJ (13), otros | Trimestral (mar/jun/sep/dic), ~60 días de rezago (~90 en diciembre) | API OLinda (OData) `olinda.bcb.gov.br/olinda/servico/IFDATA/versao/v1/odata` | `datos/crudo/bcb_ifdata/{valores,cadastro,catalogo}/actual/` — `valores_AAAAMM_<escopo>_r<informe>.parquet` (ver «Crudo en parquet») |
 | **SGS** | Series de sistema: saldos y concesiones de crédito por modalidad, mora, tasas, CDI, IPCA, crédito/PIB… | Mensual (algunas diarias o trimestrales), ~1–2 meses | `api.bcb.gov.br/dados/serie/bcdata.sgs.{codigo}/dados` | `datos/crudo/bcb_sgs/<dataset>/actual/serie_<codigo>.json` |
 | **SCR.data** | Cartera y morosidad del sistema por segmento, porte, UF | Mensual; ZIP anuales | descarga de ZIP | `datos/crudo/bcb_scr/scrdata/actual/*.zip` |
 | BIS | Brecha crédito/PIB (referencia) | Trimestral | — | `datos/crudo/bis/` |
@@ -27,6 +27,20 @@ datos/gold/                                   la capa que exporta el sitio (bk_*
 Funciones que usan los scripts: `ruta_cruda(fuente, dataset)`, `registrar_crudo(...)` (guarda con
 manifiesto), `guardar_derivado(fuente, dataset, nombre, bytes, desde=[...], como=COMANDO, nota=...)`,
 `escribir_atomico(destino, bytes)` (escritura vía temporal + rename, segura con OneDrive), `verificar()`.
+
+## Crudo en parquet (desde el 4-nov-2026)
+
+OLinda sirve CSV; `ifdata.py` lo baja, lo registra (URL + sha256 del CSV) y lo convierte de inmediato a
+parquet con `almacen.csv_a_parquet`: **todas las columnas como texto, sin inferir tipos**, comprobando que el
+parquet reproduce el CSV celda por celda; luego borra el CSV (`GUARDAR_PARQUET`, `BORRAR_CSV` en
+`ifdata.py`). Es una recodificación sin pérdida, así que sigue siendo capa cruda; el manifiesto guarda los
+datos del CSV y, en la clave `parquet`, archivo, sha256, bytes y filas. IF.Data pasó de 3,5 GB a 62 MB.
+
+Las lecturas usan `almacen.leer_crudo_tabla(ruta_csv, columnas)` (parquet si existe, si no CSV),
+`glob_crudo(carpeta, patron.csv)` y `crudo_con_datos(ruta)`: el código sigue nombrando los crudos por su
+nombre `.csv`. `herramientas/convertir_crudo_parquet.py [--borrar]` convierte lo que falte. El SCR sigue en
+ZIP (ya comprimido; solo se lee para rearmar la historia de `bk_scr`). `diccionario_ifdata.py` todavía lee
+los CSV de volcado completo (no es parte de la cadena).
 
 ## Scripts y orden (lo que corre `actualizar.bat`)
 

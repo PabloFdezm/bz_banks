@@ -5,12 +5,18 @@
    Teclas: P entra · Esc sale · → / Espacio siguiente · ← anterior · Inicio / Fin · número + Enter salta.
    Al final de una página, → pasa a la primera lámina de la siguiente (orden de config.js) con el mismo estado. */
 import { PAGINAS } from './config.js';
+import { crearColaVisual } from './fluidez.js';
+const COLA_VISUAL = crearColaVisual();
+const GRAFICOS_ESCALADOS = new WeakSet();
+let versionLamina = 0;
+let transicionLamina = null;
 
 const ANCHO = 1920;
 const ALTO = 1080;
 const CLAVE_SESION = 'bancos:presentar';
 
 const enlace = (ruta) => (ruta ? `/${ruta}/` : '/');
+const PAGINAS_VISIBLES = PAGINAS.filter((p) => !p.oculta);
 
 let activo = false;
 let secciones = [];
@@ -24,6 +30,10 @@ let lamina = null;
 let tecleo = '';
 let timerTecleo = null;
 let reanudarTrasImprimir = false;
+let focoPrevio = null;
+let inertePrevio = false;
+let pantallaCompletaPropia = false;
+let controles = null;
 
 function nodo(tag, clase, texto) {
   const n = document.createElement(tag);
@@ -35,7 +45,8 @@ function nodo(tag, clase, texto) {
 const textoDe = (sel, raiz) => raiz.querySelector(sel)?.textContent.trim() || '';
 
 function paginaIndice() {
-  return PAGINAS.findIndex((p) => enlace(p.ruta) === location.pathname);
+  const ruta = location.pathname.replace(/\/index\.html$/, '/').replace(/\/?$/, '/');
+  return PAGINAS_VISIBLES.findIndex((p) => enlace(p.ruta) === ruta);
 }
 
 
@@ -55,14 +66,14 @@ function escalarTextos(raiz, f) {
   };
   for (const el of raiz.querySelectorAll('.tarjeta-zona > div')) {
     const ch = window.echarts.getInstanceByDom(el);
-    if (!ch) continue;
+    if (!ch || (f > 1 && GRAFICOS_ESCALADOS.has(ch)) || (f < 1 && !GRAFICOS_ESCALADOS.has(ch))) continue;
     const op = ch.getOption();
+    if (!op.textStyle || Array.isArray(op.textStyle)) op.textStyle = {};
+    if (typeof op.textStyle.fontSize !== 'number') op.textStyle.fontSize = 12;
     recorrer(op);
     for (const g of op.grid || []) for (const k of ['top', 'right', 'bottom', 'left']) if (typeof g[k] === 'number') g[k] = Math.round(g[k] * f);
-    if (!op.textStyle || Array.isArray(op.textStyle)) op.textStyle = {};
-    const base = (op.textStyle.fontSize || 12);
-    op.textStyle.fontSize = Math.round(base * f * 10) / 10;
     ch.setOption(op);
+    if (f > 1) GRAFICOS_ESCALADOS.add(ch); else GRAFICOS_ESCALADOS.delete(ch);
     ch.resize();
   }
 }
@@ -81,14 +92,19 @@ function escalar() {
   if (!activo || !lamina) return;
   // la lámina tiene alto natural (mínimo 1080): el contenido nunca se sale del marco de escala
   const alto = Math.max(ALTO, lamina.offsetHeight);
-  const s = Math.min(window.innerWidth / ANCHO, window.innerHeight / alto);
+  const reserva = (controles?.offsetHeight || 60) + 32;
+  const disponible = Math.max(80, window.innerHeight - reserva);
+  const s = Math.min(Math.max(80, window.innerWidth - 32) / ANCHO, disponible / alto);
+  lamina.style.top = `${disponible / 2}px`;
   lamina.style.transform = `translate(-50%, -50%) scale(${s})`;
 }
 
-function alCambiarTamano() { escalar(); }
+function alCambiarTamano() { COLA_VISUAL.agendar('escala', escalar); }
 
 function mostrar(i) {
   if (i < 0 || i >= secciones.length) return;
+  const version = ++versionLamina;
+  transicionLamina?.cancel();
   devolverCuerpo();
   idx = i;
   const sec = secciones[i];
@@ -127,57 +143,110 @@ function mostrar(i) {
     nodo('span', 'pres-contador', `${i + 1} / ${secciones.length}`),
   );
   lamina.append(cab, cw, pie);
+  actualizarControles();
   escalar();
-  requestAnimationFrame(() => escalarTextos(cuerpoActual, FACTOR_TEXTO));
+  const cuerpoVisible = cuerpoActual;
+  requestAnimationFrame(() => {
+    if (!activo || version !== versionLamina) return;
+    escalarTextos(cuerpoVisible, FACTOR_TEXTO);
+    if (!matchMedia('(prefers-reduced-motion: reduce)').matches && lamina.animate) {
+      const duracion = Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--movimiento')) || 180;
+      transicionLamina = lamina.animate([{ opacity: .86 }, { opacity: 1 }], { duration: duracion, easing: 'ease-out' });
+    }
+  });
 }
 
 export function entrar(i = 0) {
   if (activo) return;
-  secciones = [...document.querySelectorAll('section.seccion')];
+  secciones = [...document.querySelectorAll('section.seccion:not(.seccion-vacia)')].filter((sec) => sec.querySelector(':scope > .cuerpo'));
   if (!secciones.length) return;
   scrollPrevio = window.scrollY;
+  focoPrevio = document.activeElement;
   capa = nodo('div', 'presentacion');
   capa.setAttribute('role', 'dialog');
   capa.setAttribute('aria-label', 'Modo presentación');
+  capa.setAttribute('aria-modal', 'true');
+  capa.tabIndex = -1;
   lamina = nodo('div', 'pres-lamina');
-  capa.append(lamina);
+  controles = nodo('nav', 'pres-controles');
+  controles.setAttribute('aria-label', 'Controles de presentación');
+  const boton = (texto, nombre, accion) => {
+    const b = nodo('button', `pres-control pres-${nombre}`, texto);
+    b.type = 'button';
+    b.addEventListener('click', accion);
+    return b;
+  };
+  const estado = nodo('span', 'pres-estado');
+  estado.setAttribute('role', 'status');
+  estado.setAttribute('aria-live', 'polite');
+  controles.append(boton('Anterior', 'anterior', anterior), estado,
+    boton('Siguiente', 'siguiente', siguiente), boton('Salir', 'salir', salir));
+  capa.append(lamina, controles);
   document.body.append(capa);
   document.body.classList.add('modo-presentacion');
   activo = true;
+  const app = document.getElementById('app');
+  inertePrevio = app?.inert || false;
+  if (app) app.inert = true;
   try {
     const p = document.documentElement.requestFullscreen?.();
-    p?.catch?.(() => {});
+    p?.then?.(() => {
+      if (activo) { pantallaCompletaPropia = true; escalar(); }
+      else document.exitFullscreen?.().catch?.(() => {});
+    }).catch?.(() => {});
   } catch { /* sin pantalla completa: la lámina igual se ve en la ventana */ }
   window.addEventListener('resize', alCambiarTamano);
   mostrar(Math.min(Math.max(i, 0), secciones.length - 1));
+  controles.querySelector('.pres-salir').focus();
 }
 
 export function salir() {
   if (!activo) return;
+  ++versionLamina;
+  transicionLamina?.cancel();
+  transicionLamina = null;
+  COLA_VISUAL.quitar('escala');
   devolverCuerpo();
+  const app = document.getElementById('app');
+  if (app) app.inert = inertePrevio;
   capa?.remove();
   capa = null;
   lamina = null;
+  controles = null;
   document.body.classList.remove('modo-presentacion');
   window.removeEventListener('resize', alCambiarTamano);
   activo = false;
   try {
-    if (document.fullscreenElement) document.exitFullscreen?.().catch?.(() => {});
+    if (pantallaCompletaPropia && document.fullscreenElement) document.exitFullscreen?.().catch?.(() => {});
   } catch { /* nada que salir */ }
-  window.scrollTo(0, scrollPrevio);
+  pantallaCompletaPropia = false;
+  clearTimeout(timerTecleo);
+  tecleo = '';
+  window.scrollTo({ top: scrollPrevio, left: 0, behavior: 'instant' });
+  if (focoPrevio?.isConnected) focoPrevio.focus({ preventScroll: true });
 }
 
 function irPagina(dir) {
   const k = paginaIndice();
-  const destino = PAGINAS[k + dir];
+  const destino = PAGINAS_VISIBLES[k + dir];
   if (k < 0 || !destino) return;
   try { sessionStorage.setItem(CLAVE_SESION, dir > 0 ? 'primera' : 'ultima'); } catch { /* sin storage: entra en la lámina 1 */ }
-  location.href = enlace(destino.ruta) + location.search;
+  location.href = enlace(destino.ruta) + location.search + (dir > 0 ? '#presentar' : '#presentar=ultima');
+}
+
+function actualizarControles() {
+  if (!controles) return;
+  const k = paginaIndice();
+  controles.querySelector('.pres-anterior').disabled = idx === 0 && k <= 0;
+  const final = idx === secciones.length - 1 && (k < 0 || k === PAGINAS_VISIBLES.length - 1);
+  controles.querySelector('.pres-siguiente').textContent = final ? 'Finalizar' : 'Siguiente';
+  controles.querySelector('.pres-estado').textContent = `${document.title.split(' · ')[0]} · ${idx + 1} de ${secciones.length}`;
 }
 
 function siguiente() {
   if (idx < secciones.length - 1) mostrar(idx + 1);
-  else irPagina(1);
+  else if (paginaIndice() >= 0 && paginaIndice() < PAGINAS_VISIBLES.length - 1) irPagina(1);
+  else salir();
 }
 
 function anterior() {
@@ -187,9 +256,16 @@ function anterior() {
 
 function alTeclear(e) {
   if (e.ctrlKey || e.metaKey || e.altKey) return;
-  const enCampo = e.target?.closest?.('input, select, textarea');
+  const enCampo = e.target?.closest?.('input, select, textarea, [contenteditable="true"]');
+  if (activo && e.key === 'Tab') {
+    const enfocables = [...capa.querySelectorAll('button:not(:disabled), a[href], input:not(:disabled), select:not(:disabled), [tabindex="0"]')].filter((n) => n.getClientRects().length);
+    const primero = enfocables[0], ultimo = enfocables[enfocables.length - 1];
+    if (e.shiftKey && (document.activeElement === primero || !capa.contains(document.activeElement))) { e.preventDefault(); ultimo?.focus(); }
+    else if (!e.shiftKey && (document.activeElement === ultimo || !capa.contains(document.activeElement))) { e.preventDefault(); primero?.focus(); }
+    return;
+  }
   if (activo && e.key === 'Escape') { e.preventDefault(); salir(); return; }
-  if (enCampo) return;
+  if (enCampo || (activo && e.target?.closest?.('button') && [' ', 'Enter'].includes(e.key))) return;
   if (!activo) {
     if (e.key === 'p' || e.key === 'P') { e.preventDefault(); entrar(0); }
     return;
@@ -230,10 +306,10 @@ export function alMontar() {
     marca = sessionStorage.getItem(CLAVE_SESION);
     sessionStorage.removeItem(CLAVE_SESION);
   } catch { /* sin storage */ }
-  const m = location.hash.match(/presentar(?:=s?(\d{1,2}))?/);
-  const sec = [...document.querySelectorAll('section.seccion')];
+  const m = location.hash.match(/^#presentar(?:=(ultima|s?\d{1,2}))?$/);
+  const sec = [...document.querySelectorAll('section.seccion:not(.seccion-vacia)')].filter((s) => s.querySelector(':scope > .cuerpo'));
   if (m) {
-    const j = m[1] ? sec.findIndex((s) => s.id === `s${m[1].padStart(2, '0')}`) : 0;
+    const j = m[1] === 'ultima' ? sec.length - 1 : m[1] ? sec.findIndex((s) => s.id === `s${m[1].replace(/^s/, '').padStart(2, '0')}`) : 0;
     entrar(j < 0 ? 0 : j);
   } else if (marca && sec.length) {
     entrar(marca === 'ultima' ? sec.length - 1 : 0);
@@ -244,6 +320,9 @@ export function alMontar() {
 }
 
 window.addEventListener('keydown', alTeclear);
+window.addEventListener('fullscreenchange', () => {
+  if (activo && pantallaCompletaPropia && !document.fullscreenElement) salir();
+});
 
 /* Imprimir desde la presentación: se sale antes (la impresión necesita las secciones en su lugar). */
 window.addEventListener('beforeprint', () => {

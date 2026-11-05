@@ -155,53 +155,65 @@ export function barra() {
   const nav = document.createElement('div');
   nav.className = 'barra-banco';
   nav.setAttribute('role', 'region');
-  nav.setAttribute('aria-label', 'Banco activo y grupo de comparación');
+  nav.setAttribute('aria-label', 'Contexto y selección de banco');
 
   const activo = document.createElement('span');
   activo.className = 'barra-activo';
-
   const buscar = document.createElement('input');
   buscar.type = 'search';
+  buscar.id = 'buscar-banco';
   buscar.className = 'barra-buscar';
-  buscar.placeholder = 'Buscar';
-  buscar.setAttribute('aria-label', 'Buscar banco');
-
+  buscar.placeholder = 'Nombre del banco';
+  buscar.autocomplete = 'off';
+  buscar.setAttribute('aria-controls', 'banco-activo');
+  buscar.setAttribute('aria-describedby', 'bancos-resultados');
   const sel = document.createElement('select');
+  sel.id = 'banco-activo';
   sel.className = 'barra-sel';
   sel.setAttribute('aria-label', 'Banco');
+  const ayuda = document.createElement('span');
+  ayuda.id = 'bancos-resultados';
+  ayuda.className = 'barra-ayuda';
+  ayuda.setAttribute('role', 'status');
+  ayuda.setAttribute('aria-live', 'polite');
 
   const grupo = document.createElement('select');
+  grupo.id = 'grupo-comparacion';
   grupo.className = 'barra-sel';
   grupo.setAttribute('aria-label', 'Grupo de comparación');
   grupo.append(new Option('Panel total', 'panel'), ...GRUPOS.map((g) => new Option(g, g)));
-
   const tri = document.createElement('select');
+  tri.id = 'trimestre-activo';
   tri.className = 'barra-sel';
   tri.setAttribute('aria-label', 'Trimestre');
-
   const quitar = document.createElement('button');
   quitar.type = 'button';
   quitar.className = 'barra-quitar';
   quitar.textContent = 'Quitar banco';
 
-  const campo = (rotulo, ...controles) => {
-    const l = document.createElement('div');
-    l.className = 'barra-campo';
-    const r = document.createElement('span');
-    r.className = 'barra-rotulo';
-    r.textContent = rotulo;
-    l.append(r, ...controles);
-    return l;
+  const campo = (rotulo, control, ...extras) => {
+    const caja = document.createElement('div');
+    caja.className = 'barra-campo od-field';
+    const label = document.createElement('label');
+    label.className = 'barra-rotulo';
+    label.htmlFor = control.id;
+    label.textContent = rotulo;
+    caja.append(label, control, ...extras);
+    return caja;
   };
-  nav.append(activo, campo('Banco', buscar, sel), campo('Grupo', grupo), campo('Trimestre', tri), quitar);
-
+  nav.append(activo, campo('Buscar banco', buscar, ayuda), campo('Banco', sel),
+    campo('Grupo', grupo), campo('Trimestre', tri), quitar);
+  const normalizar = (v) => String(v).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+  let coincidencias = [];
   function poblarBancos() {
-    const f = buscar.value.trim().toLowerCase();
+    const filtro = normalizar(buscar.value);
     const actual = leer().banco;
-    sel.replaceChildren(new Option('Sin banco', ''));
+    coincidencias = BANCOS.filter((b) => !filtro || normalizar(`${b.nombre} ${b.slug}`).includes(filtro));
+    const visibles = new Set(coincidencias.map((b) => b.slug));
+    if (actual) visibles.add(actual);
+    sel.replaceChildren(new Option('Seleccionar banco', ''));
     for (const modelo of GRUPOS) {
-      const lista = BANCOS.filter((b) => b.modelo === modelo
-        && (b.slug === actual || !f || b.nombre.toLowerCase().includes(f) || b.slug.includes(f)));
+      const lista = BANCOS.filter((b) => b.modelo === modelo && visibles.has(b.slug));
       if (!lista.length) continue;
       const og = document.createElement('optgroup');
       og.label = modelo;
@@ -209,32 +221,36 @@ export function barra() {
       sel.append(og);
     }
     sel.value = actual || '';
+    ayuda.textContent = filtro
+      ? (coincidencias.length ? `${coincidencias.length} ${coincidencias.length === 1 ? 'coincidencia' : 'coincidencias'}. Elige en Banco.` : 'Sin coincidencias. Prueba otro nombre.')
+      : '';
   }
-
   function sincronizar() {
     const e = leer();
     const b = bancoPorSlug(e.banco);
-    activo.replaceChildren();
-    activo.classList.toggle('con-banco', !!b);
-    if (b) {
-      const n = document.createElement('b');
-      n.textContent = b.nombre;
-      activo.append(n, document.createTextNode(` · grupo ${e.grupo || 'panel total'}`));
-    } else {
-      activo.textContent = 'Sin banco seleccionado';
-    }
+    activo.textContent = b ? `${b.nombre} · grupo ${e.grupo || 'panel total'}` : 'Sin banco seleccionado';
     quitar.hidden = !b;
     grupo.value = e.grupo || 'panel';
     tri.replaceChildren(new Option('Último', ''), ...TRIMESTRES.map((t) => new Option(trimestreTexto(t), t)));
     tri.value = e.trimestre && TRIMESTRES.includes(e.trimestre) ? e.trimestre : '';
     poblarBancos();
   }
-
   buscar.addEventListener('input', poblarBancos);
+  buscar.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && coincidencias.length === 1) {
+      e.preventDefault();
+      elegirBanco(coincidencias[0].slug);
+      sel.focus();
+    }
+  });
   sel.addEventListener('change', () => elegirBanco(sel.value || null));
   grupo.addEventListener('change', () => fijar({ grupo: grupo.value }));
   tri.addEventListener('change', () => fijar({ trimestre: tri.value || null }));
-  quitar.addEventListener('click', () => fijar({ banco: null, grupo: null }));
+  quitar.addEventListener('click', () => {
+    buscar.value = '';
+    fijar({ banco: null, grupo: null });
+    sel.focus();
+  });
   window.addEventListener('bancos:estado', sincronizar);
   sincronizar();
   return nav;
