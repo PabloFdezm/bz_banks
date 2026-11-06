@@ -603,6 +603,39 @@ Carpeta `datos/gold/`.
 | `tasa_ap` | float64 | 0 | 0.018350346658945613 | 7745 |
 | `porte_es` | str | 90 | Grande | 5 |
 
+### `bk_scr_series`
+
+14,223 filas · 3 columnas · fecha: 2019-01-31 → 2026-08-31 · 0.14 MB
+
+| Columna | Tipo | % nulos | Ejemplo | Valores distintos |
+|---|---|---|---|---|
+| `serie` | str | 0 | aa\|Tarjeta\|Hasta 1 SM | 326 |
+| `fecha` | str | 0 | 2023-01-31 | 92 |
+| `valor` | float64 | 0 | 0.43497519745282287 | 13687 |
+
+### `bk_scr_tablas`
+
+398 filas · 16 columnas · — · 0.03 MB
+
+| Columna | Tipo | % nulos | Ejemplo | Valores distintos |
+|---|---|---|---|---|
+| `bloque` | str | 0 | saldo | 9 |
+| `producto` | str | 0 | Tarjeta | 9 |
+| `orden` | int64 | 0 | 0 | 12 |
+| `fila` | str | 0 | Hasta 1 SM | 44 |
+| `grupo` | str | 0 | Tramo | 4 |
+| `unidad_ultimo` | str | 0 | brl_mm | 3 |
+| `unidad_cambio` | str | 0 | pct | 2 |
+| `trimestral` | bool | 0 | False | 1 |
+| `destacar` | bool | 0 | False | 2 |
+| `share` | float64 | 20 | 0.08988570188517031 | 131 |
+| `ultimo` | float64 | 0 | 68.37278767381001 | 382 |
+| `d1` | float64 | 0 | 0.026981913868585172 | 382 |
+| `d3` | float64 | 0 | -0.041158873580104616 | 382 |
+| `d12` | float64 | 0 | 0.1578941942226415 | 382 |
+| `dventana` | float64 | 0 | 0.03396254917323316 | 382 |
+| `corte` | str | 0 | ago-26 | 1 |
+
 ### `bk_sensibilidad`
 
 34 filas · 8 columnas · — · 0.01 MB

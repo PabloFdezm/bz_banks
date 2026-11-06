@@ -49,6 +49,17 @@
 - `nota`: DFP (Demonstrações Financeiras Padronizadas) de la CVM, ejercicio 2024, filtrado a bancos por `extraer_fuentes.py cvm-dfp`. DERIVADO, no dato crudo de la CVM: …
 - `columnas`: objeto con 15 claves
 
+## `scr_productos.json` (4 kB)
+
+- `_descripcion`: Mapa de submodalidades del SCR.data a productos. Se aplica en orden: la primera regla que calza gana; lo que no calza va a «Otros». Comparación sin mayúsculas …
+- `_actualizado`: 2026-11-06
+- `productos`: lista de 7 · campos: `producto`, `slug`, `submodalidade`
+- `otros`: objeto con 2 claves
+- `tramos_pf`: objeto con 9 claves
+- `hasta_3sm`: lista de 3
+- `instituciones`: objeto con 8 claves
+- `sectores_cnae`: objeto con 22 claves
+
 ## `validacion_bancos.json` (4 kB)
 
 

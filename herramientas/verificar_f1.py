@@ -9,9 +9,13 @@ al terminar con su mismo PID; no se usa ningún servidor que ya estuviera corrie
   4. ninguna tarjeta con armar() muestra error de carga o de cálculo;
   5. ningún «[» visible en el texto de la página;
   6. la cabecera tiene una pestaña por página visible (las de config.js sin oculta: true) y la marca BANCOS BRASIL.
-Captura de página completa a 1 920 px solo si se pide con --captura DIR.
+  7. en cada ancho de --anchos, la página no tiene scroll horizontal.
+Captura de página completa solo si se pide con --captura DIR.
 
-Uso: python -X utf8 herramientas/verificar_f1.py [--puerto 8080] [--captura DIR]
+Con --url BASE (p. ej. https://banks-bz.pages.dev) revisa el sitio publicado en vez del local, con las fuentes
+reales de Google (en local se cortan, para no depender de la red) y reporta si cargaron.
+
+Uso: python -X utf8 herramientas/verificar_f1.py [--puerto 8080] [--url BASE] [--anchos 1920,1280,390] [--captura DIR]
 """
 import argparse
 import json
@@ -75,6 +79,8 @@ ESTADO_DOM = """() => {
     pestanas: document.querySelectorAll('.pestana').length,
     marca: (document.querySelector('.cabecera-marca')?.textContent || '').trim(),
     texto: document.body.innerText,
+    desborde: document.documentElement.scrollWidth - window.innerWidth,
+    fuentes: [...document.fonts].filter((f) => f.status === 'loaded').map((f) => f.family.replace(/"/g, '')),
   };
 }"""
 
@@ -107,18 +113,20 @@ def levantar_servidor(puerto):
     raise SystemExit("el servidor de prueba no arrancó")
 
 
-def revisar(contexto, base, ruta, clave, cfg, banco, captura, fallos):
-    etiqueta = f"{clave:4} {ruta:15} {'?banco=itau' if banco else 'sin banco':12}"
+def revisar(contexto, base, ruta, clave, cfg, banco, captura, fallos, ancho=1920, fuentes_reales=False):
+    etiqueta = f"{clave:4} {ruta:15} {'?banco=itau' if banco else 'sin banco':12} {ancho:>5}px"
     errores = []
     pagina = contexto.new_page()
-    pagina.set_viewport_size({"width": 1920, "height": 1080})
-    # v2: las fuentes de Google se piden a fonts.googleapis.com; sin red (o tras un proxy) fallan y no son error del sitio.
-    pagina.route("**/fonts.googleapis.com/**", lambda r: r.fulfill(status=200, content_type="text/css", body=""))
-    pagina.route("**/fonts.gstatic.com/**", lambda r: r.fulfill(status=200, body=""))
+    pagina.set_viewport_size({"width": ancho, "height": 1080})
+    if not fuentes_reales:
+        # v2: las fuentes de Google se piden a fonts.googleapis.com; sin red (o tras un proxy) fallan y no son error del sitio.
+        pagina.route("**/fonts.googleapis.com/**", lambda r: r.fulfill(status=200, content_type="text/css", body=""))
+        pagina.route("**/fonts.gstatic.com/**", lambda r: r.fulfill(status=200, body=""))
     pagina.on("console", lambda m: errores.append(f"consola {m.type}: {m.text}") if m.type == "error" else None)
     pagina.on("pageerror", lambda e: errores.append(f"excepción: {e}"))
     url = base + ruta + (("?banco=itau") if banco else "")
     respuesta = pagina.goto(url, wait_until="networkidle")
+    pagina.evaluate("() => document.fonts.ready")
     datos = pagina.evaluate(ESTADO_DOM)
     antes = len(fallos)
 
@@ -147,13 +155,20 @@ def revisar(contexto, base, ruta, clave, cfg, banco, captura, fallos):
         i = datos["texto"].index("[")
         fallos.append(f"{clave}: «[» visible: …{datos['texto'][max(0, i - 30):i + 30]}…")
 
+    if datos["desborde"] > 1:
+        fallos.append(f"{clave} {ancho}px: scroll horizontal de {datos['desborde']} px")
+    if fuentes_reales and not datos["fuentes"]:
+        fallos.append(f"{clave} {ancho}px: no cargó ninguna fuente web")
+
     nuevos = len(fallos) - antes
     con_armar = sum(1 for c in esperadas if c["armar"])
     print(f"{etiqueta} HTTP {respuesta.status} · {datos['secciones']} secciones · {len(datos['tarjetas'])} tarjetas "
-          f"({con_armar} con armar) · {len(errores)} errores de consola · {'OK' if nuevos == 0 else f'{nuevos} fallos'}")
+          f"({con_armar} con armar) · {len(errores)} errores de consola"
+          f"{' · fuentes: ' + ', '.join(sorted(set(datos['fuentes']))) if fuentes_reales else ''}"
+          f" · {'OK' if nuevos == 0 else f'{nuevos} fallos'}")
     if captura:
         captura.mkdir(parents=True, exist_ok=True)
-        nombre = f"{clave.lower()}{'_itau' if banco else ''}_1920.png"
+        nombre = f"{clave.lower()}{'_itau' if banco else ''}_{ancho}.png"
         pagina.screenshot(path=str(captura / nombre), full_page=True)
     pagina.close()
 
@@ -162,35 +177,41 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--puerto", type=int, default=8080)
     ap.add_argument("--captura", type=Path, default=None)
+    ap.add_argument("--url", default=None, help="sitio publicado (sin / final); si falta, levanta uno local")
+    ap.add_argument("--anchos", default="1920", help="anchos en px separados por coma, p. ej. 1920,1280,390")
     args = ap.parse_args()
+    anchos = [int(a) for a in args.anchos.split(",")]
 
     # SIGTERM cierra el servidor propio (el bloque finally corre), en vez de dejarlo huérfano
     signal.signal(signal.SIGTERM, lambda *_: sys.exit(1))
     configs = configs_del_sitio()
     fallos = []
-    servidor = levantar_servidor(args.puerto)
-    base = f"http://127.0.0.1:{args.puerto}"
+    servidor = None if args.url else levantar_servidor(args.puerto)
+    base = args.url.rstrip("/") if args.url else f"http://127.0.0.1:{args.puerto}"
     try:
         with sync_playwright() as p:
             navegador = p.chromium.launch()
             contexto = navegador.new_context(viewport={"width": 1920, "height": 1080})
-            for ruta, clave in PAGINAS:
-                for banco in (False, True):
-                    revisar(contexto, base, ruta, clave, configs[clave], banco, args.captura, fallos)
+            for ancho in anchos:
+                for ruta, clave in PAGINAS:
+                    for banco in (False, True):
+                        revisar(contexto, base, ruta, clave, configs[clave], banco, args.captura, fallos,
+                                ancho, fuentes_reales=bool(args.url))
             navegador.close()
     finally:
-        servidor.terminate()
-        try:
-            servidor.wait(timeout=5)
-        except subprocess.TimeoutExpired:
-            servidor.kill()
+        if servidor:
+            servidor.terminate()
+            try:
+                servidor.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                servidor.kill()
 
     if fallos:
         print("\nFALLOS:")
         for f in fallos:
             print(" -", f)
         return 1
-    print("\nOK: las 11 páginas, con y sin ?banco=itau, cargan sin errores; conteos del esqueleto; «en preparación» solo sin armar()")
+    print(f"\nOK ({base}, {args.anchos} px): las 11 páginas, con y sin ?banco=itau, cargan sin errores; sin scroll horizontal; conteos del esqueleto; «en preparación» solo sin armar()")
     return 0
 
 

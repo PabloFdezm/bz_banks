@@ -622,6 +622,51 @@ Receta::
     python -X utf8 preparar_gold_bancos_scr.py --solo-descargar
 ```
 
+## `pipeline/preparar_gold_bancos_scr_productos.py` (410 líneas)
+
+Importa del pipeline: `almacen`, `certificados`
+
+Argumentos: `--descargar` — baja de nuevo el ZIP del año en curso; `--desde` — primer año del cubo (default 2018)
+
+```text
+Gold del SCR.data por producto, tramo de renta, tipo de institución y sector (páginas Personas y Mora).
+
+POR QUÉ EXISTE
+--------------
+`bk_scr` (preparar_gold_bancos_scr.py) publica tres cortes sin modalidad. Las páginas Personas y Mora
+necesitan el SCR abierto por producto (tarjeta, consignado, personal, vehículos, inmobiliario, rural, cheque
+especial), por tramo de renta del deudor PF, por tipo de institución y, en PJ, por sección CNAE. Es la base
+de la réplica del reporte de Bradesco BBI (crédito por renta) y de los gráficos 1.2.2.15/1.2.2.16 del REF.
+
+FLUJO
+-----
+1. (opcional, --descargar) baja de nuevo el ZIP del año en curso (y del anterior en enero-febrero): el BCB
+   lo reescribe cada mes con el mes nuevo.
+2. Agregado mensual incremental en `datos/intermedio/scr_productos/<version>/scr_AAAAMM.parquet`
+   (dims: fecha, cliente, segmento, porte, cnae_ocupacao, producto). Un mes se recalcula si falta o si su
+   ZIP es más nuevo que el agregado. <version> = sha corto de las reglas de producto de definiciones/scr_productos.json:
+   cambiar el mapa de productos invalida el caché entero; cambiar traducciones no.
+3. Gold:
+   - bk_scr_tablas: filas de la tabla estándar (bloque, producto, orden, fila, grupo, ultimo, share, d1, d3,
+     d12, dventana, corte, unidad_ultimo, unidad_cambio, trimestral, destacar).
+   - bk_scr_series: serie, fecha, valor (largo).
+
+REGLAS
+------
+- Mora = carteira_inadimplencia / carteira_ativa (fracción). La columna está en R$, no en %.
+- Mora temprana = vencido_de_15_ate_90_dias / carteira_ativa.
+- Activo problemático = ativo_problematico / carteira_ativa. Desde ene-25 rige la Res. 4.966 (otra definición).
+- Ticket = cartera de las celdas con numero_de_operacoes > 0 / Σ operaciones. −1 es secreto estadístico
+  (menos de 15 operaciones): esas celdas entran al saldo pero no al ticket.
+- Mix por renta: sobre los 7 tramos con renta declarada (sin «N.D.» ni «Sin renta»), como Bradesco BBI.
+- Cambios de saldo y ticket en % (m/m, 3m/3m con promedios, a/a, 12m/12m con promedios); de tasas en pp.
+- Quiebres conocidos de la fuente (no se suavizan; van en las notas del sitio): jul-25 reclasificación de renta
+  (salto del mix); ago-26 ~R$ 15 mil millones de tarjeta pasan de «más de 20 SM» a «Indisponível».
+
+Uso (desde pipeline/, Windows con -X utf8):
+    python -X utf8 preparar_gold_bancos_scr_productos.py [--descargar] [--desde AAAA]
+```
+
 ## `pipeline/preparar_gold_bancos_sistema.py` (458 líneas)
 
 Importa del pipeline: `almacen`, `bcb_api`, `certificados`
@@ -742,7 +787,9 @@ Uso (desde la raíz del repo):  python -X utf8 herramientas/generar_spec.py
 Requiere los parquet de datos/gold (no van a git) y Node para leer la configuración de páginas.
 ```
 
-## `herramientas/verificar_f1.py` (198 líneas)
+## `herramientas/verificar_f1.py` (219 líneas)
+
+Argumentos: `--url` — sitio publicado (sin / final); si falta, levanta uno local; `--anchos` — anchos en px separados por coma, p. ej. 1920,1280,390
 
 ```text
 Verifica la F1 del sitio de bancos (encargo 76) sobre las once páginas, con y sin ?banco=itau.
@@ -756,9 +803,13 @@ al terminar con su mismo PID; no se usa ningún servidor que ya estuviera corrie
   4. ninguna tarjeta con armar() muestra error de carga o de cálculo;
   5. ningún «[» visible en el texto de la página;
   6. la cabecera tiene una pestaña por página visible (las de config.js sin oculta: true) y la marca BANCOS BRASIL.
-Captura de página completa a 1 920 px solo si se pide con --captura DIR.
+  7. en cada ancho de --anchos, la página no tiene scroll horizontal.
+Captura de página completa solo si se pide con --captura DIR.
 
-Uso: python -X utf8 herramientas/verificar_f1.py [--puerto 8080] [--captura DIR]
+Con --url BASE (p. ej. https://banks-bz.pages.dev) revisa el sitio publicado en vez del local, con las fuentes
+reales de Google (en local se cortan, para no depender de la red) y reporta si cargaron.
+
+Uso: python -X utf8 herramientas/verificar_f1.py [--puerto 8080] [--url BASE] [--anchos 1920,1280,390] [--captura DIR]
 ```
 
 ## `herramientas/verificar_gold.py` (1480 líneas)

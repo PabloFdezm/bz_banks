@@ -46,6 +46,7 @@ python -X utf8 pipeline\ifdata.py colectar --desde 201403 --hasta AAAAMM --escop
 | Comando | Qué comprueba |
 |---|---|
 | `python -X utf8 herramientas\verificar_f1.py --puerto 8080` | Levanta un servidor, abre las 11 páginas (con y sin `?banco=itau`) en Chromium; HTTP 200, 0 errores de consola, conteo de secciones y tarjetas igual al esperado (`ESPERADO`), «en preparación» solo donde no hay `armar()`. `--captura DIR` guarda capturas. |
+| `python -X utf8 herramientaserificar_f1.py --url https://banks-bz.pages.dev --anchos 1920,1280,390` | Lo mismo sobre el sitio publicado, con las fuentes reales (reporta cuáles cargaron) y sin scroll horizontal en cada ancho. Es la verificación después de publicar. |
 | `node herramientas\contar_tarjetas.mjs` | Tarjetas declaradas por página contra el esqueleto. |
 | `python -X utf8 herramientas\verificar_gold.py --gold` | Estructura, períodos, crédito y validación del gold. |
 | `python -m pytest -q` | 115 tests sobre el gold (manifiesto, contratos de columnas, reglas de quiebre, sumas). |
@@ -57,7 +58,7 @@ Al cambiar el número de tarjetas de una página, actualizar `ESPERADO` en `veri
 **Ojo con las capturas:** `verificar_f1.py` bloquea las fuentes de Google para no depender de la red, así
 que las capturas usan una fuente de reemplazo más angosta. Para juzgar cómo se ve de verdad (cortes de
 texto, anchos de tabla), revisar el sitio publicado con las fuentes reales y en varios anchos (1280, 1366,
-1440, 1920 y ventanas angostas).
+1440, 1920 y ventanas angostas), o con `--url` (ver la tabla de arriba).
 
 ## Git
 
