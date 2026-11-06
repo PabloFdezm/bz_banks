@@ -9,3 +9,6 @@ __pycache__/
 .pytest_cache/
 .venv*/
 node_modules/
+
+# Reportes de terceros (sell-side, licenciados): solo locales, nunca a GitHub ni al sitio.
+referencias/
