@@ -1,6 +1,6 @@
 # bz_banks · guía para Claude Code
 
-Dashboard del sector bancario de Brasil (sitio estático en Netlify: https://banks-bz.netlify.app).
+Dashboard del sector bancario de Brasil (sitio estático en Cloudflare Pages: https://banks-bz.pages.dev; Netlify quedó en desuso).
 Dueño: Pablo (analista buy-side, bancos LatAm). Responder en español, directo y crítico, prosa sobria.
 
 ## Antes de tocar nada

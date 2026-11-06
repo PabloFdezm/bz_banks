@@ -1,7 +1,7 @@
 # bz_banks — Dashboard de bancos de Brasil
 
 Sitio estático (HTML + JS + ECharts) con el sector bancario brasileño: crédito, mora, rentabilidad y ficha por banco.
-Datos del BCB (IF.Data, SGS, SCR). Se publica en Netlify: https://banks-bz.netlify.app
+Datos del BCB (IF.Data, SGS, SCR). Se publica en Cloudflare Pages: https://banks-bz.pages.dev
 
 ## Estructura
 
@@ -49,8 +49,7 @@ dejar solo la desocupación como entrada externa.
 ```powershell
 python -m pip install -r requirements.txt
 python -m playwright install chromium
-npm install -g netlify-cli
-netlify login
+npx wrangler login
 ```
 
 ## Reglas del sitio

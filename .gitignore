@@ -1,8 +1,8 @@
 # Datos: viven solo en el equipo (crudo IF.Data/SCR/SGS, intermedio y gold). Ver README.
 datos/
 sitio/data/
-deploy_netlify/
-.netlify/
+deploy_web/
+.wrangler/
 herramientas/_capturas/
 __pycache__/
 *.pyc
@@ -12,3 +12,6 @@ node_modules/
 
 # Reportes de terceros (sell-side, licenciados): solo locales, nunca a GitHub ni al sitio.
 referencias/
+
+# salidas de borradores (parquet intermedios)
+tareas/borradores/_salida/

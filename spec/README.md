@@ -9,7 +9,7 @@ el código, los comentarios y el sitio.
 Un dashboard web estático del sistema bancario de Brasil para un analista buy-side (Pablo, Principal Asset
 Management, Santiago). Lee datos públicos del Banco Central do Brasil (IF.Data, SGS y SCR.data), los procesa
 en Python hasta una capa «gold» de parquets `bk_*`, los exporta a JSON y un sitio HTML + JS + ECharts los
-dibuja. Se publica en Netlify (https://banks-bz.netlify.app). Cada sección del sitio se puede presentar
+dibuja. Se publica en Cloudflare Pages (https://banks-bz.pages.dev). Cada sección del sitio se puede presentar
 como una lámina tipo PowerPoint.
 
 ## Cómo leer esta spec
@@ -48,5 +48,5 @@ bz_banks/
 ├── spec/              esta carpeta
 ├── datos/             crudo, derivado, intermedio y gold (NO va a git; ~6 GB)
 ├── actualizar.bat     recalcula gold + JSON
-└── publicar.bat       sube sitio/ a Netlify (producción)
+└── publicar.bat       sube sitio/ a Cloudflare Pages (producción)
 ```

@@ -19,9 +19,9 @@ SCR.data ZIP anuales ──_scr.py────▶ datos/crudo/bcb_scr/      (ZIP
                                          │
                      exportar_web_bancos ──────▶ sitio/data/*.json  (+ particiones por banco, métrica y óptica)
                                                                                         │
-                                                         publicar.bat (robocopy + netlify deploy --prod)
+                                                         publicar.bat (robocopy + wrangler pages deploy)
                                                                                         ▼
-                                                                        https://banks-bz.netlify.app
+                                                                        https://banks-bz.pages.dev
 ```
 
 ## Decisiones y por qué
@@ -46,8 +46,8 @@ SCR.data ZIP anuales ──_scr.py────▶ datos/crudo/bcb_scr/      (ZIP
   `Path(__file__).resolve().parents[1]`.
 - **Datos fuera de git.** `datos/` (≈6 GB, sobre todo CSV de IF.Data y ZIP de SCR) y `sitio/data/` están en
   `.gitignore`. El repo guarda código y definiciones; los datos viven en el equipo (carpeta en OneDrive).
-- **Netlify** publica `sitio/` tal cual. `publicar.bat` arma `deploy_netlify/` con `robocopy /MIR` (sin
-  `_prueba` ni `.netlify`) y corre `netlify deploy --prod --site 992a0e15-6b15-45ea-bc43-ddafa60032b4`.
+- **Cloudflare Pages** publica `sitio/` tal cual (desde el 6-nov; antes Netlify). `publicar.bat` arma `deploy_web/`
+  con `robocopy /MIR` (sin `netlify.toml`) y corre `wrangler pages deploy deploy_web --project-name banks-bz --branch main`.
   Cabeceras `no-cache` en `/assets/*` y `/data/*` para que un deploy se vea sin limpiar caché.
 
 ## Tecnologías
@@ -58,7 +58,7 @@ SCR.data ZIP anuales ──_scr.py────▶ datos/crudo/bcb_scr/      (ZIP
 | Gráficos | ECharts 5 (SVG) + componentes HTML propios |
 | Verificación del sitio | Playwright + Chromium (`herramientas/verificar_f1.py`), Node (`contar_tarjetas.mjs`) |
 | Tests | pytest |
-| Publicación | Netlify CLI |
+| Publicación | Cloudflare Pages (wrangler vía npx) |
 | Entorno | Windows 11, PowerShell, OneDrive; red corporativa con proxy HTTPS (ver `pipeline/certificados.py`) |
 
 ## Origen

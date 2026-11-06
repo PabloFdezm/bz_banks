@@ -126,5 +126,5 @@ conservan la query.
 
 - Cargar particiones, no tablas completas: `bk_panel` 27 MB, `bk_grupo` 12 MB, `bk_cre_panorama` 6,5 MB,
   `bk_cre_calidad` 5 MB. Ejemplo correcto: `datos: ['metrica/costo_riesgo_ttm/bk_panel', 'bk_banco']`.
-- Cabeceras `no-cache` en `/assets/*` y `/data/*` (`sitio/_headers` y `sitio/netlify.toml`): cada visita
+- Cabeceras `no-cache` en `/assets/*` y `/data/*` (`sitio/_headers`, que Cloudflare Pages lee igual que Netlify): cada visita
   revalida; tras un deploy basta recargar.

@@ -9,8 +9,7 @@ Siempre `python -X utf8` (los textos tienen tildes y la consola de Windows no es
 Set-Location "C:\Users\pablo\OneDrive\Documentos\bz_banks"
 python -m pip install -r requirements.txt
 python -m playwright install chromium
-npm install -g netlify-cli
-netlify login
+npx wrangler login
 ```
 
 ## Actualizar datos y publicar
@@ -18,7 +17,7 @@ netlify login
 ```powershell
 Set-Location "C:\Users\pablo\OneDrive\Documentos\bz_banks"
 .\actualizar.bat      # gold + JSON (baja solo las series SGS que falten)
-.\publicar.bat        # sitio\ → Netlify producción
+.\publicar.bat        # sitio\ → Cloudflare Pages producción
 .\publicar.bat datos  # las dos cosas seguidas
 ```
 
@@ -32,11 +31,13 @@ python -X utf8 pipeline\ifdata.py colectar --desde 201403 --hasta AAAAMM --escop
 
 (`ifdata.py` no vuelve a bajar lo que ya tiene con menos de `--max-edad-dias` (95), salvo `--refrescar`; ver `python -X utf8 pipeline\ifdata.py colectar -h`.)
 
-## Netlify
+## Cloudflare Pages
 
-- Sitio `banks-bz` (id `992a0e15-6b15-45ea-bc43-ddafa60032b4`), producción https://banks-bz.netlify.app.
-- `publicar.bat` arma `deploy_netlify/` (copia espejo de `sitio/` sin `_prueba` ni `.netlify`, más
-  `sitio/data`) y corre `netlify deploy --prod --dir deploy_netlify --site <id>`.
+- Proyecto `banks-bz` (creado el 6-nov; Pages clásico, no Workers), producción https://banks-bz.pages.dev.
+  Netlify (`banks-bz.netlify.app`) quedó en desuso y ya no se actualiza.
+- `publicar.bat` arma `deploy_web/` (copia espejo de `sitio/` sin `netlify.toml`, más `sitio/data`) y corre
+  `npx wrangler@4.158.0 pages deploy deploy_web --project-name banks-bz --branch main`.
+- Límites de Pages: 20.000 archivos y 25 MB por archivo (hoy 253 archivos, ninguno cerca).
 - Tras publicar, recargar con Ctrl+F5 la primera vez.
 - El sitio lleva `noindex` (no aparece en buscadores) pero es público para quien tenga el link.
 
@@ -61,6 +62,6 @@ texto, anchos de tabla), revisar el sitio publicado con las fuentes reales y en 
 ## Git
 
 - Repo: https://github.com/PabloFdezm/bz_banks (rama `main`).
-- `datos/`, `sitio/data/`, `deploy_netlify/` y `.netlify/` fuera de git.
+- `datos/`, `sitio/data/`, `deploy_web/` y `.wrangler/` fuera de git.
 - `.gitattributes`: LF en el repo, CRLF en los `.bat`.
 - Commits en castellano; el código lo commitea Pablo desde Windows.
