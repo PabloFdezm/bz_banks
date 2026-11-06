@@ -1,6 +1,6 @@
 # Componentes de dibujo
 
-> Generado por `herramientas/generar_spec.py` el 2026-11-05. No editar a mano: se sobrescribe.
+> Generado por `herramientas/generar_spec.py` el 2026-11-06. No editar a mano: se sobrescribe.
 
 
 Cada tarjeta declara `componente`; `pagina.js` busca la función en `COMPONENTES` (charts.js) o `COMPONENTES_BANCOS` (charts_bancos.js) y la llama con `(contenedor, entrada)`, donde `entrada` es lo que devolvió `armar()`. Si devuelve una instancia de ECharts, se le engancha un ResizeObserver.

@@ -1,9 +1,9 @@
 # Scripts del pipeline (docstring completo y argumentos)
 
-> Generado por `herramientas/generar_spec.py` el 2026-11-05. No editar a mano: se sobrescribe.
+> Generado por `herramientas/generar_spec.py` el 2026-11-06. No editar a mano: se sobrescribe.
 
 
-## `pipeline/almacen.py` (336 líneas)
+## `pipeline/almacen.py` (424 líneas)
 
 ```text
 Arquitectura de datos: capas, procedencia y rutas.
@@ -177,7 +177,7 @@ Uso (desde la raíz del repo, Windows con `-X utf8`):
     python -X utf8 exportar_web_bancos.py
 ```
 
-## `pipeline/ifdata.py` (843 líneas)
+## `pipeline/ifdata.py` (865 líneas)
 
 Importa del pipeline: `almacen`, `certificados`
 
@@ -232,7 +232,7 @@ Todo lo que sale de `cadastro`, `valores` y `datos` es DERIVADO aunque cada nume
 venga del BCB: esta filtrado por escopo, informe, cuenta, institucion o situacion.
 ```
 
-## `pipeline/preparar_bancos_powerbi.py` (654 líneas)
+## `pipeline/preparar_bancos_powerbi.py` (666 líneas)
 
 Importa del pipeline: `almacen`, `certificados`, `ifdata`
 
@@ -265,7 +265,7 @@ Receta:
     python preparar_bancos_powerbi.py
 ```
 
-## `pipeline/preparar_credito_paginas_powerbi.py` (764 líneas)
+## `pipeline/preparar_credito_paginas_powerbi.py` (763 líneas)
 
 Importa del pipeline: `almacen`, `bcb_api`, `certificados`
 
@@ -343,7 +343,7 @@ Los informes de IF.data se bajan a mano (``ifdata.py colectar``; ver doc 41 §4)
 ``preparar_bancos_powerbi.py`` (usa ``datos/gold``).
 ```
 
-## `pipeline/preparar_gold_bancos.py` (1376 líneas)
+## `pipeline/preparar_gold_bancos.py` (1377 líneas)
 
 Importa del pipeline: `almacen`, `preparar_gold_bancos_cartera`, `preparar_gold_bancos_exposicion`, `preparar_gold_bancos_sistema`, `preparar_metricas_bancos`
 
@@ -622,7 +622,7 @@ Receta::
     python -X utf8 preparar_gold_bancos_scr.py --solo-descargar
 ```
 
-## `pipeline/preparar_gold_bancos_sistema.py` (474 líneas)
+## `pipeline/preparar_gold_bancos_sistema.py` (458 líneas)
 
 Importa del pipeline: `almacen`, `bcb_api`, `certificados`
 
@@ -663,10 +663,10 @@ en ``docs/dashboard_bancos/PENDIENTES.md``), registradas aquí para el que relea
 - 61b · Nombres sin la expansión mecánica del shorthand de §3.9:
   ``dirigido_{rural,imob,bndes}_real_aa``, ``credito_grande_real_aa`` (27702),
   ``mora90_grande`` (27704).
-- ``comprometimento`` (29034) y ``endividamento`` (29037) se leen de ``datos/intermedio/fh_deuda.parquet``;
-  ``desocupación`` de ``datos/intermedio/tasas_pnad.parquet`` (t6381|v4099); ``selic_real_exante`` de
-  ``datos/intermedio/tasa_real_exante.parquet`` (media mensual de la serie diaria; 23 trimestres es
-  excepción aceptada). Nada de eso se re-baja.
+- ``comprometimento`` (29034), ``endividamento`` (29037) y ``desocupación`` (24369, PNADC = IBGE
+  t6381|v4099) se leen del SGS desde el 6-nov-2026 (tarea 1.3; antes venían congeladas de
+  ``datos/intermedio/``). ``selic_real_exante`` sigue en ``datos/intermedio/tasa_real_exante.parquet``
+  (media mensual de la serie diaria; 23 trimestres es excepción aceptada) y no se re-baja.
 - ``bis_hiato_credito_pib_pp`` se lee del crudo local ``datos/crudo/bis/credit_gap`` tal
   cual, en pp (solo trimestral). ``pix_share`` queda fuera: encargo propio en la ola 2.
 
@@ -704,6 +704,33 @@ Salidas:
 - datos/intermedio/panel_bancos_wide.csv    (ancha, inspección)
 ```
 
+## `herramientas/comparar_gold.py` (51 líneas)
+
+```text
+Compara celda por celda dos carpetas de parquets gold (misma forma, mismas columnas, mismos valores).
+
+Uso: python -X utf8 herramientas/comparar_gold.py <carpeta_a> <carpeta_b>
+Los floats se comparan con tolerancia relativa 1e-12 (solo ruido de redondeo); todo lo demás exacto.
+`bk_manifiesto` se compara sin las columnas que dependen del momento de la corrida (bytes, sha256, generado).
+```
+
+## `herramientas/convertir_crudo_parquet.py` (53 líneas)
+
+Importa del pipeline: `almacen`
+
+Argumentos: `--borrar` — borra cada CSV cuyo parquet ya está anotado en el manifiesto
+
+```text
+Convierte a parquet los CSV crudos de IF.Data (valores y cadastro) que todavía no lo están.
+
+El parquet guarda todas las columnas como texto, igual que el CSV (sin pérdida; ver almacen.csv_a_parquet),
+y el manifiesto anota URL y sha256 del CSV original más los del parquet. Por defecto NO borra los CSV.
+
+Uso (desde la raíz del repo):
+    python -X utf8 herramientas/convertir_crudo_parquet.py            # convierte lo que falte
+    python -X utf8 herramientas/convertir_crudo_parquet.py --borrar   # además borra cada CSV ya convertido
+```
+
 ## `herramientas/generar_spec.py` (183 líneas)
 
 ```text
@@ -715,7 +742,7 @@ Uso (desde la raíz del repo):  python -X utf8 herramientas/generar_spec.py
 Requiere los parquet de datos/gold (no van a git) y Node para leer la configuración de páginas.
 ```
 
-## `herramientas/verificar_f1.py` (196 líneas)
+## `herramientas/verificar_f1.py` (198 líneas)
 
 ```text
 Verifica la F1 del sitio de bancos (encargo 76) sobre las once páginas, con y sin ?banco=itau.

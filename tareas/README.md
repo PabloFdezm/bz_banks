@@ -5,7 +5,7 @@ Lista ordenada por prioridad. Cada frente tiene su archivo con el detalle, los d
 
 | # | Frente | Archivo | Estado |
 |---|---|---|---|
-| 1 | Correcciones de datos detectadas en la auditoría del 6-nov | `01_correcciones_datos.md` | pendiente |
+| 1 | Correcciones de datos detectadas en la auditoría del 6-nov | `01_correcciones_datos.md` | 1.1–1.5 cerradas el 6-nov (1.2: se deja el corte mixto); falta 1.6 (notas) |
 | 2 | Módulo Personas (SCR.data por renda) | `02_modulo_personas_scr.md` | canvas hecho, falta aprobación |
 | 3 | Réplica del reporte sell-side de crédito por renda (detalle en `referencias/`, fuera de git) | `03_replica_sellside.md` | 2/3 replicable; falta fuente S1–S5 |
 | 4 | Réplica de gráficos del REF (BCB, oct-26) | `04_replica_ref.md` | mapa hecho |

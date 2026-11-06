@@ -1,6 +1,6 @@
 # Catálogo de métricas (`bk_metrica`)
 
-> Generado por `herramientas/generar_spec.py` el 2026-11-05. No editar a mano: se sobrescribe.
+> Generado por `herramientas/generar_spec.py` el 2026-11-06. No editar a mano: se sobrescribe.
 
 
 84 métricas. `signo`: mejora_sube / mejora_baja / neutro (colorea cambios). `universo`: panel o sistema.
@@ -14,9 +14,9 @@
 | 5 | `ativo_total` | Activo total | tamaño | brl | brl_mm | neutro | BCB IF.Data (prudencial) | Saldo al cierre, conglomerado prudencial: COSIF 140220 (desde 2025); COSIF 78202 (hasta 2024). |
 | 6 | `derivativos_ativo` | Derivativos (activo) | tamaño | brl | brl_mm | neutro | BCB IF.Data (prudencial) | Saldo al cierre, conglomerado prudencial: COSIF 141612 (desde 2025); sin código COSIF hasta 2024. |
 | 7 | `disponibilidades` | Disponibilidades | tamaño | brl | brl_mm | neutro | BCB IF.Data (prudencial) | Saldo al cierre, conglomerado prudencial: COSIF 140198 (desde 2025); COSIF 78188 (hasta 2024). |
-| 8 | `hhi_ativo` | Concentración HHI del activo | tamaño | indice | None | neutro | Derivado de BCB IF.Data (prudencial), p… | Σ (share_ativo × 100)² sobre los bancos del panel con dato en el trimestre. |
-| 9 | `hhi_credito` | Concentración HHI del crédito | tamaño | indice | None | neutro | Derivado de BCB IF.Data (prudencial), p… | Σ (share_credito × 100)² sobre los bancos del panel con dato en el trimestre. |
-| 10 | `hhi_depositos` | Concentración HHI de depósitos | tamaño | indice | None | neutro | Derivado de BCB IF.Data (prudencial), p… | Σ (share_depositos × 100)² sobre los bancos del panel con dato en el trimestre. |
+| 8 | `hhi_ativo` | Concentración HHI del activo | tamaño | indice | nan | neutro | Derivado de BCB IF.Data (prudencial), p… | Σ (share_ativo × 100)² sobre los bancos del panel con dato en el trimestre. |
+| 9 | `hhi_credito` | Concentración HHI del crédito | tamaño | indice | nan | neutro | Derivado de BCB IF.Data (prudencial), p… | Σ (share_credito × 100)² sobre los bancos del panel con dato en el trimestre. |
+| 10 | `hhi_depositos` | Concentración HHI de depósitos | tamaño | indice | nan | neutro | Derivado de BCB IF.Data (prudencial), p… | Σ (share_depositos × 100)² sobre los bancos del panel con dato en el trimestre. |
 | 11 | `outros_ativos` | Otros activos | tamaño | brl | brl_mm | neutro | BCB IF.Data (prudencial) | Saldo al cierre, conglomerado prudencial: COSIF 140218 (desde 2025); COSIF 78200 (hasta 2024). |
 | 12 | `share_ativo` | Cuota de activo | tamaño | ratio | pct1 | mejora_sube | Derivado de BCB IF.Data (prudencial), p… | ativo_total del banco / suma de ativo_total del panel con dato en el trimestre (solo valores > 0). |
 | 13 | `share_credito` | Cuota de crédito | tamaño | ratio | pct1 | mejora_sube | Derivado de BCB IF.Data (prudencial), p… | credito_total del banco / suma de credito_total del panel con dato en el trimestre (solo valores > 0). |

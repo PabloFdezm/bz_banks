@@ -579,7 +579,8 @@ def _bk_metrica(metricas: list[str]) -> pd.DataFrame:
 
 # --- bk_panel -----------------------------------------------------------------
 def _bk_panel(w: pd.DataFrame, banco: pd.DataFrame, meta: pd.DataFrame, grilla: pd.MultiIndex) -> pd.DataFrame:
-    L = w.stack().rename("valor").reset_index()
+    # explícito: pandas 2 descartaba los NaN en stack() y pandas 3 no (spec/08, pendiente 3b)
+    L = w.stack(future_stack=True).dropna().rename("valor").reset_index()
     L["modelo"] = L["cod_inst"].map(dict(zip(banco["cod_inst"], banco["modelo"])))
     L["unidad"] = L["metrica"].map(meta["unidad"])
     L["fecha"] = _fecha(L["periodo"])

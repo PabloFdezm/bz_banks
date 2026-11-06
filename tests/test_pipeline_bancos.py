@@ -67,3 +67,24 @@ def test_comparar_acepta_trimestre_nuevo():
     r = V.comparar_metricas(actual, candidato)
     assert not r.errores, r.errores
     assert any("agrega períodos" in a for a in r.advertencias), r.advertencias
+
+
+def test_sin_segmento_solo_si_la_fuente_no_lo_trae():
+    """Tarea 1.1: un banco va «Sin segmento» solo si ninguna fila de su conglomerado en el cadastro trae Sr.
+
+    Daycoval y XP traen Sr nulo en la fila propia desde 2025-T4, pero sus instituciones sí lo traen.
+    """
+    banco = pd.read_parquet(RAIZ / "datos" / "gold" / "bk_banco.parquet")
+    periodo = pd.read_parquet(RAIZ / "datos" / "gold" / "bank_periodos.parquet")["periodo"].astype(str).max()
+    cad = pd.read_parquet(RAIZ / "datos" / "crudo" / "bcb_ifdata" / "cadastro" / "actual" / f"cadastro_{periodo}.parquet",
+                          columns=["CodInst", "CodConglomeradoPrudencial", "Sr"])
+    cad = cad[cad["Sr"].fillna("").str.strip().str.lower().ne("null") & cad["Sr"].fillna("").str.strip().ne("")]
+    con_sr = set(cad["CodInst"]) | set(cad["CodConglomeradoPrudencial"])
+    mal = banco.loc[banco["segmento_reg"].eq("Sin segmento") & banco["cod_inst"].isin(con_sr), "nombre_corto"].tolist()
+    assert not mal, f"«Sin segmento» pero la fuente trae Sr: {mal}"
+
+
+def test_panel_sin_valores_nulos():
+    """Tarea 1.5: bk_panel no depende de la versión de pandas (stack() con o sin NaN)."""
+    p = pd.read_parquet(RAIZ / "datos" / "gold" / "bk_panel.parquet", columns=["valor"])
+    assert p["valor"].notna().all()

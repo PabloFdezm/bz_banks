@@ -76,6 +76,7 @@ COLUMNAS_CADASTRO = [
     "SegmentoTb",
     "Atividade",
     "Situacao",
+    "CodConglomeradoPrudencial",
 ]
 
 CONCEPTOS_BALANCE = [
@@ -209,8 +210,16 @@ def leer_cadastro(periodo: str, codes: set[str]) -> pd.DataFrame:
     columnas = ["cod_inst", "institucion_bcb", "tcb", "td", "tc", "sr", "segmento", "actividad", "situacion"]
     if not A.existe_crudo(ruta):
         return pd.DataFrame(columns=columnas)
-    df = A.leer_crudo_tabla(ruta, COLUMNAS_CADASTRO)
-    df = df[df["CodInst"].isin(codes)].copy()
+    todo = A.leer_crudo_tabla(ruta, COLUMNAS_CADASTRO)
+    df = todo[todo["CodInst"].isin(codes)].copy()
+    # Algunos conglomerados (Daycoval, XP desde 2025-T4) traen Sr nulo en su propia fila, pero sus
+    # instituciones sí lo traen: se toma el valor más frecuente entre ellas.
+    sr_grupo = (todo.assign(Sr=todo["Sr"].map(IF.nulo))
+                .query("Sr != '' and CodConglomeradoPrudencial.isin(@codes)", engine="python")
+                .groupby("CodConglomeradoPrudencial")["Sr"]
+                .agg(lambda x: x.value_counts().sort_index().idxmax()))
+    propio = df["Sr"].map(IF.nulo)
+    df["Sr"] = propio.mask(propio == "", df["CodInst"].map(sr_grupo)).fillna("")
     df = df.rename(columns={
         "CodInst": "cod_inst",
         "NomeInstituicao": "institucion_bcb",

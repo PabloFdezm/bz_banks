@@ -18,11 +18,11 @@ Estado al 4-nov-2026.
    Actualizar el menú (`config.js`) cuando existan.
 3. Crudo IF.Data en parquet: hecho el 4-nov (3,5 GB → 62 MB, gold idéntico). Falta borrar los CSV
    originales (con permiso de Pablo). SCR sigue en ZIP.
-3b. **pandas distinto entre equipos:** en Windows `bk_panel` sale con 134.300 filas (incluye 29.904 con
-   `valor` nulo) y con pandas 2.3 (Linux) con 104.396; las filas comunes son idénticas. Fijar la versión de
-   pandas en `requirements.txt` o filtrar los nulos explícitamente en `preparar_gold_bancos.py`.
-4. **Entradas congeladas del macro** (`fh_deuda`, `tasa_real_exante`, `tasas_pnad`, `expectativas_focus`):
-   leer las tres primeras del SGS; decidir la desocupación.
+3b. ~~pandas distinto entre equipos~~ Resuelto el 6-nov: `stack(future_stack=True).dropna()` en `_bk_panel`
+   (104.396 filas en pandas 2 y 3); `requirements.txt` pide pandas ≥ 2.1.
+4. **Entradas congeladas del macro:** endeudamiento, comprometimiento y desocupación se leen del SGS desde el
+   6-nov (29037, 29034, 24369). Siguen congeladas `tasa_real_exante` y `expectativas_focus`.
+4b. Resuelto el 6-nov: `bk_sistema_m/q` se escribían en `datos/intermedio/Banks/` y el gold no se refrescaba.
 5. Validar contra el catálogo del SGS los nombres de las series de modalidades y concesiones.
 6. `credito_aa` en 2025 cruza el quiebre COSIF y aparece vacío en la franja; corregir en el gold.
 7. Automatizar la actualización: tarea programada de Windows (simple) o GitHub Actions (requiere guardar los

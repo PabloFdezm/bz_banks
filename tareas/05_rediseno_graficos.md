@@ -2,7 +2,8 @@
 
 Pablo anunció (6-nov) un «cambio gigantesco» en el diseño de los gráficos. Todavía no está definido.
 
-- Antes de construir páginas nuevas (Personas, réplicas del REF), preguntar si se espera el rediseño.
+- Decisión de Pablo (6-nov): no se construyen páginas nuevas (Personas, réplicas del REF) hasta definir el
+  rediseño; mientras tanto se avanza solo en datos (pipeline y gold).
 - Proceso: canvas → aprobación → construcción.
 - Revisión hoja a hoja del sitio al 4-nov, con cada gráfico y tabla numerado:
   canvas «Bancos Brasil · Revisión hoja a hoja» (Portada, Crédito, Calidad, Rentabilidad, Ficha).

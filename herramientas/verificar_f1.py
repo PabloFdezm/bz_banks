@@ -61,11 +61,13 @@ for (let i = 0; i <= 10; i++) {
 process.stdout.write(JSON.stringify(salida));
 """
 
+# Mensajes de estadoDatos() en pagina.js: enPreparacion() pone uno de estos; los errores empiezan con «No pudimos».
+EN_PREPARACION = {"Sin datos disponibles", "Elige un banco para continuar"}
+
 ESTADO_DOM = """() => {
   const tarjetas = [...document.querySelectorAll('figure.tarjeta')].map((f) => ({
     titulo: (f.querySelector('.tarjeta-titulo')?.textContent || '').trim(),
-    preparacion: f.querySelector('.preparacion')?.textContent || '',
-    error: !!f.querySelector('.error-dato'),
+    estado: (f.querySelector('.estado-datos strong')?.textContent || '').trim(),
   }));
   return {
     secciones: document.querySelectorAll('section.seccion').length,
@@ -133,9 +135,9 @@ def revisar(contexto, base, ruta, clave, cfg, banco, captura, fallos):
         titulo_conf = (conf["titulo"] or "").strip()
         if dom["titulo"] != titulo_conf:
             fallos.append(f"{clave}: tarjeta «{dom['titulo']}» donde la config dice «{titulo_conf}»")
-        if dom["error"]:
-            fallos.append(f"{clave}: «{dom['titulo']}» muestra error de carga o de cálculo")
-        if not conf["armar"] and not dom["preparacion"].startswith("En preparación:"):
+        if dom["estado"].startswith("No pudimos"):
+            fallos.append(f"{clave}: «{dom['titulo']}» muestra error de carga o de cálculo ({dom['estado']})")
+        if not conf["armar"] and dom["estado"] not in EN_PREPARACION:
             fallos.append(f"{clave}: «{dom['titulo']}» sin armar() debe estar en preparación")
     if datos["pestanas"] != VISIBLES:
         fallos.append(f"{clave}: {datos['pestanas']} pestañas en la cabecera")

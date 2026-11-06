@@ -130,7 +130,7 @@ def test_rango_deja_sin_rango_las_filas_sin_z():
     panel = _panel({"C1": C1, "C2": c2}, "npl15_total")
     out = Q.calcular(panel, META, BANCO, set(), metricas=["npl15_total"])
     sin = out[out["cod_inst"] == "C2"].iloc[0]
-    assert pd.isna(sin["cambio"]) and pd.isna(sin["z"]) and pd.isna(sin["rango"]) and sin["sentido"] is None
+    assert pd.isna(sin["cambio"]) and pd.isna(sin["z"]) and pd.isna(sin["rango"]) and pd.isna(sin["sentido"])
     assert out[out["cod_inst"] == "C1"].iloc[0]["rango"] == 1
 
 
@@ -146,7 +146,7 @@ def test_real_cambio_coincide_con_d_tt_donde_no_aplica_regla():
     p["cod_inst"] = p["cod_inst"].astype(str)
     grilla = sorted(p["periodo"].unique())
     wide = p.set_index(["periodo", "cod_inst"])["valor"].unstack("cod_inst").reindex(grilla)
-    c = Q._cambios(wide, set()).stack(dropna=False)
+    c = Q._cambios(wide, set()).stack(future_stack=True)  # conserva NaN en pandas 2.1+ y 3
     d = p.set_index(["periodo", "cod_inst"])["d_tt"]
     d.index = d.index.set_levels(d.index.levels[1].astype(str), level=1)
     comp = pd.concat([c.rename("c"), d.rename("d")], axis=1).dropna()

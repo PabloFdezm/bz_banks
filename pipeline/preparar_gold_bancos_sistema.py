@@ -33,10 +33,10 @@ en ``docs/dashboard_bancos/PENDIENTES.md``), registradas aquí para el que relea
 - 61b · Nombres sin la expansión mecánica del shorthand de §3.9:
   ``dirigido_{rural,imob,bndes}_real_aa``, ``credito_grande_real_aa`` (27702),
   ``mora90_grande`` (27704).
-- ``comprometimento`` (29034) y ``endividamento`` (29037) se leen de ``datos/intermedio/fh_deuda.parquet``;
-  ``desocupación`` de ``datos/intermedio/tasas_pnad.parquet`` (t6381|v4099); ``selic_real_exante`` de
-  ``datos/intermedio/tasa_real_exante.parquet`` (media mensual de la serie diaria; 23 trimestres es
-  excepción aceptada). Nada de eso se re-baja.
+- ``comprometimento`` (29034), ``endividamento`` (29037) y ``desocupación`` (24369, PNADC = IBGE
+  t6381|v4099) se leen del SGS desde el 6-nov-2026 (tarea 1.3; antes venían congeladas de
+  ``datos/intermedio/``). ``selic_real_exante`` sigue en ``datos/intermedio/tasa_real_exante.parquet``
+  (media mensual de la serie diaria; 23 trimestres es excepción aceptada) y no se re-baja.
 - ``bis_hiato_credito_pib_pp`` se lee del crudo local ``datos/crudo/bis/credit_gap`` tal
   cual, en pp (solo trimestral). ``pix_share`` queda fuera: encargo propio en la ola 2.
 
@@ -70,7 +70,7 @@ FUENTE_SGS = "bcb_sgs"
 DATASET_SGS = "bancos_sistema"       # dataset propio, como cada hoja del macro
 DESDE_SGS = "01/01/2000"
 PB = BASE / "datos" / "intermedio"
-CARPETA_GOLD = PB / "Banks"
+CARPETA_GOLD = BASE / "datos" / "gold"   # antes PB / "Banks" (herencia de Dashboard): el gold no se refrescaba
 
 # Series en nivel: el valor del SGS (que las sirve en %) pasado a fracción (61b).
 NIVELES = {
@@ -116,7 +116,8 @@ REAL_M3M3A = {"conc_pf_livre_sa": 24444}
 
 IPCA, PIB_12M, SALDO_TOTAL = 433, 4382, 20539
 
-PNAD_DESOCUPACION = "t6381|v4099"   # Taxa de desocupação, la misma que cita §3.9
+# Hogares y empleo directo del SGS (tarea 1.3). 24369 = PNADC desocupación (IBGE t6381|v4099, §3.9).
+HOGARES_SGS = {"endividamento": 29037, "comprometimento": 29034, "desocupacion": 24369}
 FOCUS_PARQUET = PB / "expectativas_focus.parquet"   # 78c: expectativas IPCA 12 meses
 
 # Únicas series en puntos porcentuales; todo lo demás va en fracción (61b).
@@ -250,23 +251,6 @@ def deltas_mensuales(m: pd.DataFrame) -> pd.DataFrame:
 
 # --- lectura de pb/ (no se re-baja nada) -------------------------------------------------- #
 
-def leer_fh_deuda() -> dict[str, pd.Series]:
-    d = pd.read_parquet(PB / "fh_deuda.parquet")
-    idx = pd.to_datetime(d["fecha"])
-    return {
-        "endividamento": mensual(pd.Series(d["deuda_ingreso"].to_numpy(), index=idx)),
-        "comprometimento": mensual(pd.Series(d["servicio"].to_numpy(), index=idx)),
-    }
-
-
-def leer_desocupacion() -> pd.Series:
-    d = pd.read_parquet(PB / "tasas_pnad.parquet")
-    d = d[d["serie_id"] == PNAD_DESOCUPACION]
-    if d.empty:
-        raise ValueError(f"tasas_pnad: no está la serie {PNAD_DESOCUPACION}")
-    return mensual(pd.Series(d["tasa"].to_numpy(), index=pd.to_datetime(d["fecha"]))) \
-        .rename("desocupacion")
-
 
 def leer_selic_real_exante() -> pd.Series:
     d = pd.read_parquet(PB / "tasa_real_exante.parquet")
@@ -319,8 +303,8 @@ def construir_series(descargar: bool) -> tuple[dict[str, pd.Series], dict[str, p
     m["mora90_pf_livre_adel3m"] = adelantar(m["mora90_pf_livre"], 3) \
         .rename("mora90_pf_livre_adel3m")
 
-    m.update(leer_fh_deuda())
-    m["desocupacion"] = leer_desocupacion()
+    for serie_id, cod in HOGARES_SGS.items():   # tarea 1.3: directo del SGS, en % -> fracción
+        m[serie_id] = (s(cod) / 100.0).rename(serie_id)
     m["selic_real_exante"] = leer_selic_real_exante()
 
     for serie_id, serie in m.items():

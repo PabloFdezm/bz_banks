@@ -1,6 +1,6 @@
 # Páginas, secciones y tarjetas del sitio
 
-> Generado por `herramientas/generar_spec.py` el 2026-11-05. No editar a mano: se sobrescribe.
+> Generado por `herramientas/generar_spec.py` el 2026-11-06. No editar a mano: se sobrescribe.
 
 
 Datos en `/data/` (relativo a `sitio/`). Páginas con `oculta: true` no salen en el menú pero se abren por URL.

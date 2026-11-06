@@ -5,6 +5,29 @@ mora del sistema, crecimiento del crédito y lucro de Itaú/Bradesco calzan con 
 hallazgos a corregir. Después de cada arreglo: `actualizar.bat`, tests, `comparar_gold.py` contra el gold anterior
 para confirmar que solo cambia lo esperado.
 
+## Avance 6-nov (tarde)
+Cerradas 1.1–1.5. Verificación: 117 tests OK, `verificar_gold` OK, `verificar_f1` OK, `comparar_gold` contra el gold
+previo con diferencias solo en lo esperado (grupos por segmento; `bk_panel` sin filas nulas; `bk_sistema_m/q`).
+Abierta: 1.6 (notas de lectura).
+
+- **1.1 hecho.** `leer_cadastro()` toma el Sr más frecuente del conglomerado cuando la fila propia viene nula. Daycoval
+  → S3, XP → S2; solo Cielo queda «Sin segmento». Test `test_sin_segmento_solo_si_la_fuente_no_lo_trae`. Cambian los
+  grupos S2/S3/«Sin segmento» en `bk_grupo`, `bk_cre_*` y `bk_roe_arbol`.
+- **1.2 no era error de cálculo.** `tot[x.index[-1]]` busca por fecha: el share de agosto ya usa el total de agosto
+  (tarjeta 740,4 / 7.412,4 = 9,99 %). Lo único es que la tabla mezcla filas a ago y a sep, con el Corte visible por
+  fila. Decisión de Pablo (6-nov): se deja así, cada fila con su Corte. Cerrada.
+- **1.3 hecho, y con un hallazgo mayor:** `preparar_gold_bancos_sistema.py` escribía `bk_sistema_m/q` en
+  `datos/intermedio/Banks/` (ruta heredada de Dashboard), no en `datos/gold/`. El gold que lee el sitio no se
+  refrescaba con `actualizar.bat`. Corregido. Además endeudamiento (29037), comprometimiento (29034) y desocupación
+  (24369) se leen ahora del SGS: llegan a ago-26 (50,1 % / 29,0 %) y sep-26 (5,2 %). `selic_real_exante` y Focus
+  siguen congelados en `datos/intermedio/` (pendiente 4 de spec/08, parcial).
+  `datos/intermedio/Banks/` quedó huérfana: borrada el 6-nov.
+- **1.4 hecho.** `verificar_f1` lee el `<strong>` de `.estado-datos`. También estaba roto el chequeo de errores
+  (buscaba `.error-dato`, que ya no existe): ahora marca los mensajes «No pudimos…».
+- **1.5 hecho.** Causa: `stack()` descarta NaN en pandas 2 y no en pandas 3. `_bk_panel` usa
+  `stack(future_stack=True).dropna()` (104.396 filas en cualquier versión); `requirements.txt` pide pandas ≥ 2.1. Dos
+  tests de 78d que fallaban con pandas 3 quedaron compatibles.
+
 ## 1.1 Segmento S1–S5 mal asignado (error real)
 - Daycoval (C0081744) y XP (C0082475) salen «Sin segmento» en `bk_banco.segmento_reg`; en el cadastro del BCB son
   **S3** y **S2**. Cielo (C0084710) sí viene sin segmento en la fuente (correcto).

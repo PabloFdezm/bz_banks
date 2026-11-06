@@ -1,5 +1,5 @@
 # Pipeline
-pandas>=2.0
+pandas>=2.1   # stack(future_stack=True)
 numpy
 pyarrow>=15
 requests>=2.25

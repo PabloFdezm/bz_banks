@@ -1,6 +1,6 @@
 # Archivos de `definiciones/`
 
-> Generado por `herramientas/generar_spec.py` el 2026-11-05. No editar a mano: se sobrescribe.
+> Generado por `herramientas/generar_spec.py` el 2026-11-06. No editar a mano: se sobrescribe.
 
 
 ## `bancos__dashboard.json` (7 kB)
