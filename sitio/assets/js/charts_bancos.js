@@ -978,6 +978,7 @@ function fmtEstandar(v, u, signo) {
   if (u === 'pct_nivel') return `${n(v)} %`;
   if (u === 'pp') return `${n(v)} pp`;
   if (u === 'brl_mm') return `R$ ${Math.round(v).toLocaleString('es-CL')}`;
+  if (u === 'brl') return `R$ ${Math.round(v).toLocaleString('es-CL')}`; // 6-nov: ticket en reales
   return n(v);
 }
 function tabla_estandar(cont, e) {

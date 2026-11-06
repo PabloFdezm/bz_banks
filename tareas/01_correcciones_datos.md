@@ -76,3 +76,13 @@ Abierta: 1.6 (notas de lectura).
 | Crédito real a/a jun-26 | 4,8 % (≈ 9,7 % nominal) | 9,7 % nominal |
 | Lucro Itaú 2T26 (prudencial) | R$ 12,52 mil mill. | R$ 12,4 mil mill. gerencial |
 | Lucro Itaú / Bradesco 2T25 | 11,50 / 6,05 | 11,5 / 6,07 |
+
+## 1.7 Concesiones mal rotuladas (hallazgo del 6-nov)
+- `pipeline/preparar_gold_bancos_pag_credito.py`, línea ~48: `CONCESIONES = [("Concesiones libres", 20631), …]`.
+- 20631 es el **total** de concesiones, libres más direccionadas: 20631 = 20632 (PJ) + 20633 (PF), con el mismo
+  patrón que los stocks 20539/20540/20541.
+- Las concesiones libres son 20634 (total), 20635 (PJ) y 20662 (PF). Hoy solo está descargada 20662.
+- Arreglo:
+  - renombrar la fila a «Concesiones totales» o cambiar a 20634;
+  - descargar 20634 y 20635.
+- Validar contra el catálogo del SGS antes de cerrar.

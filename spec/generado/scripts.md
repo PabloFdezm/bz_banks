@@ -343,7 +343,7 @@ Los informes de IF.data se bajan a mano (``ifdata.py colectar``; ver doc 41 §4)
 ``preparar_bancos_powerbi.py`` (usa ``datos/gold``).
 ```
 
-## `pipeline/preparar_gold_bancos.py` (1377 líneas)
+## `pipeline/preparar_gold_bancos.py` (1379 líneas)
 
 Importa del pipeline: `almacen`, `preparar_gold_bancos_cartera`, `preparar_gold_bancos_exposicion`, `preparar_gold_bancos_sistema`, `preparar_metricas_bancos`
 
@@ -622,7 +622,7 @@ Receta::
     python -X utf8 preparar_gold_bancos_scr.py --solo-descargar
 ```
 
-## `pipeline/preparar_gold_bancos_scr_productos.py` (410 líneas)
+## `pipeline/preparar_gold_bancos_scr_productos.py` (411 líneas)
 
 Importa del pipeline: `almacen`, `certificados`
 
@@ -636,7 +636,8 @@ POR QUÉ EXISTE
 `bk_scr` (preparar_gold_bancos_scr.py) publica tres cortes sin modalidad. Las páginas Personas y Mora
 necesitan el SCR abierto por producto (tarjeta, consignado, personal, vehículos, inmobiliario, rural, cheque
 especial), por tramo de renta del deudor PF, por tipo de institución y, en PJ, por sección CNAE. Es la base
-de la réplica del reporte de Bradesco BBI (crédito por renta) y de los gráficos 1.2.2.15/1.2.2.16 del REF.
+de la réplica de crédito por renta (tarea 3; detalle en referencias/, fuera de git) y de los gráficos
+1.2.2.15/1.2.2.16 del REF.
 
 FLUJO
 -----
@@ -658,7 +659,7 @@ REGLAS
 - Activo problemático = ativo_problematico / carteira_ativa. Desde ene-25 rige la Res. 4.966 (otra definición).
 - Ticket = cartera de las celdas con numero_de_operacoes > 0 / Σ operaciones. −1 es secreto estadístico
   (menos de 15 operaciones): esas celdas entran al saldo pero no al ticket.
-- Mix por renta: sobre los 7 tramos con renta declarada (sin «N.D.» ni «Sin renta»), como Bradesco BBI.
+- Mix por renta: sobre los 7 tramos con renta declarada (sin «N.D.» ni «Sin renta»).
 - Cambios de saldo y ticket en % (m/m, 3m/3m con promedios, a/a, 12m/12m con promedios); de tasas en pp.
 - Quiebres conocidos de la fuente (no se suavizan; van en las notas del sitio): jul-25 reclasificación de renta
   (salto del mix); ago-26 ~R$ 15 mil millones de tarjeta pasan de «más de 20 SM» a «Indisponível».
@@ -787,7 +788,7 @@ Uso (desde la raíz del repo):  python -X utf8 herramientas/generar_spec.py
 Requiere los parquet de datos/gold (no van a git) y Node para leer la configuración de páginas.
 ```
 
-## `herramientas/verificar_f1.py` (219 líneas)
+## `herramientas/verificar_f1.py` (220 líneas)
 
 Argumentos: `--url` — sitio publicado (sin / final); si falta, levanta uno local; `--anchos` — anchos en px separados por coma, p. ej. 1920,1280,390
 

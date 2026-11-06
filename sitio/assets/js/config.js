@@ -10,13 +10,15 @@ export const MARCA = 'BANCOS BRASIL';
 
 /* oculta: true saca la página del menú (MVP: solo las cinco con datos). La página sigue
    existiendo y se abre por URL. */
-/* Las once páginas, en el recorrido de ESQUELETO_BANCOS_v0.1 §0.1. */
+/* Las once páginas del esqueleto (ESQUELETO_BANCOS_v0.1 §0.1) más Personas (B11) y Mora (B12), 6-nov. */
 export const PAGINAS = [
   { clave: 'B0', ruta: '', nombre: 'Portada' },
   { clave: 'B1', ruta: 'ciclo', nombre: 'Ciclo y condiciones', oculta: true },
   { clave: 'B2', ruta: 'competencia', nombre: 'Estructura y competencia', oculta: true },
   { clave: 'B3', ruta: 'credito', nombre: 'Crédito' },
+  { clave: 'B11', ruta: 'personas', nombre: 'Personas' },
   { clave: 'B4', ruta: 'calidad', nombre: 'Calidad' },
+  { clave: 'B12', ruta: 'mora', nombre: 'Mora' },
   { clave: 'B5', ruta: 'fondeo', nombre: 'Fondeo y liquidez', oculta: true },
   { clave: 'B6', ruta: 'rentabilidad', nombre: 'Rentabilidad' },
   { clave: 'B7', ruta: 'capital', nombre: 'Capital', oculta: true },

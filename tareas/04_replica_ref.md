@@ -71,3 +71,53 @@ boxes del capítulo 2.
    - CRI (1.2.2.11–14 y 23–26) → lámina 06 de Personas;
    - PD y estrés → páginas Calidad y Capital.
 4. **Al presentarlo:** cada tarjeta que venga del REF lleva «Fuente: BCB, REF (edición)» y frecuencia semestral.
+
+## Avance 6-nov: canvas de réplicas con datos propios
+Canvas «Bancos Brasil · Réplicas del REF»: https://claude.ai/artifact/KBCNwmBbBfnsQ1NtwS5o48. Tiene cuatro láminas y
+espera la aprobación de Pablo.
+
+| Lámina | REF | Fidelidad a jun-26 |
+|---|---|---|
+| 01 Activos problemáticos por modalidad (PF) | 1.2.2.16 | **Exacta** (Total 9,2; Habitacional 5,1; Consignado 5,0; Vehículos 8,5; No consignado 14,9; Rural 10,2 vs 10,3; Tarjeta 12,7). El «Total» del REF es el total PF |
+| 02 Cartera PF: menor vs. mayor riesgo, a/a | 1.2.2.15 | Cercana. La agrupación es nuestra: menor = habitacional, consignado, vehículos, rural; mayor = tarjeta, no consignado, otros |
+| 03 ROE por segmento | 1.2.3.1 | Aproximada. Calzan S1 y públicos; «Demás» queda alto (el panel tiene solo 9 medianos) y digitales bajo (24 vs ~29) |
+| 04 Costo de provisiones por segmento | 1.2.3.5 | Calzan S1, públicos y total; digitales 13,2 vs ~18 |
+
+**Descartados por no calzar** (no publicar sin resolver):
+- **Mora PF/PJ desde SCR.data (1.2.2.21):** la PJ da 2,9 % contra el 3,2 % del SGS (otro universo). Usar las series SGS
+  21082/21083/21084 (total, PJ, PF), que aún no están en `bk_sistema_m`. El contrafactual sale del Anexo.
+- **Empresas por tamaño (1.2.2.7 y 1.2.2.9):** el `porte` del SCR.data no es la clasificación del BCB. Micro da 9,6 % de
+  activos problemáticos contra 14,4 % en el REF, y crece +71 % a/a por reclasificaciones.
+- **Eficiencia por segmento (1.2.3.8):** nuestro `ingreso_total_ttm` se quiebra con COSIF 2025 y el índice salta.
+  Revisar la definición antes.
+
+**Cálculo:**
+- `tareas/borradores/agg_scr_ref.py <segundos> <años…>`: agrega SCR.data por mes × cliente × grupo de modalidad ×
+  porte × tipo de institución, desde dic-2018. Son ~2 s por mes.
+- Los segmentos usan `bk_banco.segmento_ref` con Σ lucro 12 m / Σ PL medio y Σ provisiones 12 m / Σ cartera media
+  (5 trimestres).
+- Para producción hay que pasarlo a un `preparar_gold_ref_propio.py` con tests.
+
+## Avance 6-nov (segunda parte): láminas propias 05–07 en el mismo canvas
+
+**05 · Mora temprana (15–90 días) por modalidad, PF**
+- La correlación entre el cambio a/a de la mora temprana y el de la mora a más de 90 días es máxima con 3 meses de
+  rezago: 0,88 en el total PF y 0,95 en no consignado. En tarjeta es 0,73 con 4 meses.
+- La mora temprana PF tocó techo entre may y jun-26 (1,31 %) y baja a 1,26 % en ago. Rural sigue cerca del máximo
+  (1,85 %).
+- Tarjeta a más de 90 días salta +1,4 pp en ago-26: revisar castigos.
+
+**06 · Activos problemáticos de empresas por sector CNAE**
+- El SCR.data trae la sección CNAE en `cnae_ocupacao` (PJ), y la ocupación en la misma columna para PF.
+- El nombre del sector trae «;» (por ejemplo «Comércio; reparação…»), así que el CSV hay que leerlo con pandas y
+  comillas, nunca con `split(';')`.
+- El nivel total (6,9 %) queda bajo el REF (7,4 %); la lámina sirve para comparar sectores.
+- Financieras +38 % a/a: revisar si hay reclasificación.
+
+**07 · Concesiones a/a de 12 meses**
+- Series: total, PF, PJ y libre PF, más una tabla de stocks.
+- Las concesiones por modalidad no están descargadas.
+- Ver 1.7 en `01_correcciones_datos.md` (rótulo de la serie 20631).
+
+**Script:** `tareas/borradores/agg_scr_sector.py` agrega por mes × cliente × sección CNAE u ocupación × grupo de
+modalidad.

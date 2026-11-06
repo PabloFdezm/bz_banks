@@ -37,6 +37,7 @@ PAGINAS = [
     ("/", "B0"), ("/ciclo/", "B1"), ("/competencia/", "B2"), ("/credito/", "B3"),
     ("/calidad/", "B4"), ("/fondeo/", "B5"), ("/rentabilidad/", "B6"), ("/capital/", "B7"),
     ("/ficha/", "B8"), ("/comparador/", "B9"), ("/metodologia/", "B10"),
+    ("/personas/", "B11"), ("/mora/", "B12"),  # 6-nov
 ]
 
 # Tarjetas por página del esqueleto (ESQUELETO_BANCOS_v0.1.md; las mismas que contar_tarjetas.mjs).
@@ -44,14 +45,14 @@ PAGINAS = [
 _CFG = (Path(__file__).resolve().parents[1] / "sitio/assets/js/config.js").read_text(encoding="utf-8")
 VISIBLES = sum(1 for l in _CFG.splitlines() if "clave: 'B" in l and "oculta: true" not in l)
 
-ESPERADO = {"B0": 7, "B1": 11, "B2": 11, "B3": 8, "B4": 5, "B5": 6, "B6": 5, "B7": 6, "B8": 8, "B9": 1, "B10": 0}  # v3: B0 y B3 con la estructura del canvas; B8 sin Conducta
+ESPERADO = {"B0": 7, "B1": 11, "B2": 11, "B3": 8, "B4": 5, "B5": 6, "B6": 5, "B7": 6, "B8": 8, "B9": 1, "B10": 0, "B11": 8, "B12": 8}  # v3: B0 y B3 con la estructura del canvas; B8 sin Conducta
 
 # Lee las configs como texto (sin build), igual que contar_tarjetas.mjs, y saca el orden de las tarjetas.
 NODO = r"""
 const fs = require('fs'); const path = require('path');
 const dir = process.argv[1];
 const salida = {};
-for (let i = 0; i <= 10; i++) {
+for (let i = 0; i <= 12; i++) {
   const clave = 'B' + i;
   const src = fs.readFileSync(path.join(dir, 'b' + i + '.js'), 'utf8').replace(/export default/, 'return');
   const cfg = new Function(src)();
@@ -211,7 +212,7 @@ def main():
         for f in fallos:
             print(" -", f)
         return 1
-    print(f"\nOK ({base}, {args.anchos} px): las 11 páginas, con y sin ?banco=itau, cargan sin errores; sin scroll horizontal; conteos del esqueleto; «en preparación» solo sin armar()")
+    print(f"\nOK ({base}, {args.anchos} px): las {len(PAGINAS)} páginas, con y sin ?banco=itau, cargan sin errores; sin scroll horizontal; conteos del esqueleto; «en preparación» solo sin armar()")
     return 0
 
 

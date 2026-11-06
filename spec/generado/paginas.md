@@ -198,6 +198,56 @@ Notas visibles en las tarjetas:
 - `B3-06`: Último: flujo del mes (concesiones) o saldo, en R$ mil millones. Cambios en %; 12m/12m de concesiones compara sumas de doce meses.
 - `B3-08`: Último en % (crédito/PIB, tendencia) y pp (brecha). Cambios en pp. El BIS mide crédito total al sector privado y su brecha difiere.
 
+## B11 · Personas — `/personas`
+
+Archivo: `sitio/assets/js/paginas/b11.js` · rótulo: SCR.DATA · MENSUAL · usaBanco: False
+
+### 01 Cartera por renta · Mensual · SCR.data
+
+Cuánto crece la cartera en cada tramo de renta del deudor, en salarios mínimos (SM).
+
+- Selector `producto` (PRODUCTO): Tarjeta / Personal / Consignado / Vehículos / Inmobiliario / Rural / Cheque esp. / Total; por defecto `Tarjeta`
+- Fila 1: `B11-01` (ancho 4/9, alto 640) + `B11-02` (ancho 5/9, alto 640)
+
+### 02 Exposición a renta baja · Mensual · SCR.data
+
+Qué parte de la cartera está en deudores de hasta 3 SM, en total y por tipo de institución.
+
+- Selector `producto` (PRODUCTO): Tarjeta / Personal / Consignado / Vehículos / Inmobiliario / Rural / Cheque esp. / Total; por defecto `Tarjeta`
+- Fila 1: `B11-03` (ancho 4/9, alto 470) + `B11-04` (ancho 5/9, alto 470)
+
+### 03 Mora por renta · Mensual · SCR.data
+
+Mora de más de 90 días en cada tramo, y cuánto crédito tiene cada operación.
+
+- Selector `producto` (PRODUCTO): Tarjeta / Personal / Consignado / Vehículos / Inmobiliario / Rural / Cheque esp. / Total; por defecto `Tarjeta`
+- Fila 1: `B11-05` (ancho 4/9, alto 640) + `B11-06` (ancho 5/9, alto 640)
+
+### 04 Mora temprana · Mensual · SCR.data
+
+El atraso de 15 a 90 días se adelanta unos 3 meses a la mora de más de 90.
+
+- Selector `producto` (PRODUCTO): Tarjeta / Personal / Consignado / Vehículos / Inmobiliario / Rural / Cheque esp. / Total; por defecto `Tarjeta`
+- Fila 1: `B11-07` (ancho 4/9, alto 640) + `B11-08` (ancho 5/9, alto 640)
+
+| Tarjeta | Título | Componente | Datos | Estado | Banco | Fuente |
+|---|---|---|---|---|---|---|
+| `B11-01` | Crecimiento a/a de la cartera por tramo | `barras_signo` | `bk_scr_tablas` | LISTO |  | BCB, SCR.data; tramos según la renta declarada del deudor |
+| `B11-02` | Cartera por tramo de renta | `tabla_estandar` | `bk_scr_tablas` | LISTO |  | BCB, SCR.data |
+| `B11-03` | Mix de la cartera por tramo de renta, % | `barras_linea` | `bk_scr_series` | LISTO |  | BCB, SCR.data; sin «N.D.» ni «sin renta»; jul-25: reclasifi… |
+| `B11-04` | Exposición hasta 3 SM por tipo de institución | `tabla_estandar` | `bk_scr_tablas` | LISTO |  | BCB, SCR.data |
+| `B11-05` | Mora >90 días por tramo, % | `barras_linea` | `bk_scr_series` | LISTO |  | BCB, SCR.data; carteira_inadimplência / carteira ativa; Res… |
+| `B11-06` | Ticket por tramo (saldo por operación) | `tabla_estandar` | `bk_scr_tablas` | LISTO |  | BCB, SCR.data |
+| `B11-07` | Atraso de 15 a 90 días por tramo, % | `barras_linea` | `bk_scr_series` | LISTO |  | BCB, SCR.data; vencido de 15 a 90 días / carteira ativa |
+| `B11-08` | Mora >90 días por tramo | `tabla_estandar` | `bk_scr_tablas` | LISTO |  | BCB, SCR.data |
+
+Notas visibles en las tarjetas:
+
+- `B11-02`: Último: R$ mil millones. Share: peso del tramo en el producto. Cambios en %. Ago-26: ~R$ 15 mil millones de tarjeta pasan de «más de 20 SM» a «N.D.» por reclasificación de la fuente.
+- `B11-04`: Último: % de la cartera del tipo en deudores de hasta 3 SM. Share: peso del tipo en el producto. Cambios en pp. Las fintech grandes aparecen según su licencia (financiera o institución de pago). SCR.data no trae S1–S5.
+- `B11-06`: Último: R$ por operación, en celdas con 15 o más operaciones. Cambios en %. En personal, el ticket de los tramos altos se multiplica en 2025 por un cambio de la fuente: su 12m/12m no es comparable.
+- `B11-08`: Último: % de la cartera del tramo. Share: peso del tramo en el producto. Cambios en pp; 12m/12m: promedio de 12 meses contra los 12 previos. El SCR incluye todas las instituciones: el nivel difiere de la serie del SGS.
+
 ## B4 · Calidad — `/calidad`
 
 Archivo: `sitio/assets/js/paginas/b4.js` · rótulo: 4 · CALIDAD · usaBanco: True
@@ -237,6 +287,52 @@ Notas visibles en las tarjetas:
 - `B4-03-1`: Con banco activo: los bancos de su grupo, el activo en negrita. Sin banco: los 15 de mayor costo del riesgo. Último trimestre con dato (2T26): 32 de 34 bancos; sin dato BRB y Cielo.
 - `B4-04-0`: Por encima de la diagonal, el banco tiene más NPL del que su mix predice; por debajo, menos. Solo bancos con cobertura de al menos 50 % de la cartera; los demás no tienen punto.
 - `B4-04-1`: * Cambio de cobertura en 2025. Mora implícita solo con cobertura de al menos 50 %: BNDES, Banco da Amazônia y Cielo sin dato.
+
+## B12 · Mora — `/mora`
+
+Archivo: `sitio/assets/js/paginas/b12.js` · rótulo: SCR.DATA · MENSUAL · usaBanco: False
+
+### 01 Activos problemáticos por modalidad · Mensual · SCR.data
+
+Qué parte de cada modalidad de personas está en atraso de 90 días o reestructurada con deterioro. Réplica del gráfico 1.2.2.16 del REF.
+
+- Fila 1: `B12-01` (ancho 4/9, alto 610) + `B12-02` (ancho 5/9, alto 610)
+
+### 02 Mora temprana por modalidad · Mensual · SCR.data
+
+El atraso de 15 a 90 días anticipa la mora de más de 90 en unos 3 meses.
+
+- Fila 1: `B12-03` (ancho 4/9, alto 610) + `B12-04` (ancho 5/9, alto 610)
+
+### 03 Crédito de mayor riesgo · Mensual · SCR.data
+
+Si el crédito más riesgoso crece más que el resto, la mora futura sube. Réplica del gráfico 1.2.2.15 del REF.
+
+- Fila 1: `B12-05` (ancho 4/9, alto 610) + `B12-06` (ancho 5/9, alto 610)
+
+### 04 Empresas por sector · Mensual · SCR.data
+
+Activos problemáticos de la cartera de empresas por sector de actividad (sección CNAE).
+
+- Fila 1: `B12-07` (ancho 4/9, alto 700) + `B12-08` (ancho 5/9, alto 700)
+
+| Tarjeta | Título | Componente | Datos | Estado | Banco | Fuente |
+|---|---|---|---|---|---|---|
+| `B12-01` | Activos problemáticos / cartera, % | `barras_linea` | `bk_scr_series` | LISTO |  | BCB, SCR.data; personas; Res. 4.966 desde ene-25 (otra defi… |
+| `B12-02` | Stock de activos problemáticos por modalidad | `tabla_estandar` | `bk_scr_tablas` | LISTO |  | BCB, SCR.data |
+| `B12-03` | Atraso de 15 a 90 días / cartera, % | `barras_linea` | `bk_scr_series` | LISTO |  | BCB, SCR.data; personas |
+| `B12-04` | Mora >90 días por modalidad | `tabla_estandar` | `bk_scr_tablas` | LISTO |  | BCB, SCR.data |
+| `B12-05` | Crecimiento a/a de la cartera de personas, % | `barras_linea` | `bk_scr_series` | LISTO |  | BCB, SCR.data; menor riesgo = inmobiliario, consignado, veh… |
+| `B12-06` | Cartera de personas por modalidad | `tabla_estandar` | `bk_scr_tablas` | LISTO |  | BCB, SCR.data |
+| `B12-07` | Activos problemáticos / cartera por sector, último mes | `barras_simple` | `bk_scr_tablas`, `bk_scr_series` | LISTO |  | BCB, SCR.data; 10 mayores sectores por cartera |
+| `B12-08` | Cartera de empresas por sector | `tabla_estandar` | `bk_scr_tablas` | LISTO |  | BCB, SCR.data |
+
+Notas visibles en las tarjetas:
+
+- `B12-02`: Último: R$ mil millones. Share: peso en el total de personas. Cambios en %. A jun-26 calza con el REF: total 9,2 %, tarjeta 12,7 %, no consignado 14,9 %.
+- `B12-04`: Último: % de la cartera. Share: peso de la modalidad en la cartera de personas. Cambios en pp; 12m/12m: promedio de 12 meses contra los 12 previos.
+- `B12-06`: Último: R$ mil millones. Share: peso en la cartera de personas. Cambios en %.
+- `B12-08`: Último: R$ mil millones. Cambios en %. El nivel total queda bajo el del REF por diferencia de universo: sirve para comparar sectores. Financieras +38 % a/a: revisar reclasificación.
 
 ## B5 · Fondeo y liquidez — `/fondeo` (oculta)
 

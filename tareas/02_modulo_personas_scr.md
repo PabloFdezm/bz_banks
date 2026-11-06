@@ -72,10 +72,32 @@ Hasta 3 SM es el 36,8 % del mix.
 | Consignado | 48,3 | 45,1 | — | 25,5 | — |
 
 ## Riesgos de los datos
-- **«Más de 20 SM» en ago-26:** el saldo cae 13,9 % m/m y el ticket sube 10,7 %. Investigar si es una reclasificación
-  de tramo antes de publicar. La nota local en `referencias/` tiene un contraste externo.
+- **«Más de 20 SM» en ago-26 (resuelto 6-nov):** ~R$ 15 mil millones de tarjeta pasan de «más de 20 SM» a
+  «Indisponível» (+94 % m/m). Es una reclasificación de la fuente, no una caída real. Mostrar N.D. en la tabla y anotar.
+- **Otros quiebres:** jul-25 cambia la clasificación de renta (salta el mix); en 2025 el ticket del personal en los
+  tramos altos se multiplica. Marcar las variaciones que cruzan estos meses.
 - **Tramos fuera:** «Sem rendimento» e «Indisponível» (~3,4 % de la cartera de tarjeta) no entran en los tramos.
   Mostrarlos aparte.
 - **Res. 4.966:** `ativo_problematico` cambia de definición en ene-2025. Tratarlo con banda de quiebre.
 - **Tipo de institución:** las fintech grandes aparecen según su licencia (Nubank como financiera o institución de
   pago), no en «Fintech».
+
+## Construido el 6-nov
+- **Pipeline:**
+  - `pipeline/preparar_gold_bancos_scr_productos.py` con `definiciones/scr_productos.json` (productos, tramos,
+    instituciones y sectores CNAE en español);
+  - caché mensual incremental en `datos/intermedio/scr_productos/<versión>/`;
+  - gold `bk_scr_tablas` (398 filas) y `bk_scr_series` (14 mil filas, 0,75 MB en JSON);
+  - paso 8/9 de `actualizar.bat`, con `--descargar` para el ZIP del año en curso.
+- **Tests:** `tests/test_gold_scr_productos.py`. El total PF calza exacto con `bk_scr`; los shares y el mix suman 100 %.
+- **Sitio:**
+  - `paginas/b11.js` (Personas): cuatro secciones con selector de producto (tarjeta, personal, consignado,
+    vehículos, inmobiliario, rural, cheque especial, total);
+  - `paginas/b12.js` (Mora): activos problemáticos por modalidad, mora temprana, menor vs. mayor riesgo, sector;
+  - menú en `config.js`; carpetas `sitio/personas/` y `sitio/mora/`.
+- **Pendiente:**
+  - correr `actualizar.bat` en Windows: regenera `bk_manifiesto` (hasta entonces `test_gold_reales_sin_errores` falla
+    porque no lista las dos tablas nuevas) y exporta los JSON;
+  - publicar;
+  - revisar con fuentes reales (`verificar_f1.py --url`);
+  - borrar `datos/intermedio/scr_productos/_a_borrar_12bbead977` (caché de una corrida abortada).

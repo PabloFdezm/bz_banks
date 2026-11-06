@@ -390,19 +390,19 @@ Carpeta `datos/gold/`.
 
 ### `bk_manifiesto`
 
-29 filas · 12 columnas · — · 0.01 MB
+31 filas · 12 columnas · — · 0.01 MB
 
 | Columna | Tipo | % nulos | Ejemplo | Valores distintos |
 |---|---|---|---|---|
 | `tipo` | str | 0 | tabla | 2 |
-| `tabla` | str | 10 | bk_banco | 26 |
-| `archivo` | str | 10 | bk_banco.parquet | 26 |
-| `filas` | float64 | 10 | 34.0 | 25 |
+| `tabla` | str | 10 | bk_banco | 28 |
+| `archivo` | str | 10 | bk_banco.parquet | 28 |
+| `filas` | float64 | 10 | 34.0 | 27 |
 | `columnas` | float64 | 10 | 17.0 | 16 |
-| `rango` | str | 38 | 34 bancos | 13 |
-| `sha256` | str | 10 | 280bfed071740cd2261356e9a39189f1dc83a96750b33a0f234bbb6626b1aa47 | 26 |
-| `bytes` | float64 | 10 | 12217.0 | 26 |
-| `producido_por` | str | 10 | python -X utf8 preparar_gold_bancos.py base | 9 |
+| `rango` | str | 39 | 34 bancos | 14 |
+| `sha256` | str | 10 | 280bfed071740cd2261356e9a39189f1dc83a96750b33a0f234bbb6626b1aa47 | 28 |
+| `bytes` | float64 | 10 | 12217.0 | 28 |
+| `producido_por` | str | 10 | python -X utf8 preparar_gold_bancos.py base | 10 |
 | `universo` | str | 90 | Panel | 3 |
 | `ultimo_corte` | str | 90 | 2026-06-30 | 3 |
 | `nota` | str | 90 | IF.Data prudencial, trimestral | 3 |
@@ -622,7 +622,7 @@ Carpeta `datos/gold/`.
 | `bloque` | str | 0 | saldo | 9 |
 | `producto` | str | 0 | Tarjeta | 9 |
 | `orden` | int64 | 0 | 0 | 12 |
-| `fila` | str | 0 | Hasta 1 SM | 44 |
+| `fila` | str | 0 | Hasta 1 SM | 43 |
 | `grupo` | str | 0 | Tramo | 4 |
 | `unidad_ultimo` | str | 0 | brl_mm | 3 |
 | `unidad_cambio` | str | 0 | pct | 2 |

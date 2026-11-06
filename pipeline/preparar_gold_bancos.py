@@ -881,6 +881,8 @@ def _principal_base() -> None:
                      "bk_cartera_mix7.parquet": "preparar_gold_bancos_cartera.py (encargo 78b)",
                      "bk_cartera_grupo.parquet": "preparar_gold_bancos_cartera.py",
                      "bk_qcambio.parquet": "preparar_gold_bancos_qcambio.py (encargo 78d; correr después de base)",
+                     "bk_scr_tablas.parquet": "preparar_gold_bancos_scr_productos.py (páginas Personas y Mora, 6-nov)",
+                     "bk_scr_series.parquet": "preparar_gold_bancos_scr_productos.py (páginas Personas y Mora, 6-nov)",
                      }.get(ruta.name, "fuera de preparar_gold_bancos.py base")
         filas_man.append({"tipo": "tabla", "tabla": ruta.stem, "archivo": ruta.name,
                           "filas": len(otra), "columnas": otra.shape[1],

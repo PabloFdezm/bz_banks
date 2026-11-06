@@ -6,9 +6,9 @@ Lista ordenada por prioridad. Cada frente tiene su archivo con el detalle, los d
 | # | Frente | Archivo | Estado |
 |---|---|---|---|
 | 1 | Correcciones de datos detectadas en la auditoría del 6-nov | `01_correcciones_datos.md` | 1.1–1.5 cerradas el 6-nov (1.2: se deja el corte mixto); falta 1.6 (notas) |
-| 2 | Módulo Personas (SCR.data por renda) | `02_modulo_personas_scr.md` | canvas hecho, falta aprobación |
-| 3 | Réplica del reporte sell-side de crédito por renda (detalle en `referencias/`, fuera de git) | `03_replica_sellside.md` | 2/3 replicable; falta fuente S1–S5 |
-| 4 | Réplica de gráficos del REF (BCB, oct-26) | `04_replica_ref.md` | mapa hecho |
+| 2 | Módulo Personas (SCR.data por renda) | `02_modulo_personas_scr.md` | páginas Personas (B11) y Mora (B12) construidas el 6-nov; falta correr `actualizar.bat` y publicar |
+| 3 | Réplica del reporte sell-side de crédito por renda (detalle en `referencias/`, fuera de git) | `03_replica_sellside.md` | fuente S1–S5 encontrada el 6-nov (SCR.data v1, hasta sep-26); falta construirla |
+| 4 | Réplica de gráficos del REF (BCB, oct-26) | `04_replica_ref.md` | 1.2.2.15 y 1.2.2.16 en la página Mora; ROE/provisiones por segmento y Anexo pendientes |
 | 5 | Rediseño de gráficos (cambio grande anunciado por Pablo) | `05_rediseno_graficos.md` | por definir |
 | 6 | Operación: automatización, limpieza, deuda técnica | `06_operacion.md` | pendiente |
 

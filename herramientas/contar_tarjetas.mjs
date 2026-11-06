@@ -11,7 +11,7 @@ import { dirname, join } from 'node:path';
 const aqui = dirname(fileURLToPath(import.meta.url));
 const PAGINAS = join(aqui, '..', 'sitio', 'assets', 'js', 'paginas');
 
-const ESPERADO = { b0: 7, b1: 11, b2: 11, b3: 8, b4: 5, b5: 6, b6: 5, b7: 6, b8: 8, b9: 1, b10: 0 };
+const ESPERADO = { b0: 7, b1: 11, b2: 11, b3: 8, b4: 5, b5: 6, b6: 5, b7: 6, b8: 8, b9: 1, b10: 0, b11: 8, b12: 8 };
 const ESTADOS = ['LISTO', 'DERIVAR', 'FALTA', 'REF'];
 
 function leer(nombre) {
