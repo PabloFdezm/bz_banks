@@ -696,3 +696,9 @@ button, a, select { transition: background-color var(--movimiento) ease-out, col
   @keyframes indicador-listo { from { opacity: .86; } to { opacity: 1; } }
 }
 @media print { .actualizacion-dato { display: none; } }
+
+/* 6-nov: en celular el nombre de la sección puede pasar a dos líneas; con flex: none (monitor.css) un título
+   largo no se cortaba («Activos problemáticos por modalidad» desbordaba 12 px en Mora a 390 px). */
+@media (max-width: 699px) {
+  .riel-nombre { flex: 0 1 auto; min-width: 0; overflow-wrap: anywhere; }
+}
