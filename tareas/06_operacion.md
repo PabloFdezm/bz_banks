@@ -11,4 +11,3 @@
    - rehacer Calidad, Rentabilidad y Ficha en v3;
    - páginas nuevas: Mora, Márgenes, Por banco, Productos;
    - validar las series SGS de modalidades;
-   - `credito_aa` 2025 en la franja del quiebre.

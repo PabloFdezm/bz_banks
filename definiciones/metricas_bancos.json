@@ -119,9 +119,10 @@
    "signo": "neutro",
    "signo_fuente": "neutro_por_defecto",
    "fuente": "Derivado de BCB IF.Data (prudencial), preparar_metricas_bancos.py",
-   "definicion": "ativo_total de t / ativo_total de t−4 − 1.",
+   "definicion": "ativo_total de t / ativo_total de t−4 − 1. Vacía cuando t−4 cae antes de 2025-T1 (quiebre COSIF: el saldo cambia de definición; ver periodos.QUIEBRE_2025).",
    "en_ficha": false,
-   "crecimiento_de": "ativo_total"
+   "crecimiento_de": "ativo_total",
+   "vacia_en_quiebre_2025": true
   },
   "ativo_medio_ttm": {
    "nombre": "Activo medio (12 meses)",
@@ -369,9 +370,10 @@
    "signo": "neutro",
    "signo_fuente": "esqueleto_0.8",
    "fuente": "Derivado de BCB IF.Data (prudencial), preparar_metricas_bancos.py",
-   "definicion": "credito_total de t / credito_total de t−4 − 1.",
+   "definicion": "credito_total de t / credito_total de t−4 − 1. Vacía cuando t−4 cae antes de 2025-T1 (quiebre COSIF: el saldo cambia de definición; ver periodos.QUIEBRE_2025).",
    "en_ficha": true,
-   "crecimiento_de": "credito_total"
+   "crecimiento_de": "credito_total",
+   "vacia_en_quiebre_2025": true
   },
   "credito_bruto": {
    "nombre": "Cartera bruta",
@@ -602,9 +604,10 @@
    "signo": "neutro",
    "signo_fuente": "neutro_por_defecto",
    "fuente": "Derivado de BCB IF.Data (prudencial), preparar_metricas_bancos.py",
-   "definicion": "depositos de t / depositos de t−4 − 1.",
+   "definicion": "depositos de t / depositos de t−4 − 1. Vacía cuando t−4 cae antes de 2025-T1 (quiebre COSIF: el saldo cambia de definición; ver periodos.QUIEBRE_2025).",
    "en_ficha": false,
-   "crecimiento_de": "depositos"
+   "crecimiento_de": "depositos",
+   "vacia_en_quiebre_2025": true
   },
   "depositos_interfinanceiros": {
    "nombre": "Depósitos interfinancieros",

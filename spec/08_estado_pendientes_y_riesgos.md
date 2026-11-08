@@ -26,7 +26,11 @@ Estado al 4-nov-2026.
 4b. Resuelto el 6-nov: `bk_sistema_m/q` se escribían en `datos/intermedio/Banks/` y el gold no se refrescaba.
 5. Validar contra el catálogo del SGS los nombres de las series de modalidades. Concesiones validadas el 8-nov:
    20631 es el total (= 20632 PJ + 20633 PF); las libres son 20634 (= 20635 + 20662).
-6. `credito_aa` en 2025 cruza el quiebre COSIF y aparece vacío en la franja; corregir en el gold.
+6. ~~`credito_aa` en 2025~~ Resuelto el 8-nov. No estaba vacío sino mal: comparaba `credito_total` de dos
+   definiciones (balance COSIF nuevo contra viejo) y daba Santander −25 %, XP −44 %, total panel −4 %. Ahora
+   `credito_aa`, `ativo_aa` y `depositos_aa` (y `credito_real_aa`) quedan vacíos de 2025-T1 a 2025-T4 en todos los
+   bancos y grupos (`vacia_en_quiebre_2025` en `metricas_bancos.json`, `PER.cruza_quiebre`). Pendiente opcional:
+   medir el crecimiento de 2025 con la cartera por modalidad (`bk_cartera`), que tiene sus propios saltos.
 7. Automatizar la actualización: tarea programada de Windows (simple) o GitHub Actions (requiere guardar los
    datos fuera de git; viable si el crudo baja a ~200 MB en parquet).
 8. Opcional ofrecido: filas extra en la tabla de ROE de la Portada (ROA, margen, costo del riesgo).
@@ -37,6 +41,8 @@ Estado al 4-nov-2026.
 - **Frontera COSIF 2025-03:** códigos de cuenta renumerados; los informes de crédito pasan del escopo
   financiero al prudencial. Bancos con cambio de cobertura llevan `quiebre_2025 = true` y sus variaciones
   que cruzan 2025-T1 quedan vacías.
+- **Crecimientos a/a de saldos del balance** (crédito, activo, depósitos): vacíos en 2025 en todos los bancos, porque
+  el saldo cambia de definición en la frontera (no solo en los bancos con `quiebre_2025`).
 - **2024-T4 anómalo** en IF.Data: vacío a propósito (`trimestres_anomalos` en definiciones).
 - **Res. 4.966 (2025):** cambia la medida de mora/activos problemáticos; las series se leen con banda de
   quiebre.

@@ -67,6 +67,11 @@ def mes_corto(p: pd.Period) -> str:
     return f"{MESES[p.month - 1]}-{str(p.year)[2:]}"
 
 
+def cruza_quiebre(periodo: pd.Series, k: int) -> pd.Series:
+    """True donde t ≥ 2025-T1 > t−k: la variación compara las dos eras COSIF."""
+    return ((periodo >= QUIEBRE_2025) & (previo_serie(periodo, k) < QUIEBRE_2025)).astype(bool)
+
+
 def variacion_valida(periodo: pd.Series, k: int, con_quiebre: pd.Series | None = None,
                      regla_quiebre: str = "cruza") -> pd.Series:
     """True donde la variación t contra t−k es publicable.
@@ -82,7 +87,7 @@ def variacion_valida(periodo: pd.Series, k: int, con_quiebre: pd.Series | None =
     ok = ~(periodo.isin(ANOMALOS) | previo.isin(ANOMALOS))
     if con_quiebre is not None:
         if regla_quiebre == "cruza":
-            afectada = (periodo >= QUIEBRE_2025) & (previo < QUIEBRE_2025)
+            afectada = cruza_quiebre(periodo, k)
         elif regla_quiebre == "toca":
             afectada = periodo.eq(QUIEBRE_2025) | previo.eq(QUIEBRE_2025)
         else:

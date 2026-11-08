@@ -33,9 +33,10 @@ Netlify borrados; Personas y Mora publicadas y verificadas en 3 anchos; fuente S
       `sr`, cuándo se vacía `tcb` y el quiebre de S2 en jul-25.
 - [ ] Frente 4: ROE y provisiones por segmento, y Anexo del REF.
 - [ ] spec/08 punto 5: validar los nombres de las series SGS de modalidades.
-- [ ] spec/08 punto 6: `credito_aa` 2025 vacío en la franja del quiebre COSIF.
+- [x] spec/08 punto 6: crecimientos a/a de crédito, activo y depósitos vacíos en 2025 (8-nov; antes salían mal).
+      Opcional: medirlos con `bk_cartera`. Ojo: el a/a de 2024-T4 (trimestre anómalo) sigue publicado; ¿vaciarlo?
 - [x] spec/08 punto 4: Focus (`focus.py`) y Selic real ex ante (SGS 432) se leen de la fuente desde el 8-nov.
-      Ninguna tarjeta visible los usa (B1 está oculta). Falta borrar las tablas viejas de `datos/intermedio/` (con permiso).
+      Ninguna tarjeta visible los usa (B1 está oculta). Tablas viejas de `datos/intermedio/` borradas.
 
 **Operación**
 - [ ] Pasar el SCR de ZIP a parquet (como IF.Data el 4-nov) y borrar los CSV originales del IF.Data (con permiso).

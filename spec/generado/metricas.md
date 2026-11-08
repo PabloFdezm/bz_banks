@@ -8,7 +8,7 @@
 | # | metrica | Nombre | Familia | Unidad | Formato | Signo | Fuente | Definición |
 |---|---|---|---|---|---|---|---|---|
 | 1 | `aplic_interfinanceiras` | Aplicaciones interfinancieras | tamaño | brl | brl_mm | neutro | BCB IF.Data (prudencial) | Saldo al cierre, conglomerado prudencial: COSIF 140199 (desde 2025); COSIF 78189 (hasta 2024). |
-| 2 | `ativo_aa` | Crecimiento a/a del activo | tamaño | ratio | pct1 | neutro | Derivado de BCB IF.Data (prudencial), p… | ativo_total de t / ativo_total de t−4 − 1. |
+| 2 | `ativo_aa` | Crecimiento a/a del activo | tamaño | ratio | pct1 | neutro | Derivado de BCB IF.Data (prudencial), p… | ativo_total de t / ativo_total de t−4 − 1. Vacía cuando t−4 cae antes de 2025-T1 (quiebre COSIF: el saldo cambia de definición; ver periodos.QUIEBRE_2025). |
 | 3 | `ativo_medio_ttm` | Activo medio (12 meses) | tamaño | brl | brl_mm | neutro | Derivado de BCB IF.Data (prudencial), p… | (ativo_total de t + ativo_total de t−4) / 2; vacío si falta t−4. |
 | 4 | `ativo_permanente` | Activo permanente | tamaño | brl | brl_mm | neutro | BCB IF.Data (prudencial) | Saldo al cierre, conglomerado prudencial: COSIF 140219 (desde 2025); COSIF 78201 (hasta 2024). |
 | 5 | `ativo_total` | Activo total | tamaño | brl | brl_mm | neutro | BCB IF.Data (prudencial) | Saldo al cierre, conglomerado prudencial: COSIF 140220 (desde 2025); COSIF 78202 (hasta 2024). |
@@ -29,7 +29,7 @@
 | 20 | `arrendamento` | Arrendamiento financiero | crédito | brl | brl_mm | neutro | BCB IF.Data (prudencial) | Saldo al cierre, conglomerado prudencial: COSIF 140210 (desde 2025); COSIF 78198 (hasta 2024). |
 | 21 | `cartera_saldo` | Cartera activa en Brasil (informes 11 y 13) | crédito | brl | brl_mm | neutro | Derivado de BCB IF.Data (prudencial), p… | Σ saldo de las 16 modalidades de los informes 11 y 13 (cartera activa en Brasil; bk_cartera). |
 | 22 | `cartera_saldo_pf` | Cartera activa de personas | crédito | brl | brl_mm | neutro | Derivado de BCB IF.Data (prudencial), p… | Σ saldo de las 7 modalidades de personas (bk_cartera). |
-| 23 | `credito_aa` | Crecimiento a/a de la cartera | crédito | ratio | pct1 | neutro | Derivado de BCB IF.Data (prudencial), p… | credito_total de t / credito_total de t−4 − 1. |
+| 23 | `credito_aa` | Crecimiento a/a de la cartera | crédito | ratio | pct1 | neutro | Derivado de BCB IF.Data (prudencial), p… | credito_total de t / credito_total de t−4 − 1. Vacía cuando t−4 cae antes de 2025-T1 (quiebre COSIF: el saldo cambia de definición; ver periodos.QUIEBRE_2025). |
 | 24 | `credito_bruto` | Cartera bruta | crédito | brl | brl_mm | neutro | BCB IF.Data (prudencial) | Saldo al cierre, conglomerado prudencial: COSIF 140201 (desde 2025); COSIF 78191 (hasta 2024). |
 | 25 | `credito_liquido` | Cartera neta de provisiones | crédito | brl | brl_mm | neutro | BCB IF.Data (prudencial) | Saldo al cierre, conglomerado prudencial: COSIF 140205 (desde 2025); COSIF 78193 (hasta 2024). |
 | 26 | `credito_real_aa` | Crecimiento real de la cartera a/a | crédito | ratio | pct1 | neutro | Derivado de BCB IF.Data (prudencial), p… | (1 + credito_aa) / (1 + ipca_12m) − 1, con ipca_12m el IPCA acumulado 12 meses del último mes del trimestre (bk_sistema_q, fracción). Vacía mientras no exista la serie ipca_12m. |
@@ -46,7 +46,7 @@
 | 37 | `provisoes_credito_ttm` | Provisiones de crédito (12 meses) | calidad | brl | brl_mm | neutro | Derivado de BCB IF.Data (prudencial), p… | Suma de los 4 trimestres consecutivos que terminan en t de provisoes_credito_q; vacío si falta uno. |
 | 38 | `credito_depositos` | Crédito / depósitos | fondeo | ratio | pct1 | neutro | Derivado de BCB IF.Data (prudencial), p… | credito_total / depositos, si depositos > 0 (SPEC §4.2). |
 | 39 | `depositos` | Depósitos | fondeo | brl | brl_mm | neutro | BCB IF.Data (prudencial) | Saldo al cierre, conglomerado prudencial: COSIF 140228 (desde 2025); COSIF 78287 (hasta 2024). |
-| 40 | `depositos_aa` | Crecimiento a/a de depósitos | fondeo | ratio | pct1 | neutro | Derivado de BCB IF.Data (prudencial), p… | depositos de t / depositos de t−4 − 1. |
+| 40 | `depositos_aa` | Crecimiento a/a de depósitos | fondeo | ratio | pct1 | neutro | Derivado de BCB IF.Data (prudencial), p… | depositos de t / depositos de t−4 − 1. Vacía cuando t−4 cae antes de 2025-T1 (quiebre COSIF: el saldo cambia de definición; ver periodos.QUIEBRE_2025). |
 | 41 | `depositos_interfinanceiros` | Depósitos interfinancieros | fondeo | brl | brl_mm | neutro | BCB IF.Data (prudencial) | Saldo al cierre, conglomerado prudencial: COSIF 140224 (desde 2025); COSIF 78284 (hasta 2024). |
 | 42 | `derivativos_passivo` | Derivativos (pasivo) | fondeo | brl | brl_mm | neutro | BCB IF.Data (prudencial) | Saldo al cierre, conglomerado prudencial: COSIF 140241 (desde 2025); COSIF 78296 (hasta 2024). |
 | 43 | `emprestimos_repasses` | Préstamos y repasses | fondeo | brl | brl_mm | neutro | BCB IF.Data (prudencial) | Saldo al cierre, conglomerado prudencial: COSIF 140238 (desde 2025); COSIF 78295 (hasta 2024). |

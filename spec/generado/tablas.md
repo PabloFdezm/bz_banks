@@ -366,7 +366,7 @@ Carpeta `datos/gold/`.
 
 ### `bk_grupo`
 
-68,867 filas · 17 columnas · periodo: 201403 → 202606 · 2.91 MB
+68,547 filas · 17 columnas · periodo: 201403 → 202606 · 2.89 MB
 
 | Columna | Tipo | % nulos | Ejemplo | Valores distintos |
 |---|---|---|---|---|
@@ -376,14 +376,14 @@ Carpeta `datos/gold/`.
 | `fecha` | object | 0 | 2014-03-31 | 50 |
 | `trimestre` | str | 0 | 1T14 | 50 |
 | `metrica` | str | 0 | antes_tributacao_q | 86 |
-| `valor` | float64 | 0 | 26472980693.65998 | 47873 |
-| `valor_aa` | float64 | 15 | -0.5665442247503278 | 40878 |
+| `valor` | float64 | 0 | 26472980693.65998 | 47640 |
+| `valor_aa` | float64 | 15 | -0.5665442247503278 | 40805 |
 | `unidad_aa` | str | 5 | fraccion | 3 |
-| `valor_tt` | float64 | 12 | 0.06986940405139297 | 42243 |
+| `valor_tt` | float64 | 12 | 0.06986940405139297 | 42187 |
 | `unidad_tt` | str | 5 | fraccion | 3 |
-| `mediana` | float64 | 0 | 107388301.725 | 43493 |
-| `p25` | float64 | 0 | 53016640.519999996 | 44939 |
-| `p75` | float64 | 0 | 1566001653.8399925 | 46424 |
+| `mediana` | float64 | 0 | 107388301.725 | 43278 |
+| `p25` | float64 | 0 | 53016640.519999996 | 44715 |
+| `p75` | float64 | 0 | 1566001653.8399925 | 46199 |
 | `n_bancos` | Int64 | 0 | 24 | 34 |
 | `orden_optica` | int64 | 0 | 1 | 5 |
 | `orden_grupo` | int64 | 0 | 0 | 16 |
@@ -427,7 +427,7 @@ Carpeta `datos/gold/`.
 
 ### `bk_panel`
 
-106,866 filas · 21 columnas · periodo: 201403 → 202606 · 7.03 MB
+106,342 filas · 21 columnas · periodo: 201403 → 202606 · 6.98 MB
 
 | Columna | Tipo | % nulos | Ejemplo | Valores distintos |
 |---|---|---|---|---|
@@ -436,16 +436,16 @@ Carpeta `datos/gold/`.
 | `fecha` | object | 0 | 2014-03-31 | 50 |
 | `trimestre` | str | 0 | 1T14 | 50 |
 | `metrica` | str | 0 | antes_tributacao_q | 81 |
-| `valor` | float64 | 0 | 5091645750.05999 | 102015 |
-| `valor_t1` | float64 | 3 | 5091645750.05999 | 99030 |
-| `valor_t4` | float64 | 11 | 5091645750.05999 | 91078 |
-| `d_tt` | float64 | 6 | 0.10773339709534135 | 99036 |
-| `d_aa` | float64 | 14 | -0.904011131580739 | 91140 |
-| `valor_tt` | float64 | 10 | 0.10773339709534135 | 94702 |
+| `valor` | float64 | 0 | 5091645750.05999 | 101501 |
+| `valor_t1` | float64 | 3 | 5091645750.05999 | 98395 |
+| `valor_t4` | float64 | 11 | 5091645750.05999 | 90316 |
+| `d_tt` | float64 | 6 | 0.10773339709534135 | 98399 |
+| `d_aa` | float64 | 14 | -0.904011131580739 | 90378 |
+| `valor_tt` | float64 | 10 | 0.10773339709534135 | 94196 |
 | `unidad_d` | str | 0 | fraccion | 3 |
-| `p10_grupo` | float64 | 1 | 1620620509.499995 | 15745 |
-| `p50_grupo` | float64 | 1 | 3059346379.835 | 16191 |
-| `p90_grupo` | float64 | 1 | 6406130837.479995 | 16445 |
+| `p10_grupo` | float64 | 1 | 1620620509.499995 | 15666 |
+| `p50_grupo` | float64 | 1 | 3059346379.835 | 16111 |
+| `p90_grupo` | float64 | 1 | 6406130837.479995 | 16365 |
 | `pct_grupo` | float64 | 1 | 0.8333333333333334 | 52 |
 | `pct_panel` | float64 | 0 | 0.9583333333333334 | 387 |
 | `rank_panel` | float64 | 90 | 4.0 | 34 |
@@ -860,47 +860,9 @@ Carpeta `datos/intermedio/`.
 | `ver` | str | 0 | Institución | 2 |
 | `orden_ver` | int64 | 0 | 1 | 2 |
 
-### `expectativas_focus`
-
-30,029 filas · 16 columnas · — · 0.50 MB
-
-| Columna | Tipo | % nulos | Ejemplo | Valores distintos |
-|---|---|---|---|---|
-| `fecha_encuesta` | datetime64[us] | 0 | 2021-01-04 00:00:00 | 1430 |
-| `indicador` | str | 0 | Câmbio | 4 |
-| `tipo_horizonte` | str | 0 | Año calendario | 2 |
-| `horizonte` | str | 0 | 2021 | 12 |
-| `anio_referencia` | Int64 | 5 | 2021 | 11 |
-| `fecha_objetivo` | datetime64[us] | 0 | 2021-12-31 00:00:00 | 1437 |
-| `orden_horizonte` | int64 | 0 | 2021 | 12 |
-| `mediana` | float64 | 0 | 5.0 | 4756 |
-| `media` | float64 | 0 | 5.02 | 19156 |
-| `desvio_padrao` | float64 | 5 | 0.27 | 10533 |
-| `minimo` | float64 | 5 | 4.5 | 666 |
-| `maximo` | float64 | 5 | 6.0 | 767 |
-| `numero_respondentes` | Int64 | 0 | 92 | 160 |
-| `es_porcentaje` | bool | 0 | False | 2 |
-| `unidad` | str | 0 | R$/US$ | 4 |
-| `es_ultima_encuesta` | bool | 0 | False | 2 |
-
-### `fh_deuda`
-
-257 filas · 8 columnas · fecha: 2005-03-01 → 2026-07-01 · 0.02 MB
-
-| Columna | Tipo | % nulos | Ejemplo | Valores distintos |
-|---|---|---|---|---|
-| `fecha` | datetime64[us] | 0 | 2005-03-01 00:00:00 | 257 |
-| `deuda_ingreso` | float64 | 0 | 0.172 | 231 |
-| `deuda_ingreso_sin_hip` | float64 | 0 | 0.1456 | 226 |
-| `servicio` | float64 | 0 | 0.17 | 215 |
-| `servicio_intereses` | float64 | 0 | 0.0507 | 190 |
-| `servicio_amortizacion` | float64 | 0 | 0.1193 | 200 |
-| `servicio_sin_hip` | float64 | 0 | 0.1661 | 221 |
-| `ingreso_real_aa` | float64 | 0 | 0.035560275659242135 | 257 |
-
 ### `metricas_bancos`
 
-95,861 filas · 7 columnas · periodo: 201403 → 202606 · 0.94 MB
+95,468 filas · 7 columnas · periodo: 201403 → 202606 · 0.94 MB
 
 | Columna | Tipo | % nulos | Ejemplo | Valores distintos |
 |---|---|---|---|---|
@@ -910,28 +872,4 @@ Carpeta `datos/intermedio/`.
 | `nombre_corto` | str | 0 | Bradesco | 34 |
 | `categoria` | str | 0 | nucleo | 4 |
 | `metrica` | str | 0 | disponibilidades | 73 |
-| `valor` | float64 | 0 | 11908888079.77 | 91433 |
-
-### `tasa_real_exante`
-
-1,417 filas · 6 columnas · fecha: 2021-01-21 → 2026-09-11 · 0.04 MB
-
-| Columna | Tipo | % nulos | Ejemplo | Valores distintos |
-|---|---|---|---|---|
-| `fecha` | datetime64[us] | 0 | 2021-01-21 00:00:00 | 1417 |
-| `selic_nominal` | float64 | 0 | 0.02 | 21 |
-| `ipca_esperado_12m` | float64 | 0 | 0.0348 | 1339 |
-| `tasa_real_exante` | float64 | 0 | -0.014302280633938902 | 1376 |
-| `fuente_tasa_nominal` | str | 0 | Meta Selic BCB/Copom (proxy) | 1 |
-| `es_ultimo_dato` | bool | 0 | False | 2 |
-
-### `tasas_pnad`
-
-688 filas · 4 columnas · fecha: 2012-03-31 → 2026-07-31 · 0.01 MB
-
-| Columna | Tipo | % nulos | Ejemplo | Valores distintos |
-|---|---|---|---|---|
-| `fecha` | datetime64[ns] | 0 | 2012-03-31 00:00:00 | 173 |
-| `serie_id` | str | 0 | t6381\|v4099 | 4 |
-| `tasa` | float64 | 0 | 0.08 | 224 |
-| `cambio_12m` | float64 | 8 | 0.0 | 269 |
+| `valor` | float64 | 0 | 11908888079.77 | 91045 |

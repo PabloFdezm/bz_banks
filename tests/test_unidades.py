@@ -168,3 +168,24 @@ def test_focus_ipca_12m_toma_suavizada_base_0_en_fraccion(monkeypatch, tmp_path)
     monkeypatch.setattr(A, "ruta_cruda", lambda fuente, dataset, version="actual": tmp_path)
     s = FO.ipca_12m()
     assert list(s.index) == [pd.Timestamp("2026-10-30")] and s.iloc[0] == pytest.approx(0.05)
+
+
+def test_cruza_quiebre_marca_solo_las_variaciones_entre_eras():
+    p = pd.Series(["202412", "202503", "202506", "202512", "202603"])
+    assert list(PER.cruza_quiebre(p, 4)) == [False, True, True, True, False]
+    assert list(PER.cruza_quiebre(p, 1)) == [False, True, False, False, False]
+
+
+@pytest.mark.integracion
+def test_crecimientos_sin_puente_vacios_en_2025():
+    # spec/08 punto 6: el saldo cambia de definición en 2025-T1; ni por banco ni por grupo se publica el a/a que cruza.
+    from conftest import GOLD
+    import registro_metricas as R
+    assert {"credito_aa", "ativo_aa", "depositos_aa"} <= R.VACIAS_EN_QUIEBRE_2025
+    franja = ["202503", "202506", "202509", "202512"]
+    metricas = sorted(R.VACIAS_EN_QUIEBRE_2025 | {"credito_real_aa"})
+    for tabla in ("bk_panel", "bk_grupo"):
+        d = pd.read_parquet(GOLD / f"{tabla}.parquet", columns=["periodo", "metrica", "valor"])
+        d = d[d["metrica"].isin(metricas)]
+        assert d.loc[d["periodo"].isin(franja), "valor"].isna().all(), tabla
+        assert d.loc[d["periodo"] == "202603", "valor"].notna().any(), tabla

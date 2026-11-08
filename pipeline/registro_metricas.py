@@ -21,6 +21,9 @@ TITULOS_TTM: list[str] = _DEF["ttm"]             # flujos trimestrales que se su
 
 RAZONES = {m: d["razon"] for m, d in METRICAS.items() if "razon" in d}
 CRECIMIENTOS = {m: d["crecimiento_de"] for m, d in METRICAS.items() if "crecimiento_de" in d}
+# Crecimientos a/a cuyo saldo cambia de definición en la frontera COSIF 2025: vacíos de 2025-T1 a 2025-T4 en todos los
+# bancos (no solo en los de quiebre_2025). Decisión de Pablo del 8-nov-2026, spec/08 punto 6.
+VACIAS_EN_QUIEBRE_2025 = frozenset(m for m, d in METRICAS.items() if d.get("vacia_en_quiebre_2025"))
 RANKEABLES = {m for m, d in METRICAS.items() if d.get("ranking")}
 SOLO_GRUPO = [m for m, d in METRICAS.items() if d.get("solo_grupo")]
 

@@ -258,6 +258,8 @@ def agregar_grupo(fb: pd.DataFrame, m: str, tipo: str, unidad: str, ok_tt: pd.Se
         base = R.CRECIMIENTOS[m]
         n, d = fb[base], fb[base + "__4"]
         msk = n.notna() & d.notna() & (d != 0)
+        if m in R.VACIAS_EN_QUIEBRE_2025:   # mismo vacío que por banco (preparar_metricas_bancos)
+            msk &= ~PER.cruza_quiebre(fb["periodo"], 4)
         valor = RG.div(suma(n, msk), suma(d, msk)) - 1
         valor_aa = pd.Series(np.nan, index=valor.index)
         valor_tt = pd.Series(np.nan, index=valor.index)

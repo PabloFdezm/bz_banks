@@ -121,6 +121,8 @@ def _razones(tabla: pd.DataFrame) -> pd.DataFrame:
             _crecimiento(origen, cod, periodo, v)
             for cod, periodo, v in zip(tabla["cod_inst"], tabla["periodo"], tabla[origen])
         ]
+        if destino in R.VACIAS_EN_QUIEBRE_2025:   # el saldo cambia de definición en 2025-T1 (spec/08 punto 6)
+            tabla.loc[PER.cruza_quiebre(tabla["periodo"], 4).to_numpy(), destino] = np.nan
 
     for origen, destino in [("ativo_total", "share_ativo"), ("depositos", "share_depositos"),
                             ("credito_total", "share_credito")]:

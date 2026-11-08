@@ -338,7 +338,7 @@ Las equivalencias modalidad → serie del SGS están en ``definiciones/bancos__e
 definiciones no son iguales (panel ≥ 15 días; SGS > 90 días): se comparan en evolución, nunca en nivel.
 ```
 
-## `pipeline/periodos.py` (91 líneas)
+## `pipeline/periodos.py` (96 líneas)
 
 Importa del pipeline: `almacen`
 
@@ -459,7 +459,7 @@ La lectura de IF.data (informes 11, 13, 8 y 16) está en ``ifdata_credito.py``; 
 (``ifdata.py colectar``). Corre después de ``preparar_bancos_powerbi.py`` (usa ``datos/gold``).
 ```
 
-## `pipeline/preparar_gold_bancos.py` (764 líneas)
+## `pipeline/preparar_gold_bancos.py` (766 líneas)
 
 Importa del pipeline: `almacen`, `bancos`, `periodos`, `registro_metricas`, `reglas_gold`, `sgs`
 
@@ -809,7 +809,7 @@ Receta:
                                                      # (el refresco de todas: paso «sgs» de actualizar.py)
 ```
 
-## `pipeline/preparar_metricas_bancos.py` (175 líneas)
+## `pipeline/preparar_metricas_bancos.py` (177 líneas)
 
 Importa del pipeline: `almacen`, `periodos`, `registro_metricas`
 
@@ -839,7 +839,7 @@ Salidas:
 Reintentos y descargas a disco: la única política de reintento del pipeline (bcb_api, ifdata, scr_zip).
 ```
 
-## `pipeline/registro_metricas.py` (70 líneas)
+## `pipeline/registro_metricas.py` (73 líneas)
 
 Importa del pipeline: `almacen`
 
