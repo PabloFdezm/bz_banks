@@ -11,7 +11,6 @@ python -m venv .venv
 .venv\Scripts\python -m pip install -r requirements.lock
 .venv\Scripts\python -m playwright install chromium
 npx wrangler login
-powershell -ExecutionPolicy Bypass -File herramientas\registrar_tarea.ps1
 ```
 
 `actualizar.bat` y `publicar.bat` usan `.venv\Scripts\python.exe` si existe (si no, el `python` del sistema).
@@ -31,19 +30,18 @@ Set-Location "C:\dev\bz_banks"
 .\actualizar.bat --sin-red   # lo mismo sin descargas (un dato que falte hace fallar el paso)
 .\publicar.bat        # sitio\ → Cloudflare Pages producción
 .\publicar.bat datos  # las dos cosas seguidas
-.\publicar.bat datos auto   # igual, sin pausas (lo usa la tarea programada)
 ```
 
-## Actualización automática
+## Cuándo actualizar
 
-- Tarea programada de Windows **«bz_banks actualizar»**, lunes a viernes 07:30 (si el equipo estaba apagado,
-  corre apenas puede). La registra `herramientas\registrar_tarea.ps1` (`-Hora HH:MM` para cambiarla); hay que
-  volver a registrarla si el repo cambia de carpeta.
-- Corre `herramientas\actualizar_y_publicar.ps1` → `publicar.bat datos auto`. Log por corrida en
-  `datos\logs\AAAA-MM-DD_HHMM.log` (guarda los últimos 60).
-- Si un paso falla no se publica nada (actualizar.bat corta antes de exportar), aparece una notificación de
-  Windows y queda `datos\logs\ULTIMO_ERROR.txt` hasta la siguiente corrida buena.
-- IF.Data sigue siendo manual y trimestral (abajo).
+La actualización es **manual, por decisión de Pablo (8-nov-2026)**: no hay tarea programada. Momentos útiles
+(hora de Brasilia; Santiago igual en verano, una hora menos en invierno):
+
+- Nota de crédito del BCB (SGS de crédito, mora y tasas): una vez al mes, ~09:30, hacia el día 25–30.
+- Focus: lunes ~08:25. SCR.data: mensual, ~2 meses de rezago. IF.Data: trimestral, a mano (abajo).
+
+## CI
+
 - CI: `.github/workflows/tests.yml` corre `pytest` en GitHub en cada push con las versiones del lock (sin
   `datos/`: solo las pruebas unitarias; las de integración corren aquí en `actualizar.bat`).
 

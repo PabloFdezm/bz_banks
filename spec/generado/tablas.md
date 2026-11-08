@@ -585,34 +585,34 @@ Carpeta `datos/gold/`.
 
 ### `bk_scr`
 
-7,762 filas · 14 columnas · fecha: 2012-07-31 → 2026-08-31 · 0.53 MB
+7,810 filas · 14 columnas · fecha: 2012-07-31 → 2026-09-30 · 0.54 MB
 
 | Columna | Tipo | % nulos | Ejemplo | Valores distintos |
 |---|---|---|---|---|
 | `corte` | str | 0 | porte_pj | 3 |
-| `fecha` | datetime64[us] | 0 | 2012-07-31 00:00:00 | 170 |
+| `fecha` | datetime64[us] | 0 | 2012-07-31 00:00:00 | 171 |
 | `segmento_inst` | str | 69 | Arrendamento | 8 |
 | `cliente` | str | 69 | PF | 2 |
 | `porte` | str | 90 | Grande | 5 |
 | `uf` | str | 41 | AC | 27 |
-| `carteira_ativa` | float64 | 0 | 563755769741.65 | 7762 |
-| `vencido_15_90` | float64 | 0 | 896951444.74 | 7748 |
-| `vencido_90` | float64 | 0 | 1088121084.37 | 7735 |
-| `inadimplencia_brl` | float64 | 0 | 2738371289.29 | 7733 |
-| `ativo_problematico` | float64 | 0 | 10345113805.74 | 7739 |
-| `tasa_inad` | float64 | 0 | 0.00485737164259073 | 7740 |
-| `tasa_ap` | float64 | 0 | 0.018350346658945613 | 7745 |
+| `carteira_ativa` | float64 | 0 | 563755769741.65 | 7810 |
+| `vencido_15_90` | float64 | 0 | 896951444.74 | 7796 |
+| `vencido_90` | float64 | 0 | 1088121084.37 | 7783 |
+| `inadimplencia_brl` | float64 | 0 | 2738371289.29 | 7781 |
+| `ativo_problematico` | float64 | 0 | 10345113805.74 | 7787 |
+| `tasa_inad` | float64 | 0 | 0.00485737164259073 | 7788 |
+| `tasa_ap` | float64 | 0 | 0.018350346658945613 | 7793 |
 | `porte_es` | str | 90 | Grande | 5 |
 
 ### `bk_scr_series`
 
-14,223 filas · 3 columnas · fecha: 2019-01-31 → 2026-08-31 · 0.14 MB
+14,548 filas · 3 columnas · fecha: 2019-01-31 → 2026-09-30 · 0.15 MB
 
 | Columna | Tipo | % nulos | Ejemplo | Valores distintos |
 |---|---|---|---|---|
 | `serie` | str | 0 | aa\|Tarjeta\|Hasta 1 SM | 326 |
-| `fecha` | str | 0 | 2023-01-31 | 92 |
-| `valor` | float64 | 0 | 0.43497519745282287 | 13687 |
+| `fecha` | str | 0 | 2023-01-31 | 93 |
+| `valor` | float64 | 0 | 0.43497519745282287 | 13997 |
 
 ### `bk_scr_tablas`
 
@@ -629,13 +629,13 @@ Carpeta `datos/gold/`.
 | `unidad_cambio` | str | 0 | pct | 2 |
 | `trimestral` | bool | 0 | False | 1 |
 | `destacar` | bool | 0 | False | 2 |
-| `share` | float64 | 20 | 0.08988570188517031 | 131 |
-| `ultimo` | float64 | 0 | 68.37278767381001 | 382 |
-| `d1` | float64 | 0 | 0.026981913868585172 | 382 |
-| `d3` | float64 | 0 | -0.041158873580104616 | 382 |
-| `d12` | float64 | 0 | 0.1578941942226415 | 382 |
-| `dventana` | float64 | 0 | 0.03396254917323316 | 382 |
-| `corte` | str | 0 | ago-26 | 1 |
+| `share` | float64 | 20 | 0.0892021706077773 | 131 |
+| `ultimo` | float64 | 0 | 67.61582059299 | 382 |
+| `d1` | float64 | 0 | -0.011071523183337484 | 382 |
+| `d3` | float64 | 0 | -0.016595358865371 | 382 |
+| `d12` | float64 | 0 | 0.07510662724968009 | 382 |
+| `dventana` | float64 | 0 | 0.03952049357960741 | 382 |
+| `corte` | str | 0 | sep-26 | 1 |
 
 ### `bk_sensibilidad`
 

@@ -31,8 +31,8 @@ Estado al 4-nov-2026.
    `credito_aa`, `ativo_aa` y `depositos_aa` (y `credito_real_aa`) quedan vacíos de 2025-T1 a 2025-T4 en todos los
    bancos y grupos (`vacia_en_quiebre_2025` en `metricas_bancos.json`, `PER.cruza_quiebre`). Pendiente opcional:
    medir el crecimiento de 2025 con la cartera por modalidad (`bk_cartera`), que tiene sus propios saltos.
-7. Automatizar la actualización: tarea programada de Windows (simple) o GitHub Actions (requiere guardar los
-   datos fuera de git; viable si el crudo baja a ~200 MB en parquet).
+7. ~~Automatizar la actualización~~ Descartado el 8-nov: Pablo actualiza a mano (ver `07_operacion.md`).
+   Quedan el CI de tests en GitHub y `.venv` con `requirements.lock`.
 8. Opcional ofrecido: filas extra en la tabla de ROE de la Portada (ROA, margen, costo del riesgo).
 9. Opcional: en Crédito → Líneas, partir mostrando solo Total y las modalidades grandes.
 

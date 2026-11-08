@@ -1,15 +1,11 @@
 @echo off
 rem Publica el sitio en Cloudflare Pages (produccion: https://banks-bz.pages.dev).
-rem   publicar.bat              publica lo que hay en sitio\ (paginas + data)
-rem   publicar.bat datos        antes corre actualizar.bat (gold + JSON)
-rem   publicar.bat datos auto   igual, sin pausas (tarea programada: herramientas\actualizar_y_publicar.ps1)
+rem   publicar.bat         publica lo que hay en sitio\ (paginas + data)
+rem   publicar.bat datos   antes corre actualizar.bat (gold + JSON)
 rem Requisito (una vez): Node.js y "npx wrangler login".
 setlocal
 cd /d "%~dp0"
 set "PROYECTO=banks-bz"
-set "PAUSA=pause"
-if /i "%~1"=="auto" set "PAUSA="
-if /i "%~2"=="auto" set "PAUSA="
 if /i "%~1"=="datos" (call actualizar.bat || goto error)
 echo [1/3] Copiando el sitio...
 robocopy "sitio" "deploy_web" /MIR /XJ /XD data /NFL /NDL /NJH /NJS /NP
@@ -22,10 +18,10 @@ call npx -y wrangler@4.158.0 pages deploy deploy_web --project-name %PROYECTO% -
 if errorlevel 1 goto error
 echo.
 echo Listo: https://banks-bz.pages.dev (recarga con Ctrl+F5).
-%PAUSA%
+pause
 exit /b 0
 :error
 echo.
 echo ERROR: no se pudo publicar. Revisa el mensaje de arriba.
-%PAUSA%
+pause
 exit /b 1

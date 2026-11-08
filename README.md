@@ -49,7 +49,6 @@ python -m venv .venv
 .venv\Scripts\python -m pip install -r requirements.lock   # versiones exactas que funcionan
 .venv\Scripts\python -m playwright install chromium
 npx wrangler login
-powershell -ExecutionPolicy Bypass -File herramientas\registrar_tarea.ps1   # actualización automática
 ```
 
 `actualizar.bat` y `publicar.bat` usan `.venv` si existe. `requirements.txt` lleva los rangos mínimos;

@@ -39,7 +39,7 @@ Netlify borrados; Personas y Mora publicadas y verificadas en 3 anchos; fuente S
       Ninguna tarjeta visible los usa (B1 está oculta). Tablas viejas de `datos/intermedio/` borradas.
 
 **Operación**
-- [x] Automatizar: tarea programada lun–vie 07:30 + CI pytest + `.venv`/`requirements.lock`; repo fuera de OneDrive
+- [x] Actualización manual (Pablo, 8-nov; sin tarea programada). CI pytest + `.venv`/`requirements.lock`; repo fuera de OneDrive
       (8-nov). SCR a parquet descartado (no achica). Falta que Pablo borre `datos/derivado/bcb_ifdata/valores/`
       (149 MB, CSV sin uso) y la carpeta vieja en OneDrive.
 - [ ] Limpiar los archivos de bancos que quedaron en el repo `Dashboard` (mostrar la lista antes).

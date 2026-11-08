@@ -1,8 +1,7 @@
 # 6 · Operación y deuda técnica
 
-1. ~~Automatizar la actualización~~ Hecho el 8-nov: tarea programada de Windows «bz_banks actualizar» (lun–vie
-   07:30, `herramientas/registrar_tarea.ps1`), con log y aviso si falla; CI de pytest en GitHub; `.venv` con
-   `requirements.lock`; repo movido de OneDrive a `C:\dev\bz_banks`. Pasar el SCR a parquet se descartó: un mes
+1. ~~Automatizar la actualización~~ Descartado el 8-nov: Pablo actualiza a mano (no hay tarea programada). Sí
+   quedaron el CI de pytest en GitHub y `.venv` con `requirements.lock`; repo movido de OneDrive a `C:\dev\bz_banks`. Pasar el SCR a parquet se descartó: un mes
    pesa igual en parquet (16 MB) que en ZIP (15 MB) y el pipeline ya cachea el agregado por año.
 2. **Limpiar los archivos de bancos que quedaron en el repo `Dashboard`:** mostrarle la lista a Pablo antes de borrar.
 3. ~~Borrar `referencias/_prueba.txt`, `datos/gold_antes_parquet` y `datos/intermedio/Banks/`~~ Hecho el 6-nov.
