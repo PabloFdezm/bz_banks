@@ -1,0 +1,121 @@
+{
+ "descripcion": "Contrato de la capa gold (datos/gold/bk_*.parquet): columnas mínimas y clave única de cada tabla. Lo lee herramientas/verificar_gold.py; una tabla bk_* que no esté aquí es un aviso, una tabla de aquí que falte también.",
+ "tablas": {
+  "bk_banco": {
+   "columnas": ["cod_inst", "slug", "nombre_corto", "institucion_bcb", "modelo", "segmento_reg", "propiedad", "fintech", "segmento_ref", "cotizado", "ticker", "ficha", "color", "nota", "primer_periodo", "ultimo_periodo"],
+   "clave": ["cod_inst"]
+  },
+  "bk_metrica": {
+   "columnas": ["metrica", "nombre", "familia", "unidad", "formato", "signo", "signo_fuente", "fuente", "definicion", "en_ficha", "orden"],
+   "clave": ["metrica"]
+  },
+  "bk_panel": {
+   "columnas": ["cod_inst", "periodo", "fecha", "trimestre", "metrica", "valor", "valor_t1", "valor_t4", "d_tt", "d_aa", "p10_grupo", "p50_grupo", "p90_grupo", "pct_grupo", "pct_panel", "rank_panel", "rank_panel_t4"],
+   "clave": ["cod_inst", "periodo", "metrica"]
+  },
+  "bk_grupo": {
+   "columnas": ["optica", "grupo", "periodo", "fecha", "trimestre", "metrica", "valor", "mediana", "p25", "p75", "n_bancos", "valor_aa"],
+   "clave": ["optica", "grupo", "periodo", "metrica"]
+  },
+  "bk_puente": {
+   "columnas": ["banco", "linea", "periodo", "gaap", "ifdata", "dif_pct"],
+   "clave": ["banco", "linea", "periodo"]
+  },
+  "bk_manifiesto": {
+   "columnas": ["tabla", "filas", "columnas", "rango", "sha256", "producido_por", "universo", "ultimo_corte"],
+   "clave": ["tabla", "universo"]
+  },
+  "bk_roe_arbol": {
+   "columnas": ["entidad", "periodo", "linea", "nombre", "orden", "es_resumen", "valor", "mediana_grupo"],
+   "clave": ["entidad", "periodo", "linea"]
+  },
+  "bk_cartera": {
+   "columnas": ["cod_inst", "periodo", "fecha", "trimestre", "tipo", "modalidad", "saldo", "vencido15", "npl15", "peso_banco", "cuota_modalidad", "d_cuota_aa"],
+   "clave": ["cod_inst", "periodo", "tipo", "modalidad"]
+  },
+  "bk_sistema_m": {
+   "columnas": ["fecha", "serie_id", "unidad", "valor", "p10", "p50", "p90", "es_ultimo"],
+   "clave": ["fecha", "serie_id"]
+  },
+  "bk_sistema_q": {
+   "columnas": ["fecha", "serie_id", "unidad", "valor", "p10", "p50", "p90", "es_ultimo"],
+   "clave": ["fecha", "serie_id"]
+  },
+  "bk_scr": {
+   "columnas": ["corte", "fecha", "segmento_inst", "cliente", "porte", "uf", "carteira_ativa", "vencido_15_90", "vencido_90", "inadimplencia_brl", "ativo_problematico", "tasa_inad", "tasa_ap"],
+   "clave": ["corte", "fecha", "segmento_inst", "cliente", "porte", "uf"]
+  },
+  "bk_exposicion": {
+   "columnas": ["cod_inst", "periodo", "fecha", "trimestre", "cobertura", "mora_implicita", "npl_observado", "brecha_pp", "efecto_mix_pp", "efecto_mora_pp", "d_mora_implicita_aa_pp", "quiebre_2025"],
+   "clave": ["cod_inst", "periodo"]
+  },
+  "bk_sensibilidad": {
+   "columnas": ["cod_inst", "modelo", "beta_nim_cdi", "ic_inf", "ic_sup", "r2", "n_trimestres", "excluidos"],
+   "clave": ["cod_inst"]
+  },
+  "bk_cartera_totales": {
+   "columnas": ["cod_inst", "periodo", "tipo", "publicado", "exterior", "brasil"],
+   "clave": ["cod_inst", "periodo", "tipo"]
+  },
+  "bk_cartera_grupo": {
+   "columnas": ["optica", "grupo", "periodo", "fecha", "trimestre", "tipo", "modalidad_id", "modalidad", "saldo", "vencido15", "npl15", "peso", "n_bancos", "mora_sistema", "calidad_equivalencia", "dirigido_peso"],
+   "clave": ["optica", "grupo", "periodo", "modalidad_id"]
+  },
+  "bk_cartera_mix7": {
+   "columnas": ["nivel", "optica", "grupo", "cod_inst", "periodo", "fecha", "trimestre", "categoria", "categoria_etiqueta", "saldo", "peso", "total", "dirigido_peso"],
+   "clave": ["nivel", "optica", "grupo", "cod_inst", "periodo", "categoria"]
+  },
+  "bk_cre_calidad": {
+   "columnas": ["inst_key", "tipo_key", "ver", "medida_cal", "periodo", "trimestre", "orden_trim", "pos", "serie", "valor", "d_aa", "d_tt", "npl_def"],
+   "clave": ["inst_key", "tipo_key", "ver", "medida_cal", "periodo", "serie"]
+  },
+  "bk_cre_contexto": {
+   "columnas": ["inst_key", "medida_cal", "periodo", "trimestre", "orden_trim", "pos", "serie", "valor"],
+   "clave": ["inst_key", "medida_cal", "periodo", "serie"]
+  },
+  "bk_cre_panorama": {
+   "columnas": ["inst_key", "tipo_key", "apilar", "medida", "periodo", "trimestre", "orden_trim", "pos", "serie", "nivel", "participacion", "d_participacion", "n_bancos", "aa", "tt", "aa2", "aa4", "aporte_aa", "aporte_tt", "aporte_aa2", "aporte_aa4", "total_nivel", "total_aa", "total_tt", "total_aa2", "total_aa4"],
+   "clave": ["inst_key", "tipo_key", "apilar", "medida", "periodo", "serie"]
+  },
+  "bk_cred_series": {
+   "columnas": ["serie", "fecha", "valor"],
+   "clave": ["serie", "fecha"]
+  },
+  "bk_cred_tablas": {
+   "columnas": ["bloque", "orden", "fila", "grupo", "unidad_ultimo", "unidad_cambio", "trimestral", "ultimo", "d1", "d3", "d12", "dventana", "corte", "share"],
+   "clave": ["bloque", "orden"]
+  },
+  "bk_portada_credito": {
+   "columnas": ["fecha", "modo", "componente", "aa", "contrib_pp"],
+   "clave": ["fecha", "modo", "componente"]
+  },
+  "bk_portada_cuotas": {
+   "columnas": ["vista", "orden_vista", "orden", "banco", "cuota", "grupo", "periodo"],
+   "clave": ["vista", "orden"]
+  },
+  "bk_portada_mora": {
+   "columnas": ["fecha", "nivel", "d_aa_pp"],
+   "clave": ["fecha"]
+  },
+  "bk_portada_roe": {
+   "columnas": ["periodo", "fecha", "trimestre", "roe", "cdi_4t", "roe_cdi_pp"],
+   "clave": ["periodo"]
+  },
+  "bk_portada_tablas": {
+   "columnas": ["bloque", "orden", "fila", "unidad_ultimo", "unidad_cambio", "trimestral", "destacar", "ultimo", "d1", "d3", "d12", "dventana", "corte", "share"],
+   "clave": ["bloque", "orden"]
+  },
+  "bk_qcambio": {
+   "columnas": ["periodo", "fecha", "trimestre", "cod_inst", "slug", "nombre_corto", "modelo", "metrica", "nombre_metrica", "valor_antes", "valor_ahora", "cambio", "unidad_cambio", "z", "sentido", "rango", "cuota_credito", "relevante", "rango_relevantes"],
+   "clave": ["periodo", "cod_inst", "metrica"]
+  },
+  "bk_scr_series": {
+   "columnas": ["serie", "fecha", "valor"],
+   "clave": ["serie", "fecha"]
+  },
+  "bk_scr_tablas": {
+   "columnas": ["bloque", "producto", "orden", "fila", "grupo", "unidad_ultimo", "unidad_cambio", "trimestral", "destacar", "share", "ultimo", "d1", "d3", "d12", "dventana", "corte"],
+   "clave": ["bloque", "producto", "orden"]
+  }
+ }
+}

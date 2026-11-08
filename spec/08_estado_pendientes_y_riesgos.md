@@ -40,16 +40,18 @@ Estado al 4-nov-2026.
   quiebre.
 - **Resultados acumulados con reseteo en julio** (informe 4): se des-acumulan antes de calcular TTM.
 - **Mora:** panel ≥ 15 días vs SGS > 90 días; no comparar niveles.
-- **Libre y direccionado** del SGS llegan con un mes de rezago respecto al total.
+- **Series SGS: un solo dataset.** Todo el pipeline lee el SGS de `datos/crudo/bcb_sgs/bancos_sistema` (`pipeline/sgs.py`).
+  Hasta el 8-nov la Portada y Crédito leían copias congeladas del macro (`credito`, `credito_hogares`, `credito_pib`) y
+  por eso libre, direccionado, mora de Personas y las modalidades parecían llegar uno o dos meses atrás del total.
 - **API del SGS:** una serie inexistente no da 404; devuelve HTML con 200 o 502 (ver `bcb_api.py`).
 - **SCR.data:** CSV en UTF-8 con BOM (no cp1252); `carteira_inadimplencia` está en R$, no en %.
 - **Red corporativa:** proxy HTTPS; ver `pipeline/certificados.py`.
 
 ## Riesgos técnicos conocidos
 
-- `bancos.css` acumula bloques por versión; el último gana. Al tocar estilos, revisar los bloques
-  posteriores que puedan pisarlo.
+- `bancos.css` va encima de `monitor.css` (que también usa `404.html`). Quedan unos diez selectores con más
+  de una regla porque fusionarlos cruzaría otra regla de igual especificidad: al tocarlos, buscar el selector
+  en ambos archivos.
 - Tarjetas que cargan tablas completas (`bk_panel`, `bk_grupo`, `bk_cre_*`) hacen lentas las páginas. Usar
   particiones.
 - Capturas automáticas sin fuentes reales no muestran cortes de texto (ver `07_operacion.md`).
-- `herramientas/verificar_f0.py` está obsoleto (lo reemplaza `verificar_f1.py`).

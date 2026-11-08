@@ -35,18 +35,18 @@ datos) y la narrativa está desactualizada.
 
 ```
 bz_banks/
-├── pipeline/          Python: descarga, cálculo y exportación (17 módulos, sin paquete: se importan por nombre)
-├── definiciones/      JSON de configuración de datos: universo de bancos, modalidades, equivalencias, validación
+├── pipeline/          Python: descarga, cálculo y exportación (sin paquete: se importan por nombre; pasos en actualizar.py)
+├── definiciones/      JSON: universo de bancos, métricas, modalidades, equivalencias, validación, contrato gold
 ├── sitio/             La web que se publica (HTML + JS módulos ES + CSS + ECharts vendorizado)
 │   ├── index.html, <ruta>/index.html     una carpeta por página, cada una monta su config
-│   ├── assets/js/      pagina.js, charts*.js, presentacion.js, estado.js, datos.js, formato.js, config.js, paginas/b0..b10.js
+│   ├── assets/js/      pagina.js, charts*.js, presentacion.js, estado.js, datos.js, formato.js, config.js, paginas/bN.js (una por página)
 │   ├── assets/css/     tokens.css (paleta y fuentes), monitor.css (plantilla base), bancos.css (todo lo propio)
 │   └── data/           JSON generados por pipeline/exportar_web_bancos.py (NO va a git)
-├── herramientas/      verificar_f1.py, contar_tarjetas.mjs, verificar_gold.py, generar_spec.py, inventario_paginas.mjs
-├── tests/             pytest sobre el gold (115 tests)
+├── herramientas/      verificadores, comparador de gold, generador de spec/generado (ver generado/scripts.md)
+├── tests/             pytest: unitarias sintéticas y de integración sobre datos/ (python -m pytest -q)
 ├── docs/              especificaciones y bitácoras históricas (v0.1) — contexto, no contrato vigente
 ├── spec/              esta carpeta
-├── datos/             crudo, derivado, intermedio y gold (NO va a git; ~6 GB)
-├── actualizar.bat     recalcula gold + JSON
+├── datos/             crudo, derivado, intermedio y gold (NO va a git)
+├── actualizar.bat     corre pipeline/actualizar.py: SGS, gold, verificación y JSON
 └── publicar.bat       sube sitio/ a Cloudflare Pages (producción)
 ```

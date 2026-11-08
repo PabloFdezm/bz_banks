@@ -8,32 +8,32 @@ Endpoints usados (documentados en https://dadosabertos.bcb.gov.br/):
   GET https://api.bcb.gov.br/dados/serie/bcdata.sgs.{codigo}/dados/ultimos/{n}
 
 Nota: la API limita las series diarias a ventanas de 10 anios (3652 dias);
-el script lo gestiona automaticamente. Metadatos: usar bcb_scraper.py
-(no hay endpoint de metadatos en la API actual).
+el script lo gestiona automaticamente. No hay endpoint de metadatos en la API actual.
+
+El pipeline usa descargar_serie a traves de sgs.py; el resto es la linea de comandos.
 
 OJO con los errores: una serie inexistente NO da 404. La API contesta una pagina
 HTML, con un status que varia (visto 200 y 502), asi que el status code no alcanza
 para saber si la respuesta sirve. Ver RespuestaNoJSON mas abajo.
 
 Ejemplos:
-  python3 bcb_api.py datos 432                       # serie completa (JSON->CSV)
-  python3 bcb_api.py datos 432 11 433 -o tasas.csv   # varias series a un CSV
-  python3 bcb_api.py datos 433 --desde 01/01/2024    # rango de fechas
-  python3 bcb_api.py datos 11 432 --ancho -o x.csv   # una columna por serie
-  python3 bcb_api.py ultimos 432 -n 5                # ultimas 5 observaciones
-  # varias series en paralelo: se descargan una a una automaticamente
+  python -X utf8 pipeline/bcb_api.py datos 432                       # serie completa (JSON->CSV)
+  python -X utf8 pipeline/bcb_api.py datos 432 11 433 -o tasas.csv   # varias series a un CSV
+  python -X utf8 pipeline/bcb_api.py datos 433 --desde 01/01/2024    # rango de fechas
+  python -X utf8 pipeline/bcb_api.py datos 11 432 --ancho -o x.csv   # una columna por serie
+  python -X utf8 pipeline/bcb_api.py ultimos 432 -n 5                # ultimas 5 observaciones
 """
 
 import argparse
 import csv
 import datetime as dt
-import json
 import sys
 import time
-from pathlib import Path
 
 import certificados  # noqa: F401  parchea ssl para la CA corporativa; ver certificados.py
 import requests
+
+import red
 
 API = "https://api.bcb.gov.br/dados/serie/bcdata.sgs.{codigo}/{recurso}"
 SESION = requests.Session()
@@ -42,6 +42,11 @@ SESION.headers["User-Agent"] = "bcb-scraper/1.0"
 
 def _url(codigo, recurso="dados"):
     return API.format(codigo=codigo, recurso=recurso)
+
+
+def url_serie(codigo, desde=None):
+    """URL completa de la descarga JSON de una serie (la que queda en el manifiesto del crudo)."""
+    return f"{_url(codigo)}?formato=json" + (f"&dataInicial={desde}" if desde else "")
 
 
 LIMITE_VENTANA = dt.timedelta(days=3652)
@@ -113,57 +118,44 @@ def _descargar_tramo(codigo, desde, hasta, reintentos, pausa):
     if hasta:
         params["dataFinal"] = hasta
 
-    ultimo_error = None
-    for intento in range(1, reintentos + 1):
-        try:
-            time.sleep(pausa)
-            r = SESION.get(_url(codigo), params=params, timeout=60)
-            if r.status_code == 404:
-                raise ValueError(
-                    f"la API respondio 404 a la serie {codigo}: o el codigo no existe, "
-                    f"o el rango pedido es imposible ({desde or 'sin inicio'} a "
-                    f"{hasta or 'sin fin'})"
-                )
-            if r.status_code in (429, 503):
-                raise requests.RequestException(f"{r.status_code}")
+    def una_vez():
+        time.sleep(pausa)
+        r = SESION.get(_url(codigo), params=params, timeout=60)
+        if r.status_code == 404:
+            raise ValueError(
+                f"la API respondio 404 a la serie {codigo}: o el codigo no existe, "
+                f"o el rango pedido es imposible ({desde or 'sin inicio'} a "
+                f"{hasta or 'sin fin'})"
+            )
+        if r.status_code in (429, 503):
+            raise requests.RequestException(f"{r.status_code}")
+        _asegurar_json(r, codigo)
+        datos = r.json()
+        if isinstance(datos, dict) and "error" in datos:
+            raise _error_de_la_api(datos)
+        r.raise_for_status()
+        return datos
 
-            _asegurar_json(r, codigo)
-            datos = r.json()
-            if isinstance(datos, dict) and "error" in datos:
-                raise _error_de_la_api(datos)
-            r.raise_for_status()
-            for fila in datos:
-                fila["fecha"] = fila.pop("data")
-            return datos
-        except VentanaDemasiadoLarga:
-            raise
-        except requests.RequestException as e:
-            ultimo_error = e
-            if intento < reintentos:
-                if isinstance(e, RespuestaNoJSON):
-                    espera = min(60, 10 * 3 ** (intento - 1))
-                else:
-                    espera = 2 * intento
-                print(f"  [!] reintento {intento} ({e})", file=sys.stderr)
-                time.sleep(espera)
+    def espera(intento, error):
+        # Un HTML puede ser el cortafuegos frenando el ritmo: espera mayor que ante un error de red común.
+        return min(60, 10 * 3 ** (intento - 1)) if isinstance(error, RespuestaNoJSON) else 2 * intento
 
-    if isinstance(ultimo_error, RespuestaNoJSON):
+    try:
+        return red.reintentar(una_vez, reintentos, espera, reintentables=(requests.RequestException,))
+    except RespuestaNoJSON as e:
         raise ValueError(
-            f"la serie {codigo} no devolvio datos: {ultimo_error} en {reintentos} "
+            f"la serie {codigo} no devolvio datos: {e} en {reintentos} "
             f"intentos. La API del SGS contesta HTML cuando el codigo de serie no "
             f"existe, cuando el cortafuegos esta frenando las peticiones y cuando el "
             f"servidor esta caido, y no las distingue. Reintenta con pausa mayor "
-            f"(descargar_serie(..., pausa=5)). Para descartar el codigo: "
-            f"python3 bcb_scraper.py metadatos --codigos {codigo}"
-        )
-    raise RuntimeError(
-        f"no se pudo descargar la serie {codigo}"
-        + (f": {ultimo_error}" if ultimo_error else "")
-    )
+            f"(descargar_serie(..., pausa=5)) o revisa el codigo en el catalogo del SGS."
+        ) from e
+    except requests.RequestException as e:
+        raise RuntimeError(f"no se pudo descargar la serie {codigo}: {e}") from e
 
 
 def descargar_serie(codigo, desde=None, hasta=None, reintentos=3, pausa=1.0):
-    """Descarga una serie y devuelve una lista de {fecha, valor}.
+    """Descarga una serie y devuelve una lista de {data, valor} tal como la sirve la API (data = DD/MM/AAAA).
 
     La API limita las series diarias a 3652 dias. Si el servidor identifica una
     ventana demasiado larga, el rango se parte y se descarga completo. Las series
@@ -234,7 +226,7 @@ def _escribir_csv(filas_series, salida):
     todas = []
     for cod, datos in filas_series.items():
         for d in datos:
-            todas.append({"codigo": cod, "fecha": d["fecha"], "valor": d["valor"]})
+            todas.append({"codigo": cod, "fecha": d["data"], "valor": d["valor"]})
     todas.sort(key=lambda x: (x["fecha"], str(x["codigo"])), reverse=True)
     with open(salida, "w", newline="", encoding="utf-8") as f:
         w = csv.DictWriter(f, fieldnames=["codigo", "fecha", "valor"])
@@ -244,7 +236,7 @@ def _escribir_csv(filas_series, salida):
 
 def _escribir_ancho(filas_series, salida):
     """una columna por codigo (ideal para graficos en Excel)."""
-    fechas = sorted({d["fecha"] for datos in filas_series.values() for d in datos})
+    fechas = sorted({d["data"] for datos in filas_series.values() for d in datos})
     codigos = sorted(filas_series)
     with open(salida, "w", newline="", encoding="utf-8") as f:
         w = csv.writer(f)
@@ -252,7 +244,7 @@ def _escribir_ancho(filas_series, salida):
         por_fecha = {}
         for cod, datos in filas_series.items():
             for d in datos:
-                por_fecha.setdefault(d["fecha"], {})[cod] = d["valor"]
+                por_fecha.setdefault(d["data"], {})[cod] = d["valor"]
         for fecha in fechas:
             fila = [fecha] + [por_fecha[fecha].get(c, "") for c in codigos]
             w.writerow(fila)
@@ -298,8 +290,8 @@ def main(argv=None):
         print(f"[+] guardado en {salida}")
         for cod, datos in filas_series.items():
             if datos:
-                print(f"    serie {cod}: {datos[0]['fecha']} a "
-                      f"{datos[-1]['fecha']} ({len(datos)} obs)")
+                print(f"    serie {cod}: {datos[0]['data']} a "
+                      f"{datos[-1]['data']} ({len(datos)} obs)")
 
     elif args.cmd == "ultimos":
         datos = descargar_ultimos(args.codigo, args.n)

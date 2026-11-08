@@ -48,7 +48,9 @@ RAIZ = Path(__file__).resolve().parents[1]
 DATOS = RAIZ / "datos"
 CRUDO = DATOS / "crudo"
 DERIVADO = DATOS / "derivado"
-REPORTES = DATOS / "reportes"
+INTERMEDIO = DATOS / "intermedio"
+GOLD = DATOS / "gold"
+DEFINICIONES = RAIZ / "definiciones"
 
 MANIFIESTO = "_manifiesto.json"
 
@@ -151,47 +153,6 @@ def registrar_crudo(fuente: str, dataset: str, ruta: Path, url: str,
     return ruta
 
 
-def olvidar(fuente: str, dataset: str, nombre: str, capa: str = "crudo",
-            version: str = "actual") -> bool:
-    """Quita una entrada del manifiesto sin borrar el archivo. Devuelve si existía.
-
-    Para cuando un archivo estaba clasificado en la capa equivocada: se registra en
-    la capa correcta y se olvida en la otra. Nunca borra datos.
-    """
-    d = ruta_cruda(fuente, dataset, version) if capa == "crudo" else ruta_derivada(fuente, dataset)
-    man = leer_manifiesto(d)
-    if man is None or nombre not in man.get("archivos", {}):
-        return False
-    del man["archivos"][nombre]
-    escribir_manifiesto(d, man)
-    return True
-
-
-def archivar_crudo(fuente: str, dataset: str, nombre: str, version: str) -> Path:
-    """Saca un crudo de `actual/` a `<version>/` sin tocar sus bytes ni su procedencia.
-
-    Para lotes que una descarga posterior dejó superados (el tramo `202601_202608` cuando ya
-    está `202601_202609`): si quedan en `actual/`, quien lea `valores_*` ve cada período dos
-    veces. No se borran porque `crudo/` no se edita; pasan a la versión de su descarga con la
-    misma entrada de manifiesto (URL, sha256, momento de descarga).
-    """
-    origen_dir, destino_dir = ruta_cruda(fuente, dataset), ruta_cruda(fuente, dataset, version)
-    man = leer_manifiesto(origen_dir) or {"archivos": {}}
-    entrada = man["archivos"].get(nombre)
-    if entrada is None:
-        raise ValueError(f"{nombre} no está en el manifiesto de {origen_dir}")
-    destino = destino_dir / nombre
-    if destino.exists():
-        raise FileExistsError(destino)
-    destino_dir.mkdir(parents=True, exist_ok=True)
-    (origen_dir / nombre).replace(destino)
-    man_dest = leer_manifiesto(destino_dir) or {"fuente": fuente, "dataset": dataset, "archivos": {}}
-    man_dest["archivos"][nombre] = entrada
-    escribir_manifiesto(destino_dir, man_dest)
-    olvidar(fuente, dataset, nombre)
-    return destino
-
-
 def guardar_derivado(
     fuente: str, dataset: str, nombre: str, datos: bytes, *, desde: list[str], como: str,
     nota: str | None = None,
@@ -219,38 +180,6 @@ def guardar_derivado(
     man["archivos"][nombre] = entrada
     escribir_manifiesto(d, man)
     return destino
-
-
-def comparar_derivado(fuente: str, dataset: str, salidas: dict[str, bytes]) -> dict[str, list[str]]:
-    """Que cambiaria al publicar `salidas` en el dataset: nuevos, cambiados, iguales, sobrantes.
-
-    `sobrantes` son los archivos que el manifiesto tiene y esta corrida ya no genera.
-    Importa en los corpus que se suben a mano (gema/, notebooklm_*): guardar_derivado
-    solo escribe, nunca borra, asi que un archivo que dejo de generarse se queda en la
-    carpeta y se sube como si siguiera siendo del corpus. Es el mismo fantasma que dejo
-    copiar codigo encima sin git.
-    """
-    previos = (leer_manifiesto(ruta_derivada(fuente, dataset)) or {}).get("archivos", {})
-    cambio = {"nuevos": [], "cambiados": [], "iguales": [], "sobrantes": []}
-    for nombre, datos in sorted(salidas.items()):
-        if nombre not in previos:
-            cambio["nuevos"].append(nombre)
-        elif previos[nombre].get("sha256") != sha256(datos):
-            cambio["cambiados"].append(nombre)
-        else:
-            cambio["iguales"].append(nombre)
-    cambio["sobrantes"] = sorted(n for n in previos if n not in salidas)
-    return cambio
-
-
-def borrar_sobrantes(fuente: str, dataset: str, salidas: dict[str, bytes]) -> list[str]:
-    """Saca del disco y del manifiesto lo que el dataset ya no genera. Devuelve los nombres."""
-    d = ruta_derivada(fuente, dataset)
-    sobrantes = comparar_derivado(fuente, dataset, salidas)["sobrantes"]
-    for nombre in sobrantes:
-        (d / nombre).unlink(missing_ok=True)
-        olvidar(fuente, dataset, nombre, capa="derivado")
-    return sobrantes
 
 
 def leer_manifiesto(d: Path) -> dict | None:
@@ -322,27 +251,7 @@ def inventario() -> list[dict]:
     return filas
 
 
-if __name__ == "__main__":
-    import sys
-
-    if len(sys.argv) > 1 and sys.argv[1] == "verificar":
-        problemas = verificar_todo()
-        if problemas:
-            print(f"{len(problemas)} problemas de integridad:")
-            for p in problemas:
-                print(f"  {p}")
-            sys.exit(1)
-        print("integridad OK")
-    else:
-        filas = inventario()
-        total = sum(f["bytes"] for f in filas)
-        print(f"{len(filas)} archivos, {total / 1e6:.0f} MB")
-        for f in filas:
-            print(f"  [{f['capa']:8}] {f['bytes'] / 1e6:8.1f} MB  {f['ruta']}")
-
-
-# --- crudo tabular en parquet (4-nov-2026) ---------------------------------------------- #
-# Los CSV de IF.Data pesan ~80 veces más que el mismo contenido en parquet. El parquet guarda
+# Crudo tabular en parquet. Los CSV de IF.Data pesan ~80 veces más que el mismo contenido en parquet. El parquet guarda
 # TODAS las columnas como texto, tal cual venían en el CSV (sin inferir tipos, "" se conserva):
 # es una recodificación sin pérdida, así que sigue siendo capa cruda. El manifiesto conserva la
 # URL y el sha256 del CSV original y agrega los del parquet (clave "parquet").
@@ -356,17 +265,16 @@ def existe_crudo(ruta_csv: Path) -> bool:
     return Path(ruta_csv).exists() or ruta_parquet(ruta_csv).exists()
 
 
-def leer_crudo_tabla(ruta_csv: Path, columnas: list[str] | None = None, **opciones_csv):
+def leer_crudo_tabla(ruta_csv: Path, columnas: list[str] | None = None):
     """Lee un crudo tabular como texto: del parquet si existe, si no del CSV.
 
     Devuelve lo mismo que ``pd.read_csv(ruta, dtype=str, keep_default_na=False, usecols=columnas)``.
-    ``opciones_csv`` (sep, encoding…) solo se usan si hay que leer el CSV.
     """
     import pandas as pd
     pq = ruta_parquet(ruta_csv)
     if pq.exists():
         return pd.read_parquet(pq, columns=columnas)
-    return pd.read_csv(ruta_csv, dtype=str, keep_default_na=False, usecols=columnas, **opciones_csv)
+    return pd.read_csv(ruta_csv, dtype=str, keep_default_na=False, usecols=columnas)
 
 
 def csv_a_parquet(fuente: str, dataset: str, ruta_csv: Path, *, borrar_csv: bool = False,
@@ -383,7 +291,6 @@ def csv_a_parquet(fuente: str, dataset: str, ruta_csv: Path, *, borrar_csv: bool
     buf = io.BytesIO()
     df.to_parquet(buf, index=False, compression="zstd")
     datos = buf.getvalue()
-    # comprobación: el parquet devuelve exactamente las mismas celdas
     vuelta = pd.read_parquet(io.BytesIO(datos))
     if not (vuelta.shape == df.shape and list(vuelta.columns) == list(df.columns) and vuelta.equals(df)):
         raise ValueError(f"{ruta_csv.name}: el parquet no reproduce el CSV")
@@ -413,12 +320,118 @@ def glob_crudo(carpeta: Path, patron_csv: str) -> list[Path]:
     return [carpeta / n for n in sorted(nombres)]
 
 
-def crudo_con_datos(ruta_csv: Path, min_bytes: int = 200) -> bool:
-    """True si el crudo trae filas. En CSV se usa el tamaño (una respuesta vacía es solo la
-    cabecera, < min_bytes); en parquet, el número de filas de sus metadatos."""
+MIN_BYTES_CRUDO = 200
+
+
+def crudo_con_datos(ruta_csv: Path) -> bool:
+    """True si el crudo trae filas. En CSV se usa el tamaño (una respuesta vacía de OLinda es solo la
+    cabecera, menos de MIN_BYTES_CRUDO); en parquet, el número de filas de sus metadatos."""
     ruta_csv = Path(ruta_csv)
     pq = ruta_parquet(ruta_csv)
     if pq.exists():
         import pyarrow.parquet as papq
         return papq.ParquetFile(pq).metadata.num_rows > 0
-    return ruta_csv.exists() and ruta_csv.stat().st_size > min_bytes
+    return ruta_csv.exists() and ruta_csv.stat().st_size > MIN_BYTES_CRUDO
+
+
+# IF.Data: nombres de los crudos de OLinda (siempre con extensión .csv, aunque estén en parquet).
+
+def ruta_valores(periodo: str, escopo: int | str, informe: int | str | None = None) -> Path:
+    """datos/crudo/bcb_ifdata/valores/actual/valores_<periodo>_<escopo>[_r<informe>].csv"""
+    sufijo = "" if informe is None else f"_r{informe}"
+    return ruta_cruda("bcb_ifdata", "valores") / f"valores_{periodo}_{escopo}{sufijo}.csv"
+
+
+def ruta_cadastro(periodo: str) -> Path:
+    return ruta_cruda("bcb_ifdata", "cadastro") / f"cadastro_{periodo}.csv"
+
+
+def leer_definicion(nombre: str) -> dict:
+    """definiciones/<nombre>.json"""
+    return json.loads((DEFINICIONES / f"{nombre}.json").read_text(encoding="utf-8"))
+
+
+# Capa gold e intermedia.
+
+def parquet_bytes(df) -> bytes:
+    import io
+    buf = io.BytesIO()
+    df.to_parquet(buf, index=False)
+    return buf.getvalue()
+
+
+def escribir_parquet(df, destino: Path) -> bytes:
+    """Escribe ``df`` como parquet de forma atómica y devuelve los bytes escritos."""
+    datos = parquet_bytes(df)
+    escribir_atomico(Path(destino), datos)
+    return datos
+
+
+def contrato_gold() -> dict[str, dict]:
+    """Columnas mínimas y clave única de cada tabla gold (definiciones/contrato_gold.json)."""
+    return leer_definicion("contrato_gold")["tablas"]
+
+
+def validar_contrato(nombre: str, df) -> None:
+    """Falla si la tabla no está en el contrato, si le falta una columna o si repite la clave."""
+    contrato = contrato_gold().get(nombre)
+    if contrato is None:
+        raise ValueError(f"{nombre}: no está en definiciones/contrato_gold.json")
+    faltan = [c for c in contrato["columnas"] if c not in df.columns]
+    if faltan:
+        raise ValueError(f"{nombre}: faltan columnas del contrato gold: {faltan}")
+    repetidas = int(df.duplicated(contrato["clave"]).sum())
+    if repetidas:
+        raise ValueError(f"{nombre}: {repetidas} filas repiten la clave {contrato['clave']}")
+
+
+def comando_actual() -> str:
+    """El comando que corre ahora (script y argumentos), para la procedencia de lo que escribe."""
+    import sys
+    return " ".join(["python -X utf8", Path(sys.argv[0]).name, *sys.argv[1:]])
+
+
+def publicar_gold(nombre: str, df, *, dataset: str, desde: list[str],
+                  fuente: str = "bcb_ifdata", nota: str | None = None) -> bytes:
+    """Publica ``datos/gold/<nombre>.parquet`` con su procedencia en ``datos/derivado/<fuente>/<dataset>/``.
+
+    Antes de escribir valida la tabla contra el contrato gold. El manifiesto del derivado nombra el comando
+    que la produjo (comando_actual()); ``bk_manifiesto`` lo lee de ahí. Devuelve los bytes escritos.
+    """
+    validar_contrato(nombre, df)
+    archivo = f"{nombre}.parquet"
+    datos = parquet_bytes(df)
+    guardar_derivado(fuente, dataset, archivo, datos, desde=desde, como=comando_actual(), nota=nota)
+    escribir_atomico(GOLD / archivo, datos)
+    return datos
+
+
+def productores_gold() -> dict[str, str]:
+    """Archivo gold → comando que lo publicó, según los manifiestos de datos/derivado/."""
+    out = {}
+    if DERIVADO.exists():
+        for mp in sorted(DERIVADO.rglob(MANIFIESTO)):
+            man = json.loads(mp.read_text(encoding="utf-8"))
+            for nombre, meta in man.get("archivos", {}).items():
+                if nombre.startswith("bk_") and meta.get("producido_por"):
+                    out[nombre] = meta["producido_por"]
+    return out
+
+
+if __name__ == "__main__":
+    import sys
+
+    if len(sys.argv) > 1 and sys.argv[1] == "verificar":
+        problemas = verificar_todo()
+        if problemas:
+            print(f"{len(problemas)} problemas de integridad:")
+            for p in problemas:
+                print(f"  {p}")
+            sys.exit(1)
+        print("integridad OK")
+    else:
+        filas = inventario()
+        total = sum(f["bytes"] for f in filas)
+        print(f"{len(filas)} archivos, {total / 1e6:.0f} MB")
+        for f in filas:
+            print(f"  [{f['capa']:8}] {f['bytes'] / 1e6:8.1f} MB  {f['ruta']}")

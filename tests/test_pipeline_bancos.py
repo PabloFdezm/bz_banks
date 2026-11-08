@@ -6,77 +6,73 @@ un trimestre acepte los datos actuales y que sus detectores no sean decorativos.
 """
 from __future__ import annotations
 
-import sys
-from pathlib import Path
-
 import pandas as pd
+import pytest
 
-RAIZ = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(RAIZ / "herramientas"))
-import verificar_gold as V  # noqa: E402
-
-
-def test_datos_actuales_pasan_el_verificador():
-    r = V.verificar_todo()
-    assert not r.errores, "\n".join(r.errores)
-    assert r.resumen["bancos"] == 34
-    assert r.resumen["ultimo_periodo"] == "202606"
-    assert r.resumen["credito_ultimo"] == "202606"
-    assert r.resumen["validacion_filas"] >= 20
+import verificar_gold as V
+from conftest import DATOS, GOLD
 
 
-def test_metricas_no_tienen_infinitos():
-    """Un crecimiento con base cero debe ser NaN, no inf (rompe el JSON)."""
-    df = pd.read_parquet(V.METRICAS)
-    assert not df["valor"].isin([float("inf"), float("-inf")]).any()
+def _metricas(bancos=("C1", "C2"), periodos=("202603", "202606")) -> pd.DataFrame:
+    """Tabla larga mínima con el contrato de metricas_bancos.parquet."""
+    filas = [{"periodo": p, "fecha": pd.Period(p, "M").end_time.normalize(), "cod_inst": b,
+              "nombre_corto": b, "categoria": "balance", "metrica": "ativo_total", "valor": 100.0}
+             for b in bancos for p in periodos]
+    return pd.DataFrame(filas, columns=V.COLUMNAS_METRICAS)
 
 
 def test_detecta_duplicados():
-    df = pd.read_parquet(V.METRICAS)
-    df = pd.concat([df, df.iloc[[0]]], ignore_index=True)
-    r = V.verificar_metricas(df)
+    df = _metricas()
+    r = V.verificar_metricas(pd.concat([df, df.iloc[[0]]], ignore_index=True))
     assert any("duplicadas" in e for e in r.errores), r.errores
 
 
 def test_detecta_infinito():
-    df = pd.read_parquet(V.METRICAS).copy()
+    df = _metricas()
     df.loc[0, "valor"] = float("inf")
     r = V.verificar_metricas(df)
     assert any("no finitos" in e for e in r.errores), r.errores
 
 
 def test_detecta_periodo_invalido():
-    df = pd.read_parquet(V.METRICAS).copy()
+    df = _metricas()
     df.loc[0, "periodo"] = "2026"
     r = V.verificar_metricas(df)
     assert any("períodos inválidos" in e for e in r.errores), r.errores
 
 
 def test_comparar_detecta_banco_perdido():
-    actual = pd.read_parquet(V.METRICAS)
-    candidato = actual[actual["cod_inst"] != "C0080075"].copy()
-    r = V.comparar_metricas(actual, candidato)
+    actual = _metricas()
+    r = V.comparar_metricas(actual, actual[actual["cod_inst"] != "C2"])
     assert any("pierde bancos" in e for e in r.errores), r.errores
 
 
 def test_comparar_acepta_trimestre_nuevo():
-    actual = pd.read_parquet(V.METRICAS)
-    nuevo = actual[actual["periodo"] == "202606"].copy()
-    nuevo["periodo"] = "202609"
-    candidato = pd.concat([actual, nuevo], ignore_index=True)
+    actual = _metricas()
+    candidato = pd.concat([actual, _metricas(periodos=("202609",))], ignore_index=True)
     r = V.comparar_metricas(actual, candidato)
     assert not r.errores, r.errores
-    assert any("agrega períodos" in a for a in r.advertencias), r.advertencias
+    assert any("agrega períodos: 202609" in a for a in r.advertencias), r.advertencias
 
 
-def test_sin_segmento_solo_si_la_fuente_no_lo_trae():
+@pytest.mark.integracion
+def test_datos_actuales_pasan_el_verificador(ultimo_periodo):
+    r = V.verificar_todo()
+    assert not r.errores, "\n".join(r.errores)
+    assert r.resumen["bancos"] == len(pd.read_parquet(GOLD / "bk_banco.parquet", columns=["cod_inst"]))
+    assert r.resumen["ultimo_periodo"] == ultimo_periodo
+    assert r.resumen["credito_ultimo"] == ultimo_periodo
+    assert r.resumen["validacion_filas"] >= 20
+
+
+@pytest.mark.integracion
+def test_sin_segmento_solo_si_la_fuente_no_lo_trae(ultimo_periodo):
     """Tarea 1.1: un banco va «Sin segmento» solo si ninguna fila de su conglomerado en el cadastro trae Sr.
 
     Daycoval y XP traen Sr nulo en la fila propia desde 2025-T4, pero sus instituciones sí lo traen.
     """
-    banco = pd.read_parquet(RAIZ / "datos" / "gold" / "bk_banco.parquet")
-    periodo = pd.read_parquet(RAIZ / "datos" / "gold" / "bank_periodos.parquet")["periodo"].astype(str).max()
-    cad = pd.read_parquet(RAIZ / "datos" / "crudo" / "bcb_ifdata" / "cadastro" / "actual" / f"cadastro_{periodo}.parquet",
+    banco = pd.read_parquet(GOLD / "bk_banco.parquet")
+    cad = pd.read_parquet(DATOS / "crudo" / "bcb_ifdata" / "cadastro" / "actual" / f"cadastro_{ultimo_periodo}.parquet",
                           columns=["CodInst", "CodConglomeradoPrudencial", "Sr"])
     cad = cad[cad["Sr"].fillna("").str.strip().str.lower().ne("null") & cad["Sr"].fillna("").str.strip().ne("")]
     con_sr = set(cad["CodInst"]) | set(cad["CodConglomeradoPrudencial"])
@@ -84,7 +80,8 @@ def test_sin_segmento_solo_si_la_fuente_no_lo_trae():
     assert not mal, f"«Sin segmento» pero la fuente trae Sr: {mal}"
 
 
+@pytest.mark.integracion
 def test_panel_sin_valores_nulos():
     """Tarea 1.5: bk_panel no depende de la versión de pandas (stack() con o sin NaN)."""
-    p = pd.read_parquet(RAIZ / "datos" / "gold" / "bk_panel.parquet", columns=["valor"])
+    p = pd.read_parquet(GOLD / "bk_panel.parquet", columns=["valor"])
     assert p["valor"].notna().all()

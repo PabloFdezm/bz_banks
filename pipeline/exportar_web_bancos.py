@@ -24,12 +24,11 @@ Licencias (spec web bancos §9, criterio 17): antes de escribir nada, falla si a
 columna contiene `px_`, `pbv`, `pe_`, `bbg`, `bloomberg`, `consenso` o `target`.
 
 Uso (desde la raíz del repo, Windows con `-X utf8`):
-    python -X utf8 exportar_web_bancos.py
+    python -X utf8 pipeline/exportar_web_bancos.py
 """
 from __future__ import annotations
 
 import datetime as dt
-import hashlib
 import json
 import math
 import re
@@ -39,28 +38,21 @@ from pathlib import Path
 
 import pandas as pd
 
-RAIZ = Path(__file__).resolve().parents[1]
-ORIGEN = RAIZ / "datos" / "gold"
-SALIDA = RAIZ / "sitio" / "data"
+import almacen as A
+import bancos as B
+import reglas_gold as RG
+
+ORIGEN = A.GOLD
+SALIDA = A.RAIZ / "sitio" / "data"
 
 # Auxiliar del verificador (decisión 59): no es parte del contrato del sitio.
 EXCLUIDAS = {"bk_cartera_totales"}
-# Tablas que se parten por banco y la columna que identifica al banco en cada una.
+# Columna que identifica al banco en cada tabla que se parte por banco.
 PARTIBLES = {"bk_panel": "cod_inst", "bk_cartera": "cod_inst", "bk_roe_arbol": "entidad"}
-# Ópticas de bk_grupo y el slug con que se nombra cada partición (encargo 75). Si aparece
-# una óptica nueva sin slug, se rompe antes de escribir: partir la tabla a medias deja el
-# manifiesto diciendo que la partición es la tabla completa.
-OPTICAS = {
-    "Modelo de negocio": "modelo",
-    "Segmento regulatorio": "segmento",
-    "Propiedad": "propiedad",
-    "Tradicional vs Fintech": "fintech",
-    "Total panel": "panel",
-}
-# Marcas que delatan dato con licencia en el nombre de una columna (spec web §9, criterio 17).
-LICENCIAS = ("px_", "pbv", "pe_", "bbg", "bloomberg", "consenso", "target")
-# Columnas de fecha para el rango del manifiesto, por orden de preferencia.
-COLUMNAS_FECHA = ("fecha", "periodo")
+# Slug de cada óptica de bk_grupo para nombrar su partición (encargo 75). Si aparece una óptica nueva sin
+# slug, se rompe antes de escribir: partir la tabla a medias deja el manifiesto diciendo que la partición es
+# la tabla completa.
+OPTICAS = B.SLUG_OPTICA
 
 
 def _valor(v):
@@ -82,11 +74,9 @@ def _valor(v):
 
 
 def _rango(d: pd.DataFrame) -> list | None:
-    """[columna, mínimo, máximo] de la primera columna de fecha que exista; None si no hay."""
-    for c in COLUMNAS_FECHA:
-        if c in d.columns and len(d):
-            return [c, str(_valor(d[c].min())), str(_valor(d[c].max()))]
-    return None
+    """[columna, mínimo, máximo] de la primera columna de fecha que exista (reglas_gold.rango); None si no hay."""
+    r = RG.rango(d)
+    return None if r is None else [r[0], str(_valor(r[1])), str(_valor(r[2]))]
 
 
 def _escribir_tabla(ruta: Path, tabla: str, d: pd.DataFrame) -> int:
@@ -100,7 +90,7 @@ def _escribir_tabla(ruta: Path, tabla: str, d: pd.DataFrame) -> int:
     return ruta.stat().st_size
 
 
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
     parquets = sorted(p for p in ORIGEN.glob("bk_*.parquet") if p.stem not in EXCLUIDAS)
     tablas = {p.stem: pd.read_parquet(p) for p in parquets}
 
@@ -108,7 +98,7 @@ def main() -> int:
     # escribe nada (criterio 17: mejor no exportar que exportar de más).
     infracciones = sorted(
         (t, c) for t, d in tablas.items() for c in map(str, d.columns)
-        if any(marca in c.lower() for marca in LICENCIAS)
+        if any(marca in c.lower() for marca in RG.LICENCIAS)
     )
     if infracciones:
         for t, c in infracciones:
@@ -124,6 +114,16 @@ def main() -> int:
             slugs[cod] = slug
     elif any(t in tablas for t in PARTIBLES):
         print("AVISO: falta bk_banco; no se puede partir por banco", file=sys.stderr)
+    # Métricas y ópticas arman rutas de partición, igual que el slug: se validan antes de borrar nada.
+    if "bk_panel" in tablas:
+        malas = [m for m in tablas["bk_panel"]["metrica"].unique()
+                 if not isinstance(m, str) or not re.fullmatch(r"[a-z0-9_]+", m)]
+        if malas:
+            raise ValueError(f"bk_panel: métricas inválidas para partición: {malas!r}")
+    if "bk_grupo" in tablas:
+        sin_slug = sorted(set(tablas["bk_grupo"]["optica"]) - set(OPTICAS))
+        if sin_slug:
+            raise ValueError(f"bk_grupo: ópticas sin slug asignado: {sin_slug!r}")
 
     if SALIDA.exists():
         shutil.rmtree(SALIDA)
@@ -132,7 +132,7 @@ def main() -> int:
     manifiesto: dict = {"generado": dt.datetime.now().isoformat(timespec="seconds"),
                         "tablas": {}, "bancos": {}, "metricas": {}, "opticas": {}}
     for nombre, d in tablas.items():
-        sha256 = hashlib.sha256((ORIGEN / f"{nombre}.parquet").read_bytes()).hexdigest()
+        sha256 = A.sha256_archivo(ORIGEN / f"{nombre}.parquet")
         bytes_json = _escribir_tabla(SALIDA / f"{nombre}.json", nombre, d)
         manifiesto["tablas"][nombre] = {
             "filas": len(d), "columnas": [str(c) for c in d.columns],
@@ -155,12 +155,9 @@ def main() -> int:
                 "sha256": manifiesto["tablas"][nombre]["sha256"], "bytes": bytes_json,
             }
 
-    # Particiones por métrica y por óptica (encargo 75). La métrica arma una ruta, igual
-    # que el slug de banco: validar que sea un nombre de directorio de verdad.
+    # Particiones por métrica y por óptica (encargo 75).
     if "bk_panel" in tablas:
         for metrica, g in tablas["bk_panel"].groupby("metrica", sort=True):
-            if not isinstance(metrica, str) or not re.fullmatch(r"[a-z0-9_]+", metrica):
-                raise ValueError(f"bk_panel: metrica inválida para partición: {metrica!r}")
             ruta = SALIDA / "metrica" / metrica
             ruta.mkdir(parents=True, exist_ok=True)
             manifiesto["metricas"][metrica] = {
@@ -170,8 +167,6 @@ def main() -> int:
 
     if "bk_grupo" in tablas:
         for optica, g in tablas["bk_grupo"].groupby("optica", sort=True):
-            if optica not in OPTICAS:
-                raise ValueError(f"bk_grupo: óptica sin slug asignado: {optica!r}")
             ruta = SALIDA / "optica" / OPTICAS[optica]
             ruta.mkdir(parents=True, exist_ok=True)
             manifiesto["opticas"][OPTICAS[optica]] = {

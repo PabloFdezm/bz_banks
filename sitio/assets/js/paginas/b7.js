@@ -1,34 +1,28 @@
 /* B7 · Capital. Config de la página (SPEC_WEB_BANCOS_00_GENERAL.md §2 y §3 del spec macro).
    Transcrito de ESQUELETO_BANCOS_v0.1.md §B7: títulos, preguntas, anchos, altos, marcas [banco]
-   y estados son los del esqueleto. En la F0 ninguna tarjeta tiene `armar`.
+   y estados son los del esqueleto. Ninguna tarjeta tiene `armar` todavía.
    La página entera depende de colectar el informe de capital de IF.Data: hoy solo hay cinco
    cortes sueltos en `datos/derivado/bcb_ifdata/valores/ifdata_capital_*.csv`, así que cinco de
    sus seis tarjetas son FALTA.
-   Tablas que pide el esqueleto para cada tarjeta (las necesita la ola 2):
+   Tablas que pide el esqueleto para cada tarjeta:
      B7-01-0  bk_capital + FIJO de mínimos (manual/minimos_regulatorios.csv)
      B7-01-1  bk_capital                              B7-03-0  bk_capital
      B7-02-0  bk_capital · bk_panel (lucro)           B7-03-1  bk_ref
      B7-02-1  bk_capital
    Riel del esqueleto: 01 «Dato de la sección»: Basilea del panel · 02 sin riel · 03 sin riel. */
-const IFDATA = 'BCB, IF.Data (conglomerado prudencial)';
-const REFBCB = 'BCB, Relatório de Estabilidade Financeira';
-const CALC = 'cálculo propio';
+import { FUENTE } from '../comun.js';
+
+const { IFDATA, REF: REFBCB, CALC } = FUENTE;
 
 export default {
-  clave: 'B7',
-  ruta: 'capital',
-  nombre: 'Capital',
   rotulo: '7 · CAPITAL',
-  signo: 'bancos',
   usaBanco: true,
-  optica: 'Modelo de negocio',
 
   secciones: [
     {
       numero: '01',
       nombre: 'Niveles',
       frecuencia: 'Trimestral · Panel IF.Data',
-      preguntaClave: 'B7.01',
       pregunta: '¿dónde está cada banco contra su mínimo?',
       filas: [
         [{ clave: 'B7-01-0', ancho: 5, alto: 520 }, { clave: 'B7-01-1', ancho: 4, alto: 520 }],
@@ -38,7 +32,6 @@ export default {
       numero: '02',
       nombre: 'Generación y consumo',
       frecuencia: 'Trimestral · Panel IF.Data',
-      preguntaClave: 'B7.02',
       pregunta: '¿el capital crece por resultados y cuánto consume cada real de crédito?',
       filas: [
         [{ clave: 'B7-02-0', ancho: 5, alto: 372 }, { clave: 'B7-02-1', ancho: 4, alto: 372 }],
@@ -48,7 +41,6 @@ export default {
       numero: '03',
       nombre: 'Holgura y estrés',
       frecuencia: 'Trimestral y semestral · Panel y REF',
-      preguntaClave: 'B7.03',
       pregunta: '¿cuánto puede crecer la cartera sin capital nuevo, y aguanta un escenario adverso?',
       filas: [
         [{ clave: 'B7-03-0', ancho: 5, alto: 372 }, { clave: 'B7-03-1', ancho: 4, alto: 372 }],

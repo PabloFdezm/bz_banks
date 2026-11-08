@@ -1,6 +1,6 @@
 # Universo de bancos (`bk_banco`)
 
-> Generado por `herramientas/generar_spec.py` el 2026-11-06. No editar a mano: se sobrescribe.
+> Generado por `herramientas/generar_spec.py`. No editar a mano: se sobrescribe.
 
 
 34 bancos. Fuente de verdad: `definiciones/bcb_ifdata__bancos_balances.json` y `definiciones/bancos__dashboard.json`.

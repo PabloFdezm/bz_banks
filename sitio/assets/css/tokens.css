@@ -1,17 +1,17 @@
 @import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
-/* v2 (3-nov): paleta del Monitor suavizada + tipografía de FARO (canvas «Bancos Brasil — propuesta visual»).
-   Monitor Brasil «desde cero» · tokens del sistema visual.
-   Fuente de verdad: los HTML AMx_*.html y SPEC_WEB_00_GENERAL.md §5. No inventar colores fuera de esta lista. */
+/* Tokens del sistema visual: paleta y tipografía del canvas «Bancos Brasil — propuesta visual».
+   No inventar colores fuera de esta lista. Los colores también viven en assets/js/comun.js (COLOR), que
+   usan ECharts y los SVG; herramientas/verificar_f1.py comprueba que ambos coincidan. */
 :root {
   /* Superficies y texto */
   --fondo: #F6F7F8;          /* fondo de la página */
   --tarjeta: #FFFFFF;        /* fondo de tarjetas y cabecera */
   --borde: #E1E6EC;          /* borde de tarjetas (1 px) */
-  --borde-fuerte: #C9D2DC;   /* pestañas, línea del cierre */
+  --borde-fuerte: #C9D2DC;   /* bordes de controles y separadores fuertes */
   --regla: #E6EAEF;          /* líneas de grilla, separadores de fila */
   --texto: #24324A;          /* texto principal; también la línea de 2 px entre secciones */
   --texto-2: #5B6573;        /* subtítulos, rótulos */
-  --texto-3: #5B6573;        /* fuentes, notas, ejes */
+  --texto-3: #5B6573;        /* fuentes, notas, ejes: hoy el mismo color que --texto-2; son dos roles por si se separan */
 
   /* Serie (categóricos, en este orden; nunca cobre ni arena para una categoría) */
   --navy: #2E5C8A;
@@ -21,11 +21,34 @@
   --acero-claro: #A9B8CB;
 
   /* Signo y referencia */
-  --mejor: #2F7A86;          /* navy = mejora (qué es «mejora» depende de la página, §5.4) */
+  --mejor: #2F7A86;          /* mejora (= petróleo; qué es «mejora» depende de la página, §5.4) */
   --peor: #A85E24;           /* cobre-texto = deterioro */
   --cobre: #C2773A;          /* cobre de relleno (barras/áreas de deterioro cuando el texto va en --peor) */
   --arena: #EDC9A6;          /* relleno suave «falta / peor» */
   --referencia: #8A8F96;     /* meta, promedio, contrafactual: siempre discontinua */
+  --panel: #1B2433;          /* panel total de bancos (COLOR_GRUPO.Panel) */
+  --total: #A85E24;          /* regla de Pablo: el Total siempre en otro color (hoy = --peor) */
+
+  /* Series de las páginas: tipos de crédito, tramos de renta, modalidades (comun.js, COLOR) */
+  --acero-medio: #8FA3BC;
+  --arena-clara: #E7CDB6;
+  --azul-noche: #1F3F60;
+  --azul-medio: #5B8DB8;
+  --azul-pizarra: #6F93BA;
+  --azul-claro: #9DBBDB;
+  --petroleo-claro: #7FB5B9;
+  --grafito: #6F7884;
+  --gris-medio: #8A93A0;
+  --oliva: #6B8E5A;
+  --lavanda: #7A5C99;
+  --indigo: #5C4B8A;
+  --granate: #B04A5A;
+  --ocre: #B79C6A;
+  --arena-palida: #E3D3B5;
+  --trigo: #CBAE80;
+  --tierra-clara: #A9875A;
+  --tierra: #7A5C3A;
+  --leyenda-inactiva: #C9D1DB;  /* serie apagada en la leyenda de ECharts */
 
   /* Tipografía */
   --fuente: 'IBM Plex Sans', 'Segoe UI', system-ui, Arial, sans-serif;
@@ -53,7 +76,7 @@
   --control-alto: 44px;
   --tabla-texto: 14px;
   --tabla-min: 760px;
-  --barra-alto: 104px;
+  --barra-alto: var(--barra-medida, 104px);  /* alto de la barra fija: lo mide pagina.js (--barra-medida); bajo 1200 px, 0 (bancos.css) */
   --movimiento: 180ms;
 
   /* Grilla */

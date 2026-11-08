@@ -1,6 +1,6 @@
 # Páginas, secciones y tarjetas del sitio
 
-> Generado por `herramientas/generar_spec.py` el 2026-11-06. No editar a mano: se sobrescribe.
+> Generado por `herramientas/generar_spec.py`. No editar a mano: se sobrescribe.
 
 
 Datos en `/data/` (relativo a `sitio/`). Páginas con `oculta: true` no salen en el menú pero se abren por URL.
@@ -404,7 +404,7 @@ Gasto sobre ingreso, hace un año y hoy.
 | Tarjeta | Título | Componente | Datos | Estado | Banco | Fuente |
 |---|---|---|---|---|---|---|
 | `B6-01-0` | ROE TTM por grupo | `linea` | `optica/modelo/bk_grupo` | LISTO |  | BCB, IF.Data (conglomerado prudencial) |
-| `B6-02-0` | Del margen al ROA, en % del activo promedio | `cascada_doble` | `bk_banco`, `bk_roe_arbol` | LISTO | sí | BCB, IF.Data (conglomerado prudencial); cálculo propio |
+| `B6-02-0` | Del margen al ROA, en % del activo promedio | `cascada_doble` | `bk_roe_arbol` | LISTO | sí | BCB, IF.Data (conglomerado prudencial); cálculo propio |
 | `B6-03-0` | ROE TTM vs. costo del riesgo TTM, por banco, con trayectori… | `burbujas_trayectoria` | `bk_banco`, `metrica/roe_ttm/bk_panel`, `metrica/costo_riesgo_ttm/bk_panel`, `metrica/ativo_total/bk_panel` | LISTO | sí | BCB, IF.Data (conglomerado prudencial) |
 | `B6-04-0` | Beta del margen a la Selic | `barras_ic` | `bk_banco`, `bk_sensibilidad` | LISTO | sí | BCB, IF.Data (conglomerado prudencial); cálculo propio |
 | `B6-05-0` | Eficiencia TTM por banco, hace un año y hoy | `pesas` | `bk_banco`, `bk_metrica`, `metrica/eficiencia_ttm/bk_panel` | LISTO | sí | BCB, IF.Data (conglomerado prudencial) |
@@ -446,7 +446,7 @@ Archivo: `sitio/assets/js/paginas/b7.js` · rótulo: 7 · CAPITAL · usaBanco: T
 
 ## B8 · Ficha por banco — `/ficha`
 
-Archivo: `sitio/assets/js/paginas/b8.js` · rótulo: 8 · FICHA · usaBanco: True
+Archivo: `sitio/assets/js/paginas/b8.js` · rótulo: 8 · FICHA · usaBanco: True · titular por banco
 
 **Franja de indicadores (arriba):** ROE 12 meses ← `metrica/roe_ttm/bk_panel` (banco); NPL ≥ 15 días ← `metrica/npl15_total/bk_panel` (banco); Cuota de crédito ← `metrica/share_credito/bk_panel` (banco); Costo del riesgo ← `metrica/costo_riesgo_ttm/bk_panel` (banco); Eficiencia ← `metrica/eficiencia_ttm/bk_panel` (banco)
 
@@ -482,14 +482,14 @@ Ficha técnica y diferencias contra lo publicado.
 
 | Tarjeta | Título | Componente | Datos | Estado | Banco | Fuente |
 |---|---|---|---|---|---|---|
-| `B8-01-0` | Ficha técnica | `tabla` | `bk_banco`, `bk_manifiesto` | LISTO | sí | BCB, IF.Data (conglomerado prudencial); CVM |
-| `B8-01-1` | Tamaño y cuotas | `tabla` | `bk_banco`, `bk_manifiesto`, `bk_metrica` | LISTO | sí | BCB, IF.Data (conglomerado prudencial) |
-| `B8-02-0` | Doce métricas, una fila cada una | `percentiles` | `bk_banco`, `bk_manifiesto`, `bk_metrica` | DERIVAR | sí | BCB, IF.Data (conglomerado prudencial); cálculo propio |
-| `B8-03-0` | Mix de cartera: banco vs. grupo vs. panel | `apilada_100` | `bk_banco`, `bk_manifiesto`, `bk_cartera_grupo` | DERIVAR | sí | BCB, IF.Data (conglomerado prudencial) |
-| `B8-04-0` | Árbol del ROE: banco vs. mediana del grupo | `cascada_doble` | `bk_banco`, `bk_manifiesto` | DERIVAR | sí | BCB, IF.Data (conglomerado prudencial); cálculo propio |
-| `B8-04-1` | ROE TTM, 12 trimestres, banco vs. grupo y vs. CDI | `linea_banco` | `bk_banco`, `bk_manifiesto` | LISTO | sí | BCB, IF.Data (conglomerado prudencial); BCB, SGS |
-| `B8-05-0` | Mix de fondeo, banco vs. grupo | `apilada_100` | `bk_banco`, `bk_manifiesto`, `bk_metrica` | DERIVAR | sí | BCB, IF.Data (conglomerado prudencial); cálculo propio |
-| `B8-06-1` | Puente IF.Data ↔ publicado | `tabla` | `bk_banco`, `bk_manifiesto`, `bk_puente` | LISTO | sí | BCB, IF.Data (conglomerado prudencial); CVM; cálculo propio |
+| `B8-01-0` | Ficha técnica | `tabla` | `bk_manifiesto` | LISTO | sí | BCB, IF.Data (conglomerado prudencial); CVM |
+| `B8-01-1` | Tamaño y cuotas | `tabla` | `bk_metrica`, `banco/<banco>/bk_panel` | LISTO | sí | BCB, IF.Data (conglomerado prudencial) |
+| `B8-02-0` | Doce métricas, una fila cada una | `percentiles` | `bk_metrica`, `banco/<banco>/bk_panel` | DERIVAR | sí | BCB, IF.Data (conglomerado prudencial); cálculo propio |
+| `B8-03-0` | Mix de cartera: banco vs. grupo vs. panel | `apilada_100` | `bk_cartera_grupo`, `banco/<banco>/bk_cartera` | DERIVAR | sí | BCB, IF.Data (conglomerado prudencial) |
+| `B8-04-0` | Árbol del ROE: banco vs. mediana del grupo | `cascada_doble` | `banco/<banco>/bk_roe_arbol` | DERIVAR | sí | BCB, IF.Data (conglomerado prudencial); cálculo propio |
+| `B8-04-1` | ROE TTM, 12 trimestres, banco vs. grupo y vs. CDI | `linea` | `banco/<banco>/bk_panel` | LISTO | sí | BCB, IF.Data (conglomerado prudencial); BCB, SGS |
+| `B8-05-0` | Mix de fondeo, banco vs. grupo | `apilada_100` | `bk_metrica`, `banco/<banco>/bk_panel` | DERIVAR | sí | BCB, IF.Data (conglomerado prudencial); cálculo propio |
+| `B8-06-1` | Puente IF.Data ↔ publicado | `tabla` | `bk_puente` | LISTO | sí | BCB, IF.Data (conglomerado prudencial); CVM; cálculo propio |
 
 Notas visibles en las tarjetas:
 

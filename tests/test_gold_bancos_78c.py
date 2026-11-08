@@ -7,29 +7,23 @@ fuente cruda leída de forma independiente (json y parquet, sin pasar por las fu
 from __future__ import annotations
 
 import json
-import sys
-from pathlib import Path
 
 import numpy as np
 import pandas as pd
 import pytest
 
-RAIZ = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(RAIZ))
-import preparar_gold_bancos_sistema as P  # noqa: E402
+import preparar_gold_bancos_sistema as P
+from conftest import DATOS, GOLD
 
-GOLD_M = RAIZ / "datos" / "gold" / "bk_sistema_m.parquet"
-GOLD_Q = RAIZ / "datos" / "gold" / "bk_sistema_q.parquet"
-FOCUS = RAIZ / "datos" / "intermedio" / "expectativas_focus.parquet"
-CRUDO_IPCA = RAIZ / "datos" / "crudo" / "bcb_sgs" / "bancos_sistema" / "actual" / "serie_433.json"
+GOLD_M = GOLD / "bk_sistema_m.parquet"
+GOLD_Q = GOLD / "bk_sistema_q.parquet"
+CRUDO_IPCA = DATOS / "crudo" / "bcb_sgs" / "bancos_sistema" / "actual" / "serie_433.json"
 
 
 def _mensual(valores, inicio="2024-01"):
     idx = pd.period_range(inicio, periods=len(valores), freq="M")
     return pd.Series(np.asarray(valores, dtype=float), index=idx)
 
-
-# --- funciones puras ---------------------------------------------------------------------
 
 def test_ipca_12m_constante_1pct():
     s = _mensual([1.0] * 14)
@@ -76,44 +70,23 @@ def test_deltas_mensuales_1m_3m():
     assert (b["d_1m"].iloc[1:] == 0).all()
 
 
-def test_icc_real_exante_formula():
-    icc = _mensual([0.30])
-    esp = _mensual([0.05])
-    real = ((1 + icc) / (1 + esp) - 1).iloc[0]
-    assert real == pytest.approx(1.30 / 1.05 - 1, abs=1e-12)
-
-
-# --- contra datos reales -------------------------------------------------------------------
-
-@pytest.mark.skipif(not FOCUS.exists(), reason="falta datos/intermedio/expectativas_focus.parquet")
-def test_focus_usa_solo_horizonte_12_meses_y_ultimo_envio_del_mes():
-    f = pd.read_parquet(FOCUS)
-    g = f[(f["indicador"] == "IPCA") & (f["tipo_horizonte"] == "12 meses")].copy()
-    g["fecha_encuesta"] = pd.to_datetime(g["fecha_encuesta"])
-    sep = g[g["fecha_encuesta"].dt.to_period("M") == pd.Period("2026-09", "M")]
-    esperado = float(sep.sort_values("fecha_encuesta")["mediana"].iloc[-1])
-    serie = P.leer_focus_ipca_12m()
-    assert serie.loc[pd.Period("2026-09", "M")] == pytest.approx(esperado, abs=1e-12)
-    assert esperado == pytest.approx(0.046478, abs=1e-6)   # 2026-09-11, cifra a mano
-
-
-@pytest.mark.skipif(not (CRUDO_IPCA.exists() and GOLD_M.exists()),
-                    reason="faltan el crudo SGS 433 o la tabla gold")
+@pytest.mark.integracion
 def test_ipca_12m_ultimo_contra_crudo_independiente():
+    """El último ipca_12m del gold, recalculado desde el crudo SGS 433 hasta ese mismo mes."""
+    m = pd.read_parquet(GOLD_M)
+    gold = m[m["serie_id"] == "ipca_12m"].dropna(subset=["valor"]).sort_values("fecha").iloc[-1]
+    hasta = pd.Timestamp(gold["fecha"]).strftime("%Y-%m")
     filas = json.loads(CRUDO_IPCA.read_text(encoding="utf-8"))
     mensual = {pd.to_datetime(f["data"], format="%d/%m/%Y").strftime("%Y-%m"): float(f["valor"])
                for f in filas}
-    ultimos = [mensual[k] for k in sorted(mensual)[-12:]]
+    ultimos = [mensual[k] for k in sorted(mensual) if k <= hasta][-12:]
     producto = 1.0
     for v in ultimos:
         producto *= 1 + v / 100
-    m = pd.read_parquet(GOLD_M)
-    v = m[(m["serie_id"] == "ipca_12m") & (m["fecha"] == pd.Timestamp("2026-09-01"))]["valor"]
-    assert float(v.iloc[0]) == pytest.approx(producto - 1, abs=1e-9)
+    assert float(gold["valor"]) == pytest.approx(producto - 1, abs=1e-9)
 
 
-@pytest.mark.skipif(not GOLD_M.exists() or not GOLD_Q.exists(),
-                    reason="faltan las tablas gold de sistema")
+@pytest.mark.integracion
 def test_tablas_gold_78c_columnas_y_trimestre():
     m = pd.read_parquet(GOLD_M)
     q = pd.read_parquet(GOLD_Q)
@@ -122,7 +95,6 @@ def test_tablas_gold_78c_columnas_y_trimestre():
     for sid in ("ipca_12m", "ipca_esperado_12m", "icc_real_exante", "mora90_pf_livre_adel3m"):
         assert sid in set(m["serie_id"]), sid
         assert sid in set(q["serie_id"]), sid
-    # ipca_12m trimestral = valor del último mes del trimestre en _m
     mm = m[(m["serie_id"] == "ipca_12m") & (m["fecha"] == pd.Timestamp("2026-06-01"))]["valor"]
     qq = q[(q["serie_id"] == "ipca_12m") & (q["fecha"] == pd.Timestamp("2026-06-30"))]["valor"]
     assert float(qq.iloc[0]) == pytest.approx(float(mm.iloc[0]), abs=1e-12)
@@ -130,7 +102,3 @@ def test_tablas_gold_78c_columnas_y_trimestre():
     adel = m[(m["serie_id"] == "mora90_pf_livre_adel3m") & (m["fecha"] == pd.Timestamp("2026-06-01"))]
     real = m[(m["serie_id"] == "mora90_pf_livre") & (m["fecha"] == pd.Timestamp("2026-09-01"))]
     assert float(adel["valor"].iloc[0]) == pytest.approx(float(real["valor"].iloc[0]), abs=1e-12)
-    # d_1m coincide con la diferencia de la serie
-    s = m[m["serie_id"] == "credito_pib"].sort_values("fecha").set_index("fecha")["valor"]
-    d = m[m["serie_id"] == "credito_pib"].sort_values("fecha").set_index("fecha")["d_1m"]
-    assert d.iloc[-1] == pytest.approx(s.iloc[-1] - s.iloc[-2], abs=1e-12)

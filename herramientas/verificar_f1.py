@@ -1,17 +1,19 @@
-"""Verifica la F1 del sitio de bancos (encargo 76) sobre las once páginas, con y sin ?banco=itau.
+"""Verifica el sitio de bancos sobre todas las páginas de config.js (PAGINAS), con y sin ?banco=itau.
 
 Qué comprueba, con un Chromium real sobre un servidor propio (python -m http.server, que se cierra
 al terminar con su mismo PID; no se usa ningún servidor que ya estuviera corriendo):
   1. cada página responde 200 y carga sin errores de consola ni de página;
-  2. el número de secciones y de tarjetas es el de la config y el del esqueleto (contar_tarjetas.mjs);
+  2. el número de secciones y de tarjetas es el de la config y el del esqueleto (esqueleto_tarjetas.json);
   3. cada tarjeta lleva el título de su config; si la config NO tiene armar(), la tarjeta está
      «en preparación» (esa exigencia no aplica a las tarjetas con armar());
   4. ninguna tarjeta con armar() muestra error de carga o de cálculo, y ninguna queda cargando: se espera a
      <html data-pagina="lista"> y a que ningún nodo siga en data-estado cargando/actualizando (ciclo de vida
      explícito de pagina.js; el estado se lee de data-estado, no del texto visible);
   5. ningún «[» visible en el texto de la página;
-  6. la cabecera tiene una pestaña por página visible (las de config.js sin oculta: true) y la marca BANCOS BRASIL.
-  7. en cada ancho de --anchos, la página no tiene scroll horizontal.
+  6. la cabecera tiene una pestaña por página visible (las de config.js sin oculta: true) y la marca de config.js;
+  7. en cada ancho de --anchos, la página no tiene scroll horizontal;
+  8. cada color de tokens.js (COLOR) es igual a su token de tokens.css (navy → --navy, texto2 → --texto-2).
+Las configs, el esqueleto y los colores salen de herramientas/inventario_paginas.mjs (Node).
 Captura de página completa solo si se pide con --captura DIR.
 
 Con --url BASE (p. ej. https://banks-bz.pages.dev) revisa el sitio publicado en vez del local, con las fuentes
@@ -33,45 +35,22 @@ from playwright.sync_api import sync_playwright
 
 RAIZ = Path(__file__).resolve().parents[1]
 SITIO = RAIZ / "sitio"
-PAGINAS_JS = SITIO / "assets" / "js" / "paginas"
 
-# Las once URLs del spec web de bancos §1.
-PAGINAS = [
-    ("/", "B0"), ("/ciclo/", "B1"), ("/competencia/", "B2"), ("/credito/", "B3"),
-    ("/calidad/", "B4"), ("/fondeo/", "B5"), ("/rentabilidad/", "B6"), ("/capital/", "B7"),
-    ("/ficha/", "B8"), ("/comparador/", "B9"), ("/metodologia/", "B10"),
-    ("/personas/", "B11"), ("/mora/", "B12"),  # 6-nov
-]
 
-# Tarjetas por página del esqueleto (ESQUELETO_BANCOS_v0.1.md; las mismas que contar_tarjetas.mjs).
-# Páginas visibles en el menú: las de config.js sin «oculta: true» (MVP, decisión 77).
-_CFG = (Path(__file__).resolve().parents[1] / "sitio/assets/js/config.js").read_text(encoding="utf-8")
-VISIBLES = sum(1 for l in _CFG.splitlines() if "clave: 'B" in l and "oculta: true" not in l)
+def inventario():
+    r = subprocess.run(["node", str(RAIZ / "herramientas" / "inventario_paginas.mjs")],
+                       capture_output=True, text=True, check=True, encoding="utf-8")
+    return json.loads(r.stdout)
 
-ESPERADO = {"B0": 7, "B1": 11, "B2": 11, "B3": 8, "B4": 5, "B5": 6, "B6": 5, "B7": 6, "B8": 8, "B9": 1, "B10": 0, "B11": 8, "B12": 8}  # v3: B0 y B3 con la estructura del canvas; B8 sin Conducta
 
-# Lee las configs como texto (sin build), igual que contar_tarjetas.mjs, y saca el orden de las tarjetas.
-NODO = r"""
-const fs = require('fs'); const path = require('path');
-const dir = process.argv[1];
-const salida = {};
-for (let i = 0; i <= 12; i++) {
-  const clave = 'B' + i;
-  const src = fs.readFileSync(path.join(dir, 'b' + i + '.js'), 'utf8').replace(/export default/, 'return');
-  const cfg = new Function(src)();
-  const tarjetas = cfg.tarjetas || {};
-  const orden = (cfg.secciones || []).flatMap((s) => (s.filas || []).flat().map((c) => c.clave));
-  salida[clave] = {
-    secciones: (cfg.secciones || []).length,
-    tarjetas: orden.map((k) => ({ clave: k, titulo: (tarjetas[k] || {}).titulo || '', armar: typeof (tarjetas[k] || {}).armar === 'function' })),
-  };
-}
-process.stdout.write(JSON.stringify(salida));
-"""
+INV = inventario()
+PAGINAS = [(f"/{p['ruta']}/" if p["ruta"] else "/", p["clave"]) for p in INV["paginas"]]
+VISIBLES = sum(1 for p in INV["paginas"] if not p.get("oculta"))
+ESPERADO = INV["ESPERADO"]
 
-# Ciclo de vida de una tarjeta (pagina.js, ESTADOS): se lee de data-estado, no del texto visible.
-EN_PREPARACION = {"en-preparacion", "requiere-banco"}
-TRANSITORIOS = {"cargando", "actualizando"}
+# Ciclo de vida de una tarjeta (comun.js, ESTADOS): se lee de data-estado, no del texto visible.
+TRANSITORIOS = set(INV["TRANSITORIOS"])
+EN_PREPARACION = {"en-preparacion", "requiere-banco"} & set(INV["ESTADOS"])
 
 # La página terminó cuando montar() marcó <html data-pagina="lista"> y ningún nodo sigue cargando.
 PAGINA_LISTA = """() => document.documentElement.dataset.pagina === 'lista'
@@ -100,8 +79,23 @@ ESTADO_DOM = """() => {
 
 
 def configs_del_sitio():
-    r = subprocess.run(["node", "-e", NODO, str(PAGINAS_JS)], capture_output=True, text=True, check=True)
-    return json.loads(r.stdout)
+    """Por página: número de secciones y tarjetas en el orden en que se colocan (título y si tiene armar)."""
+    salida = {}
+    for p in INV["paginas"]:
+        t = p.get("tarjetas", {})
+        salida[p["clave"]] = {
+            "secciones": len(p.get("secciones", [])),
+            "tarjetas": [{"clave": k, "titulo": (t.get(k) or {}).get("titulo") or "", "armar": bool((t.get(k) or {}).get("armar"))}
+                         for k in p.get("orden", [])],
+        }
+    return salida
+
+
+# kebab de la clave JS: aceroClaro → --acero-claro, texto2 → --texto-2
+TOKENS = """(colores) => Object.entries(colores).filter(([clave, valor]) => {
+  const token = '--' + clave.replace(/([A-Z0-9])/g, '-$1').toLowerCase();
+  return getComputedStyle(document.documentElement).getPropertyValue(token).trim().toUpperCase() !== valor.toUpperCase();
+}).map(([clave, valor]) => `${clave} ${valor}`)"""
 
 
 def puerto_libre(puerto):
@@ -140,6 +134,8 @@ def revisar(contexto, base, ruta, clave, cfg, banco, captura, fallos, ancho=1920
     pagina.on("pageerror", lambda e: errores.append(f"excepción: {e}"))
     url = base + ruta + (("?banco=itau") if banco else "")
     respuesta = pagina.goto(url, wait_until="networkidle")
+    if ruta == "/" and not banco:
+        fallos.extend(f"color de tokens.js distinto de su token en tokens.css: {c}" for c in pagina.evaluate(TOKENS, INV["COLOR"]))
     pagina.evaluate("() => document.fonts.ready")
     antes = len(fallos)
     try:
@@ -174,7 +170,7 @@ def revisar(contexto, base, ruta, clave, cfg, banco, captura, fallos, ancho=1920
             fallos.append(f"{clave}: «{dom['titulo']}» sin armar() debe estar en preparación")
     if datos["pestanas"] != VISIBLES:
         fallos.append(f"{clave}: {datos['pestanas']} pestañas en la cabecera")
-    if datos["marca"] != "BANCOS BRASIL":
+    if datos["marca"] != INV["MARCA"]:
         fallos.append(f"{clave}: marca «{datos['marca']}»")
     if "[" in datos["texto"]:
         i = datos["texto"].index("[")

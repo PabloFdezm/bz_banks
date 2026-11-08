@@ -2,7 +2,7 @@
 
 POR QUÉ EXISTE
 --------------
-Pablo vio la hoja 8 "Bancos" el 2026-10-13 y pidió otro concepto (``docs/orquestacion/41_diseno_paginas_credito.md``):
+Pablo vio la hoja 8 "Bancos" el 2026-10-13 y pidió otro concepto:
 no comparar bancos, sino ver **de qué está hecho el crédito** del panel según dos cortes que se cruzan:
 
 * **tipo de institución**: segmento S1–S4, propiedad, modelo de negocio, tradicional vs fintech; siempre grupos,
@@ -14,7 +14,7 @@ Un botón decide qué dimensión se apila. El slicer de tipo tiene solo Total, P
 muestra sus modalidades. Del 2026-10-14 al 2026-10-20 "Total" apilaba las 16 modalidades y cada modalidad era un
 nodo del slicer; se sacaron (no se elige un producto suelto). "Panorama" muestra nivel,
 aportes al crecimiento, tabla y momentum;
-"calidad", NPL / NIM / ROE y la tasa de los créditos nuevos contra el CDI. Reemplaza a ``preparar_bancos_pagina_powerbi``.
+"calidad", NPL / NIM / ROE y la tasa de los créditos nuevos contra el CDI.
 
 Por qué los datos son estos y no otros
 --------------------------------------
@@ -61,54 +61,30 @@ Por qué los datos son estos y no otros
 
 Uso::
 
-    python preparar_credito_paginas_powerbi.py               # con el crudo en disco
-    python preparar_credito_paginas_powerbi.py --descargar   # antes baja SGS 20714 y 4389
-    python preparar_credito_paginas_powerbi.py --solo-descargar   # solo eso (runner, paso D7)
+    python -X utf8 pipeline/preparar_credito_paginas_powerbi.py   # SGS ya al día (actualizar.py lo refresca al empezar)
 
-Los informes de IF.data se bajan a mano (``ifdata.py colectar``; ver doc 41 §4). Corre después de
-``preparar_bancos_powerbi.py`` (usa ``datos/gold``).
+La lectura de IF.data (informes 11, 13, 8 y 16) está en ``ifdata_credito.py``; los informes se bajan a mano
+(``ifdata.py colectar``). Corre después de ``preparar_bancos_powerbi.py`` (usa ``datos/gold``).
 """
 from __future__ import annotations
 
 import argparse
-import io
-import json
-import re
 import sys
-from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
 import almacen as A
+import bancos as B
+import ifdata_credito as IC
+import periodos as PER
+import reglas_gold as RG
+import sgs as SG
+from bancos import OPTICAS, PANEL, TODOS
+from ifdata_credito import cruza_frontera, leer_credito, leer_npl_total, \
+    periodos_credito, rupturas_frontera
 
-BASE = Path(__file__).resolve().parents[1]
-PB = BASE / "datos" / "intermedio"
-BANKS = BASE / "datos" / "gold"
-DEF_BANCOS = BASE / "definiciones" / "bcb_ifdata__bancos_balances.json"
-DEF_MODALIDADES = BASE / "definiciones" / "bcb_ifdata__credito_modalidades.json"
-CRUDO_VALORES = A.ruta_cruda("bcb_ifdata", "valores")
-CRUDO_CADASTRO = A.ruta_cruda("bcb_ifdata", "cadastro")
-FUENTE_SGS, DATASET_SGS = "bcb_sgs", "credito_tasas"
-SGS_TASA, SGS_CDI, SGS_DESDE = 20714, 4389, "01/01/2011"
-PRIMER_PRUDENCIAL = "202503"          # desde aquí los informes de crédito vienen en el escopo prudencial
-TOLERANCIA_TOTAL = 0.005              # Σ modalidades contra el total publicado por el BCB
-TOLERANCIA_FRONTERA = 0.10            # salto propio en 2025-T1 menos el del balance, por banco
 
-TODOS = "Todos los grupos"
-OPTICAS = [  # (id, etiqueta, columna de miembros, grupos [(código, etiqueta)])
-    ("panel", "Total panel", None, []),
-    ("segmento", "Segmento regulatorio", "segmento",
-     [("S1", "S1"), ("S2", "S2"), ("S3", "S3"), ("S4", "S4"), ("", "Sin segmento")]),
-    ("propiedad", "Propiedad", "propiedad",
-     [("1", "Público"), ("2", "Privado nacional"), ("3", "Privado extranjero")]),
-    ("modelo", "Modelo de negocio", "modelo",
-     [("Grandes", "Grandes"), ("Medianos y nicho", "Medianos y nicho"), ("Digitales", "Digitales"),
-      ("Pagos", "Pagos"), ("Desarrollo", "Desarrollo")]),
-    ("fintech", "Tradicional vs Fintech", "fintech", [("Tradicional", "Tradicionales"), ("Fintech", "Fintechs")]),
-]
-OPTICA_DEFECTO = "Propiedad"
-PANEL = "Panel"
 COLORES = ["#2A78D6", "#E8A33D", "#1BAF7A", "#9B59B6", "#E34948", "#0E9AA7", "#EB6834", "#7A7F87", "#C9B79C",
            "#B58ADB"]
 COLOR_PANEL = "#1F2328"
@@ -134,142 +110,9 @@ MEDIDAS_PANORAMA = [("Crédito", 1), ("Depósitos", 2)]
 MEDIDAS_CALIDAD = [("NPL", 1), ("NIM", 2), ("ROE", 3)]
 
 
-# --- lectura ---------------------------------------------------------------------------
-
-def _numero(columna: pd.Series) -> pd.Series:
-    """Saldo de IF.data: coma decimal, "null" = sin dato (nunca 0)."""
-    return pd.to_numeric(columna.str.replace(",", ".", regex=False).replace({"null": None, "": None}),
-                         errors="coerce")
-
-
-def _escopo(periodo: str) -> str:
-    return "1" if periodo >= PRIMER_PRUDENCIAL else "2"
-
-
-def periodos_credito() -> list[str]:
-    """Trimestres con los informes 11 y 13 en el escopo que corresponde; falla si hay huecos."""
-    hay = {}
-    for ruta in A.glob_crudo(CRUDO_VALORES, "valores_*_r1[13].csv"):   # CSV o parquet
-        m = re.fullmatch(r"valores_(\d{6})_([12])_r(1[13])\.csv", ruta.name)
-        if m and m.group(2) == _escopo(m.group(1)) and A.crudo_con_datos(ruta, 200):
-            hay.setdefault(m.group(1), set()).add(m.group(3))
-    periodos = sorted(p for p, inf in hay.items() if inf == {"11", "13"})
-    if not periodos:
-        raise FileNotFoundError("No hay informes 11/13 de IF.data: correr ifdata.py colectar (doc 41 §4)")
-    esperado = [f"{p.year}{p.month:02d}" for p in
-                pd.period_range(pd.Period(periodos[0], "M"), pd.Period(periodos[-1], "M"), freq="3M").to_timestamp()]
-    faltan = sorted(set(esperado) - set(periodos))
-    if faltan:
-        raise FileNotFoundError(f"Faltan informes 11/13 de IF.data para {faltan}: ifdata.py colectar (doc 41 §4)")
-    return periodos
-
-
-def bancos() -> pd.DataFrame:
-    """Los bancos del panel con su grupo en cada óptica."""
-    inst = pd.read_parquet(BANKS / "bank_instituciones.parquet")
-    modelo = {b["cod_inst"]: b["modelo_negocio"] for b in json.loads(DEF_BANCOS.read_text(encoding="utf-8"))["bancos"]}
-    inst = inst.assign(propiedad=inst["tc"].astype(str), segmento=inst["sr"].fillna("").astype(str),
-                       modelo=inst["cod_inst"].map(modelo))
-    inst["fintech"] = np.where(inst["modelo"].isin(["Digitales", "Pagos"]), "Fintech", "Tradicional")
-    for _, _, columna, grupos in OPTICAS:
-        if columna and (set(inst[columna]) - {c for c, _ in grupos} or inst[columna].isna().any()):
-            raise ValueError(f"óptica {columna}: hay bancos sin grupo")
-    return inst[["cod_inst", "nombre_corto", "segmento", "propiedad", "modelo", "fintech"]]
-
-
-def unidades(periodo: str, panel: list[str]) -> dict[str, str]:
-    """Unidad que publica IF.data en ese trimestre → banco del panel (prudencial)."""
-    if _escopo(periodo) == "1":
-        return {c: c for c in panel}
-    cad = A.leer_crudo_tabla(CRUDO_CADASTRO / f"cadastro_{periodo}.csv",
-                             ["CodInst", "CodConglomeradoFinanceiro", "CodConglomeradoPrudencial"])
-    cad = cad[cad["CodConglomeradoPrudencial"].isin(panel) & (cad["CodInst"] != cad["CodConglomeradoPrudencial"])]
-    unidad = cad["CodConglomeradoFinanceiro"].where(~cad["CodConglomeradoFinanceiro"].isin(["null", ""]),
-                                                    cad["CodInst"])
-    mapa = dict(zip(unidad, cad["CodConglomeradoPrudencial"]))
-    if len(set(unidad)) != len(mapa) or (pd.Series(list(zip(unidad, cad["CodConglomeradoPrudencial"])))
-                                         .drop_duplicates().map(lambda t: t[0]).duplicated().any()):
-        raise ValueError(f"{periodo}: una unidad financeira cae en dos conglomerados prudenciales")
-    return mapa
-
-
-def leer_informe(periodo: str, informe: int, escopo: str, mapa: dict[str, str]) -> pd.DataFrame:
-    """Filas del informe para las unidades del panel, con el banco prudencial y el saldo numérico."""
-    ruta = CRUDO_VALORES / f"valores_{periodo}_{escopo}_r{informe}.csv"
-    if not A.existe_crudo(ruta):
-        raise FileNotFoundError(f"Falta el crudo {ruta.name}: ifdata.py colectar (doc 41 §4)")
-    df = A.leer_crudo_tabla(ruta, ["CodInst", "AnoMes", "Grupo", "Conta", "NomeColuna", "Saldo"])
-    if len(df) and not (df["AnoMes"] == periodo).all():
-        raise ValueError(f"{ruta.name} trae otro AnoMes")
-    # El BCB sirvió 2025-09 con cada fila tres veces: fuera los duplicados exactos; una clave repetida con
-    # valores distintos en un banco del panel no se resuelve sola.
-    df = df[df["CodInst"].isin(mapa)].drop_duplicates()
-    repetidas = df.duplicated(["CodInst", "Grupo", "Conta", "NomeColuna"], keep=False)
-    if repetidas.any():
-        raise ValueError(f"{ruta.name}: claves repetidas con valores distintos:\n{df[repetidas].head(6)}")
-    df = df.copy()
-    df["cod_inst"] = df["CodInst"].map(mapa)
-    df["valor"] = _numero(df["Saldo"])
-    return df[["cod_inst", "Grupo", "NomeColuna", "valor"]]
-
-
-def leer_credito(periodos: list[str], panel: list[str], defs: dict) -> tuple[pd.DataFrame, pd.DataFrame]:
-    """Saldo y vencido ≥15 días por banco × modalidad × trimestre (R$), y los totales publicados para validar."""
-    filas, totales = [], []
-    for periodo in periodos:
-        mapa, escopo = unidades(periodo, panel), _escopo(periodo)
-        for tipo, d in defs["tipos"].items():
-            df = leer_informe(periodo, d["informe"], escopo, mapa)
-            # Una modalidad puede tener varios nombres en el tiempo (el BCB renombró el rotativo en 2021-12).
-            por_grupo = {g: m["id"] for m in d["modalidades"]
-                         for g in ([m["grupo_bcb"]] if isinstance(m["grupo_bcb"], str) else m["grupo_bcb"])}
-            sobra = set(df["Grupo"]) - set(por_grupo) - {"null", ""}
-            if sobra:
-                raise ValueError(f"{periodo} informe {d['informe']}: modalidades nuevas {sobra}; agregarlas a "
-                                 f"{DEF_MODALIDADES.name}")
-            mod = df[df["Grupo"].isin(por_grupo)]
-            for columna, nombre in ((defs["columna_saldo_modalidad"], "saldo"),
-                                    (defs["columna_vencido_modalidad"], "vencido")):
-                x = mod[mod["NomeColuna"] == columna]
-                x = x.groupby(["cod_inst", "Grupo"], as_index=False)["valor"].sum(min_count=1)
-                filas.append(x.assign(periodo=periodo, tipo=tipo, modalidad=x["Grupo"].map(por_grupo),
-                                      medida=nombre)[["periodo", "cod_inst", "tipo", "modalidad", "medida", "valor"]])
-            sin_grupo = df[df["Grupo"].isin(["null", ""])]
-            tot = pd.DataFrame({
-                "publicado": sin_grupo[sin_grupo["NomeColuna"] == d["total_reportado"]].groupby("cod_inst")["valor"].sum(min_count=1),
-                "exterior": sin_grupo[sin_grupo["NomeColuna"] == d["total_exterior"]].groupby("cod_inst")["valor"].sum(min_count=1),
-            }).reset_index()
-            totales.append(tot.assign(periodo=periodo, tipo=tipo))
-    return pd.concat(filas, ignore_index=True), pd.concat(totales, ignore_index=True)
-
-
-def leer_npl_total(periodos: list[str], panel: list[str], defs: dict) -> pd.DataFrame:
-    """Numerador y denominador del NPL total por banco y trimestre (E–H / AA–H; desde 2025, ativos problemáticos)."""
-    filas = []
-    for periodo in periodos:
-        regla = defs["npl"]["desde_2025" if _escopo(periodo) == "1" else "hasta_2024"]
-        df = leer_informe(periodo, regla["informe"], _escopo(periodo), unidades(periodo, panel))
-        df = df[df["Grupo"].isin(["null", ""])]
-        num = df[df["NomeColuna"].isin(regla["numerador"])].groupby("cod_inst")["valor"].sum(min_count=1)
-        den = df[df["NomeColuna"].isin(regla["denominador"])].groupby("cod_inst")["valor"].sum(min_count=1)
-        resta = df[df["NomeColuna"].isin(regla.get("denominador_resta", []))].groupby("cod_inst")["valor"].sum()
-        den = den.sub(resta.reindex(den.index).fillna(0))
-        filas.append(pd.DataFrame({"num": num, "den": den}).reset_index().assign(periodo=periodo))
-    return pd.concat(filas, ignore_index=True)
-
-
-# --- cálculo ---------------------------------------------------------------------------
-
 def _ancho(largo: pd.DataFrame, periodos: list[str], cols: list[str]) -> pd.DataFrame:
     return largo.pivot_table(index="periodo", columns="cod_inst", values="valor", aggfunc="sum").reindex(
         index=periodos, columns=cols)
-
-
-def cruza_frontera(periodos: list[str], k: int) -> pd.Series:
-    """True en t si t está en la era prudencial y t−k en la financeira."""
-    idx = pd.Index(periodos)
-    previo = pd.Series(periodos).shift(k)
-    return pd.Series((idx >= PRIMER_PRUDENCIAL) & (previo < PRIMER_PRUDENCIAL).to_numpy(), index=periodos)
 
 
 def apilado(hijos: dict[str, pd.DataFrame], k: int, excluir: pd.DataFrame | None = None,
@@ -300,6 +143,7 @@ def apilado(hijos: dict[str, pd.DataFrame], k: int, excluir: pd.DataFrame | None
         return partes.sum(axis=1, min_count=1).where(suficiente)
 
     base = suma(padre, k, pares)
+    base = base.where(base != 0)   # base cero (el nodo no existía en t−k): sin variación ni aporte, nunca infinito
     salida = {"_padre_nivel": padre.sum(axis=1, min_count=1),
               "_padre_var": suma(padre, 0, pares) / base - 1,
               "_padre_n": informa.sum(axis=1)}
@@ -323,25 +167,20 @@ def solo(matriz: pd.DataFrame, cods: list[str]) -> pd.DataFrame:
 
 def _tabla_trimestres(periodos: list[str]) -> pd.DataFrame:
     t = pd.DataFrame({"periodo": periodos})
-    t["trimestre"] = t["periodo"].str[:4] + " T" + (t["periodo"].str[4:].astype(int) // 3).astype(str)
+    t["trimestre"] = PER.etiqueta_anio_trimestre(t["periodo"])
     t["orden_trim"] = t["periodo"].astype("int64")
     t["pos"] = np.arange(len(t) - 1, -1, -1, dtype="int64")
     return t
 
 
-def selecciones(inst: pd.DataFrame) -> list[dict]:
-    """Filas del slicer de institución: por óptica, "Todos los grupos" y cada grupo, con sus bancos."""
-    filas, orden = [], 1
-    for oid, etiqueta, columna, grupos in OPTICAS:
-        miembros = [(TODOS, "todos", inst["cod_inst"].tolist())]
-        miembros += [(g, codigo, inst.loc[inst[columna] == codigo, "cod_inst"].tolist()) for codigo, g in grupos]
-        for i, (grupo, codigo, cods) in enumerate(miembros):
-            filas.append({"inst_key": f"{oid}|{codigo or 'sin'}", "optica_id": oid, "optica": etiqueta,
-                          "grupo": grupo, "orden_grupo": 0 if grupo == TODOS else orden, "bancos": cods,
-                          "hijos": [] if columna is None or grupo != TODOS else
-                          [(g, inst.loc[inst[columna] == c, "cod_inst"].tolist()) for c, g in grupos]})
-            orden += grupo != TODOS
-    return filas
+def selecciones(attrs: pd.DataFrame) -> list[dict]:
+    """Filas del slicer de institución (bancos.membresia), con los grupos hijos de cada «Todos los grupos»."""
+    grupos = B.membresia(attrs).to_dict("records")
+    for g in grupos:
+        g["hijos"] = ([] if g["columna"] is None or g["grupo"] != TODOS else
+                      [(h["grupo"], h["bancos"]) for h in grupos
+                       if h["optica_id"] == g["optica_id"] and h["grupo"] != TODOS])
+    return grupos
 
 
 def nodos_tipo(defs: dict) -> list[dict]:
@@ -353,21 +192,20 @@ def nodos_tipo(defs: dict) -> list[dict]:
     for tipo, d in (("PF", pf), ("PJ", pj)):
         nodos.append({"tipo_key": tipo, "nivel": "Total", "nodo": d["etiqueta"], "hojas": (tipo, None), "sangria": 1,
                       "hijos": [(m["etiqueta"], (tipo, m["id"])) for m in d["modalidades"]]})
-    # Orden del slicer plano: Total, Personas, Empresas.
     for i, n in enumerate(nodos):
         n["orden_nodo"] = i
         n["etiqueta"], n["orden_etiqueta"] = SANGRIA * n["sangria"] + n["nodo"], i
     return nodos
 
 
-def construir(descargar: bool = False) -> dict[str, pd.DataFrame]:
-    defs = json.loads(DEF_MODALIDADES.read_text(encoding="utf-8"))
-    inst = bancos()
+def construir() -> dict[str, pd.DataFrame]:
+    defs = IC.definiciones()
+    inst = B.atributos()
     panel = inst["cod_inst"].tolist()
     periodos = periodos_credito()
     credito, totales = leer_credito(periodos, panel, defs)
     # Trimestres que el BCB sirve con un salto imposible (2024-T4): vacíos, nunca interpolados.
-    anomalos = list(defs.get("trimestres_anomalos", {}))
+    anomalos = list(PER.ANOMALOS)
     credito_todo, credito = credito, credito[~credito["periodo"].isin(anomalos)]
     trim = _tabla_trimestres(periodos)
 
@@ -389,13 +227,12 @@ def construir(descargar: bool = False) -> dict[str, pd.DataFrame]:
     sels, nodos = selecciones(inst), nodos_tipo(defs)
     hojas = {n["hojas"]: matriz_hoja(n["hojas"]) for n in nodos}
     hojas.update({h: matriz_hoja(h) for n in nodos for _, h in n["hijos"]})
-    bal = pd.read_parquet(BANKS / "bank_balances.parquet")
+    bal = pd.read_parquet(A.GOLD / "bank_balances.parquet")
     ruptura = rupturas_frontera(credito, bal, periodos, panel, anomalos)
     excluir = {k: pd.DataFrame(np.outer(cruza_frontera(periodos, k).to_numpy(), np.isin(panel, ruptura)),
                                index=periodos, columns=panel) for k in (1, 4)}
     depositos = bal.pivot(index="periodo", columns="cod_inst", values="depositos").reindex(index=periodos, columns=panel)
 
-    # --- panorama ---
     filas = []
     for sel in sels:
         for nodo in nodos:
@@ -436,19 +273,21 @@ def construir(descargar: bool = False) -> dict[str, pd.DataFrame]:
     clave = ["inst_key", "tipo_key", "apilar", "medida", "serie"]
     previa = pan.groupby(clave)["periodo"].shift(4)
     part4 = pan.groupby(clave)["participacion"].shift(4)
-    pan["d_participacion"] = np.where(previa == pan["periodo"].map(_menos4), pan["participacion"] - part4, np.nan)
+    pan["d_participacion"] = np.where(previa == PER.previo_serie(pan["periodo"], 4), pan["participacion"] - part4, np.nan)
     pan = pan.merge(trim, on="periodo")
 
-    # --- calidad ---
     npl_total = leer_npl_total(periodos, panel, defs)
     npl_total = npl_total[~npl_total["periodo"].isin(
         [p for p, a in defs.get("trimestres_anomalos", {}).items() if 8 in a["informes"] or 16 in a["informes"]])]
-    res = pd.read_parquet(BANKS / "bank_resultados.parquet")
+    res = pd.read_parquet(A.GOLD / "bank_resultados.parquet")
     flujos = {c: res.pivot(index="periodo", columns="cod_inst", values=c).reindex(index=periodos, columns=panel)
               for c in ("resultado_intermediacao_financeira", "provisoes_credito", "lucro_liquido")}
     stock = {c: bal.pivot(index="periodo", columns="cod_inst", values=c).reindex(index=periodos, columns=panel)
              for c in ("ativo_total", "patrimonio_liquido")}
-    margen4 = (flujos["resultado_intermediacao_financeira"] - flujos["provisoes_credito"]).rolling(4, min_periods=4).sum()
+    # NIM de esta página: margen antes de provisiones de 4 trimestres / activo medio (t y t−4). No es
+    # margem_intermediacao_ttm (neto de provisiones, con transacciones de pago) ni el NIM trimestral de bk_sensibilidad.
+    margen_antes_prov_4t = (flujos["resultado_intermediacao_financeira"]
+                            - flujos["provisoes_credito"]).rolling(4, min_periods=4).sum()
     lucro4 = flujos["lucro_liquido"].rolling(4, min_periods=4).sum()
     activo_prom = (stock["ativo_total"] + stock["ativo_total"].shift(4)) / 2
     pl_prom = (stock["patrimonio_liquido"] + stock["patrimonio_liquido"].shift(4)) / 2
@@ -478,7 +317,7 @@ def construir(descargar: bool = False) -> dict[str, pd.DataFrame]:
 
             for nombre, cods in series:
                 fila("Institución", "NPL", nombre, ratio(num_npl, den_npl, cods))
-                fila("Institución", "NIM", nombre, ratio(margen4, activo_prom, cods))
+                fila("Institución", "NIM", nombre, ratio(margen_antes_prov_4t, activo_prom, cods))
                 fila("Institución", "ROE", nombre, ratio(lucro4, pl_prom, cods))
             # Ver por tipo de crédito: solo NPL, siempre atraso ≥15 días (también la referencia del nodo).
             productos = list(nodo["hijos"])
@@ -497,17 +336,18 @@ def construir(descargar: bool = False) -> dict[str, pd.DataFrame]:
     cal["npl_def"] = np.where(cal["medida_cal"] != "NPL", "",
                               np.where((cal["tipo_key"] != "total") | (cal["ver"] != "Institución"),
                                        "Vencido ≥15 días",
-                                       np.where(cal["periodo"] >= PRIMER_PRUDENCIAL, "Ativos problemáticos", "E–H")))
+                                       np.where(cal["periodo"] >= PER.QUIEBRE_2025, "Ativos problemáticos", "E–H")))
 
-    # --- contexto de tasas (abajo a la derecha de la hoja de calidad), trimestral ---
-    mensual = tasas_sgs(descargar)
+    # Contexto de tasas (abajo a la derecha de la hoja de calidad), trimestral.
+    mensual = tasas_sgs()
     fin = pd.PeriodIndex([pd.Period(f"{p[:4]}-{p[4:]}", "M") for p in periodos])
 
     def media_meses(serie: pd.Series, meses: int) -> pd.Series:
         v = serie.rolling(meses, min_periods=meses).mean()
         return pd.Series(v.reindex(fin).to_numpy(), index=periodos)
 
-    cdi4 = media_meses(mensual["CDI"], 12)
+    cdi4 = pd.Series(SG.cdi_12m().reindex(periodos).to_numpy(), index=periodos)
+    cdi_trim = pd.Series(SG.cdi_trimestral().reindex(periodos).to_numpy(), index=periodos)
     filas = []
     for sel in sels:
         series = sel["hijos"] or [(sel["grupo"] if sel["grupo"] != TODOS else PANEL, sel["bancos"])]
@@ -515,26 +355,27 @@ def construir(descargar: bool = False) -> dict[str, pd.DataFrame]:
             series = series + [(PANEL, panel)]
         valores = {}
         for nombre, cods in series:
-            valores[("ROE", nombre)] = ratio(lucro4, pl_prom, cods) - cdi4
-            valores[("NIM", nombre)] = ratio(margen4, activo_prom, cods)
+            valores[("ROE", nombre)] = SG.menos_cdi(ratio(lucro4, pl_prom, cods))
+            valores[("NIM", nombre)] = ratio(margen_antes_prov_4t, activo_prom, cods)
         valores[("NIM", "CDI (media 4T)")] = cdi4
         for nombre in ("Tasa créditos nuevos", "CDI", "Brecha (tasa − CDI)"):
-            valores[("NPL", nombre)] = media_meses(mensual[nombre], 3)
+            valores[("NPL", nombre)] = (cdi_trim if nombre == "CDI" else media_meses(mensual[nombre], 3))
         for (medida, nombre), v in valores.items():
             filas.append(pd.DataFrame({"inst_key": sel["inst_key"], "medida_cal": medida, "periodo": periodos,
                                        "serie": nombre, "valor": v.values}))
     ctx = pd.concat(filas, ignore_index=True).dropna(subset=["valor"]).merge(trim, on="periodo")
 
-    # --- dimensiones ---
-    dim_inst = pd.DataFrame([{k: s[k] for k in ("inst_key", "optica", "grupo", "orden_grupo")} for s in sels])
-    dim_inst["orden_optica"] = dim_inst["optica"].map({o[1]: i for i, o in enumerate(OPTICAS, 1)}).astype("int64")
+    # Dimensiones del PBIP.
+    dim_inst = pd.DataFrame([{k: s[k] for k in ("inst_key", "optica", "grupo", "orden_grupo", "orden_optica")}
+                             for s in sels])
+    dim_inst["orden_optica"] = dim_inst["orden_optica"].astype("int64")
     dim_inst["orden_grupo"] = dim_inst["orden_grupo"].astype("int64")
     # Slicer plano: la óptica ("Propiedad") es la fila "todos los grupos"; sus grupos van sangrados debajo.
     dim_inst["etiqueta"] = np.where(dim_inst["grupo"] == TODOS, dim_inst["optica"], SANGRIA + dim_inst["grupo"])
     dim_inst["orden_etiqueta"] = np.arange(len(dim_inst), dtype="int64")   # sels ya viene en orden de árbol
     dim_tipo = pd.DataFrame([{k: n[k] for k in ("tipo_key", "nivel", "nodo", "orden_nodo", "etiqueta",
                                                 "orden_etiqueta")} for n in nodos])
-    dim_tipo["orden_nivel"] = dim_tipo["nivel"].map({"Total": 1, "Personas": 2, "Empresas": 3}).astype("int64")
+    dim_tipo["orden_nivel"] = dim_tipo["nivel"].map({"Total": 1}).astype("int64")
     dim_tipo["orden_nodo"] = dim_tipo["orden_nodo"].astype("int64")
     nombres = list(dict.fromkeys([PANEL] + [g for _, _, _, gs in OPTICAS for _, g in gs]
                                  + [h for n in nodos for h, _ in n["hijos"]] + ["Depósitos", REFERENCIA_TIPO]
@@ -585,61 +426,14 @@ def construir(descargar: bool = False) -> dict[str, pd.DataFrame]:
     return tablas
 
 
-def rupturas_frontera(credito: pd.DataFrame, bal: pd.DataFrame, periodos: list[str], panel: list[str],
-                      anomalos: list[str]) -> list[str]:
-    """Bancos cuya cartera cambia en la frontera 2025 más de lo que explica su balance (cambio de cobertura del BCB).
-
-    Se compara el último trimestre financeiro válido con el primero prudencial. Un banco grande (más de 10 % del
-    panel) que no cuadra no es un cambio de cobertura sino un error del cruce de conglomerados: falla.
-    """
-    validos = [p for p in periodos if p < PRIMER_PRUDENCIAL and p not in anomalos]
-    if not validos or PRIMER_PRUDENCIAL not in periodos:
-        return []
-    previo = validos[-1]
-    cart = credito[credito["medida"] == "saldo"].groupby(["periodo", "cod_inst"])["valor"].sum(min_count=1).unstack()
-    bal_c = bal.pivot(index="periodo", columns="cod_inst", values="operacoes_credito")
-    salto = cart.loc[PRIMER_PRUDENCIAL] / cart.loc[previo] - 1
-    salto_bal = bal_c.loc[PRIMER_PRUDENCIAL] / bal_c.loc[previo] - 1
-    exceso = (salto - salto_bal.reindex(salto.index)).abs()
-    malos = exceso[exceso > TOLERANCIA_FRONTERA].index.tolist()
-    peso = cart.loc[PRIMER_PRUDENCIAL] / cart.loc[PRIMER_PRUDENCIAL].sum()
-    grandes = [b for b in malos if peso.get(b, 0) > 0.10]
-    if grandes:
-        raise ValueError(f"Bancos grandes que no cuadran con su balance en la frontera 2025 (¿cruce de conglomerados?): "
-                         f"{pd.DataFrame({'cartera': salto, 'balance': salto_bal}).loc[grandes]}")
-    return sorted(b for b in malos if b in panel)
-
-
-def _menos4(periodo: str) -> str:
-    return str(int(periodo[:4]) - 1) + periodo[4:]
-
-
-# --- SGS -------------------------------------------------------------------------------
-
-def tasas_sgs(descargar: bool) -> pd.DataFrame:
-    """Tasa promedio de los créditos nuevos (20714, mensual) y CDI (4389, diario → promedio del mes), en unidad."""
-    series = {}
-    for codigo in (SGS_TASA, SGS_CDI):
-        ruta = A.ruta_cruda(FUENTE_SGS, DATASET_SGS) / f"serie_{codigo}.json"
-        if descargar or not ruta.exists():
-            import certificados  # noqa: F401  CA corporativa; antes de requests
-
-            import bcb_api
-
-            # Siempre con dataInicial: sin fechas el SGS llegó a servir series atrasadas (doc 39).
-            filas = [{"data": f["fecha"], "valor": f["valor"]} for f in bcb_api.descargar_serie(codigo, desde=SGS_DESDE)]
-            url = f"https://api.bcb.gov.br/dados/serie/bcdata.sgs.{codigo}/dados?formato=json&dataInicial={SGS_DESDE}"
-            A.guardar_crudo(FUENTE_SGS, DATASET_SGS, ruta.name, json.dumps(filas, ensure_ascii=False).encode("utf-8"), url)
-        d = pd.DataFrame(json.loads(ruta.read_text(encoding="utf-8")))
-        mes = pd.to_datetime(d["data"], format="%d/%m/%Y").dt.to_period("M")
-        series[codigo] = pd.Series(d["valor"].astype(float).to_numpy() / 100, index=mes).groupby(level=0).mean()
-    t = pd.DataFrame({"Tasa promedio de los créditos nuevos": series[SGS_TASA], "CDI": series[SGS_CDI]}).dropna()
-    t = t.rename(columns={"Tasa promedio de los créditos nuevos": "Tasa créditos nuevos"})
+def tasas_sgs() -> pd.DataFrame:
+    """Tasa promedio de los créditos nuevos (SGS 20714, mensual) contra el CDI del mes (sgs.cdi_mensual), en unidad."""
+    s = SG.serie(SG.CODIGOS["tasa_creditos_nuevos"])
+    tasa = pd.Series(s.to_numpy() / 100, index=s.index.to_period("M")).groupby(level=0).mean()
+    t = pd.DataFrame({"Tasa créditos nuevos": tasa, "CDI": SG.cdi_mensual()}).dropna()
     t["Brecha (tasa − CDI)"] = t["Tasa créditos nuevos"] - t["CDI"]
     return t.asfreq("M")       # meses × series; un mes faltante queda NaN y vacía la media que lo usa
 
-
-# --- verificación ----------------------------------------------------------------------
 
 def verificar(t: dict[str, pd.DataFrame]) -> list[str]:
     """Lanza ValueError si algo no cuadra; devuelve avisos (no bloqueantes) para imprimir."""
@@ -651,8 +445,8 @@ def verificar(t: dict[str, pd.DataFrame]) -> list[str]:
     comp["suma"] = comp["suma"] + comp["exterior"].fillna(0)
     comp = comp[comp["publicado"].abs() > 1e6]
     desvio = (comp["suma"] / comp["publicado"] - 1).abs()
-    if (desvio > TOLERANCIA_TOTAL).any():
-        raise ValueError(f"Σ modalidades no cuadra con el total del BCB:\n{comp[desvio > TOLERANCIA_TOTAL].head(10)}")
+    if (desvio > RG.TOLERANCIA_TOTAL).any():
+        raise ValueError(f"Σ modalidades no cuadra con el total del BCB:\n{comp[desvio > RG.TOLERANCIA_TOTAL].head(10)}")
     # 2. Frontera financeiro → prudencial: los bancos con cambio de cobertura (la falla dura está en
     # rupturas_frontera, al construir) se informan; quedan fuera de las variaciones que cruzan 2025-T1.
     if t["_ruptura"]:
@@ -661,7 +455,7 @@ def verificar(t: dict[str, pd.DataFrame]) -> list[str]:
     total_banco = t["_credito_limpio"][t["_credito_limpio"]["medida"] == "saldo"].groupby(
         ["periodo", "cod_inst"])["valor"].sum(min_count=1).unstack()
     bal = t["_balance_credito"]
-    previo = max(p for p in total_banco.index if p < PRIMER_PRUDENCIAL)
+    previo = max(p for p in total_banco.index if p < PER.QUIEBRE_2025)
     # 2b. Renombre del rotativo de empresas (2021-09 → 2021-12): sin salto propio fuera de lo normal.
     rot = credito[(credito["medida"] == "saldo") & (credito["modalidad"] == "pj_giro_rotativo")]
     rot = rot.groupby("periodo")["valor"].sum()
@@ -670,14 +464,14 @@ def verificar(t: dict[str, pd.DataFrame]) -> list[str]:
         if abs(salto_rot) > 0.25:
             raise ValueError(f"el rotativo de empresas salta {salto_rot:+.1%} en el renombre de 2021-12")
         avisos.append(f"rotativo de empresas en el renombre de 2021-12: {salto_rot:+.1%} t/t")
-    # 3. Cartera activa contra el balance (informativo: la cartera incluye tarjetas y leasing).
     # 2c. El trimestre anómalo sigue siéndolo (si el BCB lo corrige, quitarlo de la definición).
     for p in t["_anomalos"]:
         sucio = credito[(credito["medida"] == "saldo") & (credito["periodo"].isin([p, previo]))]
         par = sucio.groupby("periodo")["valor"].sum()
         if p in par and previo in par and abs(par[p] / par[previo] - 1) < 0.10:
             avisos.append(f"{p} ya no parece anómalo ({par[p] / par[previo] - 1:+.1%} contra {previo}): revisar "
-                          f"trimestres_anomalos en {DEF_MODALIDADES.name}")
+                          f"trimestres_anomalos en {IC.DEF_MODALIDADES}.json")
+    # 3. Cartera activa contra el balance (informativo: la cartera incluye tarjetas y leasing).
     ult = total_banco.index.max()
     r = (total_banco.loc[ult] / bal.loc[ult]).dropna()
     fuera = r[(r < 0.9) | (r > 1.5)]
@@ -695,7 +489,7 @@ def verificar(t: dict[str, pd.DataFrame]) -> list[str]:
         if not np.allclose(g.loc[ok, "aporte"], g.loc[ok, "total"], atol=1e-9):
             malos = g[ok & ~np.isclose(g["aporte"], g["total"], atol=1e-9)]
             raise ValueError(f"los aportes {sufijo} no suman la variación del total:\n{malos.head(8)}")
-    u4 = pan[(pan["pos"] == 0) & (pan["inst_key"] == "panel|todos") & (pan["tipo_key"] == "total")
+    u4 = pan[(pan["pos"] == 0) & (pan["inst_key"] == B.CLAVE_PANEL) & (pan["tipo_key"] == "total")
              & (pan["medida"] == "Crédito")]
     if u4["total_aa4"].isna().any():
         raise ValueError("sin media 4T a/a en el último trimestre del panel")
@@ -706,11 +500,11 @@ def verificar(t: dict[str, pd.DataFrame]) -> list[str]:
         raise ValueError("el total del panel difiere según la dimensión apilada")
     # 6. Ratios dentro de rangos razonables (último trimestre, panel).
     u = cal[(cal["pos"] == 0) & (cal["serie"] == PANEL) & (cal["tipo_key"] == "total")
-            & (cal["inst_key"] == "panel|todos")].set_index("medida_cal")["valor"]
+            & (cal["inst_key"] == B.CLAVE_PANEL)].set_index("medida_cal")["valor"]
     for medida, (lo, hi) in {"NPL": (0.005, 0.15), "NIM": (0.01, 0.10), "ROE": (0.03, 0.35)}.items():
         if not lo <= u.get(medida, np.nan) <= hi:
             raise ValueError(f"{medida} del panel fuera de [{lo}, {hi}]: {u.get(medida)}")
-    # 7. sortBy 1:1.
+    # 7. sortBy del PBIP: cada etiqueta con un solo orden y viceversa.
     for nombre, pares in (("cre_institucion", [("optica", "orden_optica"), ("grupo", "orden_grupo"),
                                                ("etiqueta", "orden_etiqueta")]),
                           ("cre_tipo", [("nivel", "orden_nivel"), ("nodo", "orden_nodo"), ("etiqueta", "orden_etiqueta")]),
@@ -732,24 +526,18 @@ def verificar(t: dict[str, pd.DataFrame]) -> list[str]:
     return avisos
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("--descargar", action="store_true", help="baja antes las series SGS 20714 y 4389")
-    parser.add_argument("--solo-descargar", action="store_true", help="solo baja las series SGS (runner, paso D7)")
-    args = parser.parse_args()
-    if args.solo_descargar:
-        tasas_sgs(True)
-        print("SGS 20714 y 4389 descargadas.")
-        return
-    t = construir(args.descargar)
+def main(argv: list[str] | None = None) -> int:
+    argparse.ArgumentParser(description=__doc__.splitlines()[0]).parse_args(argv)
+    t = construir()
     avisos = verificar(t)
     for nombre, tabla in t.items():
         if nombre.startswith("_"):
             continue
-        buffer = io.BytesIO()
-        tabla.to_parquet(buffer, index=False)
-        A.escribir_atomico(PB / f"{nombre}.parquet", buffer.getvalue())   # pb/ vive en OneDrive
+        A.escribir_parquet(tabla, A.INTERMEDIO / f"{nombre}.parquet")
         print(f"{nombre}: {len(tabla):,} filas")
+    # El sitio lee panorama, calidad y contexto tal cual, como bk_cre_*.
+    for nombre in ("cre_panorama", "cre_calidad", "cre_contexto"):
+        A.publicar_gold(f"bk_{nombre}", t[nombre], dataset="bancos_gold_credito", desde=[f"intermedio/{nombre}.parquet"])
     for aviso in avisos:
         print(f"  [aviso] {aviso}")
     pan = t["cre_panorama"]
@@ -757,6 +545,7 @@ def main() -> None:
             & (pan["apilar"] == "Institución") & (pan["medida"] == "Crédito")]
     print(f"Último trimestre: {u['trimestre'].iloc[0]}")
     print(u[["serie", "nivel", "participacion", "aa", "aporte_aa"]].round(3).to_string(index=False))
+    return 0
 
 
 if __name__ == "__main__":

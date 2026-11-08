@@ -1,7 +1,7 @@
 /* B2 · Estructura y competencia. Config de la página (SPEC_WEB_BANCOS_00_GENERAL.md §2 y §3 del
    spec macro). Transcrito de ESQUELETO_BANCOS_v0.1.md §B2: títulos, preguntas, anchos, altos,
-   marcas [banco] y estados son los del esqueleto. En la F0 ninguna tarjeta tiene `armar`.
-   Tablas que pide el esqueleto para cada tarjeta (las necesita la ola 2):
+   marcas [banco] y estados son los del esqueleto. Ninguna tarjeta tiene `armar` todavía.
+   Tablas que pide el esqueleto para cada tarjeta:
      B2-01-0  bk_grupo (hhi_*, top5_*)                B2-03-0  bk_cartera (banco × modalidad)
      B2-01-1  bk_panel: share_credito                 B2-03-1  bk_cartera
      B2-02-0  cre_panorama (apilar = Institución, participacion)
@@ -14,28 +14,20 @@
    02 selectores de óptica y de medida (Crédito / Depósitos) · 03 selector Personas / Empresas ·
    04 «Dato de la sección»: inadimplencia de fintechs menos la de bancos (pp, SCR) · 05 sin riel.
    Reclamos y tarifas (B2-05-0 y B2-05-1) llevan prefijo «BCB ·»: no son un universo nuevo, es la
-   decisión del arquitecto del 2026-11-02 (revisión del encargo 62). Pix sigue «Sistema BCB ·». */
-const IFDATA = 'BCB, IF.Data (conglomerado prudencial)';
-const SGS = 'BCB, SGS';
-const SCRDATA = 'BCB, SCR.data';
-const OLINDA = 'BCB, Olinda';
-const CALC = 'cálculo propio';
+   decisión del 2026-11-02. Pix sigue «Sistema BCB ·». */
+import { FUENTE } from '../comun.js';
+
+const { IFDATA, SGS, SCR: SCRDATA, OLINDA, CALC } = FUENTE;
 
 export default {
-  clave: 'B2',
-  ruta: 'competencia',
-  nombre: 'Estructura y competencia',
   rotulo: '2 · ESTRUCTURA Y COMPETENCIA',
-  signo: 'bancos',
   usaBanco: true,
-  optica: 'Modelo de negocio',
 
   secciones: [
     {
       numero: '01',
       nombre: 'Concentración',
       frecuencia: 'Trimestral · Panel IF.Data',
-      preguntaClave: 'B2.01',
       pregunta: '¿el sistema se concentra o se abre?',
       filas: [
         [{ clave: 'B2-01-0', ancho: 5, alto: 372 }, { clave: 'B2-01-1', ancho: 4, alto: 372 }],
@@ -45,7 +37,6 @@ export default {
       numero: '02',
       nombre: 'Cuota por grupo',
       frecuencia: 'Trimestral · Panel IF.Data',
-      preguntaClave: 'B2.02',
       pregunta: '¿qué tipo de banco gana cuota?',
       filas: [
         [{ clave: 'B2-02-0', ancho: 5, alto: 372 }, { clave: 'B2-02-1', ancho: 4, alto: 372 }],
@@ -55,7 +46,6 @@ export default {
       numero: '03',
       nombre: 'Dónde compiten',
       frecuencia: 'Trimestral · Panel IF.Data',
-      preguntaClave: 'B2.03',
       pregunta: '¿en qué carteras están ganando los digitales?',
       filas: [
         [{ clave: 'B2-03-0', ancho: 9, alto: 520 }],
@@ -66,7 +56,6 @@ export default {
       numero: '04',
       nombre: 'Riesgo según el tipo de institución',
       frecuencia: 'Mensual · SCR',
-      preguntaClave: 'B2.04',
       pregunta: '¿crecer cuota les está costando mora?',
       filas: [
         [{ clave: 'B2-04-0', ancho: 5, alto: 372 }, { clave: 'B2-04-1', ancho: 4, alto: 372 }],
@@ -76,7 +65,6 @@ export default {
       numero: '05',
       nombre: 'Precio y servicio',
       frecuencia: 'Trimestral · Olinda y Sistema BCB',
-      preguntaClave: 'B2.05',
       pregunta: '¿compiten en precio o en servicio?',
       filas: [
         [{ clave: 'B2-05-0', ancho: 4, alto: 372 }, { clave: 'B2-05-1', ancho: 5, alto: 372 }],

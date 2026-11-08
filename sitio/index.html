@@ -5,19 +5,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="icon" href="data:,">
 <meta name="robots" content="noindex, nofollow">
-<title>Portada · Bancos Brasil</title>
-<link rel="stylesheet" href="./assets/css/tokens.css">
-<link rel="stylesheet" href="./assets/css/monitor.css">
-<link rel="stylesheet" href="./assets/css/bancos.css">
-<script src="./assets/vendor/echarts.min.js"></script>
+<title>Bancos Brasil</title>
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="/assets/css/monitor.css">
+<link rel="stylesheet" href="/assets/css/bancos.css">
+<script src="/assets/vendor/echarts.min.js"></script>
 </head>
 <body>
 <a class="saltar-contenido" href="#contenido-principal">Saltar al contenido</a>
 <div id="app"><p class="carga-inicial" role="status">Cargando Bancos Brasil…</p></div>
-<script type="module">
-import {montar} from './assets/js/pagina.js';
-import cfg from './assets/js/paginas/b0.js';
-montar(cfg);
-</script>
+<!-- Igual en todas las carpetas: pagina.js elige la config por la ruta (config.js, PAGINAS). -->
+<script type="module" src="/assets/js/pagina.js"></script>
 </body>
 </html>

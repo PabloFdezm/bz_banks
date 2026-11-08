@@ -1,0 +1,1265 @@
+{
+ "descripcion": "Registro único de las métricas del panel de bancos: nombre, familia, unidad, formato, signo, definición y, en las razones, numerador y denominador. Lo leen preparar_metricas_bancos.py (valores por banco), preparar_gold_bancos.py (valores por grupo y bk_metrica) y el verificador.",
+ "convenciones": {
+  "razon": "valor = signo_num × Σ num / Σ den. Σ con al menos un término con dato. den_positivo (por defecto true): vacío si Σ den ≤ 0. num_nulo_es_cero: el numerador sin dato cuenta como 0. Por grupo: Σ num / Σ den sobre los bancos con numerador y denominador (> 0) en el trimestre.",
+  "unidad": "ratio: variación en pp; brl: variación en fracción; indice: diferencia absoluta.",
+  "crecimiento_de": "Crecimiento a/a de esa métrica; por grupo, Σ t / Σ t−4 − 1 con los mismos bancos.",
+  "ranking": "Se publica el puesto del banco en el panel (rank_panel).",
+  "solo_grupo": "Solo existe para el panel completo (bk_grupo, óptica Total panel)."
+ },
+ "orden_familias": [
+  "tamaño",
+  "crédito",
+  "calidad",
+  "fondeo",
+  "rentabilidad",
+  "capital",
+  "conducta"
+ ],
+ "fondeo": [
+  "depositos",
+  "depositos_interfinanceiros",
+  "oblig_compromissadas",
+  "outros_instrumentos_divida",
+  "emprestimos_repasses",
+  "outras_obrigacoes",
+  "patrimonio_liquido"
+ ],
+ "cosif_2025": {
+  "disponibilidades": "140198",
+  "aplic_interfinanceiras": "140199",
+  "tvm": "140200",
+  "derivativos_ativo": "141612",
+  "credito_bruto": "140201",
+  "ecl_saldo": "140202",
+  "credito_liquido": "140205",
+  "arrendamento": "140210",
+  "outras_concessao": "140216",
+  "pagos_receber": "145833",
+  "outros_ativos": "140218",
+  "ativo_permanente": "140219",
+  "ativo_total": "140220",
+  "depositos": "140228",
+  "depositos_interfinanceiros": "140224",
+  "oblig_compromissadas": "140230",
+  "outros_instrumentos_divida": "140236",
+  "emprestimos_repasses": "140238",
+  "derivativos_passivo": "140241",
+  "outras_obrigacoes": "140242",
+  "instrumentos_elegiveis": "140243",
+  "passivo_exigivel": "140244",
+  "patrimonio_liquido": "140246"
+ },
+ "cosif_pre2025": {
+  "disponibilidades": "78188",
+  "aplic_interfinanceiras": "78189",
+  "tvm_mas_derivativos": "78190",
+  "credito_bruto": "78191",
+  "ecl_saldo": "78192",
+  "credito_liquido": "78193",
+  "arrendamento": "78198",
+  "outras_concessao": "78199",
+  "outros_ativos": "78200",
+  "ativo_permanente": "78201",
+  "ativo_total": "78202",
+  "depositos": "78287",
+  "depositos_interfinanceiros": "78284",
+  "oblig_compromissadas": "78288",
+  "outros_instrumentos_divida": "78294",
+  "emprestimos_repasses": "78295",
+  "derivativos_passivo": "78296",
+  "outras_obrigacoes": "78297",
+  "passivo_exigivel": "78298",
+  "patrimonio_liquido": "78186"
+ },
+ "flujos": {
+  "lucro_liquido_q": "lucro_liquido",
+  "resultado_intermediacao_financeira_q": "resultado_intermediacao_financeira",
+  "resultado_transacoes_pagamento_q": "resultado_transacoes_pagamento",
+  "provisoes_credito_q": "provisoes_credito",
+  "rendas_tarifas_q": "rendas_tarifas_bancarias",
+  "rendas_servicos_q": "rendas_prestacao_servicos",
+  "despesas_pessoal_q": "despesas_pessoal",
+  "despesas_administrativas_q": "despesas_administrativas",
+  "despesas_tributarias_q": "despesas_tributarias",
+  "antes_tributacao_q": "resultado_antes_tributacao_participacoes",
+  "outras_receitas_despesas_q": "outras_receitas_despesas",
+  "resultado_nao_operacional_q": "resultado_nao_operacional"
+ },
+ "ttm": [
+  "lucro_liquido_q",
+  "resultado_intermediacao_financeira_q",
+  "resultado_transacoes_pagamento_q",
+  "provisoes_credito_q",
+  "rendas_tarifas_q",
+  "rendas_servicos_q",
+  "despesas_pessoal_q",
+  "despesas_administrativas_q",
+  "antes_tributacao_q",
+  "despesas_tributarias_q",
+  "resultado_nao_operacional_q"
+ ],
+ "metricas": {
+  "aplic_interfinanceiras": {
+   "nombre": "Aplicaciones interfinancieras",
+   "familia": "tamaño",
+   "unidad": "brl",
+   "formato": "brl_mm",
+   "signo": "neutro",
+   "signo_fuente": "neutro_por_defecto",
+   "fuente": "BCB IF.Data (prudencial)",
+   "definicion": "Saldo al cierre, conglomerado prudencial: COSIF 140199 (desde 2025); COSIF 78189 (hasta 2024).",
+   "en_ficha": false
+  },
+  "ativo_aa": {
+   "nombre": "Crecimiento a/a del activo",
+   "familia": "tamaño",
+   "unidad": "ratio",
+   "formato": "pct1",
+   "signo": "neutro",
+   "signo_fuente": "neutro_por_defecto",
+   "fuente": "Derivado de BCB IF.Data (prudencial), preparar_metricas_bancos.py",
+   "definicion": "ativo_total de t / ativo_total de t−4 − 1.",
+   "en_ficha": false,
+   "crecimiento_de": "ativo_total"
+  },
+  "ativo_medio_ttm": {
+   "nombre": "Activo medio (12 meses)",
+   "familia": "tamaño",
+   "unidad": "brl",
+   "formato": "brl_mm",
+   "signo": "neutro",
+   "signo_fuente": "neutro_por_defecto",
+   "fuente": "Derivado de BCB IF.Data (prudencial), preparar_metricas_bancos.py",
+   "definicion": "(ativo_total de t + ativo_total de t−4) / 2; vacío si falta t−4.",
+   "en_ficha": false
+  },
+  "ativo_permanente": {
+   "nombre": "Activo permanente",
+   "familia": "tamaño",
+   "unidad": "brl",
+   "formato": "brl_mm",
+   "signo": "neutro",
+   "signo_fuente": "neutro_por_defecto",
+   "fuente": "BCB IF.Data (prudencial)",
+   "definicion": "Saldo al cierre, conglomerado prudencial: COSIF 140219 (desde 2025); COSIF 78201 (hasta 2024).",
+   "en_ficha": false
+  },
+  "ativo_total": {
+   "nombre": "Activo total",
+   "familia": "tamaño",
+   "unidad": "brl",
+   "formato": "brl_mm",
+   "signo": "neutro",
+   "signo_fuente": "neutro_por_defecto",
+   "fuente": "BCB IF.Data (prudencial)",
+   "definicion": "Saldo al cierre, conglomerado prudencial: COSIF 140220 (desde 2025); COSIF 78202 (hasta 2024).",
+   "en_ficha": false,
+   "ranking": true
+  },
+  "derivativos_ativo": {
+   "nombre": "Derivativos (activo)",
+   "familia": "tamaño",
+   "unidad": "brl",
+   "formato": "brl_mm",
+   "signo": "neutro",
+   "signo_fuente": "neutro_por_defecto",
+   "fuente": "BCB IF.Data (prudencial)",
+   "definicion": "Saldo al cierre, conglomerado prudencial: COSIF 141612 (desde 2025); sin código COSIF hasta 2024.",
+   "en_ficha": false
+  },
+  "disponibilidades": {
+   "nombre": "Disponibilidades",
+   "familia": "tamaño",
+   "unidad": "brl",
+   "formato": "brl_mm",
+   "signo": "neutro",
+   "signo_fuente": "neutro_por_defecto",
+   "fuente": "BCB IF.Data (prudencial)",
+   "definicion": "Saldo al cierre, conglomerado prudencial: COSIF 140198 (desde 2025); COSIF 78188 (hasta 2024).",
+   "en_ficha": false
+  },
+  "hhi_ativo": {
+   "nombre": "Concentración HHI del activo",
+   "familia": "tamaño",
+   "unidad": "indice",
+   "formato": NaN,
+   "signo": "neutro",
+   "signo_fuente": "neutro_por_defecto",
+   "fuente": "Derivado de BCB IF.Data (prudencial), preparar_metricas_bancos.py",
+   "definicion": "Σ (share_ativo × 100)² sobre los bancos del panel con dato en el trimestre.",
+   "en_ficha": false,
+   "solo_grupo": true
+  },
+  "hhi_credito": {
+   "nombre": "Concentración HHI del crédito",
+   "familia": "tamaño",
+   "unidad": "indice",
+   "formato": NaN,
+   "signo": "neutro",
+   "signo_fuente": "neutro_por_defecto",
+   "fuente": "Derivado de BCB IF.Data (prudencial), preparar_metricas_bancos.py",
+   "definicion": "Σ (share_credito × 100)² sobre los bancos del panel con dato en el trimestre.",
+   "en_ficha": false,
+   "solo_grupo": true
+  },
+  "hhi_depositos": {
+   "nombre": "Concentración HHI de depósitos",
+   "familia": "tamaño",
+   "unidad": "indice",
+   "formato": NaN,
+   "signo": "neutro",
+   "signo_fuente": "neutro_por_defecto",
+   "fuente": "Derivado de BCB IF.Data (prudencial), preparar_metricas_bancos.py",
+   "definicion": "Σ (share_depositos × 100)² sobre los bancos del panel con dato en el trimestre.",
+   "en_ficha": false,
+   "solo_grupo": true
+  },
+  "outros_ativos": {
+   "nombre": "Otros activos",
+   "familia": "tamaño",
+   "unidad": "brl",
+   "formato": "brl_mm",
+   "signo": "neutro",
+   "signo_fuente": "neutro_por_defecto",
+   "fuente": "BCB IF.Data (prudencial)",
+   "definicion": "Saldo al cierre, conglomerado prudencial: COSIF 140218 (desde 2025); COSIF 78200 (hasta 2024).",
+   "en_ficha": false
+  },
+  "share_ativo": {
+   "nombre": "Cuota de activo",
+   "familia": "tamaño",
+   "unidad": "ratio",
+   "formato": "pct1",
+   "signo": "mejora_sube",
+   "signo_fuente": "esqueleto_0.8",
+   "fuente": "Derivado de BCB IF.Data (prudencial), preparar_metricas_bancos.py",
+   "definicion": "ativo_total del banco / suma de ativo_total del panel con dato en el trimestre (solo valores > 0).",
+   "en_ficha": false,
+   "ranking": true
+  },
+  "share_credito": {
+   "nombre": "Cuota de crédito",
+   "familia": "tamaño",
+   "unidad": "ratio",
+   "formato": "pct1",
+   "signo": "mejora_sube",
+   "signo_fuente": "esqueleto_0.8",
+   "fuente": "Derivado de BCB IF.Data (prudencial), preparar_metricas_bancos.py",
+   "definicion": "credito_total del banco / suma de credito_total del panel con dato en el trimestre (solo valores > 0).",
+   "en_ficha": false,
+   "ranking": true
+  },
+  "share_depositos": {
+   "nombre": "Cuota de depósitos",
+   "familia": "tamaño",
+   "unidad": "ratio",
+   "formato": "pct1",
+   "signo": "mejora_sube",
+   "signo_fuente": "esqueleto_0.8",
+   "fuente": "Derivado de BCB IF.Data (prudencial), preparar_metricas_bancos.py",
+   "definicion": "depositos del banco / suma de depositos del panel con dato en el trimestre (solo valores > 0).",
+   "en_ficha": false,
+   "ranking": true
+  },
+  "tarifas_ativo_ttm": {
+   "nombre": "Tarifas y servicios / activo medio (12 meses)",
+   "familia": "tamaño",
+   "unidad": "ratio",
+   "formato": "pct1",
+   "signo": "neutro",
+   "signo_fuente": "neutro_por_defecto",
+   "fuente": "Derivado de BCB IF.Data (prudencial), preparar_metricas_bancos.py",
+   "definicion": "(rendas_tarifas_ttm + rendas_servicos_ttm) / ativo_medio_ttm.",
+   "en_ficha": true,
+   "razon": {
+    "num": [
+     "rendas_tarifas_ttm",
+     "rendas_servicos_ttm"
+    ],
+    "den": [
+     "ativo_medio_ttm"
+    ]
+   }
+  },
+  "top5_credito": {
+   "nombre": "Cuota de las 5 mayores (crédito)",
+   "familia": "tamaño",
+   "unidad": "ratio",
+   "formato": "pct1",
+   "signo": "neutro",
+   "signo_fuente": "neutro_por_defecto",
+   "fuente": "Derivado de BCB IF.Data (prudencial), preparar_metricas_bancos.py",
+   "definicion": "Suma de las 5 mayores share_credito del panel en el trimestre.",
+   "en_ficha": false,
+   "solo_grupo": true
+  },
+  "top5_depositos": {
+   "nombre": "Cuota de las 5 mayores (depósitos)",
+   "familia": "tamaño",
+   "unidad": "ratio",
+   "formato": "pct1",
+   "signo": "neutro",
+   "signo_fuente": "neutro_por_defecto",
+   "fuente": "Derivado de BCB IF.Data (prudencial), preparar_metricas_bancos.py",
+   "definicion": "Suma de las 5 mayores share_depositos del panel en el trimestre.",
+   "en_ficha": false,
+   "solo_grupo": true
+  },
+  "tvm": {
+   "nombre": "Títulos y valores mobiliarios",
+   "familia": "tamaño",
+   "unidad": "brl",
+   "formato": "brl_mm",
+   "signo": "neutro",
+   "signo_fuente": "neutro_por_defecto",
+   "fuente": "BCB IF.Data (prudencial)",
+   "definicion": "Saldo al cierre, conglomerado prudencial: COSIF 140200 (desde 2025); sin código COSIF hasta 2024.",
+   "en_ficha": false
+  },
+  "tvm_mas_derivativos": {
+   "nombre": "Títulos y valores mobiliarios más derivativos",
+   "familia": "tamaño",
+   "unidad": "brl",
+   "formato": "brl_mm",
+   "signo": "neutro",
+   "signo_fuente": "neutro_por_defecto",
+   "fuente": "BCB IF.Data (prudencial)",
+   "definicion": "Saldo al cierre, conglomerado prudencial: sin código COSIF desde 2025; COSIF 78190 (hasta 2024).",
+   "en_ficha": false
+  },
+  "arrendamento": {
+   "nombre": "Arrendamiento financiero",
+   "familia": "crédito",
+   "unidad": "brl",
+   "formato": "brl_mm",
+   "signo": "neutro",
+   "signo_fuente": "neutro_por_defecto",
+   "fuente": "BCB IF.Data (prudencial)",
+   "definicion": "Saldo al cierre, conglomerado prudencial: COSIF 140210 (desde 2025); COSIF 78198 (hasta 2024).",
+   "en_ficha": false
+  },
+  "cartera_saldo": {
+   "nombre": "Cartera activa en Brasil (informes 11 y 13)",
+   "familia": "crédito",
+   "unidad": "brl",
+   "formato": "brl_mm",
+   "signo": "neutro",
+   "signo_fuente": "neutro_por_defecto",
+   "fuente": "Derivado de BCB IF.Data (prudencial), preparar_metricas_bancos.py",
+   "definicion": "Σ saldo de las 16 modalidades de los informes 11 y 13 (cartera activa en Brasil; bk_cartera).",
+   "en_ficha": false
+  },
+  "cartera_saldo_pf": {
+   "nombre": "Cartera activa de personas",
+   "familia": "crédito",
+   "unidad": "brl",
+   "formato": "brl_mm",
+   "signo": "neutro",
+   "signo_fuente": "neutro_por_defecto",
+   "fuente": "Derivado de BCB IF.Data (prudencial), preparar_metricas_bancos.py",
+   "definicion": "Σ saldo de las 7 modalidades de personas (bk_cartera).",
+   "en_ficha": false
+  },
+  "credito_aa": {
+   "nombre": "Crecimiento a/a de la cartera",
+   "familia": "crédito",
+   "unidad": "ratio",
+   "formato": "pct1",
+   "signo": "neutro",
+   "signo_fuente": "esqueleto_0.8",
+   "fuente": "Derivado de BCB IF.Data (prudencial), preparar_metricas_bancos.py",
+   "definicion": "credito_total de t / credito_total de t−4 − 1.",
+   "en_ficha": true,
+   "crecimiento_de": "credito_total"
+  },
+  "credito_bruto": {
+   "nombre": "Cartera bruta",
+   "familia": "crédito",
+   "unidad": "brl",
+   "formato": "brl_mm",
+   "signo": "neutro",
+   "signo_fuente": "neutro_por_defecto",
+   "fuente": "BCB IF.Data (prudencial)",
+   "definicion": "Saldo al cierre, conglomerado prudencial: COSIF 140201 (desde 2025); COSIF 78191 (hasta 2024).",
+   "en_ficha": false
+  },
+  "credito_liquido": {
+   "nombre": "Cartera neta de provisiones",
+   "familia": "crédito",
+   "unidad": "brl",
+   "formato": "brl_mm",
+   "signo": "neutro",
+   "signo_fuente": "neutro_por_defecto",
+   "fuente": "BCB IF.Data (prudencial)",
+   "definicion": "Saldo al cierre, conglomerado prudencial: COSIF 140205 (desde 2025); COSIF 78193 (hasta 2024).",
+   "en_ficha": false
+  },
+  "credito_real_aa": {
+   "nombre": "Crecimiento real de la cartera a/a",
+   "familia": "crédito",
+   "unidad": "ratio",
+   "formato": "pct1",
+   "signo": "neutro",
+   "signo_fuente": "neutro_por_defecto",
+   "fuente": "Derivado de BCB IF.Data (prudencial), preparar_metricas_bancos.py",
+   "definicion": "(1 + credito_aa) / (1 + ipca_12m) − 1, con ipca_12m el IPCA acumulado 12 meses del último mes del trimestre (bk_sistema_q, fracción). Vacía mientras no exista la serie ipca_12m.",
+   "en_ficha": false
+  },
+  "credito_total": {
+   "nombre": "Crédito total",
+   "familia": "crédito",
+   "unidad": "brl",
+   "formato": "brl_mm",
+   "signo": "neutro",
+   "signo_fuente": "neutro_por_defecto",
+   "fuente": "Derivado de BCB IF.Data (prudencial), preparar_metricas_bancos.py",
+   "definicion": "Saldo al cierre: credito_liquido + arrendamento + outras_concessao + pagos_receber (era 2025); credito_liquido + arrendamento + outras_concessao (era vieja).",
+   "en_ficha": false,
+   "ranking": true
+  },
+  "outras_concessao": {
+   "nombre": "Otros créditos",
+   "familia": "crédito",
+   "unidad": "brl",
+   "formato": "brl_mm",
+   "signo": "neutro",
+   "signo_fuente": "neutro_por_defecto",
+   "fuente": "BCB IF.Data (prudencial)",
+   "definicion": "Saldo al cierre, conglomerado prudencial: COSIF 140216 (desde 2025); COSIF 78199 (hasta 2024). Antes de 2025 no es del todo comparable (incluye partidas extra).",
+   "en_ficha": false
+  },
+  "pagos_receber": {
+   "nombre": "Pagos a recibir",
+   "familia": "crédito",
+   "unidad": "brl",
+   "formato": "brl_mm",
+   "signo": "neutro",
+   "signo_fuente": "neutro_por_defecto",
+   "fuente": "BCB IF.Data (prudencial)",
+   "definicion": "Saldo al cierre, conglomerado prudencial: COSIF 145833 (desde 2025); sin código COSIF hasta 2024.",
+   "en_ficha": false
+  },
+  "pf_share": {
+   "nombre": "Peso de personas en la cartera",
+   "familia": "crédito",
+   "unidad": "ratio",
+   "formato": "pct1",
+   "signo": "neutro",
+   "signo_fuente": "neutro_por_defecto",
+   "fuente": "Derivado de BCB IF.Data (prudencial), preparar_metricas_bancos.py",
+   "definicion": "cartera_saldo_pf / cartera_saldo (bk_cartera).",
+   "en_ficha": true,
+   "razon": {
+    "num": [
+     "cartera_saldo_pf"
+    ],
+    "den": [
+     "cartera_saldo"
+    ],
+    "num_nulo_es_cero": true
+   }
+  },
+  "cartera_vencido15": {
+   "nombre": "Cartera vencida ≥ 15 días",
+   "familia": "calidad",
+   "unidad": "brl",
+   "formato": "brl_mm",
+   "signo": "neutro",
+   "signo_fuente": "neutro_por_defecto",
+   "fuente": "Derivado de BCB IF.Data (prudencial), preparar_metricas_bancos.py",
+   "definicion": "Σ vencido ≥ 15 días de las 16 modalidades (bk_cartera).",
+   "en_ficha": false
+  },
+  "cobertura_ecl": {
+   "nombre": "Cobertura de pérdida esperada",
+   "familia": "calidad",
+   "unidad": "ratio",
+   "formato": "pct1",
+   "signo": "mejora_sube",
+   "signo_fuente": "esqueleto_0.8",
+   "fuente": "Derivado de BCB IF.Data (prudencial), preparar_metricas_bancos.py",
+   "definicion": "−ecl_saldo / credito_bruto, si credito_bruto > 0.",
+   "en_ficha": true,
+   "razon": {
+    "num": [
+     "ecl_saldo"
+    ],
+    "signo_num": -1,
+    "den": [
+     "credito_bruto"
+    ]
+   }
+  },
+  "costo_riesgo_ttm": {
+   "nombre": "Costo del riesgo (12 meses)",
+   "familia": "calidad",
+   "unidad": "ratio",
+   "formato": "pct1",
+   "signo": "mejora_baja",
+   "signo_fuente": "esqueleto_0.8",
+   "fuente": "Derivado de BCB IF.Data (prudencial), preparar_metricas_bancos.py",
+   "definicion": "−provisoes_credito_ttm / credito_total, si credito_total > 0.",
+   "en_ficha": true,
+   "razon": {
+    "num": [
+     "provisoes_credito_ttm"
+    ],
+    "signo_num": -1,
+    "den": [
+     "credito_total"
+    ]
+   }
+  },
+  "ecl_saldo": {
+   "nombre": "Saldo de pérdida esperada",
+   "familia": "calidad",
+   "unidad": "brl",
+   "formato": "brl_mm",
+   "signo": "neutro",
+   "signo_fuente": "neutro_por_defecto",
+   "fuente": "BCB IF.Data (prudencial)",
+   "definicion": "Saldo al cierre, conglomerado prudencial: COSIF 140202 (desde 2025); COSIF 78192 (hasta 2024).",
+   "en_ficha": false
+  },
+  "npl15_total": {
+   "nombre": "NPL ≥ 15 días (cartera total)",
+   "familia": "calidad",
+   "unidad": "ratio",
+   "formato": "pct1",
+   "signo": "mejora_baja",
+   "signo_fuente": "esqueleto_0.8",
+   "fuente": "Derivado de BCB IF.Data (prudencial), preparar_metricas_bancos.py",
+   "definicion": "cartera_vencido15 / cartera_saldo (informes 11 y 13, Σ de las 16 modalidades; bk_cartera).",
+   "en_ficha": true,
+   "razon": {
+    "num": [
+     "cartera_vencido15"
+    ],
+    "den": [
+     "cartera_saldo"
+    ]
+   }
+  },
+  "provisoes_credito_q": {
+   "nombre": "Provisiones de crédito (trimestre)",
+   "familia": "calidad",
+   "unidad": "brl",
+   "formato": "brl_mm",
+   "signo": "neutro",
+   "signo_fuente": "arquitecto_montos",
+   "fuente": "BCB IF.Data (prudencial)",
+   "definicion": "Flujo del trimestre, des-acumulado de bank_resultados (campo «provisoes_credito»).",
+   "en_ficha": false
+  },
+  "provisoes_credito_ttm": {
+   "nombre": "Provisiones de crédito (12 meses)",
+   "familia": "calidad",
+   "unidad": "brl",
+   "formato": "brl_mm",
+   "signo": "neutro",
+   "signo_fuente": "arquitecto_montos",
+   "fuente": "Derivado de BCB IF.Data (prudencial), preparar_metricas_bancos.py",
+   "definicion": "Suma de los 4 trimestres consecutivos que terminan en t de provisoes_credito_q; vacío si falta uno.",
+   "en_ficha": false
+  },
+  "credito_depositos": {
+   "nombre": "Crédito / depósitos",
+   "familia": "fondeo",
+   "unidad": "ratio",
+   "formato": "pct1",
+   "signo": "neutro",
+   "signo_fuente": "arquitecto",
+   "fuente": "Derivado de BCB IF.Data (prudencial), preparar_metricas_bancos.py",
+   "definicion": "credito_total / depositos, si depositos > 0 (SPEC §4.2).",
+   "en_ficha": true,
+   "razon": {
+    "num": [
+     "credito_total"
+    ],
+    "den": [
+     "depositos"
+    ]
+   }
+  },
+  "depositos": {
+   "nombre": "Depósitos",
+   "familia": "fondeo",
+   "unidad": "brl",
+   "formato": "brl_mm",
+   "signo": "neutro",
+   "signo_fuente": "neutro_por_defecto",
+   "fuente": "BCB IF.Data (prudencial)",
+   "definicion": "Saldo al cierre, conglomerado prudencial: COSIF 140228 (desde 2025); COSIF 78287 (hasta 2024).",
+   "en_ficha": false,
+   "ranking": true
+  },
+  "depositos_aa": {
+   "nombre": "Crecimiento a/a de depósitos",
+   "familia": "fondeo",
+   "unidad": "ratio",
+   "formato": "pct1",
+   "signo": "neutro",
+   "signo_fuente": "neutro_por_defecto",
+   "fuente": "Derivado de BCB IF.Data (prudencial), preparar_metricas_bancos.py",
+   "definicion": "depositos de t / depositos de t−4 − 1.",
+   "en_ficha": false,
+   "crecimiento_de": "depositos"
+  },
+  "depositos_interfinanceiros": {
+   "nombre": "Depósitos interfinancieros",
+   "familia": "fondeo",
+   "unidad": "brl",
+   "formato": "brl_mm",
+   "signo": "neutro",
+   "signo_fuente": "neutro_por_defecto",
+   "fuente": "BCB IF.Data (prudencial)",
+   "definicion": "Saldo al cierre, conglomerado prudencial: COSIF 140224 (desde 2025); COSIF 78284 (hasta 2024).",
+   "en_ficha": false
+  },
+  "derivativos_passivo": {
+   "nombre": "Derivativos (pasivo)",
+   "familia": "fondeo",
+   "unidad": "brl",
+   "formato": "brl_mm",
+   "signo": "neutro",
+   "signo_fuente": "neutro_por_defecto",
+   "fuente": "BCB IF.Data (prudencial)",
+   "definicion": "Saldo al cierre, conglomerado prudencial: COSIF 140241 (desde 2025); COSIF 78296 (hasta 2024).",
+   "en_ficha": false
+  },
+  "emprestimos_repasses": {
+   "nombre": "Préstamos y repasses",
+   "familia": "fondeo",
+   "unidad": "brl",
+   "formato": "brl_mm",
+   "signo": "neutro",
+   "signo_fuente": "neutro_por_defecto",
+   "fuente": "BCB IF.Data (prudencial)",
+   "definicion": "Saldo al cierre, conglomerado prudencial: COSIF 140238 (desde 2025); COSIF 78295 (hasta 2024).",
+   "en_ficha": false
+  },
+  "fondeo_depositos": {
+   "nombre": "Fondeo: depósitos",
+   "familia": "fondeo",
+   "unidad": "ratio",
+   "formato": "pct1",
+   "signo": "neutro",
+   "signo_fuente": "neutro_por_defecto",
+   "fuente": "Derivado de BCB IF.Data (prudencial), preparar_metricas_bancos.py",
+   "definicion": "depositos / Σ (depositos, depositos_interfinanceiros, oblig_compromissadas, outros_instrumentos_divida, emprestimos_repasses, outras_obrigacoes, patrimonio_liquido)",
+   "en_ficha": false,
+   "razon": {
+    "num": [
+     "depositos"
+    ],
+    "den": [
+     "depositos",
+     "depositos_interfinanceiros",
+     "oblig_compromissadas",
+     "outros_instrumentos_divida",
+     "emprestimos_repasses",
+     "outras_obrigacoes",
+     "patrimonio_liquido"
+    ]
+   }
+  },
+  "fondeo_depositos_interfinanceiros": {
+   "nombre": "Fondeo: depósitos interfinancieros",
+   "familia": "fondeo",
+   "unidad": "ratio",
+   "formato": "pct1",
+   "signo": "neutro",
+   "signo_fuente": "neutro_por_defecto",
+   "fuente": "Derivado de BCB IF.Data (prudencial), preparar_metricas_bancos.py",
+   "definicion": "depositos_interfinanceiros / Σ (depositos, depositos_interfinanceiros, oblig_compromissadas, outros_instrumentos_divida, emprestimos_repasses, outras_obrigacoes, patrimonio_liquido)",
+   "en_ficha": false,
+   "razon": {
+    "num": [
+     "depositos_interfinanceiros"
+    ],
+    "den": [
+     "depositos",
+     "depositos_interfinanceiros",
+     "oblig_compromissadas",
+     "outros_instrumentos_divida",
+     "emprestimos_repasses",
+     "outras_obrigacoes",
+     "patrimonio_liquido"
+    ]
+   }
+  },
+  "fondeo_emprestimos_repasses": {
+   "nombre": "Fondeo: préstamos y repases",
+   "familia": "fondeo",
+   "unidad": "ratio",
+   "formato": "pct1",
+   "signo": "neutro",
+   "signo_fuente": "neutro_por_defecto",
+   "fuente": "Derivado de BCB IF.Data (prudencial), preparar_metricas_bancos.py",
+   "definicion": "emprestimos_repasses / Σ (depositos, depositos_interfinanceiros, oblig_compromissadas, outros_instrumentos_divida, emprestimos_repasses, outras_obrigacoes, patrimonio_liquido)",
+   "en_ficha": false,
+   "razon": {
+    "num": [
+     "emprestimos_repasses"
+    ],
+    "den": [
+     "depositos",
+     "depositos_interfinanceiros",
+     "oblig_compromissadas",
+     "outros_instrumentos_divida",
+     "emprestimos_repasses",
+     "outras_obrigacoes",
+     "patrimonio_liquido"
+    ]
+   }
+  },
+  "fondeo_oblig_compromissadas": {
+   "nombre": "Fondeo: operaciones compromisadas",
+   "familia": "fondeo",
+   "unidad": "ratio",
+   "formato": "pct1",
+   "signo": "neutro",
+   "signo_fuente": "neutro_por_defecto",
+   "fuente": "Derivado de BCB IF.Data (prudencial), preparar_metricas_bancos.py",
+   "definicion": "oblig_compromissadas / Σ (depositos, depositos_interfinanceiros, oblig_compromissadas, outros_instrumentos_divida, emprestimos_repasses, outras_obrigacoes, patrimonio_liquido)",
+   "en_ficha": false,
+   "razon": {
+    "num": [
+     "oblig_compromissadas"
+    ],
+    "den": [
+     "depositos",
+     "depositos_interfinanceiros",
+     "oblig_compromissadas",
+     "outros_instrumentos_divida",
+     "emprestimos_repasses",
+     "outras_obrigacoes",
+     "patrimonio_liquido"
+    ]
+   }
+  },
+  "fondeo_outras_obrigacoes": {
+   "nombre": "Fondeo: otras obligaciones",
+   "familia": "fondeo",
+   "unidad": "ratio",
+   "formato": "pct1",
+   "signo": "neutro",
+   "signo_fuente": "neutro_por_defecto",
+   "fuente": "Derivado de BCB IF.Data (prudencial), preparar_metricas_bancos.py",
+   "definicion": "outras_obrigacoes / Σ (depositos, depositos_interfinanceiros, oblig_compromissadas, outros_instrumentos_divida, emprestimos_repasses, outras_obrigacoes, patrimonio_liquido)",
+   "en_ficha": false,
+   "razon": {
+    "num": [
+     "outras_obrigacoes"
+    ],
+    "den": [
+     "depositos",
+     "depositos_interfinanceiros",
+     "oblig_compromissadas",
+     "outros_instrumentos_divida",
+     "emprestimos_repasses",
+     "outras_obrigacoes",
+     "patrimonio_liquido"
+    ]
+   }
+  },
+  "fondeo_outros_instrumentos_divida": {
+   "nombre": "Fondeo: otros instrumentos de deuda",
+   "familia": "fondeo",
+   "unidad": "ratio",
+   "formato": "pct1",
+   "signo": "neutro",
+   "signo_fuente": "neutro_por_defecto",
+   "fuente": "Derivado de BCB IF.Data (prudencial), preparar_metricas_bancos.py",
+   "definicion": "outros_instrumentos_divida / Σ (depositos, depositos_interfinanceiros, oblig_compromissadas, outros_instrumentos_divida, emprestimos_repasses, outras_obrigacoes, patrimonio_liquido)",
+   "en_ficha": false,
+   "razon": {
+    "num": [
+     "outros_instrumentos_divida"
+    ],
+    "den": [
+     "depositos",
+     "depositos_interfinanceiros",
+     "oblig_compromissadas",
+     "outros_instrumentos_divida",
+     "emprestimos_repasses",
+     "outras_obrigacoes",
+     "patrimonio_liquido"
+    ]
+   }
+  },
+  "fondeo_patrimonio_liquido": {
+   "nombre": "Fondeo: patrimonio",
+   "familia": "fondeo",
+   "unidad": "ratio",
+   "formato": "pct1",
+   "signo": "neutro",
+   "signo_fuente": "neutro_por_defecto",
+   "fuente": "Derivado de BCB IF.Data (prudencial), preparar_metricas_bancos.py",
+   "definicion": "patrimonio_liquido / Σ (depositos, depositos_interfinanceiros, oblig_compromissadas, outros_instrumentos_divida, emprestimos_repasses, outras_obrigacoes, patrimonio_liquido)",
+   "en_ficha": false,
+   "razon": {
+    "num": [
+     "patrimonio_liquido"
+    ],
+    "den": [
+     "depositos",
+     "depositos_interfinanceiros",
+     "oblig_compromissadas",
+     "outros_instrumentos_divida",
+     "emprestimos_repasses",
+     "outras_obrigacoes",
+     "patrimonio_liquido"
+    ]
+   }
+  },
+  "instrumentos_elegiveis": {
+   "nombre": "Instrumentos elegibles",
+   "familia": "fondeo",
+   "unidad": "brl",
+   "formato": "brl_mm",
+   "signo": "neutro",
+   "signo_fuente": "neutro_por_defecto",
+   "fuente": "BCB IF.Data (prudencial)",
+   "definicion": "Saldo al cierre, conglomerado prudencial: COSIF 140243 (desde 2025); sin código COSIF hasta 2024.",
+   "en_ficha": false
+  },
+  "oblig_compromissadas": {
+   "nombre": "Obligaciones en operaciones compromissadas",
+   "familia": "fondeo",
+   "unidad": "brl",
+   "formato": "brl_mm",
+   "signo": "neutro",
+   "signo_fuente": "neutro_por_defecto",
+   "fuente": "BCB IF.Data (prudencial)",
+   "definicion": "Saldo al cierre, conglomerado prudencial: COSIF 140230 (desde 2025); COSIF 78288 (hasta 2024).",
+   "en_ficha": false
+  },
+  "outras_obrigacoes": {
+   "nombre": "Otras obligaciones",
+   "familia": "fondeo",
+   "unidad": "brl",
+   "formato": "brl_mm",
+   "signo": "neutro",
+   "signo_fuente": "neutro_por_defecto",
+   "fuente": "BCB IF.Data (prudencial)",
+   "definicion": "Saldo al cierre, conglomerado prudencial: COSIF 140242 (desde 2025); COSIF 78297 (hasta 2024).",
+   "en_ficha": false
+  },
+  "outros_instrumentos_divida": {
+   "nombre": "Otros instrumentos de deuda",
+   "familia": "fondeo",
+   "unidad": "brl",
+   "formato": "brl_mm",
+   "signo": "neutro",
+   "signo_fuente": "neutro_por_defecto",
+   "fuente": "BCB IF.Data (prudencial)",
+   "definicion": "Saldo al cierre, conglomerado prudencial: COSIF 140236 (desde 2025); COSIF 78294 (hasta 2024).",
+   "en_ficha": false
+  },
+  "passivo_exigivel": {
+   "nombre": "Pasivo exigible",
+   "familia": "fondeo",
+   "unidad": "brl",
+   "formato": "brl_mm",
+   "signo": "neutro",
+   "signo_fuente": "neutro_por_defecto",
+   "fuente": "BCB IF.Data (prudencial)",
+   "definicion": "Saldo al cierre, conglomerado prudencial: COSIF 140244 (desde 2025); COSIF 78298 (hasta 2024).",
+   "en_ficha": false
+  },
+  "antes_tributacao_q": {
+   "nombre": "Resultado antes de tributación (trimestre)",
+   "familia": "rentabilidad",
+   "unidad": "brl",
+   "formato": "brl_mm",
+   "signo": "neutro",
+   "signo_fuente": "arquitecto_montos",
+   "fuente": "BCB IF.Data (prudencial)",
+   "definicion": "Flujo del trimestre, des-acumulado de bank_resultados (campo «resultado_antes_tributacao_participacoes»).",
+   "en_ficha": false
+  },
+  "antes_tributacao_ttm": {
+   "nombre": "Resultado antes de tributación (12 meses)",
+   "familia": "rentabilidad",
+   "unidad": "brl",
+   "formato": "brl_mm",
+   "signo": "neutro",
+   "signo_fuente": "arquitecto_montos",
+   "fuente": "Derivado de BCB IF.Data (prudencial), preparar_metricas_bancos.py",
+   "definicion": "Suma de los 4 trimestres consecutivos que terminan en t de antes_tributacao_q; vacío si falta uno.",
+   "en_ficha": false
+  },
+  "despesas_administrativas_q": {
+   "nombre": "Gastos administrativos (trimestre)",
+   "familia": "rentabilidad",
+   "unidad": "brl",
+   "formato": "brl_mm",
+   "signo": "neutro",
+   "signo_fuente": "arquitecto_montos",
+   "fuente": "BCB IF.Data (prudencial)",
+   "definicion": "Flujo del trimestre, des-acumulado de bank_resultados (campo «despesas_administrativas»).",
+   "en_ficha": false
+  },
+  "despesas_administrativas_ttm": {
+   "nombre": "Gastos administrativos (12 meses)",
+   "familia": "rentabilidad",
+   "unidad": "brl",
+   "formato": "brl_mm",
+   "signo": "neutro",
+   "signo_fuente": "arquitecto_montos",
+   "fuente": "Derivado de BCB IF.Data (prudencial), preparar_metricas_bancos.py",
+   "definicion": "Suma de los 4 trimestres consecutivos que terminan en t de despesas_administrativas_q; vacío si falta uno.",
+   "en_ficha": false
+  },
+  "despesas_pessoal_q": {
+   "nombre": "Gastos de personal (trimestre)",
+   "familia": "rentabilidad",
+   "unidad": "brl",
+   "formato": "brl_mm",
+   "signo": "neutro",
+   "signo_fuente": "arquitecto_montos",
+   "fuente": "BCB IF.Data (prudencial)",
+   "definicion": "Flujo del trimestre, des-acumulado de bank_resultados (campo «despesas_pessoal»).",
+   "en_ficha": false
+  },
+  "despesas_pessoal_ttm": {
+   "nombre": "Gastos de personal (12 meses)",
+   "familia": "rentabilidad",
+   "unidad": "brl",
+   "formato": "brl_mm",
+   "signo": "neutro",
+   "signo_fuente": "arquitecto_montos",
+   "fuente": "Derivado de BCB IF.Data (prudencial), preparar_metricas_bancos.py",
+   "definicion": "Suma de los 4 trimestres consecutivos que terminan en t de despesas_pessoal_q; vacío si falta uno.",
+   "en_ficha": false
+  },
+  "despesas_tributarias_q": {
+   "nombre": "Gastos tributarios (trimestre)",
+   "familia": "rentabilidad",
+   "unidad": "brl",
+   "formato": "brl_mm",
+   "signo": "neutro",
+   "signo_fuente": "arquitecto_montos",
+   "fuente": "BCB IF.Data (prudencial)",
+   "definicion": "Flujo del trimestre, des-acumulado de bank_resultados (campo «despesas_tributarias»).",
+   "en_ficha": false
+  },
+  "eficiencia_ttm": {
+   "nombre": "Eficiencia (gasto / ingreso, 12 meses)",
+   "familia": "rentabilidad",
+   "unidad": "ratio",
+   "formato": "pct1",
+   "signo": "mejora_baja",
+   "signo_fuente": "esqueleto_0.8",
+   "fuente": "Derivado de BCB IF.Data (prudencial), preparar_metricas_bancos.py",
+   "definicion": "−(despesas_pessoal_ttm + despesas_administrativas_ttm) / (rendas_tarifas_ttm + rendas_servicos_ttm + resultado_intermediacao_financeira_ttm + resultado_transacoes_pagamento_ttm), si el denominador > 0.",
+   "en_ficha": true,
+   "razon": {
+    "num": [
+     "despesas_pessoal_ttm",
+     "despesas_administrativas_ttm"
+    ],
+    "signo_num": -1,
+    "den": [
+     "rendas_tarifas_ttm",
+     "rendas_servicos_ttm",
+     "resultado_intermediacao_financeira_ttm",
+     "resultado_transacoes_pagamento_ttm"
+    ]
+   }
+  },
+  "gasto_total_ttm": {
+   "nombre": "Gasto de personal y administrativo (12 meses)",
+   "familia": "rentabilidad",
+   "unidad": "brl",
+   "formato": "brl_mm",
+   "signo": "neutro",
+   "signo_fuente": "neutro_por_defecto",
+   "fuente": "Derivado de BCB IF.Data (prudencial), preparar_metricas_bancos.py",
+   "definicion": "−(despesas_pessoal_ttm + despesas_administrativas_ttm): numerador de eficiencia_ttm, en BRL positivo (gasto operativo de 4 trimestres).",
+   "en_ficha": false
+  },
+  "ingreso_total_ttm": {
+   "nombre": "Ingreso operacional (12 meses)",
+   "familia": "rentabilidad",
+   "unidad": "brl",
+   "formato": "brl_mm",
+   "signo": "neutro",
+   "signo_fuente": "neutro_por_defecto",
+   "fuente": "Derivado de BCB IF.Data (prudencial), preparar_metricas_bancos.py",
+   "definicion": "rendas_tarifas_ttm + rendas_servicos_ttm + resultado_intermediacao_financeira_ttm + resultado_transacoes_pagamento_ttm: denominador de eficiencia_ttm, en BRL.",
+   "en_ficha": false
+  },
+  "lucro_liquido_q": {
+   "nombre": "Lucro líquido (trimestre)",
+   "familia": "rentabilidad",
+   "unidad": "brl",
+   "formato": "brl_mm",
+   "signo": "neutro",
+   "signo_fuente": "arquitecto_montos",
+   "fuente": "BCB IF.Data (prudencial)",
+   "definicion": "Flujo del trimestre, des-acumulado de bank_resultados (campo «lucro_liquido»).",
+   "en_ficha": false
+  },
+  "lucro_liquido_ttm": {
+   "nombre": "Lucro líquido (12 meses)",
+   "familia": "rentabilidad",
+   "unidad": "brl",
+   "formato": "brl_mm",
+   "signo": "neutro",
+   "signo_fuente": "arquitecto_montos",
+   "fuente": "Derivado de BCB IF.Data (prudencial), preparar_metricas_bancos.py",
+   "definicion": "Suma de los 4 trimestres consecutivos que terminan en t de lucro_liquido_q; vacío si falta uno.",
+   "en_ficha": false
+  },
+  "lucro_ttm_aa": {
+   "nombre": "Crecimiento a/a del lucro (12 meses)",
+   "familia": "rentabilidad",
+   "unidad": "ratio",
+   "formato": "pct1",
+   "signo": "neutro",
+   "signo_fuente": "arquitecto_montos",
+   "fuente": "Derivado de BCB IF.Data (prudencial), preparar_metricas_bancos.py",
+   "definicion": "lucro_liquido_ttm de t / lucro_liquido_ttm de t−4 − 1.",
+   "en_ficha": false,
+   "crecimiento_de": "lucro_liquido_ttm"
+  },
+  "margem_intermediacao_ttm": {
+   "nombre": "Margen de intermediación (12 meses / activo medio)",
+   "familia": "rentabilidad",
+   "unidad": "ratio",
+   "formato": "pct1",
+   "signo": "mejora_sube",
+   "signo_fuente": "esqueleto_0.8",
+   "fuente": "Derivado de BCB IF.Data (prudencial), preparar_metricas_bancos.py",
+   "definicion": "(resultado_intermediacao_financeira_ttm + resultado_transacoes_pagamento_ttm) / ativo_medio_ttm.",
+   "en_ficha": true,
+   "razon": {
+    "num": [
+     "resultado_intermediacao_financeira_ttm",
+     "resultado_transacoes_pagamento_ttm"
+    ],
+    "den": [
+     "ativo_medio_ttm"
+    ],
+    "den_positivo": false
+   }
+  },
+  "outras_receitas_despesas_q": {
+   "nombre": "Otros ingresos y gastos (trimestre)",
+   "familia": "rentabilidad",
+   "unidad": "brl",
+   "formato": "brl_mm",
+   "signo": "neutro",
+   "signo_fuente": "neutro_por_defecto",
+   "fuente": "BCB IF.Data (prudencial)",
+   "definicion": "Flujo del trimestre, des-acumulado de bank_resultados (campo «outras_receitas_despesas»).",
+   "en_ficha": false
+  },
+  "rendas_servicos_q": {
+   "nombre": "Ingresos por servicios (trimestre)",
+   "familia": "rentabilidad",
+   "unidad": "brl",
+   "formato": "brl_mm",
+   "signo": "neutro",
+   "signo_fuente": "arquitecto_montos",
+   "fuente": "BCB IF.Data (prudencial)",
+   "definicion": "Flujo del trimestre, des-acumulado de bank_resultados (campo «rendas_prestacao_servicos»).",
+   "en_ficha": false
+  },
+  "rendas_servicos_ttm": {
+   "nombre": "Ingresos por servicios (12 meses)",
+   "familia": "rentabilidad",
+   "unidad": "brl",
+   "formato": "brl_mm",
+   "signo": "neutro",
+   "signo_fuente": "arquitecto_montos",
+   "fuente": "Derivado de BCB IF.Data (prudencial), preparar_metricas_bancos.py",
+   "definicion": "Suma de los 4 trimestres consecutivos que terminan en t de rendas_servicos_q; vacío si falta uno.",
+   "en_ficha": false
+  },
+  "rendas_tarifas_q": {
+   "nombre": "Ingresos por tarifas (trimestre)",
+   "familia": "rentabilidad",
+   "unidad": "brl",
+   "formato": "brl_mm",
+   "signo": "neutro",
+   "signo_fuente": "arquitecto_montos",
+   "fuente": "BCB IF.Data (prudencial)",
+   "definicion": "Flujo del trimestre, des-acumulado de bank_resultados (campo «rendas_tarifas_bancarias»).",
+   "en_ficha": false
+  },
+  "rendas_tarifas_ttm": {
+   "nombre": "Ingresos por tarifas (12 meses)",
+   "familia": "rentabilidad",
+   "unidad": "brl",
+   "formato": "brl_mm",
+   "signo": "neutro",
+   "signo_fuente": "arquitecto_montos",
+   "fuente": "Derivado de BCB IF.Data (prudencial), preparar_metricas_bancos.py",
+   "definicion": "Suma de los 4 trimestres consecutivos que terminan en t de rendas_tarifas_q; vacío si falta uno.",
+   "en_ficha": false
+  },
+  "resultado_intermediacao_financeira_q": {
+   "nombre": "Resultado de intermediación financiera (trimestre)",
+   "familia": "rentabilidad",
+   "unidad": "brl",
+   "formato": "brl_mm",
+   "signo": "neutro",
+   "signo_fuente": "arquitecto_montos",
+   "fuente": "BCB IF.Data (prudencial)",
+   "definicion": "Flujo del trimestre, des-acumulado de bank_resultados (campo «resultado_intermediacao_financeira»).",
+   "en_ficha": false
+  },
+  "resultado_intermediacao_financeira_ttm": {
+   "nombre": "Resultado de intermediación financiera (12 meses)",
+   "familia": "rentabilidad",
+   "unidad": "brl",
+   "formato": "brl_mm",
+   "signo": "neutro",
+   "signo_fuente": "arquitecto_montos",
+   "fuente": "Derivado de BCB IF.Data (prudencial), preparar_metricas_bancos.py",
+   "definicion": "Suma de los 4 trimestres consecutivos que terminan en t de resultado_intermediacao_financeira_q; vacío si falta uno.",
+   "en_ficha": false
+  },
+  "resultado_nao_operacional_q": {
+   "nombre": "Resultado no operacional (trimestre)",
+   "familia": "rentabilidad",
+   "unidad": "brl",
+   "formato": "brl_mm",
+   "signo": "neutro",
+   "signo_fuente": "neutro_por_defecto",
+   "fuente": "BCB IF.Data (prudencial)",
+   "definicion": "Flujo del trimestre, des-acumulado de bank_resultados (campo «resultado_nao_operacional»).",
+   "en_ficha": false
+  },
+  "resultado_transacoes_pagamento_q": {
+   "nombre": "Resultado de transacciones de pago (trimestre)",
+   "familia": "rentabilidad",
+   "unidad": "brl",
+   "formato": "brl_mm",
+   "signo": "neutro",
+   "signo_fuente": "arquitecto_montos",
+   "fuente": "BCB IF.Data (prudencial)",
+   "definicion": "Flujo del trimestre, des-acumulado de bank_resultados (campo «resultado_transacoes_pagamento»).",
+   "en_ficha": false
+  },
+  "resultado_transacoes_pagamento_ttm": {
+   "nombre": "Resultado de transacciones de pago (12 meses)",
+   "familia": "rentabilidad",
+   "unidad": "brl",
+   "formato": "brl_mm",
+   "signo": "neutro",
+   "signo_fuente": "arquitecto_montos",
+   "fuente": "Derivado de BCB IF.Data (prudencial), preparar_metricas_bancos.py",
+   "definicion": "Suma de los 4 trimestres consecutivos que terminan en t de resultado_transacoes_pagamento_q; vacío si falta uno.",
+   "en_ficha": false
+  },
+  "roa_ttm": {
+   "nombre": "ROA (12 meses)",
+   "familia": "rentabilidad",
+   "unidad": "ratio",
+   "formato": "pct1",
+   "signo": "mejora_sube",
+   "signo_fuente": "esqueleto_0.8",
+   "fuente": "Derivado de BCB IF.Data (prudencial), preparar_metricas_bancos.py",
+   "definicion": "lucro_liquido_ttm / ativo_medio_ttm.",
+   "en_ficha": true,
+   "razon": {
+    "num": [
+     "lucro_liquido_ttm"
+    ],
+    "den": [
+     "ativo_medio_ttm"
+    ],
+    "den_positivo": false
+   }
+  },
+  "roe_ttm": {
+   "nombre": "ROE (12 meses)",
+   "familia": "rentabilidad",
+   "unidad": "ratio",
+   "formato": "pct1",
+   "signo": "mejora_sube",
+   "signo_fuente": "esqueleto_0.8",
+   "fuente": "Derivado de BCB IF.Data (prudencial), preparar_metricas_bancos.py",
+   "definicion": "lucro_liquido_ttm / pl_medio_ttm.",
+   "en_ficha": true,
+   "razon": {
+    "num": [
+     "lucro_liquido_ttm"
+    ],
+    "den": [
+     "pl_medio_ttm"
+    ],
+    "den_positivo": false
+   }
+  },
+  "apalancamiento": {
+   "nombre": "Apalancamiento (activo / patrimonio)",
+   "familia": "capital",
+   "unidad": "indice",
+   "formato": "x1",
+   "signo": "neutro",
+   "signo_fuente": "arquitecto",
+   "fuente": "Derivado de BCB IF.Data (prudencial), preparar_metricas_bancos.py",
+   "definicion": "ativo_medio_ttm / pl_medio_ttm, si pl_medio_ttm > 0 (SPEC §4.2).",
+   "en_ficha": true,
+   "razon": {
+    "num": [
+     "ativo_medio_ttm"
+    ],
+    "den": [
+     "pl_medio_ttm"
+    ]
+   }
+  },
+  "patrimonio_liquido": {
+   "nombre": "Patrimonio líquido",
+   "familia": "capital",
+   "unidad": "brl",
+   "formato": "brl_mm",
+   "signo": "neutro",
+   "signo_fuente": "arquitecto_montos",
+   "fuente": "BCB IF.Data (prudencial)",
+   "definicion": "Saldo al cierre, conglomerado prudencial: COSIF 140246 (desde 2025); COSIF 78186 (hasta 2024).",
+   "en_ficha": false,
+   "ranking": true
+  },
+  "pl_medio_ttm": {
+   "nombre": "Patrimonio líquido medio (12 meses)",
+   "familia": "capital",
+   "unidad": "brl",
+   "formato": "brl_mm",
+   "signo": "neutro",
+   "signo_fuente": "arquitecto_montos",
+   "fuente": "Derivado de BCB IF.Data (prudencial), preparar_metricas_bancos.py",
+   "definicion": "(patrimonio_liquido de t + patrimonio_liquido de t−4) / 2; vacío si falta t−4.",
+   "en_ficha": false
+  },
+  "despesas_tributarias_ttm": {
+   "nombre": "Gastos tributarios (12 meses)",
+   "familia": "rentabilidad",
+   "unidad": "brl",
+   "formato": "brl_mm",
+   "signo": "neutro",
+   "signo_fuente": "arquitecto_montos",
+   "fuente": "Derivado de BCB IF.Data (prudencial), preparar_metricas_bancos.py",
+   "definicion": "Suma de los 4 trimestres consecutivos que terminan en t de despesas_tributarias_q; vacío si falta uno.",
+   "en_ficha": false
+  },
+  "resultado_nao_operacional_ttm": {
+   "nombre": "Resultado no operacional (12 meses)",
+   "familia": "rentabilidad",
+   "unidad": "brl",
+   "formato": "brl_mm",
+   "signo": "neutro",
+   "signo_fuente": "neutro_por_defecto",
+   "fuente": "Derivado de BCB IF.Data (prudencial), preparar_metricas_bancos.py",
+   "definicion": "Suma de los 4 trimestres consecutivos que terminan en t de resultado_nao_operacional_q; vacío si falta uno.",
+   "en_ficha": false
+  }
+ }
+}

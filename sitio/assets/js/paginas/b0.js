@@ -1,122 +1,100 @@
-/* B0 · Portada — v3 (3-nov), tablero 05 del canvas «Bancos Brasil — propuesta visual».
+/* B0 · Portada — tablero 05 del canvas «Bancos Brasil — propuesta visual».
    Cuatro bloques; cada uno es una lámina en modo presentación: gráfico a la izquierda y tabla
    descriptiva de estructura fija a la derecha (m/m, 3m/3m, a/a, 12m/12m; en trimestrales t/t, a/a,
    4T/4T). La tabla nunca repite la serie del gráfico. Todo viene calculado de
-   preparar_gold_bancos_portada.py (bk_portada_*); aquí solo se filtra, se formatea y se dibuja.
-   Versiones anteriores: b0_v1.js.txt, b0_v2.js.txt. Sin imports: contar_tarjetas.mjs lee este archivo. */
-const SGS = 'BCB, SGS';
-const IFDATA = 'BCB, IF.Data (conglomerado prudencial)';
-const MESES = 36;
-const AZUL = '#2E5C8A', ACERO = '#8FA3BC', TINTA = '#24324A', COBRE = '#A85E24', ARENA = '#E7CDB6', PETROLEO = '#2F7A86';
-const num = (v, d = 1, signo = false) => (v == null || Number.isNaN(v) ? '—'
-  : `${v < 0 ? '−' : signo && v > 0 ? '+' : ''}${Math.abs(v).toFixed(d).replace('.', ',')}`);
-const miles = (v) => (v == null ? '—' : Math.round(v).toLocaleString('es-CL'));
-const etiquetaMes = (f) => `${f.slice(5, 7)}/${f.slice(2, 4)}`;
-const colorCambio = (mejoraSiSube) => (v) => (v == null || Math.abs(v) < 0.05 ? '#5B6573' : (v > 0) === mejoraSiSube ? PETROLEO : COBRE);
+   preparar_gold_bancos_portada.py (bk_portada_*); aquí solo se filtra, se formatea y se dibuja. */
+import { FUENTE, GRUPOS, COLOR_GRUPO, enPreparacion } from '../comun.js';
+import { COLOR } from '../tokens.js';
+import { etiquetaMes, porFecha, porPeriodo } from '../formato.js';
+import { MESES, filasDe, leyendaDe } from './_series.js';
 
-function ultimos(filas, n) {
-  const fechas = [...new Set(filas.map((f) => f.fecha))].sort().slice(-n);
-  return { fechas, set: new Set(fechas) };
-}
+const { SGS, IFDATA } = FUENTE;
+
+/* Las últimas n fechas con dato. */
+const ultimasFechas = (filas, n) => [...new Set(filas.map((f) => f.fecha))].sort().slice(-n);
 
 function armarCredito(d, est) {
-  const vista = est.seleccion?.vista || 'fuente';
-  const modo = est.seleccion?.modo || 'nominal';
+  const { vista, modo } = est.seleccion;
   const filas = (d.bk_portada_credito || []).filter((f) => f.modo === modo);
-  if (!filas.length) return { enPreparacion: 'falta bk_portada_credito' };
-  const tot = filas.filter((f) => f.componente === 'total' && f.aa != null);
-  const { fechas } = ultimos(tot, MESES);
+  if (!filas.length) return enPreparacion('falta bk_portada_credito');
+  const fechas = ultimasFechas(filas.filter((f) => f.componente === 'total' && f.aa != null), MESES);
   const valor = (comp, col) => { const m = new Map(filas.filter((f) => f.componente === comp).map((f) => [f.fecha, f[col]])); return fechas.map((x) => m.get(x) ?? null); };
   const [a, b] = vista === 'fuente' ? [['libre', 'Libre'], ['direccionado', 'Direccionado']] : [['pf', 'Personas'], ['pj', 'Empresas']];
-  return {
+  const entrada = {
     categorias: fechas.map(etiquetaMes),
-    barras: [{ nombre: a[1], color: AZUL, valores: valor(a[0], 'contrib_pp') }, { nombre: b[1], color: ACERO, valores: valor(b[0], 'contrib_pp') }],
-    linea: { nombre: 'Total a/a', color: TINTA, valores: valor('total', 'aa').map((v) => (v == null ? null : v * 100)) },
-    formatoIzq: (v) => `${v} %`,
+    barras: [{ nombre: `${a[1]}: contribución (pp)`, color: COLOR.navy, valores: valor(a[0], 'contrib_pp') }, { nombre: `${b[1]}: contribución (pp)`, color: COLOR.aceroMedio, valores: valor(b[0], 'contrib_pp') }],
+    lineas: [{ nombre: 'Total a/a (%)', color: COLOR.texto, valores: valor('total', 'aa').map((v) => (v == null ? null : v * 100)) }],
+    ejeIzq: 'pct_nivel',
     intervalo: 5,
   };
+  return { ...entrada, leyenda: leyendaDe(entrada) };
 }
 
-/* Tabla estándar de la Portada: mismas columnas, anchos, decimales y color en los tres bloques.
-   Mensual: m/m, 3m/3m, a/a, 12m/12m. Trimestral: t/t, —, a/a, 4T/4T. */
-function tablaEstandar(filas, { ultimo, cambio, trimestral = false, sentido = null }) {
-  void sentido; // v3c: sin color en las tablas; todas con el mismo formato
-  const c = undefined;
-  const cols = trimestral ? ['t/t', '—', 'a/a', '4T/4T'] : ['m/m', '3m/3m', 'a/a', '12m/12m'];
-  return {
-    columnas: [
-      { titulo: 'Indicador', clave: 'fila', tipo: 'texto', ancho: '26%' },
-      { titulo: 'Último', clave: 'ultimo', formatear: (v, f) => ultimo(v, f), ancho: '14%' },
-      { titulo: cols[0], clave: 'd1', formatear: cambio, color: c, ancho: '11%' },
-      { titulo: cols[1], clave: 'd3', formatear: cambio, color: c, ancho: '11%' },
-      { titulo: cols[2], clave: 'd12', formatear: cambio, color: c, ancho: '11%' },
-      { titulo: cols[3], clave: 'dventana', formatear: cambio, color: c, ancho: '13%' },
-      { titulo: 'Corte', clave: 'corte', ancho: '14%' },
-    ],
-    filas,
-  };
-}
+const tablaDe = (d, filtro) => filasDe(d.bk_portada_tablas, filtro);
 
 function armarTablaCredito(d, est) {
-  const modo = est.seleccion?.modo || 'nominal';
-  const filas = (d.bk_portada_tablas || []).filter((f) => f.bloque === `credito_${modo}`).sort((x, y) => x.orden - y.orden);
-  if (!filas.length) return { enPreparacion: 'falta bk_portada_tablas' };
-  return { filas, unidadUltimo: 'brl_mm', unidadCambio: 'pct' };
+  const filas = tablaDe(d, { bloque: `credito_${est.seleccion.modo}` });
+  if (!filas.length) return enPreparacion('falta bk_portada_tablas');
+  return { filas };
 }
 
 function armarMora(d) {
   const filas = (d.bk_portada_mora || []).filter((f) => f.nivel != null);
-  if (!filas.length) return { enPreparacion: 'falta bk_portada_mora' };
-  const { set } = ultimos(filas, MESES);
-  const v = filas.filter((f) => set.has(f.fecha)).sort((x, y) => (x.fecha < y.fecha ? -1 : 1));
-  return {
+  if (!filas.length) return enPreparacion('falta bk_portada_mora');
+  const fechas = new Set(ultimasFechas(filas, MESES));
+  const v = filas.filter((f) => fechas.has(f.fecha)).sort(porFecha);
+  const entrada = {
     categorias: v.map((f) => etiquetaMes(f.fecha)),
-    barras: [{ nombre: 'Cambio a/a (pp, eje der.)', color: ARENA, valores: v.map((f) => f.d_aa_pp) }],
-    linea: { nombre: 'Mora > 90 días (%)', color: COBRE, valores: v.map((f) => f.nivel * 100) },
+    barras: [{ nombre: 'Cambio a/a (pp, eje der.)', color: COLOR.arenaClara, valores: v.map((f) => f.d_aa_pp) }],
+    lineas: [{ nombre: 'Mora > 90 días (%)', color: COLOR.peor, valores: v.map((f) => f.nivel * 100) }],
     ejeBarras: 'der',
-    formatoIzq: (x) => `${x} %`, formatoDer: (x) => `${x} pp`,
+    ejeIzq: 'pct_nivel',
+    ejeDer: 'pp',
     intervalo: 5,
   };
+  return { ...entrada, leyenda: leyendaDe(entrada) };
 }
 
 function armarTablaMora(d) {
-  const filas = (d.bk_portada_tablas || []).filter((f) => f.bloque === 'mora' && f.ultimo != null).sort((x, y) => x.orden - y.orden);
-  if (!filas.length) return { enPreparacion: 'falta bk_portada_tablas' };
-  return { filas, unidadUltimo: 'pct', unidadCambio: 'pp' };
+  const filas = tablaDe(d, { bloque: 'mora' }).filter((f) => f.ultimo != null);
+  if (!filas.length) return enPreparacion('falta bk_portada_tablas');
+  return { filas };
 }
 
 function armarRoe(d) {
-  const filas = (d.bk_portada_roe || []).filter((f) => f.roe != null).sort((x, y) => (x.periodo < y.periodo ? -1 : 1)).slice(-16);
-  if (!filas.length) return { enPreparacion: 'falta bk_portada_roe' };
-  return {
+  const filas = (d.bk_portada_roe || []).filter((f) => f.roe != null).sort(porPeriodo).slice(-16);
+  if (!filas.length) return enPreparacion('falta bk_portada_roe');
+  const entrada = {
     categorias: filas.map((f) => f.trimestre),
-    barras: [{ nombre: 'ROE − CDI (pp)', color: PETROLEO, valores: filas.map((f) => f.roe_cdi_pp) }],
-    linea: { nombre: 'ROE 12 meses (%)', color: TINTA, valores: filas.map((f) => f.roe * 100) },
-    formatoIzq: (v) => `${v}`,
+    barras: [{ nombre: 'ROE − CDI (pp)', color: COLOR.petroleo, valores: filas.map((f) => f.roe_cdi_pp) }],
+    lineas: [{ nombre: 'ROE 12 meses (%)', color: COLOR.texto, valores: filas.map((f) => f.roe * 100) }],
+    ejeIzq: 'num',
     intervalo: 1,
   };
+  return { ...entrada, leyenda: leyendaDe(entrada) };
 }
 
 function armarTablaRoe(d) {
-  const filas = (d.bk_portada_tablas || []).filter((f) => f.bloque === 'roe').sort((x, y) => x.orden - y.orden)
-    .map((f) => ({ ...f, unidad_ultimo: f.orden === 0 ? 'pct' : 'pp' }));
-  if (!filas.length) return { enPreparacion: 'falta bk_portada_tablas' };
-  return { filas, unidadCambio: 'pp', trimestral: true };
+  const filas = tablaDe(d, { bloque: 'roe' });
+  if (!filas.length) return enPreparacion('falta bk_portada_tablas');
+  return { filas };
 }
 
 const VISTAS = ['Activos totales', 'Crédito total', 'Crédito personas', 'Crédito empresas', 'Depósitos totales', 'Depósitos a la vista', 'Depósitos de ahorro', 'Depósitos a plazo'];
 
+const RESTO = 'Resto';
+
 function armarMapa(d, est) {
-  const vista = est.seleccion?.vista || VISTAS[0];
-  const filas = (d.bk_portada_cuotas || []).filter((f) => f.vista === vista).sort((x, y) => x.orden - y.orden);
-  if (!filas.length) return { enPreparacion: 'falta bk_portada_cuotas' };
-  return { filas };
+  const filas = filasDe(d.bk_portada_cuotas, { vista: est.seleccion.vista });
+  if (!filas.length) return enPreparacion('falta bk_portada_cuotas');
+  const colores = { ...COLOR_GRUPO, [RESTO]: COLOR.regla };
+  // leyenda: los grupos presentes, en el orden del sitio, y el resto al final
+  const presentes = new Set(filas.map((f) => f.grupo));
+  const leyenda = [...GRUPOS, RESTO].filter((g) => presentes.has(g)).map((g) => ({ nombre: g, color: colores[g] }));
+  return { filas, colores, leyenda };
 }
 
 export default {
-  clave: 'B0',
-  ruta: '',
-  nombre: 'Portada',
   rotulo: 'SISTEMA BCB · PANEL IF.DATA',
   usaBanco: false,
 
@@ -162,7 +140,6 @@ export default {
     'B0-01': {
       titulo: 'Crecimiento a/a y contribución',
       plana: true,
-      leyenda: [{ nombre: 'Total a/a (%)', color: TINTA }, { nombre: 'Componentes: contribución al a/a (pp)', color: AZUL }],
       fuente: `${SGS} 20539, 20542, 20593, 20541, 20540; deflactor IPCA (433)`,
       componente: 'barras_linea',
       datos: ['bk_portada_credito'],
@@ -170,7 +147,6 @@ export default {
       estado: 'LISTO',
     },
     'B0-02': {
-     
       titulo: 'Cartera de crédito',
       plana: true,
       nota: 'Último: saldo nominal en R$ mil millones. Cambios en %. 3m/3m y 12m/12m: promedio de la ventana contra la anterior. Libre y direccionado llegan con un mes de rezago.',
@@ -183,7 +159,6 @@ export default {
     'B0-03': {
       titulo: 'Mora > 90 días y cambio a/a',
       plana: true,
-      leyenda: [{ nombre: 'Mora total (%)', color: COBRE }, { nombre: 'Cambio a/a (pp, eje der.)', color: ARENA }],
       fuente: `${SGS} 21082; desde 2025 rige la Res. 4.966`,
       componente: 'barras_linea',
       datos: ['bk_portada_mora'],
@@ -191,7 +166,6 @@ export default {
       estado: 'LISTO',
     },
     'B0-04': {
-     
       titulo: 'Mora por segmento',
       plana: true,
       nota: 'Último en %. Cambios en pp. 3m/3m y 12m/12m: promedio de la ventana contra la anterior.',
@@ -204,7 +178,6 @@ export default {
     'B0-05': {
       titulo: 'ROE y ROE − CDI',
       plana: true,
-      leyenda: [{ nombre: 'ROE 12 meses (%)', color: TINTA }, { nombre: 'ROE − CDI (pp)', color: PETROLEO }],
       fuente: `${IFDATA}; CDI SGS 4389, promedio de 4 trimestres`,
       componente: 'barras_linea',
       datos: ['bk_portada_roe'],
@@ -212,7 +185,6 @@ export default {
       estado: 'LISTO',
     },
     'B0-06': {
-     
       titulo: 'Rentabilidad del panel',
       plana: true,
       nota: 'Último en % (ROE) y pp (ROE − CDI). Cambios en pp. 4T/4T: promedio de cuatro trimestres contra los cuatro anteriores. El ROE no se publica mensual.',
@@ -225,7 +197,6 @@ export default {
     'B0-07': {
       titulo: 'Cuota por banco',
       plana: true,
-      leyenda: [{ nombre: 'Grandes', color: '#2E5C8A' }, { nombre: 'Desarrollo', color: '#8FA3BC' }, { nombre: 'Digitales', color: '#2F7A86' }, { nombre: 'Medianos y nicho', color: '#B5C0CD' }, { nombre: 'Pagos', color: '#7B5E8C' }, { nombre: 'Resto', color: '#E6EAEF' }],
       fuente: `${IFDATA}; informes de pasivo y de cartera PF/PJ`,
       componente: 'mapa_cuotas',
       datos: ['bk_portada_cuotas'],

@@ -8,36 +8,34 @@ autocontenido, a partir de:
   - ifdata_cache/docs/trel_202503/*.json    (estructura+notas por informe)
   - ifdata_cache/docs/nuevo_filtro202503.json (dominios TCB/TC/TD/TI/SR/TCip)
   - ifdata_cache/docs/nuevo_info202503.json  (descripciones de etiquetas)
-  - datos/crudo/bcb_ifdata/valores/actual/valores_202603_{1,2,3}.csv  (inventario de cuentas)
-  - datos/crudo/bcb_ifdata/valores/actual/valores_200003_3.csv        (ejemplos de renumeracion de era)
-  - datos/crudo/bcb_ifdata/cadastro/actual/cadastro_202603.csv         (dominios empiricos del registro)
+  - datos/crudo/bcb_ifdata/valores/actual/valores_<último>_{1,2,3}     (inventario de cuentas; --periodo)
+  - datos/crudo/bcb_ifdata/valores/actual/valores_200003_3            (ejemplos de renumeracion de era)
+  (los crudos de OLinda estan en parquet; se leen con almacen.leer_crudo_tabla)
 
 Las secciones narrativas (generalidades, escopos, API, eras) provienen de la
 metodologia oficial de la pagina IF.data, del PDF "Esclarecimentos e
 Metodologia" del BCB y de verificaciones empiricas documentadas.
 
 Uso:
-    python3 diccionario_ifdata.py [-o ifdata_diccionario.html]
+    python -X utf8 pipeline/diccionario_ifdata.py [-o ifdata_diccionario.html]
 """
 
 import argparse
-import csv
 import glob
+import re
 import json
-import unicodedata
 from html import escape as esc
 from pathlib import Path
 
 import almacen as A
+from ifdata_texto import normalizar as norm
 
-BASE_DIR = Path(__file__).resolve().parents[1]
 # Los CSV/JSON que sirve OLinda viven en la capa cruda (ver almacen.py). `docs/`
 # sigue en ifdata_cache/ porque son capturas manuales de los endpoints REST de
 # www3 cuya URL no se puede reconstruir desde el nombre del archivo: sin URL no
 # hay procedencia, y un crudo sin procedencia no entra a la capa.
 CATALOGO = A.ruta_cruda("bcb_ifdata", "catalogo")
-VALORES = A.ruta_cruda("bcb_ifdata", "valores")
-DOCS = BASE_DIR / "datos" / "ifdata_cache" / "docs"
+DOCS = A.DATOS / "ifdata_cache" / "docs"
 
 FUENTES = {  # informe (normalizado) -> sistema de origen (PDF metodologia)
     "resumo": "Cosif",
@@ -53,22 +51,6 @@ for k in ("carteira de credito ativa",):
 
 SEL_A_ESCOPO = {1005: "financeiro", 1006: "individual", 1009: "prudencial",
                 1004: "prudencial", 1007: "cambio", 1008: "financeiro"}
-
-NUM_OLINDA = {  # nombre trel normalizado -> numero de informe OLinda
-    "resumo": 1, "ativo": 2, "passivo": 3,
-    "demonstracao de resultado": 4, "informacoes de capital": 5,
-    "segmentacao": 6,
-    "carteira de credito ativa - por indexador": 7,
-    "carteira de credito ativa - por nivel de risco da operacao": 8,
-    "carteira de credito ativa - por regiao geografica": 9,
-    "carteira de credito ativa - quantidade de clientes e de operacoes": 10,
-    "carteira de credito ativa pessoa fisica - modalidade e prazo de vencimento": 11,
-    "carteira de credito ativa pessoa juridica -  por atividade economica (cnae)": 12,
-    "carteira de credito ativa pessoa juridica - modalidade e prazo de vencimento": 13,
-    "carteira de credito ativa pessoa juridica - por porte do tomador": 14,
-    "movimentacao de cambio no trimestre": 15,
-    "carteira de credito ativa - por carteiras de instrumentos financeiros": 16,
-}
 
 UNIDADES = {
     1: "R$ (API en unidades; el sitio web muestra R$ mil)",
@@ -90,17 +72,25 @@ UNIDADES = {
 }
 
 
-def norm(s):
-    s = " ".join((s or "").split()).casefold()
-    return "".join(c for c in unicodedata.normalize("NFD", s)
-                   if unicodedata.category(c) != "Mn")
+def _filas(periodo: str, tipo: int) -> list[dict]:
+    """Filas de un volcado completo de valores (todas las columnas como texto); [] si no está."""
+    ruta = A.ruta_valores(periodo, tipo)
+    if not A.existe_crudo(ruta):
+        print(f"aviso: falta {ruta.name}")
+        return []
+    return A.leer_crudo_tabla(ruta).to_dict("records")
 
 
-# --------------------------------------------------------------------------- #
-#  Carga de fuentes
-# --------------------------------------------------------------------------- #
+def ultimo_volcado() -> str:
+    """Último trimestre con volcado completo (todos los informes) del escopo individual en el crudo."""
+    periodos = [m.group(1) for r in A.glob_crudo(A.ruta_cruda("bcb_ifdata", "valores"), "valores_*_3.csv")
+                if (m := re.fullmatch(r"valores_(\d{6})_3\.csv", r.name))]
+    if not periodos:
+        raise FileNotFoundError("no hay volcados completos de IF.Data (valores_AAAAMM_3) en el crudo")
+    return max(periodos)
 
-def cargar():
+
+def cargar(periodo: str):
     d = {}
     d["relatorios"] = json.loads((CATALOGO / "relatorios.json").read_text(encoding="utf-8"))["value"]
     d["cat_viejo"] = json.loads((DOCS / "rest_rel2000a2024.json").read_text(encoding="utf-8"))
@@ -111,31 +101,21 @@ def cargar():
         t = t.get("trel", t)
         d["trels"].setdefault(norm(t["n"]), []).append(t)
     d["filtro"] = json.loads((DOCS / "nuevo_filtro202503.json").read_text(encoding="utf-8"))
-    # inventario de cuentas desde el cache completo 202603
+    # inventario de cuentas del volcado completo del trimestre
     inv = {}
     for tipo in (1, 2, 3):
-        ruta = VALORES / f"valores_202603_{tipo}.csv"
-        if not ruta.exists():
-            continue
-        with open(ruta, newline="", encoding="utf-8") as fh:
-            for x in csv.DictReader(fh):
-                clave = norm(x["NomeRelatorio"])
-                cuenta = (x["Conta"], " ".join(x["NomeColuna"].split()),
-                          " ".join(x["DescricaoColuna"].split()),
-                          "null" if x["Grupo"] == "null" else " ".join(x["Grupo"].split()))
-                inv.setdefault(clave, {}).setdefault(cuenta, set()).add(tipo)
+        for x in _filas(periodo, tipo):
+            clave = norm(x["NomeRelatorio"])
+            cuenta = (x["Conta"], " ".join(x["NomeColuna"].split()),
+                      " ".join(x["DescricaoColuna"].split()),
+                      "null" if x["Grupo"] == "null" else " ".join(x["Grupo"].split()))
+            inv.setdefault(clave, {}).setdefault(cuenta, set()).add(tipo)
     d["inventario"] = inv
     # ejemplos de renumeracion (era 2000-03 vs 2025-03, Resumo individual)
-    viejo, nuevo = [], []
-    with open(VALORES / "valores_200003_3.csv", newline="", encoding="utf-8") as fh:
-        for x in csv.DictReader(fh):
-            if x["CodInst"] == "00000000" and x["NomeRelatorio"] == "Resumo":
-                viejo.append((x["Conta"], " ".join(x["NomeColuna"].split())))
-    with open(VALORES / "valores_202603_3.csv", newline="", encoding="utf-8") as fh:
-        for x in csv.DictReader(fh):
-            if x["CodInst"] == "00000000" and x["NomeRelatorio"] == "Resumo":
-                nuevo.append((x["Conta"], " ".join(x["NomeColuna"].split())))
-    d["renumeracion"] = (viejo, nuevo)
+    def resumo(periodo):
+        return [(x["Conta"], " ".join(x["NomeColuna"].split())) for x in _filas(periodo, 3)
+                if x["CodInst"] == "00000000" and x["NomeRelatorio"] == "Resumo"]
+    d["renumeracion"] = (resumo("200003"), resumo(periodo))
     return d
 
 
@@ -153,10 +133,6 @@ def disponibilidad(datos):
                     matriz.setdefault(norm(t["n"]), {}).setdefault(escopo, set()).add(e["dt"])
     return matriz
 
-
-# --------------------------------------------------------------------------- #
-#  Secciones estaticas
-# --------------------------------------------------------------------------- #
 
 GENERALIDADES = """
 <p><b>IFDATA</b> (Informaciones Financieras Trimestrales) es la publicacion del
@@ -297,8 +273,7 @@ CADASTRO_COLS = [
 # como se usa en las llamadas a tabla_dominio() mas abajo; cada valor mapea CODIGO (no el
 # texto completo) a la traduccion, para no depender de que el texto oficial no cambie de
 # forma. Un codigo que llegue del cache y no este aca se reporta en portugues con un aviso
-# (ver tabla_dominio) en vez de fallar en silencio - la cobertura la exige
-# tests/test_diccionario_ifdata.py contra el cache real.
+# (ver tabla_dominio) en vez de fallar en silencio.
 TRADUCCION_DOMINIO = {
     "TCB": {
         "b1": "Banco Comercial, Banco Multiple con Cartera Comercial, o Caja de Ahorro (Caixa Economica)",
@@ -426,10 +401,6 @@ MAPEO = [
 ]
 
 
-# --------------------------------------------------------------------------- #
-#  Generacion HTML
-# --------------------------------------------------------------------------- #
-
 ESTILO = """
   :root { --bg:#f4f6f9; --panel:#fff; --border:#dde3ec; --text:#1f2937;
           --muted:#6b7280; --accent:#003366; --accent2:#0a5daa; --hover:#eef4fb; }
@@ -531,13 +502,15 @@ def tabla_dominio(nombre, sigla, valores_pt):
 def main():
     ap = argparse.ArgumentParser(description="Genera el diccionario HTML de IFDATA")
     ap.add_argument("-o", "--salida", default="ifdata_diccionario.html")
+    ap.add_argument("--periodo", default="", help="trimestre del inventario de cuentas (defecto: el último volcado)")
     args = ap.parse_args()
 
-    datos = cargar()
+    periodo = args.periodo or ultimo_volcado()
+    etiqueta = f"{periodo[:4]}-{periodo[4:]}"
+    datos = cargar(periodo)
     disp = disponibilidad(datos)
     filtro = {f["n"]: f["d"] for f in datos["filtro"]}
 
-    # -- dominios desde filtro202503
     dom_tcb = [(v["v"], v["n"]) for v in filtro.get("TCB - Tipo de Consolidado Bancário", [])]
     dom_tc = [(v["v"], v["n"]) for v in filtro.get("TC - Tipo de Controle", [])]
     dom_td = [(v["v"], v["n"]) for v in filtro.get("TD - Tipo de Consolidação", [])]
@@ -545,7 +518,6 @@ def main():
     dom_tcip = [(v["v"], v["n"]) for v in filtro.get("TCip - Resolução nº 197/2022", [])]
     dom_ti = [(v["v"], v["n"]) for v in filtro.get("TI - Tipo de Instituição", [])]
 
-    # -- informes
     partes = []
     n_cuentas = 0
     for rel in sorted(datos["relatorios"], key=lambda r: int(r["NumeroRelatorio"])):
@@ -597,12 +569,12 @@ def main():
         nuevo15 = " <span class='badge' style='background:#e8fde8;color:#15803d'>SOLO ESCOPO CAMBIO (4)</span>" if num == 15 else ""
         tabla_inv = ""
         if filas_inv:
-            tabla_inv = ("<h3>Inventario de cuentas (2026-03, desde el cache del framework)</h3>"
+            tabla_inv = (f"<h3>Inventario de cuentas ({etiqueta}, desde el crudo)</h3>"
                          "<table><tr><th>Cod.</th><th>Cuenta (NomeColuna)</th>"
                          "<th>Composicion / descripcion (DescricaoColuna)</th><th>Escopos</th></tr>"
                          + "".join(filas_inv) + "</table>")
         elif num == 15:
-            tabla_inv = ("<p style='color:#6b7280'>Sin datos en 2026-03 (informe finalizado en 06/2023). "
+            tabla_inv = (f"<p style='color:#6b7280'>Sin datos en {etiqueta} (informe finalizado en 06/2023). "
                          "Cuentas tipicas: 23024-23035 y 87404-87413 (N. Operacoes y Valor por tipo de "
                          "operacion de cambio: exportaciones, importaciones, transferencias financieras, etc.).</p>")
         partes.append(f"""
@@ -623,7 +595,6 @@ def main():
 
     informes_html = "".join(partes)
 
-    # -- renumeracion de era
     viejo, nuevo = datos["renumeracion"]
     ren_html = "<table><tr><th colspan='2'>Era 2000-03 (Resumo, BB)</th><th colspan='2'>Era 2025-03+ (Resumo, BB)</th></tr>"
     for i in range(max(len(viejo), len(nuevo))):
@@ -714,7 +685,7 @@ resolver nombres, conglomerados y clasificaciones.</p>
 <section id="informes"><h2>5. Informes (16) &mdash; definiciones, notas y cuentas</h2>
 <p>Cada informe con su fuente, unidades, disponibilidad por escopo, notas
 tecnicas oficiales y el inventario de cuentas verificado contra el cache
-(2026-03). Usa el buscador para filtrar cuentas por nombre/codigo.</p>
+({etiqueta}). Usa el buscador para filtrar cuentas por nombre/codigo.</p>
 {informes_html}</section>
 <section id="eras"><h2>6. Eras y cambios historicos</h2>{ERAS}
 <h3>Ejemplo de renumeracion de cuentas (Resumo, Banco do Brasil)</h3>{ren_html}</section>

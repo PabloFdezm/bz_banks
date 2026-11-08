@@ -15,7 +15,7 @@ TABLAS (datos/gold/)
 - bk_portada_roe: periodo, fecha, trimestre, roe, cdi_4t, roe_cdi_pp (ROE del panel menos CDI promedio
   de 4 trimestres, en pp).
 - bk_portada_tablas: bloque (credito_nominal, credito_real, mora, roe), orden, fila, ultimo, d1, d3,
-  d12, dventana, unidad, corte. En crédito: saldo (R$ mil millones), y % de variación; en mora: nivel
+  d12, dventana, corte y las unidades de la tabla estándar. En crédito: saldo (R$ mil millones), y % de variación; en mora: nivel
   en % y cambios en pp; en ROE: % y pp con d1 = t/t, d3 vacío, d12 = a/a, dventana = 4T/4T.
 - bk_portada_cuotas: vista, orden, banco, cuota (fracción), grupo, periodo. Diez mayores + «Resto».
 
@@ -26,81 +26,37 @@ REGLAS
 - Real: saldo deflactado por el índice IPCA encadenado (SGS 433), base último mes.
 - Contribución: (componente_t − componente_t−12) / total_t−12, en pp. Libre + direccionado = total
   (diferencia < 1 %); PF + PJ = total.
-- Series SGS: se leen del crudo (cualquier dataset de bcb_sgs). Si falta, se bajan con el mismo
-  mecanismo de preparar_gold_bancos_sistema; sin red, la fila queda vacía y se avisa.
+- Series SGS: saldos del crudo bcb_sgs/bancos_sistema (sgs.py); mora > 90 días de bk_sistema_m; CDI de
+  sgs.cdi_12m (promedio de los 12 meses que terminan en el trimestre).
 - Cuotas: último trimestre del panel IF.Data con informes de pasivo (r3) y cartera PF/PJ (r11, r13);
   activos y crédito total desde bk_panel (share_ativo, share_credito). Solo conglomerados del panel.
 """
 from __future__ import annotations
 
-import glob
-import io
-import json
 import sys
-from pathlib import Path
 
-import numpy as np
 import pandas as pd
 
 import almacen as A
-import preparar_gold_bancos_sistema as S
+import bancos as B
+import ifdata_texto as T_IF
+import sgs as SG
+import tabla_estandar as T
 
-BASE = Path(__file__).resolve().parents[1]
-BANKS = BASE / "datos" / "gold"
-CRUDO_SGS = BASE / "datos" / "crudo" / "bcb_sgs"
-CRUDO_IFDATA = BASE / "datos" / "crudo" / "bcb_ifdata" / "valores" / "actual"
-COMANDO = "python -X utf8 preparar_gold_bancos_portada.py"
 DESDE = "2016-01"
 
-SALDOS = {"total": 20539, "libre": 20542, "direccionado": 20593, "pf": 20541, "pj": 20540}
+SALDOS = {"total": "credito_total", "libre": "credito_libre", "direccionado": "credito_direccionado",
+          "pf": "credito_pf", "pj": "credito_pj"}           # componente → nombre en sgs.CODIGOS
 NOMBRE_CREDITO = {"total": "Total", "libre": "Libre", "direccionado": "Direccionado", "pf": "Personas", "pj": "Empresas"}
-# Mora > 90 días: (fila, código SGS). 21083 (PJ total), 21085 (libre total) y 21132 (direccionado total)
-# se bajan si faltan; si el SGS no los sirve, la fila queda vacía.
-MORA = [("Total", 21082), ("Libre", 21085), ("Direccionado", 21132), ("Personas", 21084), ("Empresas", 21083),
-        ("Personas · libre", 21112), ("Empresas · libre", 21086)]
-CDI = 4389
-MESES = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"]
-
-
-def serie(codigo: int) -> pd.Series | None:
-    """Serie mensual del crudo SGS (cualquier dataset); si falta, intenta bajarla."""
-    rutas = sorted(glob.glob(str(CRUDO_SGS / "*" / "actual" / f"serie_{codigo}.json")))
-    if rutas:
-        d = pd.DataFrame(json.loads(Path(rutas[0]).read_text(encoding="utf-8")))
-        col = "data" if "data" in d else "fecha"
-        s = pd.Series(pd.to_numeric(d["valor"], errors="coerce").to_numpy(),
-                      index=pd.to_datetime(d[col], format="%d/%m/%Y")).sort_index()
-        s = s[~s.index.duplicated(keep="last")]
-    else:
-        try:
-            s = S.sgs(codigo, False)
-        except Exception as e:  # sin red o código inexistente: la fila queda vacía
-            print(f"aviso: SGS {codigo} no disponible ({type(e).__name__}: {e})", file=sys.stderr)
-            return None
-    return S.mensual(s)
-
-
-def mes(p: pd.Period) -> str:
-    return f"{MESES[p.month - 1]}-{str(p.year)[2:]}"
-
-
-def variaciones_saldo(x: pd.Series) -> dict:
-    x = x.dropna()
-    return {"ultimo": x.iloc[-1], "d1": x.iloc[-1] / x.iloc[-2] - 1,
-            "d3": x.iloc[-3:].mean() / x.iloc[-6:-3].mean() - 1, "d12": x.iloc[-1] / x.iloc[-13] - 1,
-            "dventana": x.iloc[-12:].mean() / x.iloc[-24:-12].mean() - 1, "corte": mes(x.index[-1])}
-
-
-def variaciones_tasa(x: pd.Series) -> dict:
-    x = x.dropna()
-    return {"ultimo": x.iloc[-1], "d1": x.iloc[-1] - x.iloc[-2], "d3": x.iloc[-3:].mean() - x.iloc[-6:-3].mean(),
-            "d12": x.iloc[-1] - x.iloc[-13], "dventana": x.iloc[-12:].mean() - x.iloc[-24:-12].mean(),
-            "corte": mes(x.index[-1])}
+# Mora > 90 días: (fila, serie_id de bk_sistema_m, en fracción).
+MORA = [("Total", "mora90_total"), ("Libre", "mora90_libre"), ("Direccionado", "mora90_direccionado"),
+        ("Personas", "mora90_pf"), ("Empresas", "mora90_pj"), ("Personas · libre", "mora90_pf_livre"),
+        ("Empresas · libre", "mora90_pj_livre")]
 
 
 def credito() -> tuple[pd.DataFrame, list[dict]]:
-    sal = {k: serie(c) for k, c in SALDOS.items()}
-    indice = S.deflactor(serie(433))
+    sal = {k: SG.serie_mensual(SG.CODIGOS[n]) for k, n in SALDOS.items()}
+    indice = SG.deflactor(SG.serie_mensual(SG.CODIGOS["ipca"]))
     filas, tabla = [], []
     for modo in ("nominal", "real"):
         ss = {k: (v if modo == "nominal" else v.div(indice.reindex(v.index))) for k, v in sal.items()}
@@ -108,82 +64,85 @@ def credito() -> tuple[pd.DataFrame, list[dict]]:
         for k, v in ss.items():
             aa = v / v.shift(12) - 1
             contrib = (v - v.shift(12)) / tot.shift(12).reindex(v.index) * 100
-            df = pd.DataFrame({"fecha": v.index.to_timestamp(how="end").normalize().strftime("%Y-%m-%d"),
+            df = pd.DataFrame({"fecha": T.fecha_fin(v.index),
                                "modo": modo, "componente": k, "aa": aa.to_numpy(), "contrib_pp": contrib.to_numpy()},
                               index=v.index)
             filas.append(df[df.index >= pd.Period(DESDE, "M")])
-            var = variaciones_saldo(v)
+            var = T.variaciones_saldo(v)
             var["ultimo"] = sal[k].dropna().iloc[-1] / 1e3   # saldo nominal, R$ mil millones (SGS en R$ millones)
             u = sal[k].dropna()
             var["share"] = u.iloc[-1] / sal["total"].dropna().reindex(u.index).dropna().iloc[-1] if k != "total" else 1.0
-            tabla.append({"bloque": f"credito_{modo}", "orden": list(SALDOS).index(k), "fila": NOMBRE_CREDITO[k],
-                          "unidad": "pct", **var})
+            tabla.append(T.fila(var, bloque=f"credito_{modo}", orden=list(SALDOS).index(k), fila=NOMBRE_CREDITO[k],
+                                unidad_ultimo="brl_mm", unidad_cambio="pct", trimestral=False,
+                                destacar=k == "total"))
     return pd.concat(filas, ignore_index=True), tabla
 
 
+def _serie_sistema(m: pd.DataFrame, serie_id: str) -> pd.Series:
+    x = m[m["serie_id"] == serie_id]
+    if x.empty:
+        raise ValueError(f"bk_sistema_m no tiene {serie_id}")
+    return pd.Series(x["valor"].to_numpy(), index=pd.PeriodIndex(x["fecha"], freq="M")).sort_index()
+
+
 def mora() -> tuple[pd.DataFrame, list[dict]]:
-    tabla, total = [], None
-    for i, (nombre, cod) in enumerate(MORA):
-        s = serie(cod)
-        if s is None or s.dropna().empty:
-            tabla.append({"bloque": "mora", "orden": i, "fila": nombre, "unidad": "pp", "ultimo": np.nan,
-                          "d1": np.nan, "d3": np.nan, "d12": np.nan, "dventana": np.nan, "corte": None})
-            continue
-        s = s / 100  # SGS en %
-        if cod == 21082:
-            total = s
-        v = variaciones_tasa(s)
-        tabla.append({"bloque": "mora", "orden": i, "fila": nombre, "unidad": "pp",
-                      **{k: (v[k] * 100 if k in ("d1", "d3", "d12", "dventana") else v[k]) for k in v}})
-    t = pd.DataFrame({"fecha": total.index.to_timestamp(how="end").normalize().strftime("%Y-%m-%d"),
+    m = pd.read_parquet(A.GOLD / "bk_sistema_m.parquet", columns=["fecha", "serie_id", "valor"])
+    tabla = []
+    for i, (nombre, serie_id) in enumerate(MORA):
+        s = _serie_sistema(m, serie_id)
+        tabla.append(T.fila(T.variaciones_tasa(s, escala=100), bloque="mora", orden=i, fila=nombre,
+                            unidad_ultimo="pct", unidad_cambio="pp", trimestral=False, destacar=nombre == "Total"))
+    total = _serie_sistema(m, "mora90_total")
+    t = pd.DataFrame({"fecha": T.fecha_fin(total.index),
                       "nivel": total.to_numpy(), "d_aa_pp": ((total - total.shift(12)) * 100).to_numpy()}, index=total.index)
     return t[t.index >= pd.Period(DESDE, "M")].reset_index(drop=True), tabla
 
 
 def roe() -> tuple[pd.DataFrame, list[dict]]:
-    g = pd.read_parquet(BANKS / "bk_grupo.parquet")
-    r = g[(g.optica == "Total panel") & (g.grupo == "Todos los grupos") & (g.metrica == "roe_ttm")][["periodo", "fecha", "trimestre", "valor"]]
+    g = pd.read_parquet(A.GOLD / "bk_grupo.parquet")
+    r = g[(g.optica == B.OPTICA_PANEL) & (g.grupo == B.TODOS) & (g.metrica == "roe_ttm")][
+        ["periodo", "fecha", "trimestre", "valor"]]
     r = r.dropna().sort_values("periodo").rename(columns={"valor": "roe"})
-    cdi = serie(CDI)
-    if cdi is None:
-        raise SystemExit("falta SGS 4389 (CDI)")
-    q = cdi.groupby(cdi.index.asfreq("Q")).mean().rolling(4).mean() / 100
-    r["cdi_4t"] = [q.get(pd.Period(f"{p[:4]}Q{int(p[4:]) // 3}", "Q"), np.nan) for p in r.periodo]
-    r["roe_cdi_pp"] = (r.roe - r.cdi_4t) * 100
-    r = r[r.periodo >= "201601"].reset_index(drop=True)
+    r["cdi_4t"] = SG.cdi_12m().reindex(r["periodo"]).to_numpy()
+    r["roe_cdi_pp"] = SG.menos_cdi(r.set_index("periodo")["roe"]).to_numpy() * 100
+    r = r[r.periodo >= DESDE.replace("-", "")].reset_index(drop=True)
     tabla = []
-    for i, (nombre, col, esc) in enumerate([("ROE 12 meses", "roe", 100), ("ROE − CDI", "roe_cdi_pp", 1)]):
-        x = r[col].to_numpy() * (esc if col == "roe" else 1)
-        tabla.append({"bloque": "roe", "orden": i, "fila": nombre, "unidad": "pp",
-                      "ultimo": r[col].iloc[-1], "d1": x[-1] - x[-2], "d3": np.nan, "d12": x[-1] - x[-5],
-                      "dventana": x[-4:].mean() - x[-8:-4].mean(), "corte": r.trimestre.iloc[-1]})
+    for i, (nombre, col, esc, uu) in enumerate([("ROE 12 meses", "roe", 100, "pct"),
+                                                ("ROE − CDI", "roe_cdi_pp", 1, "pp")]):
+        var = T.variaciones_trimestrales(r[col].to_numpy() * esc, r[col].iloc[-1], r.trimestre.iloc[-1])
+        tabla.append(T.fila(var, bloque="roe", orden=i, fila=nombre, unidad_ultimo=uu,
+                            unidad_cambio="pp", trimestral=True, destacar=False))
     return r, tabla
 
 
 def cuotas() -> pd.DataFrame:
-    banco = pd.read_parquet(BANKS / "bk_banco.parquet")[["cod_inst", "nombre_corto", "modelo"]]
-    panel = pd.read_parquet(BANKS / "bk_panel.parquet", columns=["cod_inst", "periodo", "metrica", "valor"])
-    per = max(p.name.split("_")[1] for p in A.glob_crudo(CRUDO_IFDATA, "valores_*_1_r3.csv"))   # CSV o parquet
+    banco = pd.read_parquet(A.GOLD / "bk_banco.parquet")[["cod_inst", "nombre_corto", "modelo"]]
+    panel = pd.read_parquet(A.GOLD / "bk_panel.parquet", columns=["cod_inst", "periodo", "metrica", "valor"])
+    bal = pd.read_parquet(A.GOLD / "bank_balances.parquet", columns=["cod_inst", "periodo", "depositos"])
+    per = bal["periodo"].max()
+    tot = pd.read_parquet(A.GOLD / "bk_cartera_totales.parquet")
+    tot = tot[tot["periodo"] == per]
 
-    def informe(n):
-        d = A.leer_crudo_tabla(CRUDO_IFDATA / f"valores_{per}_1_r{n}.csv", ["CodInst", "NomeColuna", "Saldo"])
-        d["Saldo"] = pd.to_numeric(d.Saldo.astype(str).str.replace(",", "."), errors="coerce")
-        d["CodInst"] = d.CodInst.astype(str)   # texto con ceros a la izquierda, como la lectura anterior (columna mixta)
-        return d
+    # Vista, ahorro y plazo no son conceptos del balance curado: se leen del informe 3 (pasivo) del trimestre.
+    p3 = A.leer_crudo_tabla(A.ruta_valores(per, 1, 3), ["CodInst", "NomeColuna", "Saldo"])
+    p3["Saldo"] = T_IF.saldo(p3["Saldo"])
+    p3["CodInst"] = p3["CodInst"].astype(str)   # texto con ceros a la izquierda (columna mixta)
 
-    def col(d, pref):
-        return d[d.NomeColuna.str.startswith(pref)].groupby("CodInst").Saldo.sum()
+    def col(pref):
+        return p3[p3.NomeColuna.str.startswith(pref)].groupby("CodInst").Saldo.sum()
 
-    p3, p11, p13 = informe(3), informe(11), informe(13)
+    def de_panel(metrica):
+        return panel[(panel.metrica == metrica) & (panel.periodo == per)].set_index("cod_inst").valor
+
     vistas = {
-        "Activos totales": panel[(panel.metrica == "share_ativo") & (panel.periodo == per)].set_index("cod_inst").valor,
-        "Crédito total": panel[(panel.metrica == "share_credito") & (panel.periodo == per)].set_index("cod_inst").valor,
-        "Crédito personas": col(p11, "Total da Carteira de Pessoa Física"),
-        "Crédito empresas": col(p13, "Total da Carteira de Pessoa Jurídica"),
-        "Depósitos totales": col(p3, "Depósitos \n(a)"),
-        "Depósitos a la vista": col(p3, "Depósitos à Vista"),
-        "Depósitos de ahorro": col(p3, "Depósitos de Poupança"),
-        "Depósitos a plazo": col(p3, "Depósitos a Prazo"),
+        "Activos totales": de_panel("share_ativo"),
+        "Crédito total": de_panel("share_credito"),
+        "Crédito personas": tot[tot["tipo"] == "PF"].set_index("cod_inst")["publicado"],
+        "Crédito empresas": tot[tot["tipo"] == "PJ"].set_index("cod_inst")["publicado"],
+        "Depósitos totales": bal[bal["periodo"] == per].set_index("cod_inst")["depositos"],
+        "Depósitos a la vista": col("Depósitos à Vista"),
+        "Depósitos de ahorro": col("Depósitos de Poupança"),
+        "Depósitos a plazo": col("Depósitos a Prazo"),
     }
     nm = banco.set_index("cod_inst")
     out = []
@@ -200,36 +159,31 @@ def cuotas() -> pd.DataFrame:
     return pd.DataFrame(out)
 
 
-def guardar(nombre: str, df: pd.DataFrame) -> None:
-    b = io.BytesIO()
-    df.to_parquet(b, index=False)
-    A.guardar_derivado("bcb_sgs", "bancos_gold_portada", f"{nombre}.parquet", b.getvalue(),
-                       desde=["bcb_sgs/bancos_sistema", "bcb_ifdata/valores"], como=COMANDO,
-                       nota="Portada v3 del sitio de bancos")
-    A.escribir_atomico(BANKS / f"{nombre}.parquet", b.getvalue())
-    print(f"{nombre}: {len(df):,} filas")
+def comprobar(cred: pd.DataFrame, cuo: pd.DataFrame) -> None:
+    ult = cred[cred.modo == "nominal"].dropna(subset=["contrib_pp"])
+    u = ult[ult.fecha == ult.fecha.max()].set_index("componente")
+    if {"pf", "pj"} <= set(u.index):
+        dif = abs(u.loc["pf", "contrib_pp"] + u.loc["pj", "contrib_pp"] - u.loc["total", "aa"] * 100)
+        if not dif < 0.05:
+            raise ValueError(f"PF + PJ no suma el total a/a ({dif:.3f} pp)")
+    for v, g in cuo.groupby("vista"):
+        if not abs(g.cuota.sum() - 1) < 1e-6:
+            raise ValueError(f"cuotas de {v} no suman 1")
 
 
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
     cred, t1 = credito()
     mor, t2 = mora()
     ro, t3 = roe()
     cuo = cuotas()
     tablas = pd.DataFrame(t1 + t2 + t3)
-    # comprobaciones
-    ult = cred[cred.modo == "nominal"].dropna(subset=["contrib_pp"])
-    f = ult.fecha.max()
-    u = ult[ult.fecha == f].set_index("componente")
-    if {"pf", "pj"} <= set(u.index):
-        dif = abs(u.loc["pf", "contrib_pp"] + u.loc["pj", "contrib_pp"] - u.loc["total", "aa"] * 100)
-        assert dif < 0.05, f"PF + PJ no suma el total a/a ({dif:.3f} pp)"
-    for v, g in cuo.groupby("vista"):
-        assert abs(g.cuota.sum() - 1) < 1e-6, f"cuotas de {v} no suman 1"
-    guardar("bk_portada_credito", cred)
-    guardar("bk_portada_mora", mor)
-    guardar("bk_portada_roe", ro)
-    guardar("bk_portada_tablas", tablas)
-    guardar("bk_portada_cuotas", cuo)
+    comprobar(cred, cuo)
+    for nombre, df in (("bk_portada_credito", cred), ("bk_portada_mora", mor), ("bk_portada_roe", ro),
+                       ("bk_portada_tablas", tablas), ("bk_portada_cuotas", cuo)):
+        A.publicar_gold(nombre, df, fuente="bcb_sgs", dataset="bancos_gold_portada",
+                        desde=[f"crudo/{SG.FUENTE}", "crudo/bcb_ifdata/valores", "gold/bk_grupo.parquet",
+                               "gold/bk_panel.parquet", "gold/bk_banco.parquet"], nota="Portada v3 del sitio de bancos")
+        print(f"{nombre}: {len(df):,} filas")
     print(tablas[["bloque", "fila", "ultimo", "d1", "d3", "d12", "dventana", "corte"]].round(4).to_string(index=False))
     return 0
 

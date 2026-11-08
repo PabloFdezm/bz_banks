@@ -1,48 +1,46 @@
-/* B12 · Mora — calidad de la cartera por modalidad y por sector (SCR.data). 6-nov.
+/* B12 · Mora — calidad de la cartera por modalidad y por sector (SCR.data).
    Sección 01 replica el gráfico 1.2.2.16 del REF (activos problemáticos por modalidad, PF; calza exacto a jun-26) y
    la 03 el 1.2.2.15 (cartera de menor y mayor riesgo; la agrupación es propia). La 02 (mora temprana) y la 04
    (activos problemáticos de empresas por sector) son propias.
-   Todo viene de preparar_gold_bancos_scr_productos.py (bk_scr_tablas con producto «_mora», bk_scr_series).
-   Sin imports: contar_tarjetas.mjs lee este archivo como texto. */
-const SCR = 'BCB, SCR.data';
-const COBRE = '#A85E24';
-const MODS = ['Tarjeta', 'Personal no consignado', 'Consignado', 'Vehículos', 'Inmobiliario', 'Rural', 'Cheque especial'];
-const COLOR = { 'Tarjeta': '#B04A5A', 'Personal no consignado': '#7A5C99', 'Consignado': '#2F7A86', 'Vehículos': '#8FA3BC',
-  'Inmobiliario': '#2E5C8A', 'Rural': '#6B8E5A', 'Cheque especial': '#1F3F60', 'Menor riesgo': '#2E5C8A', 'Mayor riesgo': '#8FA3BC' };
-const etiquetaMes = (f) => `${f.slice(5, 7)}/${f.slice(2, 4)}`;
+   Todo viene de preparar_gold_bancos_scr_productos.py (bk_scr_tablas con producto «_mora», bk_scr_series). */
+import { FUENTE, enPreparacion } from '../comun.js';
+import { COLOR } from '../tokens.js';
+import { etiquetaMes } from '../formato.js';
+import { filasDe, serieDe, ultimasFechas, valoresEn, tablaEstandar, graficoYTabla, lineasConTotal } from './_series.js';
 
-const bloque = (d, b) => (d.bk_scr_tablas || []).filter((f) => f.bloque === b && f.producto === '_mora').sort((x, y) => x.orden - y.orden);
-const serie = (d, s) => (d.bk_scr_series || []).filter((f) => f.serie === s).sort((x, y) => (x.fecha < y.fecha ? -1 : 1));
+const { SCR } = FUENTE;
+const MODS = ['Tarjeta', 'Personal no consignado', 'Consignado', 'Vehículos', 'Inmobiliario', 'Rural', 'Cheque especial'];
+const COLOR_SERIE = { 'Tarjeta': COLOR.granate, 'Personal no consignado': COLOR.lavanda, 'Consignado': COLOR.petroleo, 'Vehículos': COLOR.aceroMedio,
+  'Inmobiliario': COLOR.navy, 'Rural': COLOR.oliva, 'Cheque especial': COLOR.azulNoche, 'Menor riesgo': COLOR.navy, 'Mayor riesgo': COLOR.aceroMedio };
+
+const bloque = (d, b) => filasDe(d.bk_scr_tablas, { bloque: b, producto: '_mora' });
+const serie = (d, s) => serieDe(d.bk_scr_series, s);
 
 function lineas(d, prefijo, nombres, total, intervalo = 11) {
-  const fechas = [...new Set(serie(d, `${prefijo}|${total}`).map((x) => x.fecha))];
-  if (!fechas.length) return { enPreparacion: 'falta bk_scr_series' };
-  const val = (n) => { const m = new Map(serie(d, `${prefijo}|${n}`).map((x) => [x.fecha, x.valor * 100])); return fechas.map((f) => m.get(f) ?? null); };
-  const ls = nombres.map((n) => ({ nombre: n, color: COLOR[n] || '#8FA3BC', valores: val(n), grosor: 1.6 }));
-  ls.unshift({ nombre: total, color: COBRE, valores: val(total), grosor: 3, z: 9 });
-  return { componente: 'barras_linea', categorias: fechas.map(etiquetaMes), barras: [], lineas: ls, leyendaInteractiva: true, leyenda: [],
-    formatoIzq: (v) => `${v} %`, intervalo };
+  const fechas = ultimasFechas(serie(d, `${prefijo}|${total}`), Infinity);
+  if (!fechas.length) return enPreparacion('falta bk_scr_series');
+  const valores = (n) => valoresEn(serie(d, `${prefijo}|${n}`), fechas);
+  return lineasConTotal({
+    categorias: fechas.map(etiquetaMes),
+    total: { nombre: total, valores: valores(total) },
+    lineas: nombres.map((n) => ({ nombre: n, color: COLOR_SERIE[n] || COLOR.aceroMedio, valores: valores(n) })),
+    intervalo,
+  });
 }
 
 function armarSector(d) {
   const f = bloque(d, 'sector').filter((x) => x.fila !== 'Resto de sectores');
-  if (!f.length) return { enPreparacion: 'falta bk_scr_tablas' };
+  if (!f.length) return enPreparacion('falta bk_scr_tablas');
   const ult = (n) => { const s = serie(d, `ap_sector|${n}`); return s.length ? s[s.length - 1].valor : null; };
-  const filas = f.map((x) => ({ nombre: x.fila, valor: ult(x.fila), destacar: x.destacar, color: x.destacar ? COBRE : '#2E5C8A' }))
+  const filas = f.map((x) => ({ nombre: x.fila, valor: ult(x.fila), destacar: x.destacar, color: x.destacar ? COLOR.total : COLOR.navy }))
     .filter((x) => x.valor != null).sort((a, b) => b.valor - a.valor);
   return { filas, formato: 'pct' };
 }
 
-const tabla = (b) => (d) => {
-  const f = bloque(d, b);
-  return f.length ? { filas: f } : { enPreparacion: 'falta bk_scr_tablas' };
-};
-const fila2 = (a, b, alto = 470) => [[{ clave: a, ancho: 4, alto }, { clave: b, ancho: 5, alto }]];
+const tabla = (b) => (d) => tablaEstandar(bloque(d, b), 'falta bk_scr_tablas');
+const fila2 = (a, b, alto = 470) => graficoYTabla(a, b, alto);
 
 export default {
-  clave: 'B12',
-  ruta: 'mora',
-  nombre: 'Mora',
   rotulo: 'SCR.DATA · MENSUAL',
   usaBanco: false,
 

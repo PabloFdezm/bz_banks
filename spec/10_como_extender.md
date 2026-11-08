@@ -3,38 +3,48 @@
 ## Agregar una tarjeta a una página existente
 
 1. **Datos primero (Python).** Si la tarjeta necesita un cálculo nuevo, agregarlo al script de gold que
-   corresponda (o crear `pipeline/preparar_gold_bancos_<tema>.py`), escribir con `almacen.guardar_derivado`
-   + `escribir_atomico` en `datos/gold/bk_<tabla>.parquet`. Si es tabla descriptiva, usar el contrato de la
-   tabla estándar (`04_modelo_de_datos.md`). Agregar el script a `actualizar.bat` **antes** del paso 8.
-2. Correr el script, luego `preparar_gold_bancos.py base` y `exportar_web_bancos.py`.
+   corresponda (o crear `pipeline/preparar_gold_bancos_<tema>.py` con `main(argv) -> int`), publicar con
+   `almacen.publicar_gold` (valida contra `definiciones/contrato_gold.json`: agregar ahí la tabla). Si es
+   tabla descriptiva, usar `tabla_estandar.py`. Una métrica nueva del panel se declara en
+   `definiciones/metricas_bancos.json`. Agregar el paso a `PASOS` de `pipeline/actualizar.py`, antes de
+   «manifiesto».
+2. Correr `python -X utf8 pipeline/actualizar.py --sin-red --desde <paso>`.
 3. En `sitio/assets/js/paginas/bN.js`: agregar la clave a `filas` de la sección (respetando gráfico 4 +
    tabla 5) y la entrada en `tarjetas` con `componente`, `datos`, `armar`, `fuente`, `nota`, `estado`.
-   `armar` solo filtra y da forma. Sin `import`.
-4. Actualizar `ESPERADO` en `herramientas/verificar_f1.py` y `herramientas/contar_tarjetas.mjs`.
+   `armar` solo filtra y da forma; sin dato devuelve `enPreparacion(motivo)` o `requiereBanco(motivo)`.
+   Fuentes, grupos, rutas de partición e indicadores salen de `comun.js`; colores, de `tokens.js`; formatos y
+   períodos, de `formato.js`; las piezas de series con tabla estándar, de `paginas/_series.js`. Solo
+   módulos sin DOM (las herramientas de Node importan las configs).
+4. Actualizar el conteo de la página en `herramientas/esqueleto_tarjetas.json`.
 5. Verificar: `verificar_f1.py`, `contar_tarjetas.mjs`, `pytest`, y revisar en el sitio publicado con
    fuentes reales, en Presentar, a 1280 / 1440 / 1920 px.
 
 ## Agregar una página
 
 1. Proponerla en un canvas y esperar aprobación de Pablo.
-2. Crear `sitio/<ruta>/index.html` (copiar uno existente y cambiar el import de la config).
-3. Crear `sitio/assets/js/paginas/bN.js` y registrar la página en `config.js` (`PAGINAS`).
-4. Agregar la página a `PAGINAS` y `ESPERADO` en `verificar_f1.py` y a `contar_tarjetas.mjs`.
-5. Si tiene banco, `usaBanco` y tarjetas con `banco: true`; si no, `usaBanco: false`.
+2. Registrar la página en `config.js` (`PAGINAS`: clave, ruta, nombre; `oculta: true` si aún no va al menú).
+3. Crear `sitio/<ruta>/index.html` como copia exacta de cualquier otro (son todos iguales; Cloudflare Pages
+   necesita la carpeta) y `sitio/assets/js/paginas/bN.js` (sin clave, ruta ni nombre).
+4. Agregar su conteo a `herramientas/esqueleto_tarjetas.json`. `verificar_f1.py` y `contar_tarjetas.mjs` leen
+   las páginas de `config.js`.
+5. Si tiene banco, `usaBanco: true` y tarjetas con `banco: true`; si no, `usaBanco: false`.
 
 ## Agregar una serie SGS
 
-- En los scripts de gold, `serie(codigo)` (`preparar_gold_bancos_portada.py`) busca en cualquier dataset de
-  `crudo/bcb_sgs` y si no está la baja con `preparar_gold_bancos_sistema.sgs(codigo, descargar=True)`.
-- Documentar el código y su nombre (validado contra el catálogo del SGS) en `03_pipeline_de_datos.md`.
+- Agregar `nombre: código` a `CODIGOS` en `pipeline/sgs.py` (validar antes el código contra el catálogo del
+  SGS: una serie inexistente llega como HTML, no como 404). El paso «sgs» de `actualizar.py` la baja con las
+  demás a `crudo/bcb_sgs/bancos_sistema/`.
+- Leerla con `sgs.serie(sgs.CODIGOS["nombre"])` (o `sgs.serie_mensual` para índice mensual continuo). Si es una
+  serie de sistema para el sitio, agregarla a `preparar_gold_bancos_sistema.py` y leerla de `bk_sistema_m/q`.
 
 ## Agregar un componente
 
-- Función `nombre(cont, e)` en `charts_bancos.js`, con un comentario `/* ---------- nombre (tipo): qué
-  dibuja ---------- */` encima (lo lee `generar_spec.py`). Si es ECharts, crear con
-  `echarts.init(cont, null, { renderer: 'svg' })`, sin fijar familia de fuente distinta (la fija
-  `pagina.js`) y devolver la instancia. Registrar en `COMPONENTES_BANCOS`. Si es HTML, agregar el nombre a la
-  lista de componentes HTML en `pagina.js` (no llevan `role=img`).
+- Función `nombre(cont, e, { titulo })` en `charts_bancos.js` y su descriptor en `COMPONENTES`:
+  `{ dibujar: nombre, entrada: [claves que lee], descripcion }` (`generar_spec.py` los publica). Si es ECharts,
+  crear con `iniciar(cont)`, partir la opción de `tema()`, `tooltip()` y `ejeBase()` (charts.js) y devolver la
+  instancia. Si es HTML, devolver `null` y ocuparse de su accesibilidad (`cajaDesplazable` para tablas).
+  Formatos con las unidades de `formato.js`; colores por categoría en la entrada, no importados. Colores de `C` / `COLOR`; un color nuevo va en `tokens.js` y en
+  `tokens.css` con el mismo valor (`verificar_f1.py` lo comprueba).
 - Probar en Presentar: la letra se escala ×1,5 recorriendo `fontSize` de la opción; usar `fontSize`
   numérico, no cadenas.
 

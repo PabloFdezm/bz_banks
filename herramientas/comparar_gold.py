@@ -2,15 +2,16 @@
 
 Uso: python -X utf8 herramientas/comparar_gold.py <carpeta_a> <carpeta_b>
 Los floats se comparan con tolerancia relativa 1e-12 (solo ruido de redondeo); todo lo demás exacto.
-`bk_manifiesto` se compara sin las columnas que dependen del momento de la corrida (bytes, sha256, generado).
+`bk_manifiesto` se compara sin bytes ni sha256.
 """
+import argparse
 import sys
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
-VOLATILES = {"bk_manifiesto": {"bytes", "sha256", "generado", "generado_en", "actualizado"}}
+VOLATILES = {"bk_manifiesto": {"bytes", "sha256"}}
 
 
 def comparar(a: Path, b: Path) -> list[str]:
@@ -46,6 +47,10 @@ def comparar(a: Path, b: Path) -> list[str]:
 
 
 if __name__ == "__main__":
-    d = comparar(Path(sys.argv[1]), Path(sys.argv[2]))
+    ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    ap.add_argument("carpeta_a", type=Path)
+    ap.add_argument("carpeta_b", type=Path)
+    args = ap.parse_args()
+    d = comparar(args.carpeta_a, args.carpeta_b)
     print("\nIDÉNTICO" if not d else "\nDIFERENCIAS:\n" + "\n".join(d))
     sys.exit(1 if d else 0)

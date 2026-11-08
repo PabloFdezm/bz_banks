@@ -25,9 +25,9 @@ Set-Location "C:\Users\pablo\OneDrive\Documentos\bz_banks"
 .\publicar.bat datos    # antes recalcula el gold y los JSON (actualizar.bat)
 ```
 
-`actualizar.bat` corre, en orden: `preparar_bancos_powerbi` → `preparar_metricas_bancos` →
-`preparar_credito_paginas_powerbi --descargar` → `preparar_gold_bancos todo` → `_qcambio` → `_portada` →
-`_pag_credito` → `exportar_web_bancos`. Las series SGS que falten se bajan solas.
+`actualizar.bat` corre `pipeline/actualizar.py`: baja las series SGS del catálogo, recalcula cada paso en orden
+(ver `spec/03_pipeline_de_datos.md`), arma el manifiesto, corre `pytest` y `verificar_gold --gold` y recién
+entonces exporta. `actualizar.bat --sin-red` hace lo mismo sin descargas.
 
 ## Trimestral: bajar IF.Data nuevo
 
@@ -39,10 +39,9 @@ python -X utf8 pipeline\ifdata.py colectar --desde 201403 --hasta AAAAMM --escop
 
 ## Entradas que vienen del dashboard macro (congeladas)
 
-`preparar_gold_bancos_sistema.py` lee cuatro tablas que construye el dashboard macro y que se copiaron a
-`datos/intermedio/` el 4-nov-2026: `fh_deuda` (SGS 29034 y 29037), `tasa_real_exante`, `tasas_pnad` (desocupación,
-PNAD) y `expectativas_focus`. **No se actualizan desde aquí.** Pendiente: leer las tres del SGS directamente y
-dejar solo la desocupación como entrada externa.
+`preparar_gold_bancos_sistema.py` lee dos tablas que construyó el dashboard macro y que se copiaron a
+`datos/intermedio/` el 4-nov-2026: `tasa_real_exante` y `expectativas_focus`. **No se actualizan desde aquí.**
+Endeudamiento, comprometimiento y desocupación se leen del SGS desde el 6-nov.
 
 ## Instalación (una vez)
 

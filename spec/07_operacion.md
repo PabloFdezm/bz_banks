@@ -16,7 +16,8 @@ npx wrangler login
 
 ```powershell
 Set-Location "C:\Users\pablo\OneDrive\Documentos\bz_banks"
-.\actualizar.bat      # gold + JSON (baja solo las series SGS que falten)
+.\actualizar.bat      # baja SGS y el ZIP SCR del año, recalcula, verifica (pytest + verificar_gold) y exporta
+.\actualizar.bat --sin-red   # lo mismo sin descargas (un dato que falte hace fallar el paso)
 .\publicar.bat        # sitio\ → Cloudflare Pages producción
 .\publicar.bat datos  # las dos cosas seguidas
 ```
@@ -45,15 +46,16 @@ python -X utf8 pipeline\ifdata.py colectar --desde 201403 --hasta AAAAMM --escop
 
 | Comando | Qué comprueba |
 |---|---|
-| `python -X utf8 herramientas\verificar_f1.py --puerto 8080` | Levanta un servidor, abre las 11 páginas (con y sin `?banco=itau`) en Chromium; HTTP 200, 0 errores de consola, conteo de secciones y tarjetas igual al esperado (`ESPERADO`), «en preparación» solo donde no hay `armar()`. `--captura DIR` guarda capturas. |
-| `python -X utf8 herramientaserificar_f1.py --url https://banks-bz.pages.dev --anchos 1920,1280,390` | Lo mismo sobre el sitio publicado, con las fuentes reales (reporta cuáles cargaron) y sin scroll horizontal en cada ancho. Es la verificación después de publicar. |
+| `python -X utf8 herramientas\verificar_f1.py --puerto 8080` | Levanta un servidor, abre las páginas de `config.js` (con y sin `?banco=itau`) en Chromium; HTTP 200, 0 errores de consola, conteo de secciones y tarjetas igual al de `herramientas/esqueleto_tarjetas.json`, «en preparación» solo donde no hay `armar()`. `--captura DIR` guarda capturas. |
+| `python -X utf8 herramientas\verificar_f1.py --url https://banks-bz.pages.dev --anchos 1920,1280,390` | Lo mismo sobre el sitio publicado, con las fuentes reales (reporta cuáles cargaron) y sin scroll horizontal en cada ancho. Es la verificación después de publicar. |
 | `node herramientas\contar_tarjetas.mjs` | Tarjetas declaradas por página contra el esqueleto. |
-| `python -X utf8 herramientas\verificar_gold.py --gold` | Estructura, períodos, crédito y validación del gold. |
-| `python -m pytest -q` | 115 tests sobre el gold (manifiesto, contratos de columnas, reglas de quiebre, sumas). |
+| `python -X utf8 herramientas\verificar_gold.py` | Intermedio (`metricas_bancos`, `cre_panorama`, `cre_calidad`): estructura, períodos y validación contra los informes. `--comparar <parquet>` contrasta un candidato. |
+| `python -X utf8 herramientas\verificar_gold.py --gold` | Tablas gold `bk_*`: columnas y clave según `definiciones/contrato_gold.json`, fechas, licencias y las reglas de cada tabla (sumas de grupo, árbol ROE, cartera, SCR, manifiesto). |
+| `python -m pytest -q` | Tests del verificador y del gold. Los marcados `integracion` leen `datos/` y se omiten si no está. |
 | `python -X utf8 herramientas\generar_spec.py` | Regenera `spec/generado/`. |
 
-Al cambiar el número de tarjetas de una página, actualizar `ESPERADO` en `verificar_f1.py` y en
-`contar_tarjetas.mjs`.
+Al cambiar el número de tarjetas de una página, actualizar `herramientas/esqueleto_tarjetas.json` (lo leen
+`verificar_f1.py` y `contar_tarjetas.mjs`).
 
 **Ojo con las capturas:** `verificar_f1.py` bloquea las fuentes de Google para no depender de la red, así
 que las capturas usan una fuente de reemplazo más angosta. Para juzgar cómo se ve de verdad (cortes de

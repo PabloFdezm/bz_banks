@@ -26,8 +26,7 @@ por certificado, es la firma del proxy.
 
 truststore resuelve el caso parcheando ssl.SSLContext para que valide contra el almacen
 del sistema (el de Windows en el equipo del proyecto, el de OpenSSL en Linux/WSL). Eso
-arregla de una sola vez requests (bcb_api, bcb_scraper, ifdata, extraer_fuentes) y
-urllib.request (bajar_documentacion, verificar.py), porque los dos terminan en el mismo
+arregla de una sola vez requests y urllib.request, porque los dos terminan en el mismo
 ssl del stdlib.
 
 Si truststore no esta instalado, se respeta REQUESTS_CA_BUNDLE / SSL_CERT_FILE por si
@@ -38,7 +37,7 @@ USO
 ---
     import certificados   # basta con importarlo, se activa solo
 
-Va como primer import de cada script que salga a la red, ANTES de requests.
+Va como primer import de cada modulo que salga a la red (bcb_api, ifdata, sgs, scr_zip), ANTES de requests.
 """
 
 import os
@@ -105,7 +104,7 @@ def diagnosticar(host="olinda.bcb.gov.br", puerto=443):
 
     print(f"Probando TLS contra {host}:{puerto}\n")
 
-    # Primero SIN validar, solo para leer quien firma. No se descarga nada.
+    # Primero SIN validar: no se descarga nada.
     bruto = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
     bruto.check_hostname = False
     bruto.verify_mode = ssl.CERT_NONE
@@ -124,7 +123,6 @@ def diagnosticar(host="olinda.bcb.gov.br", puerto=443):
         print("  -> esto ya no es un problema de certificados; mira red/DNS/firewall.")
         return
 
-    # Ahora validando de verdad, como hace requests.
     try:
         val = ssl.create_default_context()
         with socket.create_connection((host, puerto), timeout=15) as s:

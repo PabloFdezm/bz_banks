@@ -7,11 +7,12 @@ Requiere los parquet de datos/gold (no van a git) y Node para leer la configurac
 """
 from __future__ import annotations
 
+import argparse
 import ast
+import functools
 import json
 import re
 import subprocess
-from datetime import date
 from pathlib import Path
 
 import pandas as pd
@@ -20,7 +21,8 @@ RAIZ = Path(__file__).resolve().parents[1]
 GOLD = RAIZ / "datos" / "gold"
 INTER = RAIZ / "datos" / "intermedio"
 SAL = RAIZ / "spec" / "generado"
-CAB = f"> Generado por `herramientas/generar_spec.py` el {date.today():%Y-%m-%d}. No editar a mano: se sobrescribe.\n\n"
+# Sin fecha: regenerar sin cambios en los datos no produce diferencias.
+CAB = "> Generado por `herramientas/generar_spec.py`. No editar a mano: se sobrescribe.\n\n"
 
 
 def md_celda(v, n=70) -> str:
@@ -88,13 +90,21 @@ def bancos_md() -> None:
     (SAL / "bancos.md").write_text("\n".join(out) + "\n", encoding="utf-8")
 
 
+@functools.lru_cache(maxsize=1)
+def inventario_sitio() -> dict:
+    """Configs de página y registro de componentes, cargados por herramientas/inventario_paginas.mjs (una sola vez)."""
+    r = subprocess.run(["node", str(RAIZ / "herramientas" / "inventario_paginas.mjs")], capture_output=True, text=True, check=True, encoding="utf-8")
+    return json.loads(r.stdout)
+
+
 def paginas_md() -> None:
-    inv = json.loads(subprocess.run(["node", str(RAIZ / "herramientas" / "inventario_paginas.mjs")], capture_output=True, text=True, check=True, encoding="utf-8").stdout)
+    inv = inventario_sitio()
     out = ["# Páginas, secciones y tarjetas del sitio\n", CAB,
            f"Datos en `{inv['RUTA_DATOS']}` (relativo a `sitio/`). Páginas con `oculta: true` no salen en el menú pero se abren por URL.\n"]
     for p in inv["paginas"]:
         out.append(f"## {p['clave']} · {p['nombre']} — `/{p['ruta']}`{' (oculta)' if p.get('oculta') else ''}\n")
-        out.append(f"Archivo: `{p.get('archivo')}` · rótulo: {p.get('rotulo')} · usaBanco: {p.get('usaBanco')}\n")
+        out.append(f"Archivo: `{p.get('archivo')}` · rótulo: {p.get('rotulo')} · usaBanco: {p.get('usaBanco')}"
+                   f"{' · titular por banco' if p.get('titularPorBanco') else ''}\n")
         if p.get("franja"):
             out.append("**Franja de indicadores (arriba):** " + "; ".join(f"{k['rotulo']} ← `{k['tabla']}`{' (banco)' if k['banco'] else ''}" for k in p["franja"]) + "\n")
         for s in p.get("secciones", []):
@@ -118,23 +128,16 @@ def paginas_md() -> None:
 
 
 def componentes_md() -> None:
+    inv = inventario_sitio()
     out = ["# Componentes de dibujo\n", CAB,
-           "Cada tarjeta declara `componente`; `pagina.js` busca la función en `COMPONENTES` (charts.js) o `COMPONENTES_BANCOS` "
-           "(charts_bancos.js) y la llama con `(contenedor, entrada)`, donde `entrada` es lo que devolvió `armar()`. Si devuelve una "
-           "instancia de ECharts, se le engancha un ResizeObserver.\n"]
-    for archivo, reg in (("charts.js", "COMPONENTES"), ("charts_bancos.js", "COMPONENTES_BANCOS")):
-        t = (RAIZ / "sitio" / "assets" / "js" / archivo).read_text(encoding="utf-8")
-        nombres = re.search(rf"export const {reg} = \{{([^}}]*)\}}", t).group(1).replace(" ", "").split(",")
-        out.append(f"## `{archivo}` → `{reg}`\n")
-        for n in filter(None, nombres):
-            i = t.find(f"function {n}(")
-            previo = t[max(0, i - 2500):i]
-            bloques = re.findall(r"/\*(.*?)\*/", previo, flags=re.S)
-            com = re.sub(r"\s+", " ", bloques[-1]).strip(" -*") if bloques else ""
-            cuerpo = re.split(r"\n(?:export )?function |\n/\* -{5,}", t[i + 1:])[0]
-            claves = sorted(set(re.findall(r"\be\.([a-zA-Z_]+)", cuerpo)))
-            out.append(f"- **`{n}`** — {md_celda(com, 400) or '(sin comentario)'}  \n  Entrada (`e.*`): {', '.join(f'`{c}`' for c in claves) or '—'}")
-        out.append("")
+           "Registro único `COMPONENTES` (charts_bancos.js; los generales vienen de charts.js). Cada tarjeta declara "
+           "`componente` y `armar()` puede elegir otro según la vista; `pagina.js` llama `dibujar(contenedor, entrada, { titulo })`, "
+           "donde `entrada` es lo que devolvió `armar()`. Si devuelve una instancia de ECharts, la zona lleva role=img y un "
+           "ResizeObserver; si devuelve null, dibujó HTML. La lista de claves de entrada la declara cada componente.\n"]
+    for c in inv["componentes"]:
+        out.append(f"- **`{c['nombre']}`** — {md_celda(c['descripcion'], 400)}  \n"
+                   f"  Entrada (`e.*`): {', '.join(f'`{x}`' for x in c['entrada']) or '—'}")
+    out.append("")
     (SAL / "componentes.md").write_text("\n".join(out) + "\n", encoding="utf-8")
 
 
@@ -177,6 +180,7 @@ def definiciones_md() -> None:
 
 
 if __name__ == "__main__":
+    argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter).parse_args()
     SAL.mkdir(parents=True, exist_ok=True)
     for f in (gold_md, metricas_md, bancos_md, paginas_md, componentes_md, scripts_md, definiciones_md):
         f()

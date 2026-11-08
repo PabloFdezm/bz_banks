@@ -4,9 +4,10 @@
    las instancias de ECharts sigan vivas; al salir vuelve al final de su sección.
    Teclas: P entra · Esc sale · → / Espacio siguiente · ← anterior · Inicio / Fin · número + Enter salta.
    Al final de una página, → pasa a la primera lámina de la siguiente (orden de config.js) con el mismo estado. */
-import { PAGINAS } from './config.js';
+import { PAGINAS_VISIBLES, NOMBRE_SITIO, enlace, paginaDeRuta } from './config.js';
 import { crearColaVisual } from './fluidez.js';
-import { busquedaCompartida } from './estado.js';
+import { busquedaCompartida, fijarHash } from './url.js';
+import { el } from './dom.js';
 const COLA_VISUAL = crearColaVisual();
 const GRAFICOS_ESCALADOS = new WeakSet();
 let versionLamina = 0;
@@ -16,15 +17,14 @@ const ANCHO = 1920;
 const ALTO = 1080;
 const CLAVE_SESION = 'bancos:presentar';
 
-const enlace = (ruta) => (ruta ? `/${ruta}/` : '/');
-const PAGINAS_VISIBLES = PAGINAS.filter((p) => !p.oculta);
-
+let CFG = null;
+let LAMINAS = []; // { cfg, nodo, cuerpo, selectores } de cada sección con cuerpo (las da pagina.js)
 let activo = false;
 let secciones = [];
 let idx = 0;
 let seccionActual = null;
 let cuerpoActual = null;
-let selectoresActuales = []; // v3: [nodo, padre, siguiente] de los selectores del riel llevados a la lámina
+let selectoresActuales = []; // [nodo, padre, siguiente] de los selectores del riel llevados a la lámina
 let scrollPrevio = 0;
 let capa = null;
 let lamina = null;
@@ -36,37 +36,19 @@ let inertePrevio = false;
 let pantallaCompletaPropia = false;
 let controles = null;
 
-function nodo(tag, clase, texto) {
-  const n = document.createElement(tag);
-  if (clase) n.className = clase;
-  if (texto != null) n.textContent = texto;
-  return n;
-}
-
-const textoDe = (sel, raiz) => raiz.querySelector(sel)?.textContent.trim() || '';
-
-/* Las láminas: secciones ya montadas que tienen cuerpo (un hueco «Cargando sección…» o con error no cuenta). */
-const seccionesConLamina = () => [...document.querySelectorAll('section.seccion')].filter((sec) => sec.querySelector(':scope > .cuerpo'));
-
-/* Estado de la presentación en la URL, como el resto del sitio (estado.js): mientras se presenta, el hash es
+/* Estado de la presentación en la URL, como el resto del sitio: mientras se presenta, el hash es
    #presentar=sNN de la lámina visible. Recargar o compartir el enlace abre esa misma lámina; al salir se
    devuelve el hash que había antes (p. ej. #s03), así recargar después no vuelve a entrar. */
 let hashPrevio = '';
-function fijarHash(h) {
-  try { history.replaceState(history.state, '', `${location.pathname}${location.search}${h}`); } catch { /* sin historial */ }
-}
 
-function paginaIndice() {
-  const ruta = location.pathname.replace(/\/index\.html$/, '/').replace(/\/?$/, '/');
-  return PAGINAS_VISIBLES.findIndex((p) => enlace(p.ruta) === ruta);
-}
+/* Posición de esta página en el recorrido (las del menú); -1 si está oculta. */
+const paginaIndice = () => PAGINAS_VISIBLES.indexOf(paginaDeRuta(location.pathname));
 
 
-/* 4-nov: los gráficos se diseñan para la página (letra 11–12 px); en una lámina de 1920 px eso queda diminuto.
+/* Los gráficos se diseñan para la página (letra 11–12 px); en una lámina de 1920 px eso queda diminuto.
    Al entrar a la lámina se agranda toda la letra de sus gráficos ECharts y al salir se devuelve. */
 const FACTOR_TEXTO = 1.5;
 function escalarTextos(raiz, f) {
-  window.__escalaTextoPres = (zona) => escalarTextos(zona, FACTOR_TEXTO); // pagina.js: gráfico redibujado dentro de la lámina
   if (!raiz || !window.echarts) return;
   const recorrer = (o) => {
     if (Array.isArray(o)) { o.forEach(recorrer); return; }
@@ -76,8 +58,8 @@ function escalarTextos(raiz, f) {
       else if (typeof o[k] === 'object') recorrer(o[k]);
     }
   };
-  for (const el of raiz.querySelectorAll('.tarjeta-zona > div')) {
-    const ch = window.echarts.getInstanceByDom(el);
+  for (const n of raiz.querySelectorAll('[data-grafico]')) {
+    const ch = window.echarts.getInstanceByDom(n);
     if (!ch || (f > 1 && GRAFICOS_ESCALADOS.has(ch)) || (f < 1 && !GRAFICOS_ESCALADOS.has(ch))) continue;
     const op = ch.getOption();
     if (!op.textStyle || Array.isArray(op.textStyle)) op.textStyle = {};
@@ -88,6 +70,11 @@ function escalarTextos(raiz, f) {
     if (f > 1) GRAFICOS_ESCALADOS.add(ch); else GRAFICOS_ESCALADOS.delete(ch);
     ch.resize();
   }
+}
+
+/* Llamado por pagina.js cuando un gráfico se redibuja (selector, banco): dentro de la lámina, a su escala. */
+export function alRedibujar(zona) {
+  if (activo && zona.closest('.pres-lamina')) escalarTextos(zona, FACTOR_TEXTO);
 }
 
 /* El cuerpo vuelve al final de su sección (era su último hijo) antes de desmontar la lámina. */
@@ -119,41 +106,32 @@ function mostrar(i) {
   transicionLamina?.cancel();
   devolverCuerpo();
   idx = i;
-  const sec = secciones[i];
+  const { cfg: secCfg, nodo: sec, cuerpo, selectores } = secciones[i];
   seccionActual = sec;
-  if (sec.id) fijarHash(`#presentar=${sec.id}`);
-  cuerpoActual = sec.querySelector(':scope > .cuerpo');
+  fijarHash(`#presentar=${sec.id}`);
+  cuerpoActual = cuerpo;
 
   lamina.replaceChildren();
-  const cab = nodo('header', 'pres-cab');
+  const cab = el('header', 'pres-cab');
   cab.append(
-    nodo('span', 'pres-num', textoDe('.riel-numero', sec)),
-    nodo('h2', 'pres-nombre', textoDe('.riel-nombre', sec)),
-    nodo('p', 'pres-pregunta', textoDe('.riel-pregunta', sec)),
+    el('span', 'pres-num', secCfg.numero),
+    el('h2', 'pres-nombre', secCfg.nombre),
+    el('p', 'pres-pregunta', secCfg.pregunta || ''),
   );
 
-  // v3: los selectores de la sección (vista, medida…) viajan a la lámina, para cambiar la vista presentando
-  const sels = [...sec.querySelectorAll('.riel-selector')];
-  // v3c: la franja de selectores existe siempre (vacía si no hay), para que título, gráfico y tabla
+  // los selectores de la sección (vista, medida…) viajan a la lámina, para cambiar la vista presentando
+  // la franja de selectores existe siempre (vacía si no hay), para que título, gráfico y tabla
   // queden en la misma posición en todas las láminas
-  const caja = nodo('div', 'pres-selectores');
-  for (const n of sels) { selectoresActuales.push([n, n.parentNode, n.nextSibling]); caja.append(n); }
+  const caja = el('div', 'pres-selectores');
+  for (const n of selectores) { selectoresActuales.push([n, n.parentNode, n.nextSibling]); caja.append(n); }
   cab.append(caja);
-  const cw = nodo('div', 'pres-cuerpo');
-  if (cuerpoActual) cw.append(cuerpoActual);
+  const cw = el('div', 'pres-cuerpo');
+  cw.append(cuerpoActual);
 
-  const pie = nodo('footer', 'pres-pie');
-  const bloqueKpi = sec.querySelector('.riel-bloque .riel-bloque-cifra')?.closest('.riel-bloque');
-  if (bloqueKpi) {
-    pie.append(
-      nodo('span', 'pres-kpi-rotulo', textoDe('.riel-bloque-rotulo', bloqueKpi)),
-      nodo('span', 'pres-kpi', textoDe('.riel-bloque-cifra', bloqueKpi)),
-      nodo('span', 'pres-kpi-nota', textoDe('.riel-bloque-nota', bloqueKpi)),
-    );
-  }
+  const pie = el('footer', 'pres-pie');
   pie.append(
-    nodo('span', 'pres-frecuencia', textoDe('.riel-frecuencia', sec)),
-    nodo('span', 'pres-contador', `${i + 1} / ${secciones.length}`),
+    el('span', 'pres-frecuencia', secCfg.frecuencia || ''),
+    el('span', 'pres-contador', `${i + 1} / ${secciones.length}`),
   );
   lamina.append(cab, cw, pie);
   actualizarControles();
@@ -171,26 +149,26 @@ function mostrar(i) {
 
 export function entrar(i = 0) {
   if (activo) return;
-  secciones = seccionesConLamina();
+  secciones = LAMINAS;
   if (!secciones.length) return;
   hashPrevio = /^#presentar/.test(location.hash) ? '' : location.hash;
   scrollPrevio = window.scrollY;
   focoPrevio = document.activeElement;
-  capa = nodo('div', 'presentacion');
+  capa = el('div', 'presentacion');
   capa.setAttribute('role', 'dialog');
   capa.setAttribute('aria-label', 'Modo presentación');
   capa.setAttribute('aria-modal', 'true');
   capa.tabIndex = -1;
-  lamina = nodo('div', 'pres-lamina');
-  controles = nodo('nav', 'pres-controles');
+  lamina = el('div', 'pres-lamina');
+  controles = el('nav', 'pres-controles');
   controles.setAttribute('aria-label', 'Controles de presentación');
   const boton = (texto, nombre, accion) => {
-    const b = nodo('button', `pres-control pres-${nombre}`, texto);
+    const b = el('button', `pres-control pres-${nombre}`, texto);
     b.type = 'button';
     b.addEventListener('click', accion);
     return b;
   };
-  const estado = nodo('span', 'pres-estado');
+  const estado = el('span', 'pres-estado');
   estado.setAttribute('role', 'status');
   estado.setAttribute('aria-live', 'polite');
   controles.append(boton('Anterior', 'anterior', anterior), estado,
@@ -202,19 +180,17 @@ export function entrar(i = 0) {
   const app = document.getElementById('app');
   inertePrevio = app?.inert || false;
   if (app) app.inert = true;
-  try {
-    const p = document.documentElement.requestFullscreen?.();
-    p?.then?.(() => {
-      if (activo) { pantallaCompletaPropia = true; escalar(); }
-      else document.exitFullscreen?.().catch?.(() => {});
-    }).catch?.(() => {});
-  } catch { /* sin pantalla completa: la lámina igual se ve en la ventana */ }
+  // sin pantalla completa (navegador o permiso), la lámina igual se ve en la ventana
+  document.documentElement.requestFullscreen?.().then(() => {
+    if (activo) { pantallaCompletaPropia = true; escalar(); }
+    else document.exitFullscreen().catch(() => {});
+  }).catch(() => {});
   window.addEventListener('resize', alCambiarTamano);
   mostrar(Math.min(Math.max(i, 0), secciones.length - 1));
   controles.querySelector('.pres-salir').focus();
 }
 
-export function salir() {
+function salir() {
   if (!activo) return;
   ++versionLamina;
   transicionLamina?.cancel();
@@ -230,9 +206,7 @@ export function salir() {
   document.body.classList.remove('modo-presentacion');
   window.removeEventListener('resize', alCambiarTamano);
   activo = false;
-  try {
-    if (pantallaCompletaPropia && document.fullscreenElement) document.exitFullscreen?.().catch?.(() => {});
-  } catch { /* nada que salir */ }
+  if (pantallaCompletaPropia && document.fullscreenElement) document.exitFullscreen().catch(() => {});
   pantallaCompletaPropia = false;
   clearTimeout(timerTecleo);
   tecleo = '';
@@ -245,7 +219,7 @@ function irPagina(dir) {
   const k = paginaIndice();
   const destino = PAGINAS_VISIBLES[k + dir];
   if (k < 0 || !destino) return;
-  try { sessionStorage.setItem(CLAVE_SESION, dir > 0 ? 'primera' : 'ultima'); } catch { /* sin storage: entra en la lámina 1 */ }
+  try { sessionStorage.setItem(CLAVE_SESION, dir > 0 ? 'primera' : 'ultima'); } catch { /* storage bloqueado (modo privado): entra en la lámina 1 */ }
   location.href = enlace(destino.ruta) + busquedaCompartida() + (dir > 0 ? '#presentar' : '#presentar=ultima');
 }
 
@@ -255,7 +229,7 @@ function actualizarControles() {
   controles.querySelector('.pres-anterior').disabled = idx === 0 && k <= 0;
   const final = idx === secciones.length - 1 && (k < 0 || k === PAGINAS_VISIBLES.length - 1);
   controles.querySelector('.pres-siguiente').textContent = final ? 'Finalizar' : 'Siguiente';
-  controles.querySelector('.pres-estado').textContent = `${document.title.split(' · ')[0]} · ${idx + 1} de ${secciones.length}`;
+  controles.querySelector('.pres-estado').textContent = `${CFG.nombre} · ${idx + 1} de ${secciones.length}`;
 }
 
 function siguiente() {
@@ -300,40 +274,40 @@ function alTeclear(e) {
   }
 }
 
-/* Una hoja de impresión por sección: fuente y fecha de corte al pie (solo se ve al imprimir). */
+/* Una hoja de impresión por sección: página, sección, frecuencia y fuentes al pie (solo se ve al imprimir). */
 function instalarHojaPie() {
-  const nombrePagina = textoDe('.cabecera-nombre', document) || document.title;
-  for (const sec of document.querySelectorAll('section.seccion')) {
-    if (sec.querySelector(':scope > .hoja-pie')) continue;
-    const fuentes = [...new Set([...sec.querySelectorAll('.tarjeta-pie')].map((p) => p.textContent.replace(/^Fuente:\s*/, '')))];
-    const frecuencia = textoDe('.riel-frecuencia', sec);
-    sec.append(nodo('p', 'hoja-pie', `Bancos Brasil · ${nombrePagina} · ${textoDe('.riel-nombre', sec)}`
-      + `${frecuencia ? ` · ${frecuencia}` : ''}${fuentes.length ? ` · Fuentes: ${fuentes.join('; ')}` : ''}`));
+  for (const { cfg: sec, nodo: nodoSec } of LAMINAS) {
+    if (nodoSec.querySelector(':scope > .hoja-pie')) continue;
+    const claves = (sec.filas || []).flat().map((c) => c.clave);
+    const fuentes = [...new Set(claves.map((k) => CFG.tarjetas?.[k]?.fuente).filter(Boolean))];
+    nodoSec.append(el('p', 'hoja-pie', `${NOMBRE_SITIO} · ${CFG.nombre} · ${sec.nombre}`
+      + `${sec.frecuencia ? ` · ${sec.frecuencia}` : ''}${fuentes.length ? ` · Fuentes: ${fuentes.join('; ')}` : ''}`));
   }
 }
 
-/* Llamado por pagina.js al terminar de montar la página: instala la hoja de impresión y, si la URL
-   trae #presentar=sNN o venimos de otra página del recorrido, entra directo a esa lámina. */
-export function alMontar() {
+/* Llamado por pagina.js al terminar de montar la página, con la config y las láminas ({ cfg, nodo, cuerpo,
+   selectores } de cada sección): instala la hoja de impresión y, si la URL trae #presentar=sNN o venimos
+   de otra página del recorrido, entra directo a esa lámina. */
+export function alMontar(cfg, laminas) {
+  CFG = cfg;
+  LAMINAS = laminas;
   instalarHojaPie();
   let marca = null;
   try {
     marca = sessionStorage.getItem(CLAVE_SESION);
     sessionStorage.removeItem(CLAVE_SESION);
-  } catch { /* sin storage */ }
+  } catch { /* storage bloqueado (modo privado): no hay recorrido en curso */ }
   const m = location.hash.match(/^#presentar(?:=(ultima|s?\d{1,2}))?$/);
-  const sec = seccionesConLamina();
-  if ((m || marca) && !sec.length) {
-    // página sin láminas (p. ej. B10): si venimos recorriendo, el recorrido sigue a la próxima. Antes el
-    // hash #presentar que pone irPagina ganaba, entrar() no hacía nada y la presentación se cortaba aquí.
+  if ((m || marca) && !LAMINAS.length) {
+    // página sin láminas (p. ej. B10): si venimos recorriendo, el recorrido sigue a la próxima
     if (marca) irPagina(marca === 'ultima' ? -1 : 1);
     return;
   }
   if (m) {
-    const j = m[1] === 'ultima' ? sec.length - 1 : m[1] ? sec.findIndex((s) => s.id === `s${m[1].replace(/^s/, '').padStart(2, '0')}`) : 0;
+    const j = m[1] === 'ultima' ? LAMINAS.length - 1 : m[1] ? LAMINAS.findIndex((s) => s.nodo.id === `s${m[1].replace(/^s/, '').padStart(2, '0')}`) : 0;
     entrar(j < 0 ? 0 : j);
   } else if (marca) {
-    entrar(marca === 'ultima' ? sec.length - 1 : 0);
+    entrar(marca === 'ultima' ? LAMINAS.length - 1 : 0);
   }
 }
 

@@ -3,22 +3,18 @@
 
 POR QUÉ EXISTE
 --------------
-El spec de datos del dashboard de bancos (``docs/dashboard_bancos/SPEC_DATOS_BANCOS_v0.1.md``
+El spec de datos del dashboard de bancos (``docs/SPEC_DATOS_BANCOS_v0.1.md``
 §3.9) pide las series del Sistema —mora 90, atrasos 15-90, crédito real, crédito dirigido,
 spread, ICC, deuda de hogares— en formato largo mensual y trimestral con bandas. Esas series
-viven mitad en el SGS y mitad en tablas que el dashboard macro ya construyó en ``pb/``;
+viven mitad en el SGS y mitad en tablas que el dashboard macro dejó en ``datos/intermedio/``;
 reunirlas en cada página del sitio produciría cifras divergentes. Este módulo es el único
 lugar donde se transforman, y escribe ``datos/gold/bk_sistema_m.parquet`` y
 ``datos/gold/bk_sistema_q.parquet``.
 
-Es un archivo aparte de ``preparar_gold_bancos.py`` a propósito: ese lo escribe otro worker
-en la misma ola del plan 57 y el arquitecto integra ambos como subcomandos.
-
 Decisiones del encargo 61 y su corrección 61b (02-11-2026, «Decisiones del arquitecto»
-en ``docs/dashboard_bancos/PENDIENTES.md``), registradas aquí para el que relea:
+en ``docs/PENDIENTES.md``), registradas aquí para el que relea:
 
-- Los 38 códigos del encargo respondieron con JSON y fechas recientes (paso 1, tabla en
-  ``docs/orquestacion/61_resultado_sgs_sistema_2026-11-02.md``). Ninguno se reemplazó.
+- Los 38 códigos del encargo respondieron con JSON y fechas recientes (2-nov-2026). Ninguno se reemplazó.
 - ``impulso_credito`` no existe como tabla en ``pb/`` (se revisó el inventario; solo aparece
   en un docstring), así que se recalcula con SGS 20539 + 4382. Se publica en pp del PIB
   como ``impulso_credito_pp``.
@@ -47,135 +43,56 @@ En _q, ipca_12m toma el último mes del trimestre; el resto, promedio como siemp
 
 Receta:
 
-    python -X utf8 preparar_gold_bancos_sistema.py             # baja lo que falta y deriva
-    python -X utf8 preparar_gold_bancos_sistema.py --descargar  # fuerza re-descarga del SGS
+    python -X utf8 pipeline/preparar_gold_bancos_sistema.py   # deriva; una serie que falte en el crudo se baja
+                                                     # (el refresco de todas: paso «sgs» de actualizar.py)
 """
 
 from __future__ import annotations
 
 import argparse
-import json
-import os
 import sys
-import tempfile
-from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
 import almacen as A
+import sgs as SG
 
-BASE = Path(__file__).resolve().parents[1]
-FUENTE_SGS = "bcb_sgs"
-DATASET_SGS = "bancos_sistema"       # dataset propio, como cada hoja del macro
-DESDE_SGS = "01/01/2000"
-PB = BASE / "datos" / "intermedio"
-CARPETA_GOLD = BASE / "datos" / "gold"   # antes PB / "Banks" (herencia de Dashboard): el gold no se refrescaba
 
 # Series en nivel: el valor del SGS (que las sirve en %) pasado a fracción (61b).
-NIVELES = {
-    "credito_pib": 20622,
-    "mora90_total": 21082,
-    "mora90_pf_livre": 21112,
-    "mora90_pj_livre": 21086,
-    "atraso15_90_pf": 21005,
-    "atraso15_90_pj": 21004,
-    "mora90_personal": 21114,             # incluye consignado (decisión 61b)
-    "mora90_consignado_privado": 21116,
-    "mora90_consignado_publico": 21117,
-    "mora90_consignado_inss": 21118,
-    "mora90_consignado_total": 21119,     # del SGS desde 61b, no de hogares_modalidades
-    "mora90_vehiculos": 21121,
-    "mora90_rotativo": 21127,
-    "mora90_parcelado": 21128,
-    "mora90_cartao_total": 21129,
-    "mora90_inmobiliario_mercado": 21149,
-    "mora90_inmobiliario_dirigido": 21150,
-    "mora90_inmobiliario_total": 21151,
-    "mora90_mpme": 27703,
-    "mora90_grande": 27704,
-    "spread_livre": 20786,
-    "icc": 25351,
-}
+# Series en nivel: el valor del SGS (que las sirve en %) pasado a fracción (61b). Códigos en sgs.CODIGOS.
+NIVELES = ["credito_pib", "mora90_total", "mora90_libre", "mora90_direccionado", "mora90_pf", "mora90_pj",
+           "mora90_pf_livre", "mora90_pj_livre", "atraso15_90_pf", "atraso15_90_pj", "mora90_personal",
+           "mora90_consignado_privado", "mora90_consignado_publico", "mora90_consignado_inss",
+           "mora90_consignado_total", "mora90_vehiculos", "mora90_rotativo", "mora90_parcelado",
+           "mora90_cartao_total", "mora90_inmobiliario_mercado", "mora90_inmobiliario_dirigido",
+           "mora90_inmobiliario_total", "mora90_mpme", "mora90_grande", "spread_livre", "icc"]
 
 # Saldos que se deflactan con el IPCA y se publican como variación real a/a (fracción).
 # Las dirigidas suman PJ + PF en nominal antes de deflactar.
 REAL_AA = {
-    "credito_total_real_aa": [20539],
-    "credito_total_real_aa_pf": [20541],
-    "credito_total_real_aa_pj": [20540],
-    "credito_mpme_real_aa": [27701],
-    "credito_grande_real_aa": [27702],
-    "dirigido_rural_real_aa": [20597, 20609],
-    "dirigido_imob_real_aa": [20600, 20612],
-    "dirigido_bndes_real_aa": [20604, 20616],
+    "credito_total_real_aa": ["credito_total"],
+    "credito_total_real_aa_pf": ["credito_pf"],
+    "credito_total_real_aa_pj": ["credito_pj"],
+    "credito_mpme_real_aa": ["credito_mpme"],
+    "credito_grande_real_aa": ["credito_grande"],
+    "dirigido_rural_real_aa": ["credito_pj_rural", "credito_pf_rural"],
+    "dirigido_imob_real_aa": ["credito_pj_inmobiliario", "credito_pf_inmobiliario"],
+    "dirigido_bndes_real_aa": ["credito_pj_bndes", "credito_pf_bndes"],
 }
 
 # Concesiones PF livre SA: deflactar y 3m/3m anualizado.
-REAL_M3M3A = {"conc_pf_livre_sa": 24444}
+REAL_M3M3A = ["conc_pf_livre_sa"]
 
-IPCA, PIB_12M, SALDO_TOTAL = 433, 4382, 20539
-
-# Hogares y empleo directo del SGS (tarea 1.3). 24369 = PNADC desocupación (IBGE t6381|v4099, §3.9).
-HOGARES_SGS = {"endividamento": 29037, "comprometimento": 29034, "desocupacion": 24369}
-FOCUS_PARQUET = PB / "expectativas_focus.parquet"   # 78c: expectativas IPCA 12 meses
+# Hogares y empleo directo del SGS (tarea 1.3), en % → fracción.
+HOGARES_SGS = ["endividamento", "comprometimento", "desocupacion"]
+FOCUS_PARQUET = A.INTERMEDIO / "expectativas_focus.parquet"
 
 # Únicas series en puntos porcentuales; todo lo demás va en fracción (61b).
 SERIES_EN_PP = frozenset({"impulso_credito_pp", "bis_hiato_credito_pib_pp"})
 
 VENTANA_M, MINIMO_M = 120, 60       # bandas mensuales: 120 meses, mínimo 60
 VENTANA_Q, MINIMO_Q = 40, 20        # bandas trimestrales: 40 trimestres, mínimo 20
-
-
-# --- SGS: descarga y lectura (mismo patrón que preparar_finanzas_hogares_powerbi) -------- #
-
-def sgs(codigo: int, descargar: bool) -> pd.Series:
-    """Serie SGS desde el crudo ``bcb_sgs/bancos_sistema`` (la baja si falta o si se pide).
-
-    Usa ``bcb_api.descargar_serie`` (nunca requests directo) y guarda por ``almacen``.
-    El JSON se guarda con la clave ``data`` para seguir el formato del resto del crudo SGS.
-    """
-    ruta = A.ruta_cruda(FUENTE_SGS, DATASET_SGS) / f"serie_{codigo}.json"
-    if descargar or not ruta.exists():
-        import certificados  # noqa: F401  CA corporativa; antes de requests
-
-        import bcb_api
-
-        print(f"[~] bajando SGS {codigo}...", file=sys.stderr)
-        filas = [{"data": f["fecha"], "valor": f["valor"]}
-                 for f in bcb_api.descargar_serie(codigo, desde=DESDE_SGS)]
-        if not filas:
-            raise ValueError(f"SGS {codigo}: la API no devolvió observaciones")
-        url = (f"https://api.bcb.gov.br/dados/serie/bcdata.sgs.{codigo}/dados"
-               f"?formato=json&dataInicial={DESDE_SGS}")
-        A.guardar_crudo(FUENTE_SGS, DATASET_SGS, ruta.name,
-                        json.dumps(filas, ensure_ascii=False).encode("utf-8"), url)
-    d = pd.DataFrame(json.loads(ruta.read_text(encoding="utf-8")))
-    s = pd.Series(pd.to_numeric(d["valor"], errors="coerce").to_numpy(),
-                  index=pd.to_datetime(d["data"], format="%d/%m/%Y"))
-    if s.index.duplicated().any():
-        raise ValueError(f"SGS {codigo}: meses repetidos")
-    return s.sort_index().rename(str(codigo))
-
-
-def mensual(s: pd.Series) -> pd.Series:
-    """Índice a PeriodIndex mensual continuo, para que ``shift(12)`` sean 12 meses de verdad."""
-    p = s.copy()
-    p.index = pd.PeriodIndex(pd.to_datetime(p.index), freq="M")
-    p = p[~p.index.duplicated(keep="last")].sort_index()
-    if len(p) > 1:
-        p = p.reindex(pd.period_range(p.index[0], p.index[-1], freq="M"))
-    return p.astype(float)
-
-
-# --- transformaciones de §3.9 ------------------------------------------------------------ #
-
-def deflactor(ipca: pd.Series) -> pd.Series:
-    """Índice IPCA encadenando la variación mensual (SGS 433), base 1,0 = último mes."""
-    if ipca.isna().any():
-        raise ValueError("SGS 433 trae meses sin valor: no se puede encadenar el índice")
-    indice = (1.0 + ipca / 100.0).cumprod()
-    return indice / indice.iloc[-1]
 
 
 def real_aa(nominal: pd.Series, indice: pd.Series) -> pd.Series:
@@ -229,7 +146,7 @@ def leer_focus_ipca_12m() -> pd.Series:
     d["mes"] = d["fecha_encuesta"].dt.to_period("M").dt.to_timestamp()
     d = d.sort_values("fecha_encuesta").drop_duplicates("mes", keep="last")
     s = pd.Series(d["mediana"].to_numpy(dtype=float), index=pd.DatetimeIndex(d["mes"]))
-    return mensual(s).rename("ipca_esperado_12m")
+    return SG.mensual(s).rename("ipca_esperado_12m")
 
 
 def ultimo_mes_trimestral(s: pd.Series) -> pd.Series:
@@ -249,11 +166,9 @@ def deltas_mensuales(m: pd.DataFrame) -> pd.DataFrame:
     return m.sort_values(["fecha", "serie_id"]).reset_index(drop=True)
 
 
-# --- lectura de pb/ (no se re-baja nada) -------------------------------------------------- #
-
-
 def leer_selic_real_exante() -> pd.Series:
-    d = pd.read_parquet(PB / "tasa_real_exante.parquet")
+    """Entrada congelada del dashboard macro (media mensual de la serie diaria); no se re-baja."""
+    d = pd.read_parquet(A.INTERMEDIO / "tasa_real_exante.parquet")
     s = pd.Series(d["tasa_real_exante"].to_numpy(), index=pd.to_datetime(d["fecha"]))
     return s.groupby(pd.PeriodIndex(s.index, freq="M")).mean().rename("selic_real_exante")
 
@@ -268,43 +183,39 @@ def leer_bis() -> pd.Series:
     return s.rename("bis_hiato_credito_pib_pp")
 
 
-# --- armado de las dos tablas ------------------------------------------------------------ #
-
-def construir_series(descargar: bool) -> tuple[dict[str, pd.Series], dict[str, pd.Series]]:
-    """Devuelve (series mensuales, serie BIS trimestral). Queda separado para que el
-    arquitecto lo integre como subcomando sin tocar las transformaciones."""
+def construir_series() -> tuple[dict[str, pd.Series], dict[str, pd.Series]]:
+    """Devuelve (series mensuales, serie BIS trimestral)."""
     cache: dict[int, pd.Series] = {}
 
-    def s(cod: int) -> pd.Series:
-        if cod not in cache:
-            cache[cod] = mensual(sgs(cod, descargar))
-        return cache[cod]
+    def s(nombre: str) -> pd.Series:
+        if nombre not in cache:
+            cache[nombre] = SG.mensual(SG.serie(SG.CODIGOS[nombre]))
+        return cache[nombre]
 
-    indice = deflactor(s(IPCA))
+    indice = SG.deflactor(s("ipca"))
     m: dict[str, pd.Series] = {}
 
-    for serie_id, cod in NIVELES.items():
-        m[serie_id] = s(cod) / 100.0            # el SGS las sirve en %; la tabla va en fracción
+    for serie_id in NIVELES:
+        m[serie_id] = s(serie_id) / 100.0       # el SGS las sirve en %; la tabla va en fracción
     for serie_id, codigos in REAL_AA.items():
         nominal = s(codigos[0])
         for c in codigos[1:]:                       # dirigidas: PJ + PF en nominal
-            nominal = nominal + s(c)               # alinea meses; si falta uno, NaN
+            nominal = nominal + s(c)               # si falta un mes en una, NaN
         m[serie_id] = real_aa(nominal, indice)
-    for serie_id, cod in REAL_M3M3A.items():
-        m[serie_id] = real_m3m3a(s(cod), indice)
+    for serie_id in REAL_M3M3A:
+        m[serie_id] = real_m3m3a(s(serie_id), indice)
 
-    m["impulso_credito_pp"] = impulso_credito(s(SALDO_TOTAL), s(PIB_12M))
+    m["impulso_credito_pp"] = impulso_credito(s("credito_total"), s("pib_12m"))
 
-    # 78c · IPCA 12m, expectativa Focus y derivadas ex ante (fracción).
-    m["ipca_12m"] = ipca_12m(s(IPCA))
+    m["ipca_12m"] = ipca_12m(s("ipca"))
     m["ipca_esperado_12m"] = leer_focus_ipca_12m()
     m["icc_real_exante"] = ((1.0 + m["icc"]) / (1.0 + m["ipca_esperado_12m"]) - 1.0) \
         .rename("icc_real_exante")
     m["mora90_pf_livre_adel3m"] = adelantar(m["mora90_pf_livre"], 3) \
         .rename("mora90_pf_livre_adel3m")
 
-    for serie_id, cod in HOGARES_SGS.items():   # tarea 1.3: directo del SGS, en % -> fracción
-        m[serie_id] = (s(cod) / 100.0).rename(serie_id)
+    for serie_id in HOGARES_SGS:
+        m[serie_id] = (s(serie_id) / 100.0).rename(serie_id)
     m["selic_real_exante"] = leer_selic_real_exante()
 
     for serie_id, serie in m.items():
@@ -342,7 +253,7 @@ def promedio_trimestral(s: pd.Series) -> pd.Series:
     """
     grupos = s.groupby(s.index.asfreq("Q"))
     valores = grupos.mean()
-    valores = valores[grupos.count() == 3]        # exige los tres meses con dato
+    valores = valores[grupos.count() == 3]
     return pd.Series(valores.to_numpy(),
                      index=valores.index.to_timestamp(how="end").normalize())
 
@@ -350,7 +261,7 @@ def promedio_trimestral(s: pd.Series) -> pd.Series:
 def construir_trimestral(mensuales: dict[str, pd.Series],
                          trimestrales: dict[str, pd.Series]) -> pd.DataFrame:
     series = {serie_id: promedio_trimestral(s) for serie_id, s in mensuales.items()}
-    series["ipca_12m"] = ultimo_mes_trimestral(mensuales["ipca_12m"])   # 78c: saldo, no promedio
+    series["ipca_12m"] = ultimo_mes_trimestral(mensuales["ipca_12m"])   # acumulado: último mes, no promedio
     series.update(trimestrales)                   # el BIS ya es trimestral, tal cual
     series = {k: v for k, v in series.items() if not v.dropna().empty}
     q = tabla_larga(series, VENTANA_Q, MINIMO_Q)
@@ -363,21 +274,7 @@ def construir_trimestral(mensuales: dict[str, pd.Series],
     return q.reset_index(drop=True)
 
 
-def escribir_parquet_atomico(tabla: pd.DataFrame, destino: Path) -> None:
-    destino.parent.mkdir(parents=True, exist_ok=True)
-    descriptor, temporal = tempfile.mkstemp(dir=destino.parent, suffix=".parquet.tmp")
-    os.close(descriptor)
-    try:
-        tabla.to_parquet(temporal, index=False)
-        os.replace(temporal, destino)
-    except BaseException:
-        Path(temporal).unlink(missing_ok=True)
-        raise
-
-
-# --- verificación (define «terminado» en los encargos 61 y 61b) -------------------------- #
-
-def verificar(m: pd.DataFrame, q: pd.DataFrame, crudo: dict[int, pd.Series]) -> int:
+def verificar(m: pd.DataFrame, q: pd.DataFrame) -> int:
     problemas = []
     hoy = pd.Timestamp.now().normalize()
 
@@ -393,10 +290,10 @@ def verificar(m: pd.DataFrame, q: pd.DataFrame, crudo: dict[int, pd.Series]) -> 
     # tres series contra el SGS crudo: una de saldo/ratio, una de mora, una de tasa.
     # La tabla va en fracción: tabla × 100 debe reproducir el crudo exactamente.
     print("\núltimos 3 valores: tabla (fracción) vs SGS crudo (%)")
-    for serie_id, codigo in (("credito_pib", 20622), ("mora90_total", 21082),
-                             ("spread_livre", 20786)):
+    for serie_id in ("credito_pib", "mora90_total", "spread_livre"):
+        codigo = SG.CODIGOS[serie_id]
         t = m.loc[m["serie_id"] == serie_id, ["fecha", "valor"]].dropna().tail(3)
-        c = crudo[codigo].dropna().tail(3)
+        c = SG.mensual(SG.serie(codigo)).dropna().tail(3)
         fechas_c = c.index.to_timestamp() if isinstance(c.index, pd.PeriodIndex) else c.index
         print(f"  {serie_id} (SGS {codigo}):")
         print("    tabla:", "  ".join(f"{f.date()} {v:.4f}" for f, v in t.itertuples(index=False)))
@@ -433,25 +330,24 @@ def verificar(m: pd.DataFrame, q: pd.DataFrame, crudo: dict[int, pd.Series]) -> 
 
 
 def main(argv=None) -> int:
-    ap = argparse.ArgumentParser(description=__doc__,
-                                 formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--descargar", action="store_true",
-                    help="re-baja las series del SGS aunque el crudo exista")
-    args = ap.parse_args(argv)
-
-    mensuales, trimestrales_bis = construir_series(args.descargar)
-    m = deltas_mensuales(tabla_larga(mensuales, VENTANA_M, MINIMO_M))   # 78c: d_1m, d_3m
+    argparse.ArgumentParser(description=__doc__,
+                            formatter_class=argparse.RawDescriptionHelpFormatter).parse_args(argv)
+    mensuales, trimestrales_bis = construir_series()
+    m = deltas_mensuales(tabla_larga(mensuales, VENTANA_M, MINIMO_M))
     q = construir_trimestral(mensuales, trimestrales_bis)
+    if verificar(m, q):
+        print("[!] bk_sistema no se publica: la verificación falló", file=sys.stderr)
+        return 1
 
-    escribir_parquet_atomico(m, CARPETA_GOLD / "bk_sistema_m.parquet")
-    escribir_parquet_atomico(q, CARPETA_GOLD / "bk_sistema_q.parquet")
+    desde = [f"crudo/{SG.FUENTE}/{SG.DATASET}", "crudo/bis/credit_gap", "intermedio/expectativas_focus.parquet",
+             "intermedio/tasa_real_exante.parquet"]
+    for nombre, tabla in (("bk_sistema_m", m), ("bk_sistema_q", q)):
+        A.publicar_gold(nombre, tabla, fuente=SG.FUENTE, dataset="bancos_gold_sistema", desde=desde)
     print(f"[+] bk_sistema_m: {len(m)} filas, {m['serie_id'].nunique()} series, "
           f"{m['fecha'].min().date()} a {m['fecha'].max().date()}")
     print(f"[+] bk_sistema_q: {len(q)} filas, {q['serie_id'].nunique()} series, "
           f"{q['fecha'].min().date()} a {q['fecha'].max().date()}")
-
-    crudo = {cod: mensual(sgs(cod, False)) for cod in (20622, 21082, 20786)}
-    return verificar(m, q, crudo)
+    return 0
 
 
 if __name__ == "__main__":

@@ -5,17 +5,15 @@
 ```
 BCB (fuentes públicas)                     pipeline/ (Python)                                  sitio/ (estático)
 ──────────────────────                     ──────────────────                                  ─────────────────
-IF.Data  OLinda/OData ──ifdata.py──▶ datos/crudo/bcb_ifdata/  (CSV + manifiesto)
-SGS      api.bcb.gov.br ──(sgs())──▶ datos/crudo/bcb_sgs/     (JSON por serie)
-SCR.data ZIP anuales ──_scr.py────▶ datos/crudo/bcb_scr/      (ZIP)
+IF.Data  OLinda/OData ──ifdata.py colectar (a mano)──▶ datos/crudo/bcb_ifdata/  (parquet + manifiesto)
+SGS      api.bcb.gov.br ──sgs.py (catálogo CODIGOS)──▶ datos/crudo/bcb_sgs/bancos_sistema/  (JSON por serie)
+SCR.data ZIP anuales ──scr_zip.py────────────────────▶ datos/crudo/bcb_scr/scrdata/  (ZIP)
                                          │
-                                         ▼
-                     preparar_bancos_powerbi ──▶ datos/gold/bank_*.parquet  (balances y resultados por banco)
-                     preparar_metricas_bancos ─▶ datos/intermedio/metricas_bancos.parquet (TTM, ROE, ROA, cuotas…)
-                     preparar_credito_paginas ─▶ datos/intermedio/cre_*.parquet (crédito por grupo y modalidad)
-                     preparar_gold_bancos todo ▶ datos/gold/bk_*.parquet  (sistema, cartera, base, rentabilidad, exposición)
-                     _qcambio / _portada / _pag_credito ▶ más bk_*
-                     preparar_gold_bancos base ▶ bk_manifiesto al día
+                                         ▼  pipeline/actualizar.py (pasos en orden; cada uno en su proceso)
+   sgs → balances → metricas → credito → sistema → cartera → base → rentabilidad → exposicion → qcambio
+   → portada → pag_credito → scr_productos → scr → manifiesto → verificacion → exportar
+                                         │
+           datos/gold/bank_*.parquet, datos/intermedio/*, datos/gold/bk_*.parquet (+ bk_manifiesto)
                                          │
                      exportar_web_bancos ──────▶ sitio/data/*.json  (+ particiones por banco, métrica y óptica)
                                                                                         │
@@ -24,14 +22,18 @@ SCR.data ZIP anuales ──_scr.py────▶ datos/crudo/bcb_scr/      (ZIP
                                                                         https://banks-bz.pages.dev
 ```
 
+El detalle de cada paso (qué lee, qué escribe, si usa red) está en `03_pipeline_de_datos.md`; la lista de
+pasos es `PASOS` en `pipeline/actualizar.py`.
+
 ## Decisiones y por qué
 
 - **Sitio estático, sin build ni framework.** HTML + módulos ES nativos + ECharts vendorizado
   (`sitio/assets/vendor/echarts.min.js`, render SVG). Se abre con cualquier servidor estático y se despliega
   copiando la carpeta. No hay npm en el sitio.
 - **Configuración declarativa por página.** Cada página es un objeto en `sitio/assets/js/paginas/bN.js`
-  (secciones, filas, tarjetas). Un único motor, `pagina.js`, la monta. Las configs **no importan nada**: así
-  `herramientas/contar_tarjetas.mjs` y `inventario_paginas.mjs` pueden leerlas sin el resto del sitio.
+  (secciones, filas, tarjetas). Un único motor, `pagina.js`, la monta. Las configs solo importan módulos sin
+  DOM (`comun.js`, `tokens.js`, `paginas/_series.js`): así `herramientas/inventario_paginas.mjs` las carga con
+  `import()` en Node (`--sin-dom` lo comprueba) para `contar_tarjetas.mjs`, `verificar_f1.py` y `generar_spec.py`.
 - **Los datos llegan como JSON tabular** `{tabla, columnas, filas}` (filas = arrays). `datos.js` los
   convierte en objetos y los cachea por sesión.
 - **Particiones para rendimiento.** Las tablas grandes se exportan también partidas:
@@ -42,9 +44,9 @@ SCR.data ZIP anuales ──_scr.py────▶ datos/crudo/bcb_scr/      (ZIP
   (lo que produce el código), ambos con `_manifiesto.json` (URL, sha256, fecha, entradas y comando).
 - **Pipeline sin paquete Python.** Los módulos de `pipeline/` se importan por nombre (`import almacen as A`).
   Funciona porque Python pone la carpeta del script en `sys.path` al correr `python pipeline/x.py`. Los tests
-  agregan `pipeline/` al path en `tests/conftest.py`. Cada módulo calcula la raíz del repo como
-  `Path(__file__).resolve().parents[1]`.
-- **Datos fuera de git.** `datos/` (≈6 GB, sobre todo CSV de IF.Data y ZIP de SCR) y `sitio/data/` están en
+  agregan `pipeline/` al path en `tests/conftest.py`. La raíz del repo y las carpetas de datos las define
+  `almacen.py` (`RAIZ`, `GOLD`, `INTERMEDIO`, `DEFINICIONES`); el resto las importa de ahí.
+- **Datos fuera de git.** `datos/` (≈2 GB, sobre todo ZIP del SCR.data; IF.Data va en parquet) y `sitio/data/` están en
   `.gitignore`. El repo guarda código y definiciones; los datos viven en el equipo (carpeta en OneDrive).
 - **Cloudflare Pages** publica `sitio/` tal cual (desde el 6-nov; antes Netlify). `publicar.bat` arma `deploy_web/`
   con `robocopy /MIR` (sin `netlify.toml`) y corre `wrangler pages deploy deploy_web --project-name banks-bz --branch main`.

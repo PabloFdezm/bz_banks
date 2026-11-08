@@ -11,24 +11,25 @@ antes de promover un trimestre nuevo y sirve como *dry run*: no escribe nada.
 
 Comprueba:
 - `metricas_bancos.parquet`: columnas, nulos, duplicados, fechas, períodos
-  trimestrales continuos, cobertura mínima, cuotas de mercado y la identidad
-  de crédito total (si está disponible `panel_bancos_wide.csv`).
+  trimestrales continuos, cobertura mínima y cuotas de mercado.
 - `cre_panorama.parquet` y `cre_calidad.parquet`: contrato que consume la API,
   duplicados y períodos.
 - `validacion.json`: claves, números y `dif_pct` calculado.
 - Opcionalmente, compara un candidato de staging contra el parquet actual.
 
-No audita PDFs ni reemplaza `tests/auditoria/auditar_fuentes.py`; con
-`--auditoria` lo ejecuta como una puerta más. Los PDFs son otra fuente, con
-estados explícitos (`verificado`, `aproximado_press_release`, etc.).
+No audita PDFs: son otra fuente, con estados explícitos (`verificado`,
+`aproximado_press_release`, etc.).
+
+Con `--gold` comprueba, en cambio, las tablas gold bk_* de datos/gold contra el
+contrato de `definiciones/contrato_gold.json` y sus reglas propias.
 
 Uso desde la raíz del repo:
 
-    python herramientas/verificar_gold.py
+    python herramientas/verificar_gold.py            # intermedio, crédito y validación
+    python herramientas/verificar_gold.py --gold     # tablas gold bk_*
     python herramientas/verificar_gold.py --json
     python herramientas/verificar_gold.py --comparar <ruta>/metricas.parquet
-    python herramientas/verificar_gold.py --estricto --auditoria
-    python herramientas/verificar_gold.py --gold
+    python herramientas/verificar_gold.py --estricto
 
 Código de salida: 0 si no hay errores (o advertencias con `--estricto`), 1 si
 hay algún error. Las advertencias no bloquean por defecto: los saltos de un
@@ -38,10 +39,8 @@ banco que sale del panel son datos reales y requieren revisión humana, no un
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
 import re
-import subprocess
 import sys
 from dataclasses import dataclass, field
 from datetime import date
@@ -51,13 +50,17 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
-RAIZ = Path(__file__).resolve().parents[1]
-METRICAS = RAIZ / "datos" / "intermedio" / "metricas_bancos.parquet"
-ANCHO = RAIZ / "datos" / "intermedio" / "panel_bancos_wide.csv"
-PANORAMA = RAIZ / "datos" / "intermedio" / "cre_panorama.parquet"
-CALIDAD = RAIZ / "datos" / "intermedio" / "cre_calidad.parquet"
-VALIDACION = RAIZ / "definiciones" / "validacion_bancos.json"
-AUDITORIA = RAIZ / "tests" / "auditoria" / "auditar_fuentes.py"
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "pipeline"))
+import almacen as A  # noqa: E402
+import bancos as B  # noqa: E402
+import periodos as PER  # noqa: E402
+import reglas_gold as RG  # noqa: E402
+
+RAIZ = A.RAIZ
+METRICAS = A.INTERMEDIO / "metricas_bancos.parquet"
+PANORAMA = A.INTERMEDIO / "cre_panorama.parquet"
+CALIDAD = A.INTERMEDIO / "cre_calidad.parquet"
+VALIDACION = A.DEFINICIONES / "validacion_bancos.json"
 
 COLUMNAS_METRICAS = [
     "periodo", "fecha", "cod_inst", "nombre_corto", "categoria", "metrica", "valor",
@@ -70,7 +73,6 @@ PATRON_PERIODO = re.compile(r"^\d{4}(03|06|09|12)$")
 MIN_BANCOS = 10
 MIN_BANCOS_ULTIMO = 20
 TOLERANCIA_CUOTA = 1e-6
-TOLERANCIA_RELATIVA = 1e-9
 TOLERANCIA_ABSOLUTA = 1.0  # R$ 1: absorbe el redondeo binario de valores en R$
 
 TIPOS_CREDITO = {"total", "PF", "PJ"}
@@ -99,6 +101,12 @@ class Resultado:
         return not self.errores
 
 
+def _acumular(destino: Resultado, parcial: Resultado) -> None:
+    destino.errores.extend(parcial.errores)
+    destino.advertencias.extend(parcial.advertencias)
+    destino.resumen.update(parcial.resumen)
+
+
 def _corto(seq: list[str], n: int = 8) -> str:
     """Formatea una lista sin volcar cientos de elementos en el log."""
     if len(seq) <= n:
@@ -113,17 +121,6 @@ def _leer_parquet(ruta: Path, etiqueta: str, resultado: Resultado) -> pd.DataFra
     try:
         return pd.read_parquet(ruta)
     except Exception as exc:  # noqa: BLE001 - el mensaje debe llegar al operador
-        resultado.errores.append(f"{etiqueta}: no se pudo leer {ruta}: {exc}")
-        return None
-
-
-def _leer_csv(ruta: Path, etiqueta: str, resultado: Resultado) -> pd.DataFrame | None:
-    if not ruta.exists():
-        resultado.errores.append(f"{etiqueta}: no existe {ruta}")
-        return None
-    try:
-        return pd.read_csv(ruta)
-    except Exception as exc:  # noqa: BLE001
         resultado.errores.append(f"{etiqueta}: no se pudo leer {ruta}: {exc}")
         return None
 
@@ -148,13 +145,6 @@ def _columnas(df: pd.DataFrame, requeridas: list[str], etiqueta: str,
     return True
 
 
-def _trimestres(desde: str, hasta: str) -> list[str]:
-    """Lista de etiquetas AAAAMM entre dos trimestres, ambos inclusive."""
-    inicio = pd.Period(year=int(desde[:4]), quarter=int(desde[4:]) // 3, freq="Q")
-    fin = pd.Period(year=int(hasta[:4]), quarter=int(hasta[4:]) // 3, freq="Q")
-    return [f"{p.year}{p.quarter * 3:02d}" for p in pd.period_range(inicio, fin, freq="Q")]
-
-
 def _periodos_validos(serie: pd.Series, etiqueta: str, resultado: Resultado) -> list[str]:
     """Devuelve solo etiquetas válidas; las inválidas se reportan y no se usan
     para calcular el calendario (evita un ValueError en el medio del chequeo)."""
@@ -171,7 +161,7 @@ def _verificar_periodos(periodos: list[str], etiqueta: str,
     if not periodos:
         resultado.errores.append(f"{etiqueta}: no hay períodos")
         return
-    esperados = _trimestres(periodos[0], periodos[-1])
+    esperados = PER.rango_trimestres(periodos[0], periodos[-1])
     faltan = [p for p in esperados if p not in set(periodos)]
     if faltan:
         resultado.errores.append(
@@ -179,7 +169,7 @@ def _verificar_periodos(periodos: list[str], etiqueta: str,
         )
 
 
-def verificar_metricas(df: pd.DataFrame, ancho: pd.DataFrame | None = None,
+def verificar_metricas(df: pd.DataFrame,
                        etiqueta: str = "metricas") -> Resultado:
     """Comprueba la tabla larga que consume la API del dashboard."""
     r = Resultado()
@@ -233,11 +223,11 @@ def verificar_metricas(df: pd.DataFrame, ancho: pd.DataFrame | None = None,
         # salida sin explicación puede ser una extracción incompleta.
         ativo = df[df["metrica"] == "ativo_total"]
         for cod, grupo in ativo.groupby("cod_inst"):
-            propios = sorted(grupo["periodo"].unique())
+            propios = sorted(p for p in grupo["periodo"].unique() if PATRON_PERIODO.match(p))
             if not propios:
                 continue
             huecos = [
-                p for p in _trimestres(propios[0], propios[-1]) if p not in set(propios)
+                p for p in PER.rango_trimestres(propios[0], propios[-1]) if p not in set(propios)
             ]
             if huecos:
                 r.advertencias.append(
@@ -280,8 +270,6 @@ def verificar_metricas(df: pd.DataFrame, ancho: pd.DataFrame | None = None,
                 f"{totales[malos].head(3).to_dict()}"
             )
 
-    if ancho is not None:
-        r.errores.extend(_verificar_identidad_credito(ancho, etiqueta))
 
     r.resumen.update({
         "filas": int(len(df)),
@@ -292,46 +280,6 @@ def verificar_metricas(df: pd.DataFrame, ancho: pd.DataFrame | None = None,
         "metricas": int(df["metrica"].nunique()),
     })
     return r
-
-
-def _verificar_identidad_credito(ancho: pd.DataFrame,
-                                 etiqueta: str = "metricas") -> list[str]:
-    """Crédito total = cartera líquida + arrendamiento + otras concesiones (+ pagos)."""
-    errores: list[str] = []
-    requeridas = [
-        "era", "credito_total", "credito_liquido", "arrendamento",
-        "outras_concessao", "pagos_receber",
-    ]
-    faltan = [c for c in requeridas if c not in ancho.columns]
-    if faltan:
-        errores.append(f"{etiqueta}/ancho: faltan columnas {faltan}")
-        return errores
-    if ancho["era"].isna().any():
-        errores.append(f"{etiqueta}/ancho: hay filas sin era")
-        return errores
-
-    nuevo = ancho["era"].eq("cosif_2025")
-    calculado = ancho[["credito_liquido", "arrendamento", "outras_concessao"]].sum(
-        axis=1, min_count=2
-    )
-    calculado = calculado.where(
-        ~nuevo,
-        ancho[["credito_liquido", "arrendamento", "outras_concessao", "pagos_receber"]].sum(
-            axis=1, min_count=2
-        ),
-    )
-    total = pd.to_numeric(ancho["credito_total"], errors="coerce")
-    calculado = pd.to_numeric(calculado, errors="coerce")
-    comparables = total.notna() & calculado.notna()
-    residual = (total - calculado).abs()
-    tolerancia = TOLERANCIA_ABSOLUTA + calculado.abs() * TOLERANCIA_RELATIVA
-    malos = comparables & (residual > tolerancia)
-    if malos.any():
-        errores.append(
-            f"{etiqueta}/ancho: {int(malos.sum())} filas no cumplen "
-            f"crédito total = componentes (residuo máx. {residual[malos].max():.4f})"
-        )
-    return errores
 
 
 def verificar_credito(panorama: pd.DataFrame, calidad: pd.DataFrame,
@@ -484,84 +432,35 @@ def comparar_metricas(actual: pd.DataFrame, candidato: pd.DataFrame,
     return r
 
 
-def _ejecutar_auditoria(script: Path) -> Resultado:
-    r = Resultado()
-    if not script.exists():
-        r.errores.append(f"auditoría: no existe {script}")
-        return r
-    proc = subprocess.run(
-        [sys.executable, str(script)],
-        cwd=str(RAIZ),
-        capture_output=True,
-        text=True,
-        encoding="utf-8",
-        errors="replace",
-        timeout=180,
-    )
-    salida = (proc.stdout or "").strip().splitlines()
-    if proc.returncode != 0:
-        detalle = " | ".join(salida[-3:]) if salida else "sin salida"
-        r.errores.append(f"auditoría: falló (código {proc.returncode}): {detalle}")
-    r.resumen["auditoria"] = "OK" if proc.returncode == 0 else "falló"
-    return r
-
-
 def verificar_todo(
     metricas: Path = METRICAS,
-    ancho: Path = ANCHO,
     panorama: Path = PANORAMA,
     calidad: Path = CALIDAD,
     validacion: Path = VALIDACION,
     comparar: Path | None = None,
-    con_auditoria: bool = False,
 ) -> Resultado:
     """Ejecuta todas las puertas y devuelve un resultado agregado."""
     r = Resultado()
     df_metricas = _leer_parquet(metricas, "metricas", r)
-    df_ancho = _leer_csv(ancho, "ancho", r) if ancho.exists() else None
-    if not ancho.exists():
-        r.advertencias.append(f"ancho: no existe {ancho}; se omite la identidad de crédito")
     if df_metricas is not None:
-        parcial = verificar_metricas(df_metricas, df_ancho)
-        r.errores.extend(parcial.errores)
-        r.advertencias.extend(parcial.advertencias)
-        r.resumen.update(parcial.resumen)
+        _acumular(r, verificar_metricas(df_metricas))
 
     df_pan = _leer_parquet(panorama, "cre_panorama", r)
     df_cal = _leer_parquet(calidad, "cre_calidad", r)
     if df_pan is not None and df_cal is not None:
-        ultimo = r.resumen.get("ultimo_periodo")
-        parcial = verificar_credito(df_pan, df_cal, ultimo_metricas=ultimo)
-        r.errores.extend(parcial.errores)
-        r.advertencias.extend(parcial.advertencias)
-        r.resumen.update(parcial.resumen)
+        _acumular(r, verificar_credito(df_pan, df_cal, ultimo_metricas=r.resumen.get("ultimo_periodo")))
 
     datos_validacion = _leer_json(validacion, "validacion", r)
     if datos_validacion is not None:
-        parcial = verificar_validacion(datos_validacion)
-        r.errores.extend(parcial.errores)
-        r.advertencias.extend(parcial.advertencias)
-        r.resumen.update(parcial.resumen)
+        _acumular(r, verificar_validacion(datos_validacion))
 
     if comparar is not None:
         df_candidato = _leer_parquet(comparar, "candidato", r)
         if df_metricas is not None and df_candidato is not None:
             # El candidato debe cumplir el mismo contrato que el actual; no
             # alcanza con comparar conjuntos de bancos/períodos.
-            parcial = verificar_metricas(df_candidato, None, etiqueta="candidato")
-            r.errores.extend(parcial.errores)
-            r.advertencias.extend(parcial.advertencias)
-            r.resumen.update(parcial.resumen)
-            parcial = comparar_metricas(df_metricas, df_candidato)
-            r.errores.extend(parcial.errores)
-            r.advertencias.extend(parcial.advertencias)
-            r.resumen.update(parcial.resumen)
-
-    if con_auditoria:
-        parcial = _ejecutar_auditoria(AUDITORIA)
-        r.errores.extend(parcial.errores)
-        r.advertencias.extend(parcial.advertencias)
-        r.resumen.update(parcial.resumen)
+            _acumular(r, verificar_metricas(df_candidato, None, etiqueta="candidato"))
+            _acumular(r, comparar_metricas(df_metricas, df_candidato))
     return r
 
 
@@ -580,104 +479,27 @@ def verificar_todo(
 # Una tabla que todavía no existe es un aviso, no un error: la capa se arma por
 # olas. Con --estricto los avisos también fallan, como en el resto.
 #
+# El contrato (columnas mínimas y clave de cada tabla) vive en definiciones/contrato_gold.json.
 # Supuestos sobre nombres que el spec no fija. Si el preparador usa otros, la
 # comprobación falla y hay que decidir cuál cambiar:
 #   - bk_manifiesto: columnas tabla, universo y ultimo_corte.
-#   - bk_scr: el corte por segmento son las filas con modalidad, porte y uf vacíos.
-#   - bk_cartera_totales.parquet (auxiliar; contrato en COLUMNAS_GOLD): cod_inst, periodo,
-#     tipo, publicado y exterior, con los totales de los informes 11 + 13.
-#   - bk_conducta: columnas mínimas tomadas del texto del spec §3.14 (encargo 71);
-#     confirmar cuando el worker de conducta escriba la tabla.
+#   - bk_scr: el corte por segmento son las filas con corte = segmento_cliente.
 # ---------------------------------------------------------------------------
 
-GOLD = RAIZ / "datos" / "gold"
-TABLAS_GOLD = [
-    "bk_banco", "bk_metrica", "bk_panel", "bk_grupo", "bk_puente", "bk_manifiesto",
-    "bk_roe_arbol", "bk_cartera", "bk_sistema_m", "bk_sistema_q", "bk_scr",
-    "bk_exposicion", "bk_sensibilidad", "bk_conducta",
-]
-COLUMNAS_GOLD = {
-    "bk_banco": [
-        "cod_inst", "slug", "nombre_corto", "institucion_bcb", "modelo", "segmento_reg",
-        "propiedad", "fintech", "segmento_ref", "cotizado", "ticker", "ficha", "color",
-        "nota", "primer_periodo", "ultimo_periodo",
-    ],
-    "bk_metrica": [
-        "metrica", "nombre", "nombre_corto", "familia", "unidad", "formato", "signo",
-        "universo", "fuente", "definicion", "en_comparador", "en_ficha", "orden",
-    ],
-    "bk_panel": [
-        "cod_inst", "periodo", "fecha", "trimestre", "metrica", "valor", "valor_t1",
-        "valor_t4", "d_tt", "d_aa", "p10_grupo", "p50_grupo", "p90_grupo", "pct_grupo",
-        "pct_panel", "rank_panel", "rank_panel_t4",
-    ],
-    "bk_grupo": [
-        "optica", "grupo", "periodo", "fecha", "trimestre", "metrica", "valor",
-        "mediana", "p25", "p75", "n_bancos", "valor_aa",
-    ],
-    "bk_cartera": [
-        "cod_inst", "periodo", "fecha", "trimestre", "tipo", "modalidad", "saldo",
-        "vencido15", "npl15", "peso_banco", "cuota_modalidad", "d_cuota_aa",
-    ],
-    "bk_roe_arbol": ["entidad", "periodo", "linea", "orden", "valor", "mediana_grupo"],
-    "bk_sistema_m": ["fecha", "serie_id", "unidad", "valor", "p10", "p50", "p90", "es_ultimo"],
-    "bk_sistema_q": ["fecha", "serie_id", "unidad", "valor", "p10", "p50", "p90", "es_ultimo"],
-    "bk_scr": [
-        "fecha", "segmento_inst", "cliente", "modalidad", "porte", "uf", "carteira_ativa",
-        "vencido_15_90", "vencido_90", "inadimplencia_brl", "ativo_problematico",
-        "tasa_inad", "tasa_ap",
-    ],
-    "bk_manifiesto": [
-        "tabla", "filas", "columnas", "rango", "sha256", "producido_por", "universo",
-        "ultimo_corte",
-    ],
-    "bk_puente": ["banco", "linea", "periodo", "gaap", "ifdata", "dif_pct"],
-    "bk_exposicion": [
-        "cod_inst", "periodo", "fecha", "trimestre", "cobertura", "mora_implicita",
-        "npl_observado", "brecha_pp", "efecto_mix_pp", "efecto_mora_pp",
-        "d_mora_implicita_aa_pp", "quiebre_2025",
-    ],
-    "bk_sensibilidad": [
-        "cod_inst", "modelo", "beta_nim_cdi", "ic_inf", "ic_sup", "r2", "n_trimestres",
-        "excluidos",
-    ],
-    "bk_cartera_totales": ["cod_inst", "periodo", "tipo", "publicado", "exterior", "brasil"],
-    "bk_conducta": ["cod_inst", "periodo", "trimestre", "reclamos_por_millon", "clientes"],
-}
-CLAVES_GOLD = {
-    "bk_banco": ["cod_inst"],
-    "bk_metrica": ["metrica"],
-    "bk_panel": ["cod_inst", "periodo", "metrica"],
-    "bk_grupo": ["optica", "grupo", "periodo", "metrica"],
-    "bk_cartera": ["cod_inst", "periodo", "tipo", "modalidad"],
-    "bk_roe_arbol": ["entidad", "periodo", "linea"],
-    "bk_sistema_m": ["fecha", "serie_id"],
-    "bk_sistema_q": ["fecha", "serie_id"],
-    "bk_scr": ["fecha", "segmento_inst", "cliente", "modalidad", "porte", "uf"],
-    "bk_manifiesto": ["tabla", "universo"],
-    "bk_puente": ["banco", "linea", "periodo"],
-    "bk_exposicion": ["cod_inst", "periodo"],
-    "bk_sensibilidad": ["cod_inst"],
-    "bk_cartera_totales": ["cod_inst", "periodo", "tipo"],
-    "bk_conducta": ["cod_inst", "periodo"],
-}
-# Fragmentos de nombre de columna que delatan datos con licencia (Bloomberg, consenso...).
-PROHIBIDAS_LICENCIA = ("px_", "pbv", "pe_", "bbg", "bloomberg", "consenso", "target")
-N_BANCOS_GOLD = 34
-MODELOS_GOLD = frozenset({"Grandes", "Digitales", "Medianos y nicho", "Pagos", "Desarrollo"})
+GOLD = A.GOLD
+_CONTRATO = A.contrato_gold()
+TABLAS_GOLD = list(_CONTRATO)
+COLUMNAS_GOLD = {t: c["columnas"] for t, c in _CONTRATO.items()}
+CLAVES_GOLD = {t: c["clave"] for t, c in _CONTRATO.items()}
+N_BANCOS_GOLD = len(B.universo())
+MODELOS_GOLD = frozenset(codigo for oid, _, _, grupos in B.OPTICAS if oid == "modelo" for codigo, _ in grupos)
 SIGNOS_GOLD = frozenset({"mejora_sube", "mejora_baja", "neutro"})
 UNIDADES_SISTEMA = frozenset({"fraccion", "pp"})
-MIN_BANCOS_GRUPO = 3          # percentiles de grupo solo con n >= 3 (spec §3.3)
 MUESTRA_T4 = 50               # filas al azar para contrastar valor_t4
 SEMILLA_MUESTRA = 0           # la muestra es reproducible
-TOL_SUMA_ROA = 1e-6           # Σ líneas 1–9 del árbol = ROA
-TOL_ROE = 1e-3                # ROA × apalancamiento = ROE (0,1 pp)
 TOL_RANGO = 1e-9              # holgura numérica para ratios dentro de [mín, máx]
-TOL_TOTAL_CARTERA = 0.005     # = TOLERANCIA_TOTAL de preparar_credito_paginas_powerbi.py
-COBERTURA_MIN_GOLD = 0.5      # bk_exposicion: bajo esto la mora implícita queda nula (SPEC §3.6; A3)
-MIN_TRIMESTRES_BETA = 16      # bk_sensibilidad: con n < 16, beta, IC y R² quedan nulos (SPEC §3.8)
 TOL_EFECTOS = 1e-9            # efecto mix + efecto mora = Δ mora implícita a/a (pp)
-PERIODO_SIN_CARTERA = "202412"  # regla 6: 2024-T4 no tiene cartera por modalidad
+PERIODOS_SIN_CARTERA = PER.ANOMALOS   # trimestres sin cartera por modalidad (regla 6)
 MIN_OBS_SERIE = 24
 # Series con menos observaciones que MIN_OBS_SERIE, aceptadas por el arquitecto
 # (encargo 59). El valor es el mínimo que sí debe cumplir.
@@ -690,32 +512,22 @@ EXCEPCIONES_OBS = {"bk_sistema_q": {"selic_real_exante": 23,
 # Banco y Cooperativa no cambiaron. Decisión del arquitecto, revisión del encargo 67 (2026-11-03).
 TASA_JUN26 = {"Banco": 0.0442, "Financeira": 0.1223, "Fintech": 0.1774, "Cooperativa": 0.0520}
 TOL_TASA = 1e-4               # ±0,01 pp
-TOTAL_PANEL = "Total panel"
+TOTAL_PANEL = B.OPTICA_PANEL
 # Dentro de cada óptica hay una fila «Todos los grupos» (el total de la óptica).
-TODOS_LOS_GRUPOS = "Todos los grupos"
+TODOS_LOS_GRUPOS = B.TODOS
 # Variaciones a/a de un flujo con signo: Σ(t) / Σ(t−4) − 1 no es un promedio ponderado
 # de las variaciones de los bancos, así que el rango mín.–máx. no aplica.
 METRICAS_SIN_RANGO = frozenset({"lucro_ttm_aa"})
 # Cuotas (aditivas: suman 1 por óptica), HHI y top5 (sumas sobre el panel, no promedios):
 # el rango mín.–máx. de los bancos no les aplica.
 PREFIJOS_SIN_RANGO = ("share_", "hhi_", "top5_")
-ETIQUETA_PROPIEDAD = {
-    "1": "Público", "2": "Privado nacional", "3": "Privado extranjero",
-    "Público": "Público", "Privado nacional": "Privado nacional",
-    "Privado extranjero": "Privado extranjero",
-}
-ETIQUETA_FINTECH = {"Fintech": "Fintechs", "Tradicional": "Tradicionales"}
+ETIQUETA_PROPIEDAD = {**B.PROPIEDAD, **{e: e for e in B.PROPIEDAD.values()}}
+ETIQUETA_FINTECH = dict(next(grupos for oid, _, _, grupos in B.OPTICAS if oid == "fintech"))
 
 
 def _faltan(df: pd.DataFrame, requeridas: list[str]) -> bool:
     """Silencioso: el error de contrato lo reporta la comprobación general."""
     return any(c not in df.columns for c in requeridas)
-
-
-def _acumular(destino: Resultado, parcial: Resultado) -> None:
-    destino.errores.extend(parcial.errores)
-    destino.advertencias.extend(parcial.advertencias)
-    destino.resumen.update(parcial.resumen)
 
 
 def _texto(valor: Any) -> str | None:
@@ -727,28 +539,10 @@ def _texto(valor: Any) -> str | None:
     return str(valor)
 
 
-def _fin_de_trimestre(periodo: str) -> pd.Timestamp:
-    p = pd.Period(year=int(periodo[:4]), quarter=int(periodo[4:]) // 3, freq="Q")
-    return pd.Timestamp(p.end_time.date())
-
-
-def _restar_trimestres(periodo: str, n: int) -> str:
-    p = pd.Period(year=int(periodo[:4]), quarter=int(periodo[4:]) // 3, freq="Q") - n
-    return f"{p.year}{p.quarter * 3:02d}"
-
-
 def _iguales(a: Any, b: Any) -> bool:
     if pd.isna(a) or pd.isna(b):
         return bool(pd.isna(a)) and bool(pd.isna(b))
     return bool(np.isclose(float(a), float(b), rtol=1e-9, atol=1e-12))
-
-
-def _sha256(ruta: Path) -> str:
-    h = hashlib.sha256()
-    with ruta.open("rb") as f:
-        for bloque in iter(lambda: f.read(1 << 20), b""):
-            h.update(bloque)
-    return h.hexdigest()
 
 
 def _panel_numerico(panel: pd.DataFrame) -> pd.DataFrame:
@@ -798,7 +592,7 @@ def _comprobar_gold_general(nombre: str, df: pd.DataFrame, hoy: pd.Timestamp) ->
         _columnas(df, COLUMNAS_GOLD[nombre], nombre, r)
     else:
         r.advertencias.append(
-            f"{nombre}: sin contrato de columnas en verificar.py; solo comprobaciones generales"
+            f"{nombre}: sin contrato en definiciones/contrato_gold.json; solo comprobaciones generales"
         )
     claves = [c for c in CLAVES_GOLD.get(nombre, []) if c in df.columns]
     if claves:
@@ -823,10 +617,10 @@ def _comprobar_gold_general(nombre: str, df: pd.DataFrame, hoy: pd.Timestamp) ->
         formato = [v for v in valores if not PATRON_PERIODO.match(v)]
         if formato:
             r.errores.append(f"{nombre}: {columna} con formato inválido: {_corto(sorted(formato))}")
-        futuros = [v for v in valores if PATRON_PERIODO.match(v) and _fin_de_trimestre(v) > hoy]
+        futuros = [v for v in valores if PATRON_PERIODO.match(v) and PER.fin_de_mes(v) > hoy]
         if futuros:
             r.errores.append(f"{nombre}: {columna} posterior a hoy: {_corto(sorted(futuros))}")
-    licencia = [str(c) for c in df.columns if any(p in str(c).lower() for p in PROHIBIDAS_LICENCIA)]
+    licencia = [str(c) for c in df.columns if any(p in str(c).lower() for p in RG.LICENCIAS)]
     if licencia:
         r.errores.append(f"{nombre}: columnas con datos de licencia (no se publican): {licencia}")
     return r
@@ -888,7 +682,7 @@ def verificar_gold_panel(panel: pd.DataFrame, banco: pd.DataFrame | None = None,
     valor = pd.to_numeric(panel["valor"], errors="coerce")
     if banco is None:
         r.advertencias.append(
-            f"{etiqueta}: sin bk_banco no se comprueba que los percentiles de grupo tengan n >= {MIN_BANCOS_GRUPO}"
+            f"{etiqueta}: sin bk_banco no se comprueba que los percentiles de grupo tengan n >= {RG.MIN_GRUPO_PERCENTIL}"
         )
     else:
         mapa = banco.drop_duplicates("cod_inst").set_index("cod_inst")["modelo"]
@@ -900,11 +694,11 @@ def verificar_gold_panel(panel: pd.DataFrame, banco: pd.DataFrame | None = None,
         )
         for columna in ("p10_grupo", "p50_grupo", "p90_grupo"):
             con_pct = pd.to_numeric(panel[columna], errors="coerce").notna()
-            n = int((con_pct & (n_grupo < MIN_BANCOS_GRUPO)).sum())
+            n = int((con_pct & (n_grupo < RG.MIN_GRUPO_PERCENTIL)).sum())
             if n:
                 r.errores.append(
                     f"{etiqueta}: {n} filas con {columna} aunque el grupo tiene menos de "
-                    f"{MIN_BANCOS_GRUPO} bancos con dato"
+                    f"{RG.MIN_GRUPO_PERCENTIL} bancos con dato"
                 )
 
     base = pd.DataFrame({"cod": panel["cod_inst"], "p": periodo,
@@ -919,7 +713,7 @@ def verificar_gold_panel(panel: pd.DataFrame, banco: pd.DataFrame | None = None,
     for cod, per, met, real in muestra[["cod_inst", "periodo", "metrica"]].assign(t4=t4).itertuples(
         index=False, name=None
     ):
-        esperado = ref.get((cod, _restar_trimestres(per, 4), str(met)), np.nan)
+        esperado = ref.get((cod, PER.previo(per, 4), str(met)), np.nan)
         if not _iguales(esperado, real):
             malos += 1
             ejemplo = ejemplo or (cod, per, str(met))
@@ -957,7 +751,6 @@ def verificar_gold_grupo(grupo: pd.DataFrame, panel: pd.DataFrame | None = None,
     montos = brl | set(METRICAS_CUOTA)
     en_monto = g["metrica"].isin(montos)
 
-    # 1. Total panel = Σ de los bancos del panel, en montos.
     total = (
         g[en_monto & (g["optica"] == TOTAL_PANEL)]
         .groupby(["periodo", "metrica"])["valor"].sum(min_count=1).rename("total")
@@ -983,7 +776,6 @@ def verificar_gold_grupo(grupo: pd.DataFrame, panel: pd.DataFrame | None = None,
                 f"{int(malos.sum())} casos (p. ej. {cmp.loc[malos, ['periodo', 'metrica']].head(3).to_dict('records')})"
             )
 
-    # 2. Los grupos de cada óptica suman el Total panel, en montos.
     partes = (
         g[en_monto & (g["optica"] != TOTAL_PANEL) & (g["grupo"] != TODOS_LOS_GRUPOS)]
         .groupby(["optica", "periodo", "metrica"])["valor"].sum(min_count=1)
@@ -998,7 +790,6 @@ def verificar_gold_grupo(grupo: pd.DataFrame, panel: pd.DataFrame | None = None,
         n = int((malos & (partes["optica"] == optica).to_numpy()).sum())
         r.errores.append(f"{etiqueta}: los grupos de «{optica}» no suman «{TOTAL_PANEL}» en {n} casos")
 
-    # 2b. El «Todos los grupos» de cada óptica también debe ser el Total panel.
     tod = (
         g[en_monto & (g["optica"] != TOTAL_PANEL) & (g["grupo"] == TODOS_LOS_GRUPOS)]
         .groupby(["optica", "periodo", "metrica"])["valor"].sum(min_count=1)
@@ -1015,7 +806,6 @@ def verificar_gold_grupo(grupo: pd.DataFrame, panel: pd.DataFrame | None = None,
             f"{etiqueta}: «{TODOS_LOS_GRUPOS}» de «{optica}» no es igual a «{TOTAL_PANEL}» en {n} casos"
         )
 
-    # 2c. Las cuotas (share_*) de los grupos de cada óptica suman 1 en cada período.
     cuotas = g[g["metrica"].isin(METRICAS_CUOTA) & (g["optica"] != TOTAL_PANEL)
                & (g["grupo"] != TODOS_LOS_GRUPOS)]
     suma_cuotas = cuotas.groupby(["optica", "periodo", "metrica"])["valor"].sum(min_count=1)
@@ -1024,7 +814,6 @@ def verificar_gold_grupo(grupo: pd.DataFrame, panel: pd.DataFrame | None = None,
         n = int((malos_c & (suma_cuotas.index.get_level_values("optica") == optica)).sum())
         r.errores.append(f"{etiqueta}: las cuotas de los grupos de «{optica}» no suman 1 en {n} casos")
 
-    # 3. Los ratios de cada grupo caen entre el mínimo y el máximo de sus bancos.
     if panel is None or banco is None:
         r.advertencias.append(
             f"{etiqueta}: sin bk_panel y bk_banco no se comprueba que los ratios de grupo "
@@ -1087,22 +876,22 @@ def verificar_gold_roe_arbol(roe: pd.DataFrame, etiqueta: str = "bk_roe_arbol") 
 
     hay_roa, hay_suma = roa.notna(), suma.notna()
     malo = (hay_roa != hay_suma).to_numpy() | (
-        hay_roa & ((suma - roa).abs() > TOL_SUMA_ROA)
+        hay_roa & ((suma - roa).abs() > RG.TOL_ROA_ARBOL)
     ).to_numpy()
     if malo.any():
         r.errores.append(
             f"{etiqueta}: en {int(malo.sum())} entidades-trimestres, Σ líneas 1–{int(orden_roa) - 1} no es igual al ROA "
-            f"(tolerancia {TOL_SUMA_ROA})"
+            f"(tolerancia {RG.TOL_ROA_ARBOL})"
         )
 
     completo = (roa.notna() & apal.notna()).to_numpy()
     malo2 = (roe_v.notna().to_numpy() != completo) | (
-        completo & ((roa * apal - roe_v).abs() > TOL_ROE).to_numpy()
+        completo & ((roa * apal - roe_v).abs() > RG.TOL_ROE_ARBOL).to_numpy()
     )
     if malo2.any():
         r.errores.append(
             f"{etiqueta}: en {int(malo2.sum())} entidades-trimestres, ROA × apalancamiento no es igual "
-            f"al ROE (tolerancia {TOL_ROE})"
+            f"al ROE (tolerancia {RG.TOL_ROE_ARBOL})"
         )
     return r
 
@@ -1115,9 +904,9 @@ def verificar_gold_cartera(cartera: pd.DataFrame, totales: pd.DataFrame | None =
         return r
     cartera = cartera.reset_index(drop=True)
     periodo = cartera["periodo"].astype(str)
-    n = int((periodo == PERIODO_SIN_CARTERA).sum())
+    n = int(periodo.isin(PERIODOS_SIN_CARTERA).sum())
     if n:
-        r.errores.append(f"{etiqueta}: {n} filas de 2024-T4 (el período debe quedar vacío)")
+        r.errores.append(f"{etiqueta}: {n} filas de {PER.ANOMALOS_TEXTO} (trimestre anómalo: debe quedar vacío)")
     npl = pd.to_numeric(cartera["npl15"], errors="coerce")
     n = int(((npl < 0) | (npl > 1)).sum())
     if n:
@@ -1138,17 +927,17 @@ def verificar_gold_cartera(cartera: pd.DataFrame, totales: pd.DataFrame | None =
         publicado=pd.to_numeric(totales["publicado"], errors="coerce"),
         exterior=pd.to_numeric(totales["exterior"], errors="coerce").fillna(0.0),
     )
-    tot = tot[tot["periodo"] != PERIODO_SIN_CARTERA].set_index(["cod_inst", "periodo", "tipo"])
+    tot = tot[~tot["periodo"].isin(PERIODOS_SIN_CARTERA)].set_index(["cod_inst", "periodo", "tipo"])
     tmp = cartera.assign(periodo=periodo, saldo=pd.to_numeric(cartera["saldo"], errors="coerce"))
     suma = tmp.groupby(["cod_inst", "periodo", "tipo"])["saldo"].sum(min_count=1).rename("suma")
     comp = tot.join(suma, how="left")
     comp = comp[comp["publicado"].abs() > 1e6]
     desvio = ((comp["suma"] + comp["exterior"]) / comp["publicado"] - 1).abs()
-    malos = desvio.isna().to_numpy() | (desvio > TOL_TOTAL_CARTERA).to_numpy()
+    malos = desvio.isna().to_numpy() | (desvio > RG.TOLERANCIA_TOTAL).to_numpy()
     if malos.any():
         r.errores.append(
             f"{etiqueta}: Σ modalidades + exterior no cuadra con el total publicado en "
-            f"{int(malos.sum())} casos (tolerancia {TOL_TOTAL_CARTERA})"
+            f"{int(malos.sum())} casos (tolerancia {RG.TOLERANCIA_TOTAL})"
         )
     return r
 
@@ -1198,14 +987,9 @@ def verificar_gold_scr(scr: pd.DataFrame, etiqueta: str = "bk_scr") -> Resultado
     fecha = pd.to_datetime(scr["fecha"], errors="coerce")
     jun = scr[fecha.dt.to_period("M") == pd.Period("2026-06", freq="M")]
     for segmento, esperada in TASA_JUN26.items():
-        corte = jun[
-            (jun["segmento_inst"].astype(str) == segmento)
-            & jun["modalidad"].isna() & jun["porte"].isna() & jun["uf"].isna()
-        ]
-        if corte["cliente"].notna().any():
-            corte = corte[corte["cliente"].notna()]
+        corte = jun[(jun["corte"] == "segmento_cliente") & (jun["segmento_inst"].astype(str) == segmento)]
         if corte.empty:
-            r.errores.append(f"{etiqueta}: no hay corte de {segmento} en jun-2026 (modalidad, porte y uf vacíos)")
+            r.errores.append(f"{etiqueta}: no hay corte de {segmento} en jun-2026 (corte segmento_cliente)")
             continue
         activa = pd.to_numeric(corte["carteira_ativa"], errors="coerce").sum()
         inadimplente = pd.to_numeric(corte["inadimplencia_brl"], errors="coerce").sum()
@@ -1222,7 +1006,7 @@ def _fecha_de_corte(valor: Any) -> pd.Timestamp | None:
     """Último corte del manifiesto: AAAAMM de trimestre, fecha ISO o None si no se puede leer."""
     texto = str(valor).strip()
     if PATRON_PERIODO.match(texto):
-        return _fin_de_trimestre(texto)
+        return PER.fin_de_mes(texto)
     fecha = pd.to_datetime(texto, errors="coerce")
     return None if pd.isna(fecha) else fecha.normalize()
 
@@ -1244,7 +1028,7 @@ def verificar_gold_manifiesto(man: pd.DataFrame, presentes: dict[str, Path], hoy
             r.errores.append(f"{etiqueta}: {nombre} no tiene fila")
             continue
         declarado = str(filas["sha256"].iloc[0]).strip().lower()
-        if declarado != _sha256(ruta):
+        if declarado != A.sha256_archivo(ruta):
             r.errores.append(f"{etiqueta}: sha256 de {nombre} no coincide con el archivo")
     # Un universo sin corte todavía (sin tabla en esta ola) es un aviso; un corte que
     # no se lee o que cae en el futuro es un error.
@@ -1287,7 +1071,7 @@ def verificar_gold_exposicion(exp: pd.DataFrame, etiqueta: str = "bk_exposicion"
     if n:
         r.errores.append(f"{etiqueta}: {n} valores de cobertura fuera de [0, 1]")
     dependientes = ["mora_implicita", "brecha_pp", "efecto_mix_pp", "efecto_mora_pp", "d_mora_implicita_aa_pp"]
-    baja = (cobertura < COBERTURA_MIN_GOLD).to_numpy()
+    baja = (cobertura < RG.COBERTURA_MIN).to_numpy()
     con_valor = exp[dependientes].notna().any(axis=1).to_numpy()
     n = int((baja & con_valor).sum())
     if n:
@@ -1319,12 +1103,12 @@ def verificar_gold_sensibilidad(sens: pd.DataFrame, etiqueta: str = "bk_sensibil
     ic_inf = _numero(sens["ic_inf"])
     ic_sup = _numero(sens["ic_sup"])
     r2 = _numero(sens["r2"])
-    corta = (n < MIN_TRIMESTRES_BETA).to_numpy()
+    corta = (n < RG.MIN_TRIMESTRES_BETA).to_numpy()
     con_valor = pd.concat([beta, ic_inf, ic_sup, r2], axis=1).notna().any(axis=1).to_numpy()
     n_mal = int((corta & con_valor).sum())
     if n_mal:
         r.errores.append(
-            f"{etiqueta}: {n_mal} bancos con menos de {MIN_TRIMESTRES_BETA} trimestres y beta, IC o R² no nulos"
+            f"{etiqueta}: {n_mal} bancos con menos de {RG.MIN_TRIMESTRES_BETA} trimestres y beta, IC o R² no nulos"
         )
     completos = (beta.notna() & ic_inf.notna() & ic_sup.notna()).to_numpy()
     ordenado = ((ic_inf <= beta) & (beta <= ic_sup)).to_numpy()
@@ -1409,7 +1193,7 @@ def verificar_gold(gold: Path = GOLD, hoy: pd.Timestamp | None = None,
     return r
 
 
-def _imprimir(r: Resultado, estricto: bool = False) -> None:
+def _imprimir(r: Resultado, estricto: bool = False, gold: bool = False) -> None:
     print("VERIFICACIÓN BANCOS WEB (solo lectura)")
     for clave, valor in r.resumen.items():
         print(f"  {clave}: {valor}")
@@ -1423,7 +1207,9 @@ def _imprimir(r: Resultado, estricto: bool = False) -> None:
             print(f"  - {aviso}")
     if r.ok and not (estricto and r.advertencias):
         sufijo = " con advertencias para revisar" if r.advertencias else ""
-        print(f"\nOK: estructura, períodos, crédito y validación consistentes{sufijo}")
+        que = ("tablas gold consistentes con el contrato y sus reglas" if gold
+               else "estructura, períodos, crédito y validación consistentes")
+        print(f"\nOK: {que}{sufijo}")
     elif r.ok:
         print("\nFALLA: --estricto y hay advertencias; no promover el candidato")
     else:
@@ -1433,14 +1219,11 @@ def _imprimir(r: Resultado, estricto: bool = False) -> None:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--metricas", type=Path, default=METRICAS)
-    parser.add_argument("--ancho", type=Path, default=ANCHO)
     parser.add_argument("--panorama", type=Path, default=PANORAMA)
     parser.add_argument("--calidad", type=Path, default=CALIDAD)
     parser.add_argument("--validacion", type=Path, default=VALIDACION)
     parser.add_argument("--comparar", type=Path, default=None,
                         help="parquet candidato de staging a comparar con el actual")
-    parser.add_argument("--auditoria", action="store_true",
-                        help="ejecuta también tests/auditoria/auditar_fuentes.py")
     parser.add_argument("--estricto", action="store_true",
                         help="trata las advertencias como errores")
     parser.add_argument("--gold", action="store_true",
@@ -1453,12 +1236,10 @@ def main(argv: list[str] | None = None) -> int:
     else:
         resultado = verificar_todo(
             metricas=args.metricas,
-            ancho=args.ancho,
             panorama=args.panorama,
             calidad=args.calidad,
             validacion=args.validacion,
             comparar=args.comparar,
-            con_auditoria=args.auditoria,
         )
     if args.json:
         print(json.dumps({
@@ -1468,7 +1249,7 @@ def main(argv: list[str] | None = None) -> int:
             "resumen": resultado.resumen,
         }, ensure_ascii=False, indent=2))
     else:
-        _imprimir(resultado, args.estricto)
+        _imprimir(resultado, args.estricto, gold=args.gold)
     if not resultado.ok:
         return 1
     if args.estricto and resultado.advertencias:

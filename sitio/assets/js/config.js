@@ -1,16 +1,14 @@
-/* Configuración única del sitio de bancos. Copia de la del macro (misma forma) con dos
-   cambios: las páginas son las once del esqueleto de bancos y la portada vive en la raíz
-   (`ruta: ''`). Cambiar RUTA_DATOS si el sitio se sirve desde otra raíz. */
+/* Configuración única del sitio. Sin DOM: la importan también las herramientas en Node
+   (herramientas/inventario_paginas.mjs). Cambiar RUTA_DATOS si el sitio se sirve desde otra raíz. */
 export const RUTA_DATOS = '/data/';
 
-/* Qué tablas existen: data/_manifiesto.json (lo lee datos.js, tablasExportadas). Ya no hay lista a mano. */
-
-/* Rótulo de la cabecera: el del esqueleto de bancos (§B0, «BANCOS BRASIL · MONITOR»). */
 export const MARCA = 'BANCOS BRASIL';
+export const NOMBRE_SITIO = 'Bancos Brasil';
 
-/* oculta: true saca la página del menú (MVP: solo las cinco con datos). La página sigue
-   existiendo y se abre por URL. */
-/* Las once páginas del esqueleto (ESQUELETO_BANCOS_v0.1 §0.1) más Personas (B11) y Mora (B12), 6-nov. */
+/* Identidad de cada página: el único lugar donde viven clave, ruta y nombre. La config de la página
+   está en paginas/<clave en minúsculas>.js; todas las carpetas sirven el mismo index.html y pagina.js
+   elige la config por la ruta. oculta: true saca la página del menú (se abre por URL). El orden es el
+   del menú y el del recorrido en modo presentación. */
 export const PAGINAS = [
   { clave: 'B0', ruta: '', nombre: 'Portada' },
   { clave: 'B1', ruta: 'ciclo', nombre: 'Ciclo y condiciones', oculta: true },
@@ -26,3 +24,17 @@ export const PAGINAS = [
   { clave: 'B9', ruta: 'comparador', nombre: 'Comparador', oculta: true },
   { clave: 'B10', ruta: 'metodologia', nombre: 'Metodología y fuentes', oculta: true },
 ];
+
+export const PAGINAS_VISIBLES = PAGINAS.filter((p) => !p.oculta);
+
+/* Enlace a una página: la portada vive en la raíz (ruta ''). */
+export const enlace = (ruta) => (ruta ? `/${ruta}/` : '/');
+
+/* Módulo de la config de una página, relativo a assets/js/. */
+export const moduloConfig = (clave) => `./paginas/${clave.toLowerCase()}.js`;
+
+/* Página de una ruta del navegador («/credito/», «/credito/index.html», «/»); null si no existe. */
+export function paginaDeRuta(pathname) {
+  const ruta = pathname.replace(/\/index\.html$/, '/').replace(/^\/+|\/+$/g, '');
+  return PAGINAS.find((p) => p.ruta === ruta) || null;
+}

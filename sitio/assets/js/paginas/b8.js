@@ -1,160 +1,58 @@
-/* B8 · Ficha por banco. Config de la página (SPEC_WEB_BANCOS_00_GENERAL.md §2 y §3 del spec macro) y
-   armar() de las tarjetas con dato (encargo 73, ola 3).
+/* B8 · Ficha por banco. Config de la página (SPEC_WEB_BANCOS_00_GENERAL.md §2 y §3 del spec macro).
    Reglas: aquí solo se filtra, ordena y elige columnas. Lo que necesita un cálculo que no está en las
    tablas queda «en preparación» con su motivo (esqueleto §0.9; spec web §3.3).
-   Fuentes: data/ (bk_banco, bk_manifiesto, bk_metrica, bk_cartera_grupo, bk_puente) y la partición
-   data/banco/<slug>/ (bk_panel, bk_cartera, bk_roe_arbol) del banco activo.
-   Estado de las tarjetas: ver el resultado 73 (docs/orquestacion/73_resultado_ficha_datos_2026-11-03.md). */
-/* Sin imports: contar_tarjetas.mjs lee este archivo como texto, igual que los demás configs. Los formatos
-   son los de formato.js (es-CL, signo U+2212) y RUTA_DATOS es el de config.js; si cambian allí, cambian aquí. */
-const RUTA_DATOS = '/data/';
-const ESPACIO = '\u00A0';
-const MENOS = '\u2212';
-const nfES = (d) => new Intl.NumberFormat('es-CL', { minimumFractionDigits: d, maximumFractionDigits: d });
+   Fuentes: data/ (bk_manifiesto, bk_metrica, bk_cartera_grupo, bk_puente) y la partición
+   data/banco/<slug>/ (bk_panel, bk_cartera, bk_roe_arbol) del banco activo, que cada tarjeta pide en
+   `datos` según el banco del contexto. */
+import { FUENTE, BANDA_2025, ROTULO_PANEL, OPTICA_MODELO, OPTICA_PANEL, tablaBanco, indicadorBanco, lineasArbolRoe, periodoActivo, enPreparacion, requiereBanco } from '../comun.js';
+import { COLOR, PALETA } from '../tokens.js';
+import { formatear, pct, trimestreDePeriodo, finDeTrimestre, periodosHasta } from '../formato.js';
 
-function numero(v, d = 1) {
-  if (v == null || Number.isNaN(v)) return '—';
-  return nfES(d).format(v).replace('-', MENOS);
-}
+const { IFDATA, SGS, CVM, CALC } = FUENTE;
 
-function pct(v, d = 1, conSigno = false) {
-  if (v == null || Number.isNaN(v)) return '—';
-  const x = v * 100;
-  const s = nfES(d).format(Math.abs(x));
-  const signo = conSigno ? (x > 0 ? '+' : x < 0 ? MENOS : '') : (x < 0 ? MENOS : '');
-  return `${signo}${s}${ESPACIO}%`;
-}
+/* Las tablas de la tarjeta más las particiones del banco activo (sin banco, solo las primeras). */
+const conBanco = (tablas, particiones) => (ctx) => [...tablas, ...(ctx.banco ? particiones.map((t) => tablaBanco(ctx.banco, t)) : [])];
+const delBanco = (d, ctx, tabla) => d[tablaBanco(ctx.banco, tabla)];
 
-function pp(v, d = 1, conSigno = true) {
-  if (v == null || Number.isNaN(v)) return '—';
-  const s = nfES(d).format(Math.abs(v));
-  const signo = conSigno ? (v > 0 ? '+' : v < 0 ? MENOS : '') : (v < 0 ? MENOS : '');
-  return `${signo}${s}${ESPACIO}pp`;
-}
-
-const token = (nombre) => getComputedStyle(document.documentElement).getPropertyValue(nombre).trim();
-
-const IFDATA = 'BCB, IF.Data (conglomerado prudencial)';
-const SGS = 'BCB, SGS';
-const CVM = 'CVM';
-const OLINDA = 'BCB, Olinda';
-const CALC = 'cálculo propio';
-
-/* ---------- utilidades de datos (solo lectura y filtro) ---------- */
-
-const cacheBanco = new Map();
-
-/* Partición del banco activo: data/banco/<slug>/<tabla>.json → array de objetos. */
-function tablaBanco(slug, tabla) {
-  const clave = `${slug}/${tabla}`;
-  if (!cacheBanco.has(clave)) {
-    cacheBanco.set(clave, fetch(`${RUTA_DATOS}banco/${slug}/${tabla}.json`)
-      .then((r) => { if (!r.ok) throw new Error(`${clave}: HTTP ${r.status}`); return r.json(); })
-      .then((j) => j.filas.map((f) => Object.fromEntries(j.columnas.map((c, i) => [c, f[i]]))))
-      .catch((e) => { cacheBanco.delete(clave); throw e; }));
-  }
-  return cacheBanco.get(clave);
-}
-
-/* «202606» → «2T26». */
-const trimTexto = (p) => `${Math.ceil(Number(p.slice(4)) / 3)}T${p.slice(2, 4)}`;
-
-/* «202606» → «2026-06-30» (fecha de fin del trimestre, para el eje del tiempo). */
-function fechaDe(p) {
-  const fin = { 3: '03-31', 6: '06-30', 9: '09-30', 12: '12-31' }[Number(p.slice(4))];
-  return `${p.slice(0, 4)}-${fin}`;
-}
-
-/* Último corte del universo Panel, de bk_manifiesto: «2026-06-30» → «202606». */
-function ultimoPanel(d) {
-  const m = (d.bk_manifiesto || []).find((x) => x.universo === 'Panel' && x.ultimo_corte);
-  if (!m) return null;
-  const [y, mes] = String(m.ultimo_corte).slice(0, 7).split('-');
-  return `${y}${mes}`;
-}
-
-/* Trimestre de la página: el de la URL si es válido; si no, el último del Panel. */
-function periodoDe(d, estado) {
-  if (estado.trimestre && /^\d{6}$/.test(estado.trimestre)) return estado.trimestre;
-  return ultimoPanel(d);
-}
-
-/* Hasta n trimestres que terminan en t (orden cronológico). */
-function ventana(filas, t, n = 12) {
-  return [...new Set(filas.map((f) => f.periodo))].filter((p) => p <= t).sort().slice(-n);
-}
-
-/* Serie [fecha, valor] de una métrica; excluir(p) deja el punto vacío (quiebre, §0.7 del esqueleto). */
-function serie(filas, metrica, campo, ps, excluir = () => false) {
+/* Serie [fecha, valor] de una métrica en los períodos dados; null donde falta (hueco en la línea). */
+function serie(filas, metrica, campo, periodos) {
   const porP = new Map(filas.filter((f) => f.metrica === metrica).map((f) => [f.periodo, f]));
-  return ps.map((p) => {
-    const f = porP.get(p);
-    const v = f && !excluir(p) && f[campo] != null ? f[campo] : null;
-    return [fechaDe(p), v];
-  });
+  return periodos.map((p) => [finDeTrimestre(p), porP.get(p)?.[campo] ?? null]);
 }
 
-/* Una serie con huecos se dibuja como tramos separados: nunca se une un hueco por encima (spec web §5). */
-function tramos(nombre, puntos, extra = {}) {
-  const salida = [];
-  let cur = [];
-  for (const p of puntos) {
-    if (p[1] == null) { if (cur.length) salida.push(cur); cur = []; } else cur.push(p);
-  }
-  if (cur.length) salida.push(cur);
-  return salida.map((t) => ({ nombre, puntos: t, ...extra }));
-}
-
-/* Cambio de cobertura en 2025: la variación a/a de 2025-T1 a 2025-T4 cruza el quiebre (esqueleto §0.7). */
-const cruza2025 = (p) => p >= '202501' && p <= '202504';
-const BANDA_2025 = [{ desde: '2025-01-01', hasta: '2025-03-31', nombre: 'COSIF 2025 · Res. 4.966' }];
-const NOTA_QUIEBRE = 'Cambio de cobertura en 2025 (COSIF 2025 y Res. 4.966): la variación a/a de 2025-T1 a 2025-T4 no se muestra para este banco.';
-
-/* Contexto común: banco activo, trimestre y (si la tarjeta lo necesita) grupo igual al modelo del banco. */
-async function contexto(d, estado, { conGrupo = false } = {}) {
-  if (!estado.banco) return { motivo: 'elija un banco en la barra superior', requiereBanco: true };
-  const banco = (d.bk_banco || []).find((b) => b.slug === estado.banco);
-  if (!banco) return { motivo: `el banco «${estado.banco}» no está en bk_banco` };
-  const t = periodoDe(d, estado);
-  if (!t) return { motivo: 'sin último corte del Panel en bk_manifiesto' };
+/* Banco activo con su fila de bk_banco, período y (si la tarjeta lo necesita) grupo igual al modelo del
+   banco. Sin alguno de ellos devuelve el resultado «sin dibujo», que armar() devuelve tal cual. */
+function contexto(estado, { conGrupo = false } = {}) {
+  if (!estado.banco) return requiereBanco('elija un banco en la barra superior');
+  const banco = estado.bancoActivo;
+  if (!banco?.cod_inst) return enPreparacion(`el banco «${estado.banco}» no está en bk_banco`);
+  const t = estado.periodoActivo;
+  if (!t) return enPreparacion('sin último corte del Panel en bk_manifiesto');
   if (conGrupo && estado.grupo !== banco.modelo) {
-    return { motivo: `las tablas traen la mediana solo del grupo del banco (${banco.modelo}); el grupo elegido no está exportado` };
+    return enPreparacion(`las tablas traen la mediana solo del grupo del banco (${banco.modelo}); el grupo elegido no está exportado`);
   }
   return { banco, t };
 }
 
-const sinDato = (t) => ({ enPreparacion: `sin dato del banco en ${trimTexto(t)}` });
+const sinDato = (t) => enPreparacion(`sin dato del banco en ${trimestreDePeriodo(t)}`);
 
-/* ---------- formatos de las tablas (formato, no cálculo) ---------- */
-
-const FORMATO_METRICA = { pct1: 'pct', x1: 'num', brl_mm: 'num' };
-
-function valorTabla(v, formato) {
-  if (v == null) return '—';
-  if (formato === 'brl_mm') return numero(v / 1e9, 1);   // R$ → R$ mil millones
-  if (formato === 'pct1') return pct(v, 1);
-  if (formato === 'x1') return `${numero(v, 1)} veces`;
-  return numero(v, 2);
-}
-
-function deltaTabla(v, unidad) {
-  if (v == null) return '—';
-  if (unidad === 'pp') return pp(v, 1, true);
-  if (unidad === 'fraccion') return pct(v, 1, true);
-  return numero(v, 1);
-}
+/* Formato de bk_metrica → unidad del sitio (formato.js). Su «brl_mm» trae reales: se pasa a mil millones. */
+const UNIDAD_METRICA = { pct1: 'pct', x1: 'num', brl_mm: 'reales_a_mm' };
+const unidadMetrica = (formato) => UNIDAD_METRICA[formato] || 'num';
+/* Unidad del cambio en bk_panel (unidad_d) → unidad del sitio. */
+const UNIDAD_CAMBIO = { pp: 'pp', fraccion: 'pct' };
 
 const COL_DATOS = [
   { clave: 'campo', titulo: 'Dato', tipo: 'texto' },
   { clave: 'valor', titulo: 'Valor', tipo: 'texto' },
 ];
 
-/* ---------- B8-01-0 · ficha técnica ---------- */
-async function armarFicha(d, estado) {
-  const c = await contexto(d, estado);
-  if (c.motivo) return { enPreparacion: c.motivo, requiereBanco: c.requiereBanco };
+/* B8-01-0 · ficha técnica */
+function armarFicha(d, estado) {
+  const c = contexto(estado);
+  if (c.estado) return c;
   const b = c.banco;
-  const corte = ultimoPanel(d);
+  const corte = periodoActivo(null, d.bk_manifiesto);
   const filas = [
     { campo: 'Nombre', valor: b.nombre_corto },
     { campo: 'Institución en el BCB', valor: b.institucion_bcb },
@@ -164,21 +62,21 @@ async function armarFicha(d, estado) {
     { campo: 'Propiedad', valor: b.propiedad },
     { campo: 'Tradicional o fintech', valor: b.fintech },
     { campo: 'Ticker', valor: b.cotizado ? (b.ticker || '—') : 'no cotiza' },
-    { campo: 'Último dato del banco en IF.Data', valor: b.ultimo_periodo ? trimTexto(b.ultimo_periodo) : '—' },
-    { campo: 'Último corte del universo Panel', valor: corte ? trimTexto(corte) : '—' },
+    { campo: 'Último dato del banco en IF.Data', valor: b.ultimo_periodo ? trimestreDePeriodo(b.ultimo_periodo) : '—' },
+    { campo: 'Último corte del universo Panel', valor: corte ? trimestreDePeriodo(corte) : '—' },
     { campo: 'Último publicado (CVM)', valor: 'en preparación' },
   ];
   if (b.nota) filas.push({ campo: 'Nota', valor: b.nota });
   return { columnas: COL_DATOS, filas };
 }
 
-/* ---------- B8-01-1 · tamaño y cuotas ---------- */
+/* B8-01-1 · tamaño y cuotas */
 const METRICAS_TAMANO = ['ativo_total', 'credito_total', 'depositos', 'patrimonio_liquido', 'share_ativo', 'share_credito', 'share_depositos'];
 
-async function armarTamano(d, estado) {
-  const c = await contexto(d, estado);
-  if (c.motivo) return { enPreparacion: c.motivo, requiereBanco: c.requiereBanco };
-  const panel = await tablaBanco(c.banco.slug, 'bk_panel');
+function armarTamano(d, estado) {
+  const c = contexto(estado);
+  if (c.estado) return c;
+  const panel = delBanco(d, estado, 'bk_panel');
   if (!panel.some((f) => f.periodo === c.t)) return sinDato(c.t);
   const meta = new Map((d.bk_metrica || []).map((m) => [m.metrica, m]));
   const filas = METRICAS_TAMANO.map((m) => {
@@ -189,19 +87,18 @@ async function armarTamano(d, estado) {
   return {
     columnas: [
       { clave: 'concepto', titulo: 'Concepto', tipo: 'texto' },
-      { clave: 'valor', titulo: `Nivel (R$ mil mm o %, ${trimTexto(c.t)})`, formatear: (v, f) => valorTabla(v, f.formato) },
-      { clave: 'delta', titulo: 'Δ a/a', formatear: (v, f) => deltaTabla(v, f.unidad) },
+      { clave: 'valor', titulo: `Nivel (R$ mil mm o %, ${trimestreDePeriodo(c.t)})`, formatear: (v, f) => formatear(v, unidadMetrica(f.formato)) },
+      { clave: 'delta', titulo: 'Δ a/a', formatear: (v, f) => formatear(v, UNIDAD_CAMBIO[f.unidad] || 'num', { signo: true }) },
     ],
     filas,
   };
 }
 
-/* ---------- B8-02-0 · doce métricas (percentiles) ---------- */
-async function armarPercentiles(d, estado) {
-  const c = await contexto(d, estado, { conGrupo: true });
-  if (c.motivo) return { enPreparacion: c.motivo, requiereBanco: c.requiereBanco };
-  const panel = await tablaBanco(c.banco.slug, 'bk_panel');
-  const filas = panel.filter((f) => f.periodo === c.t);
+/* B8-02-0 · doce métricas (percentiles) */
+function armarPercentiles(d, estado) {
+  const c = contexto(estado, { conGrupo: true });
+  if (c.estado) return c;
+  const filas = delBanco(d, estado, 'bk_panel').filter((f) => f.periodo === c.t);
   if (!filas.length) return sinDato(c.t);
   const porM = new Map(filas.map((f) => [f.metrica, f]));
   const lista = (d.bk_metrica || [])
@@ -212,7 +109,7 @@ async function armarPercentiles(d, estado) {
       return {
         nombre: m.nombre,
         signo: m.signo,
-        formato: FORMATO_METRICA[m.formato] || 'num',
+        formato: unidadMetrica(m.formato),
         valor: f.valor ?? null,
         valor_t4: f.valor_t4 ?? null,
         p10: f.p10_grupo ?? null,
@@ -223,134 +120,49 @@ async function armarPercentiles(d, estado) {
   return { filas: lista };
 }
 
-/* ---------- B8-03-0 · mezcla de cartera por modalidad: banco vs. grupo vs. panel ---------- */
-/* Colores de los segmentos: la paleta del sitio, en orden; cada modalidad conserva su color en las tres barras. */
-const COLORES_SEG = () => [token('--navy'), token('--petroleo'), token('--acero'), token('--ciruela'), token('--acero-claro')];
+/* B8-03-0 · mezcla de cartera por modalidad: banco vs. grupo vs. panel; cada modalidad conserva su color
+   de la paleta en las tres barras. */
+const colorDe = (i) => PALETA[i % PALETA.length];
 
-async function armarMezcla(d, estado) {
-  const c = await contexto(d, estado, { conGrupo: true });
-  if (c.motivo) return { enPreparacion: c.motivo, requiereBanco: c.requiereBanco };
-  const cart = await tablaBanco(c.banco.slug, 'bk_cartera');
-  const filas = cart.filter((f) => f.periodo === c.t);
+function armarMezcla(d, estado) {
+  const c = contexto(estado, { conGrupo: true });
+  if (c.estado) return c;
+  const filas = delBanco(d, estado, 'bk_cartera').filter((f) => f.periodo === c.t);
   if (!filas.length) return sinDato(c.t);
-  const grupo = (d.bk_cartera_grupo || []).filter((g) => g.periodo === c.t && g.optica === 'Modelo de negocio' && g.grupo === c.banco.modelo);
-  const total = (d.bk_cartera_grupo || []).filter((g) => g.periodo === c.t && g.optica === 'Total panel');
+  const grupo = (d.bk_cartera_grupo || []).filter((g) => g.periodo === c.t && g.optica === OPTICA_MODELO && g.grupo === c.banco.modelo);
+  const total = (d.bk_cartera_grupo || []).filter((g) => g.periodo === c.t && g.optica === OPTICA_PANEL);
   const pg = new Map(grupo.map((g) => [g.modalidad_id, g.peso]));
   const pt = new Map(total.map((g) => [g.modalidad_id, g.peso]));
-  const colores = COLORES_SEG();
-  const partes = (valorDe) => filas.map((f, i) => ({ nombre: f.modalidad, valor: valorDe(f), color: colores[i % colores.length] }));
+  const partes = (valorDe) => filas.map((f, i) => ({ nombre: f.modalidad, valor: valorDe(f), color: colorDe(i) }));
   return {
     barras: [
       { nombre: c.banco.nombre_corto, partes: partes((f) => f.peso_banco) },
       { nombre: `Grupo ${c.banco.modelo}`, partes: partes((f) => pg.get(f.modalidad_id)) },
-      { nombre: 'Panel', partes: partes((f) => pt.get(f.modalidad_id)) },
+      { nombre: ROTULO_PANEL, partes: partes((f) => pt.get(f.modalidad_id)) },
     ],
     formato: 'pct',
-    formatoRotulo: 'pct0',
   };
 }
 
-/* ---------- B8-03-1 · NPL por modalidad ---------- */
-const CALIDAD = { exacta: 'exacta', proxy: 'proxy (serie más amplia)', sin_dato: 'sin dato' };
-
-async function armarNpl(d, estado) {
-  const c = await contexto(d, estado, { conGrupo: true });
-  if (c.motivo) return { enPreparacion: c.motivo, requiereBanco: c.requiereBanco };
-  const cart = await tablaBanco(c.banco.slug, 'bk_cartera');
-  const filas = cart.filter((f) => f.periodo === c.t);
-  if (!filas.length) return sinDato(c.t);
-  const grupo = (d.bk_cartera_grupo || []).filter((g) => g.periodo === c.t && g.optica === 'Modelo de negocio' && g.grupo === c.banco.modelo);
-  const total = (d.bk_cartera_grupo || []).filter((g) => g.periodo === c.t && g.optica === 'Total panel');
-  const pg = new Map(grupo.map((g) => [g.modalidad_id, g]));
-  const pt = new Map(total.map((g) => [g.modalidad_id, g]));
-  const lista = filas
-    .map((f) => {
-      const g = pg.get(f.modalidad_id) || {};
-      const s = pt.get(f.modalidad_id) || {};
-      return {
-        modalidad: f.modalidad,
-        peso: f.peso_banco ?? null,
-        npl_banco: f.npl15 ?? null,
-        npl_grupo: g.npl15 ?? null,
-        mora_sistema: s.mora_sistema ?? null,
-        calidad: CALIDAD[s.calidad_equivalencia] || '—',
-      };
-    })
-    .sort((a, b) => (b.peso ?? -1) - (a.peso ?? -1));
-  const pctCol = (v) => (v == null ? '—' : pct(v, 1));
-  return {
-    columnas: [
-      { clave: 'modalidad', titulo: 'Modalidad', tipo: 'texto' },
-      { clave: 'peso', titulo: 'Peso en la cartera', formatear: pctCol },
-      { clave: 'npl_banco', titulo: 'NPL del banco', formatear: pctCol },
-      { clave: 'npl_grupo', titulo: 'NPL del grupo', formatear: pctCol },
-      { clave: 'mora_sistema', titulo: 'Mora del sistema (> 90 d)', formatear: pctCol },
-      { clave: 'calidad', titulo: 'Equivalencia', tipo: 'texto' },
-    ],
-    filas: lista,
-  };
-}
-
-/* ---------- B8-03-2 · crecimiento de cartera a/a, 12 trimestres ---------- */
-async function armarCredito(d, estado) {
-  const c = await contexto(d, estado, { conGrupo: true });
-  if (c.motivo) return { enPreparacion: c.motivo, requiereBanco: c.requiereBanco };
-  const panel = await tablaBanco(c.banco.slug, 'bk_panel');
-  const cart = await tablaBanco(c.banco.slug, 'bk_cartera');
-  const ps = ventana(panel, c.t);
-  if (!ps.length) return sinDato(c.t);
-  const quiebre = cart.some((f) => f.quiebre_2025 === true);
-  const excluir = quiebre ? cruza2025 : undefined;
-  return {
-    series: [
-      ...tramos('Crecimiento a/a del banco', serie(panel, 'credito_aa', 'valor', ps, excluir), { color: token('--navy') }),
-      ...tramos('Crecimiento a/a, mediana del grupo', serie(panel, 'credito_aa', 'p50_grupo', ps, excluir), { discontinua: true, color: token('--texto-2') }),
-      ...tramos('NPL del banco', serie(panel, 'npl15_total', 'valor', ps), { color: token('--cobre') }),
-      ...tramos('NPL, mediana del grupo', serie(panel, 'npl15_total', 'p50_grupo', ps), { discontinua: true, color: token('--cobre') }),
-    ],
-    bandas: BANDA_2025,
-    nota: quiebre ? NOTA_QUIEBRE : null,
-  };
-}
-
-/* ---------- B8-04-0 · árbol del ROE ---------- */
-const LINEAS_ARBOL = [
-  ['margen_antes_provisiones', 'Margen antes de provisiones'],
-  ['provisiones', 'Provisiones'],
-  ['tarifas_servicios', 'Tarifas y servicios'],
-  ['transacciones_pago', 'Transacciones de pago'],
-  ['personal', 'Personal'],
-  ['administrativos', 'Administrativos'],
-  ['tributarios', 'Tributarios'],
-  ['no_operacional', 'No operacional'],
-  ['otros', 'Otros'],
-  ['impuesto_participaciones', 'Impuesto y participaciones'],
-];
-
-async function armarArbol(d, estado) {
-  const c = await contexto(d, estado, { conGrupo: true });
-  if (c.motivo) return { enPreparacion: c.motivo, requiereBanco: c.requiereBanco };
-  const arbol = await tablaBanco(c.banco.slug, 'bk_roe_arbol');
-  const porL = new Map(arbol.filter((r) => r.periodo === c.t).map((r) => [r.linea, r]));
+/* B8-04-0 · árbol del ROE */
+function armarArbol(d, estado) {
+  const c = contexto(estado, { conGrupo: true });
+  if (c.estado) return c;
+  const filas = delBanco(d, estado, 'bk_roe_arbol').filter((r) => r.periodo === c.t);
+  const porL = new Map(filas.map((r) => [r.linea, r]));
   const roa = porL.get('roa');
   const roe = porL.get('roe');
   const apal = porL.get('apalancamiento');
   if (!roa || roa.valor == null) return sinDato(c.t);
-  const lineas = [];
-  const omitidas = [];
-  for (const [clave, nombre] of LINEAS_ARBOL) {
-    const r = porL.get(clave);
-    if (!r || r.valor == null || r.mediana_grupo == null) { omitidas.push(nombre); continue; }
-    lineas.push({ nombre, banco: r.valor, grupo: r.mediana_grupo });
-  }
+  const { lineas, omitidas } = lineasArbolRoe(filas);
   const partes = [];
   if (roe && roe.valor != null && apal && apal.valor != null) {
-    partes.push(`ROE ${pct(roe.valor, 1)} = ROA ${pct(roa.valor, 1)} × apalancamiento ${numero(apal.valor, 1)} veces.`);
+    partes.push(`ROE ${pct(roe.valor, 1)} = ROA ${pct(roa.valor, 1)} × apalancamiento ${formatear(apal.valor, 'num')} veces.`);
   }
   if (roe && roe.mediana_grupo != null) {
     partes.push(`Mediana del grupo: ROE ${pct(roe.mediana_grupo, 1)}, ROA ${pct(roa.mediana_grupo, 1)}. La mediana de cada línea no suma a la del ROA.`);
   }
-  if (omitidas.length) partes.push(`Sin dato en ${trimTexto(c.t)} y fuera de la cascada: ${omitidas.join(', ').toLowerCase()}.`);
+  if (omitidas.length) partes.push(`Sin dato en ${trimestreDePeriodo(c.t)} y fuera de la cascada: ${omitidas.join(', ').toLowerCase()}.`);
   return {
     lineas,
     total: { nombre: 'ROA', banco: roa.valor, grupo: roa.mediana_grupo },
@@ -358,55 +170,53 @@ async function armarArbol(d, estado) {
   };
 }
 
-/* ---------- B8-04-1 · ROE TTM, 12 trimestres ---------- */
-async function armarRoe(d, estado) {
-  const c = await contexto(d, estado, { conGrupo: true });
-  if (c.motivo) return { enPreparacion: c.motivo, requiereBanco: c.requiereBanco };
-  const panel = await tablaBanco(c.banco.slug, 'bk_panel');
-  const ps = ventana(panel, c.t);
+/* B8-04-1 · ROE TTM, 12 trimestres; un hueco en la serie queda como hueco en la línea. */
+function armarRoe(d, estado) {
+  const c = contexto(estado, { conGrupo: true });
+  if (c.estado) return c;
+  const panel = delBanco(d, estado, 'bk_panel');
+  const ps = periodosHasta(panel, c.t, 12);
   if (!ps.length) return sinDato(c.t);
   return {
     series: [
-      ...tramos('Banco', serie(panel, 'roe_ttm', 'valor', ps)),
-      ...tramos('Mediana del grupo', serie(panel, 'roe_ttm', 'p50_grupo', ps), { discontinua: true, color: token('--texto-2') }),
+      { nombre: 'Banco', puntos: serie(panel, 'roe_ttm', 'valor', ps) },
+      { nombre: 'Mediana del grupo', puntos: serie(panel, 'roe_ttm', 'p50_grupo', ps), discontinua: true, color: COLOR.texto2 },
     ],
     bandas: BANDA_2025,
-    nota: null,
+    eje: { unidad: 'pct', decimales: 0 },
+    formatoTooltip: 'pct',
   };
 }
 
-/* ---------- B8-05-0 · mix de fondeo, banco vs. mediana del grupo ---------- */
-async function armarFondeo(d, estado) {
-  const c = await contexto(d, estado, { conGrupo: true });
-  if (c.motivo) return { enPreparacion: c.motivo, requiereBanco: c.requiereBanco };
-  const panel = await tablaBanco(c.banco.slug, 'bk_panel');
-  const porM = new Map(panel.filter((f) => f.periodo === c.t && f.metrica.startsWith('fondeo_')).map((f) => [f.metrica, f]));
+/* B8-05-0 · mix de fondeo, banco vs. mediana del grupo */
+function armarFondeo(d, estado) {
+  const c = contexto(estado, { conGrupo: true });
+  if (c.estado) return c;
+  const porM = new Map(delBanco(d, estado, 'bk_panel').filter((f) => f.periodo === c.t && f.metrica.startsWith('fondeo_')).map((f) => [f.metrica, f]));
   const meta = (d.bk_metrica || []).filter((m) => porM.has(m.metrica)).sort((a, b) => a.orden - b.orden);
   if (!meta.length) return sinDato(c.t);
-  const colores = COLORES_SEG();
-  const partes = (valorDe) => meta.map((m, i) => ({ nombre: m.nombre.replace(/^Fondeo:\s*/, ''), valor: valorDe(porM.get(m.metrica)), color: colores[i % colores.length] }));
+  const partes = (valorDe) => meta.map((m, i) => ({ nombre: m.nombre.replace(/^Fondeo:\s*/, ''), valor: valorDe(porM.get(m.metrica)), color: colorDe(i) }));
   return {
     barras: [
       { nombre: c.banco.nombre_corto, partes: partes((f) => f.valor) },
       { nombre: `Mediana del grupo ${c.banco.modelo}`, partes: partes((f) => f.p50_grupo) },
     ],
     formato: 'pct',
-    formatoRotulo: 'pct0',
   };
 }
 
-/* ---------- B8-06-1 · puente IF.Data ↔ publicado ---------- */
+/* B8-06-1 · puente IF.Data ↔ publicado */
 const COL_PUENTE = [
   { clave: 'linea', titulo: 'Línea', tipo: 'texto' },
-  { clave: 'publicado', titulo: 'Publicado (R$ mil mm)', formatear: (v) => (v == null ? '—' : numero(v, 1)) },
-  { clave: 'ifdata', titulo: 'IF.Data (R$ mil mm)', formatear: (v) => (v == null ? '—' : numero(v, 1)) },
-  { clave: 'dif', titulo: 'Diferencia', formatear: (v) => (v == null ? '—' : pct(v, 1, true)) },
+  { clave: 'publicado', titulo: 'Publicado (R$ mil mm)', formatear: (v) => formatear(v, 'num') },
+  { clave: 'ifdata', titulo: 'IF.Data (R$ mil mm)', formatear: (v) => formatear(v, 'num') },
+  { clave: 'dif', titulo: 'Diferencia', formatear: (v) => formatear(v, 'pct', { signo: true }) },
   { clave: 'nota', titulo: 'Nota', tipo: 'texto' },
 ];
 
-async function armarPuente(d, estado) {
-  const c = await contexto(d, estado);
-  if (c.motivo) return { enPreparacion: c.motivo, requiereBanco: c.requiereBanco };
+function armarPuente(d, estado) {
+  const c = contexto(estado);
+  if (c.estado) return c;
   const pu = (d.bk_puente || []).filter((p) => p.cod_inst === c.banco.cod_inst);
   if (!pu.length) {
     return { columnas: [{ clave: 'linea', titulo: 'Puente', tipo: 'texto' }], filas: [{ linea: 'sin auditoría para este banco' }] };
@@ -417,46 +227,18 @@ async function armarPuente(d, estado) {
   };
 }
 
-/* ---------- riel: un KPI por sección (cifra del banco activo; cambios de 1 y 4 trimestres vienen de bk_panel) ---------- */
-const kpiBanco = (rotulo, metrica, signo) => ({
-  tipo: 'kpi',
-  rotulo,
-  datos: ['bk_banco', 'bk_manifiesto'],
-  armar: async (d, estado) => {
-    const c = await contexto(d, estado);
-    if (c.motivo) return { enPreparacion: c.motivo, requiereBanco: c.requiereBanco };
-    const panel = await tablaBanco(c.banco.slug, 'bk_panel');
-    const f = panel.find((x) => x.metrica === metrica && x.periodo === c.t);
-    if (!f || f.valor == null) return sinDato(c.t);
-    return {
-      cifra: f.valor,
-      formato: 'pct',
-      cambio1: f.d_tt ?? null,
-      cambio4: f.d_aa ?? null,
-      signo,
-      nota: f.p50_grupo != null ? `Mediana del grupo ${pct(f.p50_grupo, 1)}` : null,
-    };
-  },
-});
-
-const DATOS_BASE = ['bk_banco', 'bk_manifiesto'];
-
 export default {
-  clave: 'B8',
-  ruta: 'ficha',
-  nombre: 'Ficha por banco',
   rotulo: '8 · FICHA',
-  signo: 'bancos',
   usaBanco: true,
-  optica: 'Modelo de negocio',
+  titularPorBanco: true,
 
-  // v3 (3-nov): estructura del canvas; la versión anterior queda en el .v1.txt de este archivo.
   franja: [
-    { rotulo: 'ROE 12 meses', tabla: 'metrica/roe_ttm/bk_panel', filtro: { metrica: 'roe_ttm' }, banco: true, orden: 'periodo', delta: 'valor_tt', escalaDelta: 1, tono: 'mejora_sube' },
-    { rotulo: 'NPL ≥ 15 días', tabla: 'metrica/npl15_total/bk_panel', filtro: { metrica: 'npl15_total' }, banco: true, orden: 'periodo', delta: 'valor_tt', escalaDelta: 1, tono: 'mejora_baja' },
-    { rotulo: 'Cuota de crédito', tabla: 'metrica/share_credito/bk_panel', filtro: { metrica: 'share_credito' }, banco: true, orden: 'periodo', delta: 'valor_tt', escalaDelta: 1, tono: 'neutro' },
-    { rotulo: 'Costo del riesgo', tabla: 'metrica/costo_riesgo_ttm/bk_panel', filtro: { metrica: 'costo_riesgo_ttm' }, banco: true, orden: 'periodo', delta: 'valor_tt', escalaDelta: 1, tono: 'mejora_baja' },
-    { rotulo: 'Eficiencia', tabla: 'metrica/eficiencia_ttm/bk_panel', filtro: { metrica: 'eficiencia_ttm' }, banco: true, orden: 'periodo', delta: 'valor_tt', escalaDelta: 1, tono: 'mejora_baja' },
+    indicadorBanco('ROE 12 meses', 'roe_ttm'),
+    indicadorBanco('NPL ≥ 15 días', 'npl15_total'),
+    // bk_metrica le da mejora_sube; la franja lo muestra sin juicio (decisión de diseño previa, a confirmar por Pablo)
+    indicadorBanco('Cuota de crédito', 'share_credito', { tono: 'neutro' }),
+    indicadorBanco('Costo del riesgo', 'costo_riesgo_ttm'),
+    indicadorBanco('Eficiencia', 'eficiencia_ttm'),
   ],
 
   secciones: [
@@ -510,93 +292,93 @@ export default {
 
   tarjetas: {
     'B8-01-0': {
-      plana: true, // v3
+      plana: true,
       titulo: 'Ficha técnica',
       sub: 'Panel IF.Data y Publicado CVM · último corte de cada universo',
       fuente: `${IFDATA}; ${CVM}`,
       componente: 'tabla',
-      datos: DATOS_BASE,
+      datos: ['bk_manifiesto'],
       banco: true,
       estado: 'LISTO',
       armar: armarFicha,
     },
     'B8-01-1': {
-      plana: true, // v3
+      plana: true,
       titulo: 'Tamaño y cuotas',
       sub: 'Panel IF.Data · activo, crédito, depósitos y PL · cuota y Δ cuota en 4 trimestres',
       fuente: IFDATA,
       componente: 'tabla',
-      datos: [...DATOS_BASE, 'bk_metrica'],
+      datos: conBanco(['bk_metrica'], ['bk_panel']),
       banco: true,
       estado: 'LISTO',
       armar: armarTamano,
     },
     'B8-02-0': {
-      plana: true, // v3
+      plana: true,
       titulo: 'Doce métricas, una fila cada una',
       sub: 'Panel IF.Data · rango p10–p90 del grupo, mediana, banco y hace un año · doce métricas',
       fuente: `${IFDATA}; ${CALC}`,
       nota: 'Grupo de comparación: el modelo del banco. Doce métricas; Basilea queda fuera hasta que exista bk_capital.',
       componente: 'percentiles',
-      datos: [...DATOS_BASE, 'bk_metrica'],
+      datos: conBanco(['bk_metrica'], ['bk_panel']),
       banco: true,
       estado: 'DERIVAR',
       armar: armarPercentiles,
     },
     'B8-03-0': {
-      plana: true, // v3
+      plana: true,
       titulo: 'Mix de cartera: banco vs. grupo vs. panel',
       sub: 'Panel IF.Data · banco vs. grupo vs. panel · apilado al 100 %',
       fuente: IFDATA,
       componente: 'apilada_100',
       nota: 'Un segmento por modalidad de cartera; el grupo y el panel usan las mismas modalidades. Rótulo solo si el segmento pesa 8 % o más.',
-      datos: [...DATOS_BASE, 'bk_cartera_grupo'],
+      datos: conBanco(['bk_cartera_grupo'], ['bk_cartera']),
       banco: true,
       estado: 'DERIVAR',
       armar: armarMezcla,
     },
     'B8-04-0': {
-      plana: true, // v3
+      plana: true,
       titulo: 'Árbol del ROE: banco vs. mediana del grupo',
       sub: 'Panel IF.Data · banco vs. mediana del grupo',
       fuente: `${IFDATA}; ${CALC}`,
       componente: 'cascada_doble',
-      datos: DATOS_BASE,
+      datos: conBanco([], ['bk_roe_arbol']),
       banco: true,
       estado: 'DERIVAR',
       armar: armarArbol,
     },
     'B8-04-1': {
-      plana: true, // v3
+      plana: true,
       titulo: 'ROE TTM, 12 trimestres, banco vs. grupo y vs. CDI',
       sub: 'Panel IF.Data · 12 trimestres · banco vs. mediana del grupo',
       fuente: `${IFDATA}; ${SGS}`,
       nota: 'Sin línea del CDI: la serie no está exportada.',
-      componente: 'linea_banco',
-      datos: DATOS_BASE,
+      componente: 'linea',
+      datos: conBanco([], ['bk_panel']),
       banco: true,
       estado: 'LISTO',
       armar: armarRoe,
     },
     'B8-05-0': {
-      plana: true, // v3
+      plana: true,
       titulo: 'Mix de fondeo, banco vs. grupo',
       sub: 'Panel IF.Data · banco vs. grupo · apilado al 100 %',
       fuente: `${IFDATA}; ${CALC}`,
       componente: 'apilada_100',
       nota: 'La mediana de cada línea del grupo no suma 100 %: la barra del grupo se escala a su suma.',
-      datos: [...DATOS_BASE, 'bk_metrica'],
+      datos: conBanco(['bk_metrica'], ['bk_panel']),
       banco: true,
       estado: 'DERIVAR',
       armar: armarFondeo,
     },
     'B8-06-1': {
-      plana: true, // v3
+      plana: true,
       titulo: 'Puente IF.Data ↔ publicado',
       sub: 'Panel IF.Data y Publicado CVM · diferencia por línea · último trimestre auditado',
       fuente: `${IFDATA}; ${CVM}; ${CALC}`,
       componente: 'tabla',
-      datos: [...DATOS_BASE, 'bk_puente'],
+      datos: ['bk_puente'],
       banco: true,
       estado: 'LISTO',
       armar: armarPuente,

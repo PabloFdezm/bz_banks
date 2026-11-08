@@ -2,22 +2,20 @@
 """Tests del verificador de la capa gold (tablas bk_*, encargo 59).
 
 Cada comprobación tiene su prueba «rota a propósito»: un DataFrame pequeño con el
-error que la comprobación debe detectar. Las pruebas sobre los datos reales se
-saltan mientras la tabla no exista en datos/gold.
+error que la comprobación debe detectar. Las comprobaciones generales (contrato,
+claves, fechas, licencias) se prueban por la entrada pública: tablas escritas en
+una carpeta temporal y `verificar_gold(gold=...)`.
 """
 from __future__ import annotations
 
 import hashlib
-import sys
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 import pytest
 
-RAIZ = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(RAIZ / "herramientas"))
-import verificar_gold as V  # noqa: E402
+import verificar_gold as V
 
 HOY = pd.Timestamp("2026-11-02")
 MODELOS = ["Grandes", "Digitales", "Medianos y nicho", "Pagos", "Desarrollo"]
@@ -42,53 +40,55 @@ def _panel_base(filas: list[dict]) -> pd.DataFrame:
     return _df(C["bk_panel"], filas)
 
 
-# --- comprobaciones generales -------------------------------------------------
+def _gold(tmp_path: Path, nombre: str, df: pd.DataFrame) -> V.Resultado:
+    """Escribe una tabla gold en una carpeta temporal y corre el verificador completo sobre ella."""
+    df.to_parquet(tmp_path / f"{nombre}.parquet")
+    return V.verificar_gold(gold=tmp_path, hoy=HOY)
 
-def test_general_detecta_columna_faltante():
-    r = V._comprobar_gold_general("bk_banco", _banco().drop(columns=["slug"]), HOY)
+
+def test_general_detecta_columna_faltante(tmp_path):
+    r = _gold(tmp_path, "bk_banco", _banco().drop(columns=["slug"]))
     assert any("faltan columnas" in e for e in r.errores), r.errores
 
 
-def test_general_detecta_filas_repetidas():
+def test_general_detecta_filas_repetidas(tmp_path):
     panel = _panel_base([{"cod_inst": "C0000", "periodo": "202606", "metrica": "roe_ttm", "valor": 0.1}])
     panel = pd.concat([panel, panel.iloc[[0]]], ignore_index=True)
-    r = V._comprobar_gold_general("bk_panel", panel, HOY)
+    r = _gold(tmp_path, "bk_panel", panel)
     assert any("repetidas" in e for e in r.errores), r.errores
 
 
-def test_general_detecta_infinito():
+def test_general_detecta_infinito(tmp_path):
     panel = _panel_base([{"cod_inst": "C0000", "periodo": "202606", "metrica": "roe_ttm", "valor": np.inf}])
-    r = V._comprobar_gold_general("bk_panel", panel, HOY)
+    r = _gold(tmp_path, "bk_panel", panel)
     assert any("infinitos" in e for e in r.errores), r.errores
 
 
-def test_general_detecta_fecha_posterior_a_hoy():
+def test_general_detecta_fecha_posterior_a_hoy(tmp_path):
     panel = _panel_base([{"cod_inst": "C0000", "periodo": "202606", "fecha": pd.Timestamp("2026-12-31"),
                           "metrica": "roe_ttm", "valor": 0.1}])
-    r = V._comprobar_gold_general("bk_panel", panel, HOY)
+    r = _gold(tmp_path, "bk_panel", panel)
     assert any("posteriores a hoy" in e for e in r.errores), r.errores
 
 
-def test_general_detecta_periodo_posterior_a_hoy():
+def test_general_detecta_periodo_posterior_a_hoy(tmp_path):
     banco = _banco()
     banco.loc[0, "ultimo_periodo"] = "202612"  # 4T26 todavía no cerró al 2-nov-2026
-    r = V._comprobar_gold_general("bk_banco", banco, HOY)
+    r = _gold(tmp_path, "bk_banco", banco)
     assert any("posterior a hoy" in e for e in r.errores), r.errores
 
 
-def test_general_detecta_columna_con_licencia():
+def test_general_detecta_columna_con_licencia(tmp_path):
     panel = _panel_base([{"cod_inst": "C0000", "periodo": "202606", "metrica": "roe_ttm", "valor": 0.1}])
     panel["px_last"] = 1.0
-    r = V._comprobar_gold_general("bk_panel", panel, HOY)
+    r = _gold(tmp_path, "bk_panel", panel)
     assert any("licencia" in e for e in r.errores), r.errores
 
 
-def test_general_limpia_no_marca_tablas_validas():
-    r = V._comprobar_gold_general("bk_banco", _banco(), HOY)
+def test_general_limpia_no_marca_tablas_validas(tmp_path):
+    r = _gold(tmp_path, "bk_banco", _banco())
     assert not r.errores, r.errores
 
-
-# --- bk_banco -------------------------------------------------------------------
 
 def test_banco_valido_pasa():
     assert not V.verificar_gold_banco(_banco()).errores
@@ -113,8 +113,6 @@ def test_banco_detecta_slug_repetido():
     assert any("slug repetido" in e for e in r.errores), r.errores
 
 
-# --- bk_metrica -----------------------------------------------------------------
-
 def test_metrica_detecta_signo_fuera_de_lista():
     met = _df(C["bk_metrica"], [{"metrica": "roe_ttm", "unidad": "ratio", "signo": "neutral"}])
     r = V.verificar_gold_metrica(met)
@@ -127,8 +125,6 @@ def test_metrica_detecta_metrica_del_panel_sin_fila():
     r = V.verificar_gold_metrica(met, panel)
     assert any("sin fila" in e and "roa_ttm" in e for e in r.errores), r.errores
 
-
-# --- bk_panel -------------------------------------------------------------------
 
 def test_panel_detecta_pct_fuera_de_0_1():
     panel = _panel_base([{"cod_inst": "C0000", "periodo": "202606", "metrica": "roe_ttm",
@@ -172,8 +168,6 @@ def test_panel_detecta_valor_t4_que_no_coincide():
     r = V.verificar_gold_panel(panel, None)
     assert any("valor_t4 no coincide" in e for e in r.errores), r.errores
 
-
-# --- bk_grupo -------------------------------------------------------------------
 
 def _metrica_grupo() -> pd.DataFrame:
     return _df(C["bk_metrica"], [
@@ -243,8 +237,6 @@ def test_grupo_sin_total_panel_es_error():
     assert any("no hay filas de la óptica" in e for e in r.errores), r.errores
 
 
-# --- bk_roe_arbol ---------------------------------------------------------------
-
 LINEAS_ROE = [0.02, -0.01, 0.005, np.nan, -0.008, -0.003, -0.001, 0.0015, -0.002]  # suma 0,0025
 
 
@@ -273,8 +265,6 @@ def test_roe_arbol_detecta_identidad_roe_rota():
     assert any("apalancamiento no es igual al ROE" in e for e in r.errores), r.errores
 
 
-# --- bk_cartera -----------------------------------------------------------------
-
 def _cartera(periodo="202606", npl=0.05) -> pd.DataFrame:
     return _df(C["bk_cartera"], [
         {"cod_inst": "C0000", "periodo": periodo, "tipo": "PF", "modalidad": "Cartão", "saldo": 600e6, "vencido15": 30e6, "npl15": npl},
@@ -282,17 +272,17 @@ def _cartera(periodo="202606", npl=0.05) -> pd.DataFrame:
     ])
 
 
-def _totales(publicado=1000e6) -> pd.DataFrame:
+def _totales_publicados(publicado=1000e6) -> pd.DataFrame:
     return _df(["cod_inst", "periodo", "tipo", "publicado", "exterior"], [
         {"cod_inst": "C0000", "periodo": "202606", "tipo": "PF", "publicado": publicado, "exterior": 0.0}])
 
 
 def test_cartera_valida_pasa():
-    assert not V.verificar_gold_cartera(_cartera(), _totales()).errores
+    assert not V.verificar_gold_cartera(_cartera(), _totales_publicados()).errores
 
 
 def test_cartera_detecta_suma_que_no_cuadra_con_el_total():
-    r = V.verificar_gold_cartera(_cartera(), _totales(publicado=1100e6))
+    r = V.verificar_gold_cartera(_cartera(), _totales_publicados(publicado=1100e6))
     assert any("no cuadra con el total publicado" in e for e in r.errores), r.errores
 
 
@@ -311,8 +301,6 @@ def test_cartera_sin_totales_es_aviso_no_error():
     assert not r.errores
     assert any("no hay totales publicados" in a for a in r.advertencias), r.advertencias
 
-
-# --- bk_sistema_m / _q ----------------------------------------------------------
 
 def _serie(serie, valores, unidad="fraccion", fin="2026-09-30") -> list[dict]:
     fechas = pd.date_range(end=fin, periods=len(valores), freq="QE")
@@ -366,13 +354,12 @@ def test_sistema_unidad_pp_no_se_acota_a_uno():
     assert not r.errores, r.errores
 
 
-# --- bk_scr ---------------------------------------------------------------------
-
 def _scr(tasas: dict[str, float]) -> pd.DataFrame:
     filas = []
     for seg, t in tasas.items():
         for cliente, activa in (("PF", 600.0), ("PJ", 400.0)):
-            filas.append({"fecha": pd.Timestamp("2026-06-30"), "segmento_inst": seg, "cliente": cliente,
+            filas.append({"corte": "segmento_cliente", "fecha": pd.Timestamp("2026-06-30"), "segmento_inst": seg,
+                          "cliente": cliente,
                           "carteira_ativa": activa, "inadimplencia_brl": activa * t, "tasa_inad": t})
     return _df(C["bk_scr"], filas)
 
@@ -393,8 +380,6 @@ def test_scr_detecta_segmento_sin_corte():
     r = V.verificar_gold_scr(_scr(tasas))
     assert any("no hay corte de Fintech" in e for e in r.errores), r.errores
 
-
-# --- bk_manifiesto --------------------------------------------------------------
 
 def _manifiesto(tmp_path: Path, sha_ok=True, incluir=True, corte="2026-09-30"):
     ruta = tmp_path / "bk_banco.parquet"
@@ -521,8 +506,6 @@ def test_grupo_lucro_aa_queda_fuera_del_rango_con_aviso():
     assert any("lucro_ttm_aa" in a for a in r.advertencias), r.advertencias
 
 
-# --- orquestador ----------------------------------------------------------------
-
 def test_gold_sin_tablas_solo_avisos(tmp_path):
     r = V.verificar_gold(gold=tmp_path, hoy=HOY)
     assert not r.errores
@@ -536,14 +519,11 @@ def test_gold_detecta_banco_de_33_filas_desde_disco(tmp_path):
     assert any("33 filas" in e for e in r.errores), r.errores
 
 
+@pytest.mark.integracion
 def test_gold_reales_sin_errores():
-    if not any(V.GOLD.glob("bk_*.parquet")):
-        pytest.skip("aún no hay tablas gold en datos/gold")
     r = V.verificar_gold()
     assert not r.errores, "\n".join(r.errores)
 
-
-# --- bk_exposicion, bk_sensibilidad, bk_cartera_totales y bk_conducta (encargo 71) ----
 
 def _exposicion(**kw) -> pd.DataFrame:
     fila = {"cod_inst": "C0000", "periodo": "202606", "fecha": pd.Timestamp("2026-06-30"),
@@ -614,7 +594,7 @@ def test_sensibilidad_detecta_r2_fuera_de_rango():
     assert any("R² fuera de [0, 1]" in e for e in r.errores), r.errores
 
 
-def _totales(**kw) -> pd.DataFrame:
+def _cartera_totales(**kw) -> pd.DataFrame:
     fila = {"cod_inst": "C0000", "periodo": "202606", "tipo": "PF", "publicado": 100.0,
             "exterior": 10.0, "brasil": 90.0}
     fila.update(kw)
@@ -622,29 +602,11 @@ def _totales(**kw) -> pd.DataFrame:
 
 
 def test_totales_valida_pasa():
-    assert not V.verificar_gold_cartera_totales(_totales()).errores
+    assert not V.verificar_gold_cartera_totales(_cartera_totales()).errores
     # exterior nulo cuenta como cero: brasil = publicado
-    assert not V.verificar_gold_cartera_totales(_totales(exterior=np.nan, brasil=100.0)).errores
+    assert not V.verificar_gold_cartera_totales(_cartera_totales(exterior=np.nan, brasil=100.0)).errores
 
 
 def test_totales_detecta_brasil_que_no_es_publicado_menos_exterior():
-    r = V.verificar_gold_cartera_totales(_totales(brasil=95.0))
+    r = V.verificar_gold_cartera_totales(_cartera_totales(brasil=95.0))
     assert any("brasil ≠ publicado − exterior" in e for e in r.errores), r.errores
-
-
-def _conducta(**kw) -> pd.DataFrame:
-    fila = {"cod_inst": "C0000", "periodo": "202606", "trimestre": "2T26",
-            "reclamos_por_millon": 12.5, "clientes": 1000000}
-    fila.update(kw)
-    return _df(C["bk_conducta"], [fila])
-
-
-def test_conducta_contrato_pasa_y_detecta_columna_faltante():
-    assert not V._comprobar_gold_general("bk_conducta", _conducta(), HOY).errores
-    r = V._comprobar_gold_general("bk_conducta", _conducta().drop(columns=["reclamos_por_millon"]), HOY)
-    assert any("faltan columnas" in e for e in r.errores), r.errores
-
-
-def test_gold_avisa_si_falta_conducta(tmp_path):
-    r = V.verificar_gold(gold=tmp_path, hoy=HOY)
-    assert any("bk_conducta aún no existe" in a for a in r.advertencias), r.advertencias

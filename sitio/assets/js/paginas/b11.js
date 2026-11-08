@@ -1,69 +1,65 @@
-/* B11 · Personas — crédito a personas por producto y tramo de renta (SCR.data). 6-nov.
+/* B11 · Personas — crédito a personas por producto y tramo de renta (SCR.data).
    Cartera, mix, mora y ticket por tramo de renta (tarea 3, detalle en referencias/, fuera de git), para todos los
    productos: tarjeta, personal no consignado, consignado, vehículos, inmobiliario, rural, cheque especial y total.
-   Todo viene de preparar_gold_bancos_scr_productos.py (bk_scr_tablas, bk_scr_series). Aquí solo se filtra y elige.
-   Sin imports: contar_tarjetas.mjs lee este archivo como texto. */
-const SCR = 'BCB, SCR.data';
-const COBRE = '#A85E24';
-const MESES = 36;
+   Todo viene de preparar_gold_bancos_scr_productos.py (bk_scr_tablas, bk_scr_series). Aquí solo se filtra y elige. */
+import { FUENTE, enPreparacion } from '../comun.js';
+import { COLOR } from '../tokens.js';
+import { etiquetaMes } from '../formato.js';
+import { MESES, filasDe, serieDe, ultimasFechas, valoresEn, tablaEstandar, graficoYTabla, lineasConTotal } from './_series.js';
+
+const { SCR } = FUENTE;
 const TRAMOS = ['Hasta 1 SM', '1–2 SM', '2–3 SM', '3–5 SM', '5–10 SM', '10–20 SM', 'Más de 20 SM'];
-const LINEA = { 'Hasta 1 SM': '#1F3F60', '1–2 SM': '#2E5C8A', '2–3 SM': '#6F93BA', '3–5 SM': '#2F7A86', '5–10 SM': '#6B8E5A',
-  '10–20 SM': '#7A5C99', 'Más de 20 SM': '#8A93A0' };
+const LINEA = { 'Hasta 1 SM': COLOR.azulNoche, '1–2 SM': COLOR.navy, '2–3 SM': COLOR.azulPizarra, '3–5 SM': COLOR.petroleo, '5–10 SM': COLOR.oliva,
+  '10–20 SM': COLOR.lavanda, 'Más de 20 SM': COLOR.grisMedio };
 // mix: azules hasta 3 SM, tierras desde 3 SM, para que el corte de 3 SM se vea solo
-const PILA = { 'Hasta 1 SM': '#1F3F60', '1–2 SM': '#2E5C8A', '2–3 SM': '#6F93BA', '3–5 SM': '#E3D3B5', '5–10 SM': '#CBAE80',
-  '10–20 SM': '#A9875A', 'Más de 20 SM': '#7A5C3A' };
+const PILA = { 'Hasta 1 SM': COLOR.azulNoche, '1–2 SM': COLOR.navy, '2–3 SM': COLOR.azulPizarra, '3–5 SM': COLOR.arenaPalida, '5–10 SM': COLOR.trigo,
+  '10–20 SM': COLOR.tierraClara, 'Más de 20 SM': COLOR.tierra };
 const PRODUCTOS = [
   { valor: 'Tarjeta', nombre: 'Tarjeta' }, { valor: 'Personal no consignado', nombre: 'Personal' },
   { valor: 'Consignado', nombre: 'Consignado' }, { valor: 'Vehículos', nombre: 'Vehículos' },
   { valor: 'Inmobiliario', nombre: 'Inmobiliario' }, { valor: 'Rural', nombre: 'Rural' },
   { valor: 'Cheque especial', nombre: 'Cheque esp.' }, { valor: 'Total personas', nombre: 'Total' }];
 const SELECTOR = [{ tipo: 'selector', clave: 'producto', rotulo: 'PRODUCTO', defecto: 'Tarjeta', opciones: PRODUCTOS }];
-const etiquetaMes = (f) => `${f.slice(5, 7)}/${f.slice(2, 4)}`;
-const producto = (est) => est.seleccion?.producto || 'Tarjeta';
+const producto = (est) => est.seleccion.producto;
 
-const bloque = (d, b, p) => (d.bk_scr_tablas || []).filter((f) => f.bloque === b && f.producto === p).sort((x, y) => x.orden - y.orden);
-const serie = (d, s) => (d.bk_scr_series || []).filter((f) => f.serie === s).sort((x, y) => (x.fecha < y.fecha ? -1 : 1));
+const bloque = (d, b, p) => filasDe(d.bk_scr_tablas, { bloque: b, producto: p });
+const serie = (d, s) => serieDe(d.bk_scr_series, s);
 
 function lineasTramo(d, est, metrica) {
   const p = producto(est);
-  const fechas = [...new Set(serie(d, `${metrica}|${p}|Total`).map((x) => x.fecha))].slice(-MESES);
-  if (!fechas.length) return { enPreparacion: 'falta bk_scr_series' };
-  const val = (t) => { const m = new Map(serie(d, `${metrica}|${p}|${t}`).map((x) => [x.fecha, x.valor * 100])); return fechas.map((f) => m.get(f) ?? null); };
-  const lineas = TRAMOS.map((t) => ({ nombre: t, color: LINEA[t], valores: val(t), grosor: 1.6 }));
-  lineas.unshift({ nombre: 'Total', color: COBRE, valores: val('Total'), grosor: 3, z: 9 });
-  return { componente: 'barras_linea', categorias: fechas.map(etiquetaMes), barras: [], lineas, leyendaInteractiva: true, leyenda: [],
-    formatoIzq: (v) => `${v} %`, intervalo: 5 };
+  const fechas = ultimasFechas(serie(d, `${metrica}|${p}|Total`), MESES);
+  if (!fechas.length) return enPreparacion('falta bk_scr_series');
+  const valores = (t) => valoresEn(serie(d, `${metrica}|${p}|${t}`), fechas);
+  return lineasConTotal({
+    categorias: fechas.map(etiquetaMes),
+    total: { nombre: 'Total', valores: valores('Total') },
+    lineas: TRAMOS.map((t) => ({ nombre: t, color: LINEA[t], valores: valores(t) })),
+    intervalo: 5,
+  });
 }
 
 function armarCrecimiento(d, est) {
   const f = bloque(d, 'saldo', producto(est));
-  if (!f.length) return { enPreparacion: 'falta bk_scr_tablas' };
+  if (!f.length) return enPreparacion('falta bk_scr_tablas');
   const filas = f.filter((x) => TRAMOS.includes(x.fila)).map((x) => ({ nombre: x.fila, valor: x.d12 * 100, color: LINEA[x.fila] }));
   const tot = f.find((x) => x.destacar);
-  if (tot) filas.unshift({ nombre: 'Total', valor: tot.d12 * 100, color: COBRE });
-  return { filas, unidad: '%', decimales: 1 };
+  if (tot) filas.unshift({ nombre: 'Total', valor: tot.d12 * 100, color: COLOR.total });
+  return { filas, unidad: '%', decimales: 1, leyenda: filas.map((x) => ({ nombre: x.nombre, color: x.color })) };
 }
 
 function armarMix(d, est) {
   const p = producto(est);
-  const fechas = [...new Set(serie(d, `mix|${p}|Hasta 3 SM`).map((x) => x.fecha))];
-  if (!fechas.length) return { enPreparacion: 'falta bk_scr_series' };
-  const val = (t) => { const m = new Map(serie(d, `mix|${p}|${t}`).map((x) => [x.fecha, x.valor * 100])); return fechas.map((f) => m.get(f) ?? null); };
-  return { categorias: fechas.map(etiquetaMes), barras: TRAMOS.map((t) => ({ nombre: t, color: PILA[t], valores: val(t) })), lineas: [],
-    leyendaInteractiva: true, leyenda: [], rangoIzq: { min: 0, max: 100 }, formatoIzq: (v) => `${v} %`, intervalo: 2 };
+  const fechas = ultimasFechas(serie(d, `mix|${p}|Hasta 3 SM`), Infinity);
+  if (!fechas.length) return enPreparacion('falta bk_scr_series');
+  return { categorias: fechas.map(etiquetaMes), barras: TRAMOS.map((t) => ({ nombre: t, color: PILA[t], valores: valoresEn(serie(d, `mix|${p}|${t}`), fechas) })), lineas: [],
+    leyendaInteractiva: true, leyenda: [], rangoIzq: { min: 0, max: 100 }, ejeIzq: 'pct_nivel', intervalo: 2 };
 }
 
-const tabla = (b) => (d, est) => {
-  const f = bloque(d, b, producto(est));
-  return f.length ? { filas: f } : { enPreparacion: 'falta bk_scr_tablas' };
-};
-const fila2 = (a, b, alto = 470) => // 640 donde la tabla tiene 10 filas
-  [[{ clave: a, ancho: 4, alto }, { clave: b, ancho: 5, alto }]];
+const tabla = (b) => (d, est) => tablaEstandar(bloque(d, b, producto(est)), 'falta bk_scr_tablas');
+// 640 px donde la tabla tiene 10 filas
+const fila2 = (a, b, alto = 470) => graficoYTabla(a, b, alto);
 
 export default {
-  clave: 'B11',
-  ruta: 'personas',
-  nombre: 'Personas',
   rotulo: 'SCR.DATA · MENSUAL',
   usaBanco: false,
 
@@ -80,7 +76,6 @@ export default {
 
   tarjetas: {
     'B11-01': { titulo: 'Crecimiento a/a de la cartera por tramo', plana: true, componente: 'barras_signo',
-      leyenda: [{ nombre: 'Total', color: COBRE }, { nombre: 'Tramos de renta', color: '#2E5C8A' }],
       fuente: `${SCR}; tramos según la renta declarada del deudor`, datos: ['bk_scr_tablas'], armar: armarCrecimiento, estado: 'LISTO' },
     'B11-02': { titulo: 'Cartera por tramo de renta', plana: true, componente: 'tabla_estandar',
       nota: 'Último: R$ mil millones. Share: peso del tramo en el producto. Cambios en %. Ago-26: ~R$ 15 mil millones de tarjeta pasan de «más de 20 SM» a «N.D.» por reclasificación de la fuente.',

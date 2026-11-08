@@ -21,37 +21,30 @@ des-acumula los flujos, conserva intactos los stocks y escribe parquets atómico
 
 Receta:
 
-    python ifdata.py colectar --desde 201403 --hasta 202606 --escopo prudencial \
+    python pipeline/ifdata.py colectar --desde 201403 --hasta 202606 --escopo prudencial \
         --informe 2 --informe 3 --informe 4
-    python preparar_bancos_powerbi.py
+    python pipeline/preparar_bancos_powerbi.py
 """
 
 from __future__ import annotations
 
 import argparse
 import hashlib
-import json
-import os
 import re
-import tempfile
+import sys
 from pathlib import Path
 
-import certificados  # noqa: F401
 import pandas as pd
 
 import almacen as A
-import ifdata as IF
+import bancos as B
+import ifdata_texto as IF
+import periodos as PER
 
-BASE = Path(__file__).resolve().parents[1]
-CARPETA_POWER_BI = BASE / "datos" / "gold"
-DEFINICIONES = BASE / "definiciones" / "bcb_ifdata__bancos_balances.json"
 VALORES = A.ruta_cruda("bcb_ifdata", "valores")
-CADASTRO = A.ruta_cruda("bcb_ifdata", "cadastro")
 
 INFORMES = (2, 3, 4)
 ESCOPO = "prudencial"
-FRONTERA_COSIF_2025 = "202503"
-TAMANO_MINIMO_CRUDO = 200
 
 COLUMNAS_VALORES = [
     "TipoInstituicao",
@@ -99,7 +92,7 @@ CONCEPTOS_RESULTADO = [
     "despesas_pessoal",
     "despesas_administrativas",
     "despesas_tributarias",
-    # 2026-10-09: líneas para que el puente del resultado cierre y para la página de bancos del PBIP dual.
+    # Líneas para que el puente del resultado cierre.
     "provisoes_credito",
     "resultado_transacoes_pagamento",
     "resultado_nao_operacional",
@@ -157,19 +150,9 @@ def cuenta_base(texto: str) -> str:
     return re.sub(r"\s+", " ", base).strip()
 
 
-def periodo_a_fecha(periodo: str) -> pd.Timestamp:
-    anio = int(periodo[:4])
-    mes = int(periodo[4:])
-    return pd.Period(f"{anio}-{mes:02d}").to_timestamp("M") + pd.offsets.MonthEnd(0)
-
-
 def cargar_definiciones() -> dict:
-    if not DEFINICIONES.exists():
-        raise FileNotFoundError(f"Falta {DEFINICIONES.relative_to(BASE)}")
-    defs = json.loads(DEFINICIONES.read_text(encoding="utf-8"))
-    bancos = {b["cod_inst"]: b for b in defs.get("bancos", [])}
-    if not bancos:
-        raise ValueError("La definición de bancos está vacía")
+    defs = A.leer_definicion(B.DEF_BALANCES)
+    bancos = {b["cod_inst"]: b for b in B.universo()}
     lookup = {}
     tipos = {}
     for concepto, meta in defs.get("conceptos", {}).items():
@@ -195,9 +178,9 @@ def periodos_disponibles() -> list[str]:
     conjuntos = []
     for informe in INFORMES:
         encontrados = set()
-        for ruta in A.glob_crudo(VALORES, f"valores_*_1_r{informe}.csv"):   # CSV o parquet
+        for ruta in A.glob_crudo(VALORES, f"valores_*_1_r{informe}.csv"):
             m = re.fullmatch(r"valores_(\d{6})_1_r\d+\.csv", ruta.name)
-            if m and A.crudo_con_datos(ruta, TAMANO_MINIMO_CRUDO):
+            if m and A.crudo_con_datos(ruta):
                 encontrados.add(m.group(1))
         conjuntos.append(encontrados)
     if not conjuntos or not all(conjuntos):
@@ -206,7 +189,7 @@ def periodos_disponibles() -> list[str]:
 
 
 def leer_cadastro(periodo: str, codes: set[str]) -> pd.DataFrame:
-    ruta = CADASTRO / f"cadastro_{periodo}.csv"
+    ruta = A.ruta_cadastro(periodo)
     columnas = ["cod_inst", "institucion_bcb", "tcb", "td", "tc", "sr", "segmento", "actividad", "situacion"]
     if not A.existe_crudo(ruta):
         return pd.DataFrame(columns=columnas)
@@ -246,21 +229,14 @@ def nombres_por_periodo(periodos: list[str], codes: set[str]) -> dict[str, dict[
 
 
 def leer_valores(periodo: str, informe: int, codes: set[str]) -> pd.DataFrame:
-    ruta = VALORES / f"valores_{periodo}_1_r{informe}.csv"
+    ruta = A.ruta_valores(periodo, 1, informe)
     if not A.existe_crudo(ruta):
         raise FileNotFoundError(f"Falta el crudo {ruta.name}")
-    partes = []
-    if A.ruta_parquet(ruta).exists():
-        trozos = [A.leer_crudo_tabla(ruta, COLUMNAS_VALORES)]
-    else:
-        trozos = pd.read_csv(ruta, dtype=str, keep_default_na=False, usecols=COLUMNAS_VALORES, chunksize=500_000)
-    for chunk in trozos:
-        chunk = chunk[chunk["CodInst"].isin(codes)]
-        if len(chunk):
-            partes.append(chunk)
-    if not partes:
+    todo = A.leer_crudo_tabla(ruta, COLUMNAS_VALORES)
+    df = todo[todo["CodInst"].isin(codes)]
+    if not len(df):
         return pd.DataFrame()
-    return pd.concat(partes, ignore_index=True).drop_duplicates()
+    return df.reset_index(drop=True).drop_duplicates()
 
 
 def transformar_valores(df: pd.DataFrame, periodo: str, informe: int,
@@ -291,17 +267,17 @@ def transformar_valores(df: pd.DataFrame, periodo: str, informe: int,
     out["cod_cuenta"] = out["cod_cuenta"].map(IF.nulo)
     out["cuenta"] = out["cuenta"].map(IF.limpiar)
     out["composicion"] = out["composicion"].map(IF.nulo)
-    out["valor_publicado"] = pd.to_numeric(out["saldo_crudo"].map(IF.a_valor), errors="coerce")
+    out["valor_publicado"] = IF.saldo(out["saldo_crudo"])
     out["institucion_bcb"] = out["cod_inst"].map(nombres).fillna("")
     out["nombre_corto"] = out["cod_inst"].map(lambda c: bancos[c]["nombre_corto"])
     out["categoria"] = out["cod_inst"].map(lambda c: bancos[c]["categoria"])
     out["grupo_norm"] = out["grupo"].map(cuenta_original_norm)
     out["cuenta_original_norm"] = out["cuenta"].map(cuenta_original_norm)
     out["cuenta_base"] = out["cuenta"].map(cuenta_base)
-    out["era"] = out["periodo"].map(lambda p: "cosif_2025" if p >= FRONTERA_COSIF_2025 else "cosif_pre2025")
+    out["era"] = out["periodo"].map(lambda p: "cosif_2025" if p >= PER.QUIEBRE_2025 else "cosif_pre2025")
     out["anio"] = out["periodo"].str[:4].astype("int64")
     out["trimestre"] = (out["periodo"].str[4:].astype("int64") // 3).astype("int64")
-    out["fecha"] = out["periodo"].map(periodo_a_fecha)
+    out["fecha"] = PER.fin_de_mes(out["periodo"])
     out["cuenta_id"] = [
         f"r{num}_{hashlib.sha1(f'{num}|{cod}|{norm}|{grp}'.encode('utf-8')).hexdigest()[:12]}"
         for num, cod, norm, grp in zip(out["num_informe"], out["cod_cuenta"],
@@ -470,9 +446,7 @@ def construir_instituciones(hechos: pd.DataFrame, defs: dict) -> pd.DataFrame:
 def construir_periodos(hechos: pd.DataFrame) -> pd.DataFrame:
     periodos = hechos[["periodo", "fecha", "anio", "trimestre"]].drop_duplicates().sort_values("periodo")
     periodos = periodos.copy()
-    periodos["anio_trimestre"] = (
-        periodos["anio"].astype(str) + " T" + periodos["trimestre"].astype(str)
-    )
+    periodos["anio_trimestre"] = PER.etiqueta_anio_trimestre(periodos["periodo"])
     periodos["orden_anio_trimestre"] = periodos["anio"] * 4 + periodos["trimestre"]
     return periodos.reset_index(drop=True)
 
@@ -564,10 +538,11 @@ def validar(salidas: dict[str, pd.DataFrame]) -> None:
 
     # Continuidad del crédito bruto en la frontera COSIF 2025: el 2026-10-09 se descubrió que el crosswalk unía bruto
     # (viejo) con neto (nuevo) y el panel caía −4,4 % falso en 2025-T1. Con los mismos bancos en los dos trimestres.
-    if {"202412", "202503"} <= set(balances["periodo"]):
-        par = balances[balances["periodo"].isin(["202412", "202503"])].pivot(
+    antes, despues = PER.previo(PER.QUIEBRE_2025), PER.QUIEBRE_2025
+    if {antes, despues} <= set(balances["periodo"]):
+        par = balances[balances["periodo"].isin([antes, despues])].pivot(
             index="cod_inst", columns="periodo", values="operacoes_credito").dropna()
-        salto = par["202503"].sum() / par["202412"].sum() - 1
+        salto = par[despues].sum() / par[antes].sum() - 1
         if abs(salto) > 0.06:
             raise ValueError(f"Salto del crédito bruto en la frontera 2025-T1: {salto:+.1%}; revisar el crosswalk")
 
@@ -588,18 +563,6 @@ def validar(salidas: dict[str, pd.DataFrame]) -> None:
             raise ValueError("La des-acumulación no reproduce los acumulados de junio y diciembre")
 
 
-def _escribir_parquet_atomico(tabla: pd.DataFrame, destino: Path) -> None:
-    destino.parent.mkdir(parents=True, exist_ok=True)
-    descriptor, temporal = tempfile.mkstemp(dir=destino.parent, suffix=".parquet.tmp")
-    os.close(descriptor)
-    try:
-        tabla.to_parquet(temporal, index=False)
-        os.replace(temporal, destino)
-    except BaseException:
-        Path(temporal).unlink(missing_ok=True)
-        raise
-
-
 def construir_salidas(defs: dict, periodos: list[str]) -> dict[str, pd.DataFrame]:
     hechos = construir_hechos(periodos, defs)
     salidas = {
@@ -614,37 +577,21 @@ def construir_salidas(defs: dict, periodos: list[str]) -> dict[str, pd.DataFrame
     return salidas
 
 
-def exportar_salidas(salidas: dict[str, pd.DataFrame], destino: Path = CARPETA_POWER_BI) -> list[Path]:
-    validar(salidas)
+def exportar_salidas(salidas: dict[str, pd.DataFrame], destino: Path = A.GOLD) -> list[Path]:
+    """Escribe las salidas ya validadas por construir_salidas."""
     rutas = []
     for nombre, tabla in salidas.items():
         ruta = Path(destino) / f"{nombre}.parquet"
-        _escribir_parquet_atomico(tabla, ruta)
+        A.escribir_parquet(tabla, ruta)
         rutas.append(ruta)
     return rutas
 
 
-def filtrar_periodos(periodos: list[str], desde: str, hasta: str) -> list[str]:
-    if desde:
-        periodos = [p for p in periodos if p >= IF.parsear_periodo(desde, "--desde")]
-    if hasta:
-        periodos = [p for p in periodos if p <= IF.parsear_periodo(hasta, "--hasta")]
-    if not periodos:
-        raise ValueError("El rango pedido no tiene crudos disponibles")
-    return periodos
-
-
-def main() -> None:
-    ap = argparse.ArgumentParser(description="Prepara el panel de bancos brasileños desde el crudo de IF.data.")
-    ap.add_argument("--desde", default="", help="trimestre inicial AAAAMM (opcional)")
-    ap.add_argument("--hasta", default="", help="trimestre final AAAAMM (opcional)")
-    ap.add_argument("--salida", default=str(CARPETA_POWER_BI), help="carpeta de destino de los parquets")
-    args = ap.parse_args()
-
+def main(argv: list[str] | None = None) -> int:
+    argparse.ArgumentParser(description="Prepara el panel de bancos brasileños desde el crudo de IF.data.").parse_args(argv)
     defs = cargar_definiciones()
-    periodos = filtrar_periodos(periodos_disponibles(), args.desde, args.hasta)
-    salidas = construir_salidas(defs, periodos)
-    rutas = exportar_salidas(salidas, Path(args.salida))
+    salidas = construir_salidas(defs, periodos_disponibles())
+    rutas = exportar_salidas(salidas)
     for ruta in rutas:
         tabla = salidas[ruta.stem]
         print(f"{ruta.name}: {len(tabla):,} filas")
@@ -660,7 +607,8 @@ def main() -> None:
     if sin_activo:
         print(f"Aviso: sin Ativo Total publicado en {ultimo}: {', '.join(sorted(sin_activo))}")
     print("Validaciones: OK")
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

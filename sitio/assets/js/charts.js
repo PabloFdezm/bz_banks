@@ -1,154 +1,86 @@
-/* Componentes de gráfico (§6 del general). Cada uno: componente(el, entrada, opciones) → chart.
-   La entrada es un objeto simple que arma la config de la tarjeta; nunca el JSON crudo.
-   Tema común: sin leyenda de ECharts (la leyenda es HTML), sin toolbox, sin dataZoom, animation:false. */
-import { token, paleta, numero, pct, pp, mmm_aa, anio } from './formato.js';
+/* Tema de ECharts y componentes generales (§6 del general). Cada componente es un descriptor
+   { dibujar(contenedor, entrada, { titulo }), entrada: [claves que lee], descripcion }; dibujar devuelve la
+   instancia de ECharts o null si dibujó HTML (charts_bancos.js arma el registro completo). La entrada la arma
+   la config de la tarjeta; nunca el JSON crudo. Tema común: sin toolbox ni dataZoom, animation: false.
+   ECharts llega como global (assets/vendor/echarts.min.js). */
+import { COLOR, PALETA, TIPO, TRAZO_REFERENCIA } from './tokens.js';
+import { numero, mmm_aa, formatear, formatoEje } from './formato.js';
+import { el } from './dom.js';
 
-export const C = {};
-function cargarColores() {
-  const g = token;
-  Object.assign(C, {
-    fondo: g('--fondo'), texto: g('--texto'), texto2: g('--texto-2'), texto3: g('--texto-3'),
-    borde: g('--borde'), regla: g('--regla'), navy: g('--navy'), petroleo: g('--petroleo'),
-    acero: g('--acero'), ciruela: g('--ciruela'), aceroClaro: g('--acero-claro'),
-    mejor: g('--mejor'), peor: g('--peor'), cobre: g('--cobre'), arena: g('--arena'),
-    referencia: g('--referencia'), fuente: g('--fuente'),
-    paleta: paleta(),
+export const C = { ...COLOR, fuente: TIPO.texto, paleta: PALETA };
+
+/* Toda instancia nace aquí: SVG, para que el texto se dibuje con la fuente de la página. */
+export const iniciar = (nodo) => window.echarts.init(nodo, null, { renderer: 'svg' });
+
+/* Base de toda opción. La familia tipográfica va siempre: ECharts mide las etiquetas con ella y,
+   si no coincide con la del SVG, corta nombres. */
+export const tema = (textStyle = {}) => ({ animation: false, backgroundColor: 'transparent', textStyle: { fontFamily: C.fuente, ...textStyle } });
+
+export const tooltip = (trigger, extra = {}) => ({
+  trigger, backgroundColor: C.tarjeta, borderColor: C.borde, borderWidth: 1,
+  textStyle: { fontFamily: C.fuente, fontSize: 12, color: C.texto }, ...extra,
+});
+
+/* Eje sin línea ni marcas; rótulos en gris de 11 px. */
+export const ejeBase = (axisLabel = {}, extra = {}) => ({
+  axisLine: { show: false }, axisTick: { show: false },
+  axisLabel: { color: C.texto3, fontSize: 11, ...axisLabel },
+  ...extra,
+});
+
+export const GRILLA = { show: true, lineStyle: { color: C.regla, width: 1 } };
+
+/* Eje numérico con título: el del eje Y encima del eje y a la izquierda; el del X, centrado bajo el eje. */
+export function ejeNumerico(cfg = {}, eje = 'x') {
+  const rotulo = eje === 'y'
+    ? { nameLocation: 'end', nameGap: 12, nameTextStyle: { color: C.texto3, fontSize: 11, align: 'left' } }
+    : { nameLocation: 'middle', nameGap: 30, nameTextStyle: { color: C.texto3, fontSize: 11 } };
+  return ejeBase({ formatter: (v) => formatear(v, cfg.formato) }, {
+    type: 'value', scale: true, name: cfg.titulo || '', ...rotulo, splitLine: GRILLA,
   });
 }
-cargarColores();
-
-const REF_TRAZO = [6, 4];
 
 function base(entrada = {}) {
   return {
-    animation: false,
-    backgroundColor: 'transparent',
-    textStyle: { fontFamily: C.fuente, fontSize: 11, color: C.texto2 },
+    ...tema({ fontSize: 11, color: C.texto2 }),
     grid: { left: 8, right: 12, top: 16, bottom: 4, containLabel: true },
-    tooltip: {
-      trigger: 'axis',
-      backgroundColor: '#FFFFFF', borderColor: C.borde, borderWidth: 1,
-      textStyle: { fontFamily: C.fuente, fontSize: 12, color: C.texto },
-      axisPointer: { type: 'line', lineStyle: { color: C.reglas || C.referencia, width: 1 } },
-    },
+    tooltip: tooltip('axis', { axisPointer: { type: 'line', lineStyle: { color: C.referencia, width: 1 } } }),
     ...entrada,
   };
 }
 
-function ejeTiempo(entrada = {}) {
-  const ventana = entrada.ventanaAnios || 0;
-  return {
-    type: 'time',
-    splitNumber: 6,
-    axisLine: { show: false }, axisTick: { show: false },
-    axisLabel: {
-      color: C.texto3, fontSize: 11, margin: 8,
-      formatter: (v) => {
-        const d = new Date(v);
-        return ventana > 3 ? String(d.getFullYear()) : mmm_aa(d);
-      },
-    },
-    splitLine: { show: false },
-    ...(entrada.ejeX || {}),
-  };
+/* Eje de tiempo: con más de 3 años rotula años; si no, mmm-aa. */
+function ejeTiempo(ventana) {
+  return ejeBase({ margin: 8, formatter: (v) => (ventana > 3 ? String(new Date(v).getFullYear()) : mmm_aa(new Date(v))) }, {
+    type: 'time', splitNumber: 6, splitLine: { show: false },
+  });
 }
 
-function ejeValores(entrada = {}) {
-  const f = entrada.formatear || ((v) => numero(v, 1));
-  return {
-    type: 'value',
-    axisLine: { show: false }, axisTick: { show: false },
-    axisLabel: { color: C.texto3, fontSize: 11, formatter: f },
-    splitLine: { show: true, lineStyle: { color: C.regla, width: 1, type: 'solid' } },
-    // bancos: título del eje Y encima del eje, a la izquierda, sin montarse sobre las etiquetas
-    ...(entrada.tituloY ? { name: entrada.tituloY, nameLocation: 'end', nameGap: 12, nameTextStyle: { color: C.texto3, fontSize: 11, align: 'left' } } : {}),
-    ...(entrada.ejeY || {}),
-  };
-}
+const ejeValores = (eje = { unidad: 'num', decimales: 1 }) => ejeBase({ formatter: formatoEje(eje) }, {
+  type: 'value', splitLine: { ...GRILLA, lineStyle: { ...GRILLA.lineStyle, type: 'solid' } },
+});
 
-function ventanaAnios(serie) {
-  const t = serie.flat().filter(Boolean).map(([f]) => new Date(f).getTime());
+function ventanaAnios(series) {
+  const t = series.flat().filter(Boolean).map(([f]) => new Date(f).getTime());
   if (!t.length) return 0;
   return (Math.max(...t) - Math.min(...t)) / (365.25 * 24 * 3600 * 1000);
 }
 
-/* ---------- linea ---------- */
-export function linea(el, e = {}) {
+/* linea: series temporales [fecha, valor]; los nulos quedan como hueco (no se interpolan). */
+function linea(nodo, e = {}) {
   const series = e.series || [];
-  const va = e.ventanaAnios || ventanaAnios(series.map((s) => s.puntos || []));
   const opts = base({
-    xAxis: e.categorias
-      ? {
-          type: 'category', data: e.categorias, boundaryGap: e.boundaryGap ?? false,
-          axisLine: { show: false }, axisTick: { show: false },
-          axisLabel: { color: C.texto3, fontSize: 11, interval: 0 },
-          splitLine: { show: false },
-        }
-      : ejeTiempo({ ...e, ventanaAnios: va }),
-    yAxis: ejeValores(e),
-    series: [],
-  });
-
-  if (e.tituloY) opts.grid = { ...opts.grid, top: 34 }; // bancos: sitio para el título del eje Y
-  for (const s of series) {
-    opts.series.push({
+    xAxis: ejeTiempo(ventanaAnios(series.map((s) => s.puntos || []))),
+    yAxis: ejeValores(e.eje),
+    series: series.map((s) => ({
       name: s.nombre, type: 'line', showSymbol: false,
-      // bancos: los nulos se quedan en la serie; connectNulls es false, así el hueco no se interpola
       data: s.puntos || [],
-      lineStyle: {
-        width: s.ancho || 2,
-        color: s.color || C.navy,
-        type: s.discontinua ? REF_TRAZO : 'solid',
-      },
+      lineStyle: { width: s.ancho || 2, color: s.color || C.navy, type: s.discontinua ? TRAZO_REFERENCIA : 'solid' },
       itemStyle: { color: s.color || C.navy },
       z: s.discontinua ? 2 : 3,
-      ...(s.area ? { areaStyle: { color: s.area, opacity: s.areaOpacidad ?? 0.18 } } : {}),
-    });
-  }
-  // área entre dos series (§6: base = mínimo, banda = diferencia, dos colores)
-  if (e.area && Array.isArray(e.area.entre) && series.length >= 2) {
-    const [i, j] = e.area.entre;
-    const a = series[i].puntos || [], b = series[j].puntos || [];
-    const mapaB = new Map(b.map(([f, v]) => [String(f).slice(0, 10), v]));
-    const basePts = [], bandaPts = [];
-    for (const [f, v] of a) {
-      const w = mapaB.get(String(f).slice(0, 10));
-      if (v == null || w == null) continue;
-      basePts.push([f, Math.min(v, w)]);
-      bandaPts.push([f, Math.abs(v - w)]);
-    }
-    const encima = (e.area.colores && e.area.colores.arriba) || C.aceroClaro;
-    const debajo = (e.area.colores && e.area.colores.abajo) || C.arena;
-    opts.series.push(
-      { name: '_base', type: 'line', data: basePts, showSymbol: false, stack: '_area', lineStyle: { opacity: 0 }, symbol: 'none', tooltip: { show: false }, silent: true },
-      { name: '_banda', type: 'line', data: bandaPts, showSymbol: false, stack: '_area', lineStyle: { opacity: 0 }, symbol: 'none', areaStyle: { color: encima, opacity: 0.55 }, tooltip: { show: false }, silent: true },
-    );
-    void debajo;
-  }
-  // referencias: meta, promedio, contrafactual → gris discontinuo (§5.3)
-  if ((e.refs || []).length) {
-    opts.series[0] = opts.series[0] || { type: 'line', data: [] };
-    opts.series[0].markLine = {
-      silent: true, symbol: 'none',
-      label: { color: C.texto3, fontSize: 11, position: 'insideEndTop', formatter: (p) => p.name || '' },
-      lineStyle: { color: C.referencia, width: 1.5, type: REF_TRAZO },
-      data: e.refs.map((r) => ({ yAxis: r.valor, name: r.nombre || '' })),
-    };
-  }
-  // bancos: quiebres = líneas verticales grises discontinuas con rótulo arriba (se suman a las refs)
-  if ((e.marcas || []).length) {
-    const s0 = opts.series.find((s) => s.type === 'line' && !String(s.name || '').startsWith('_')) || opts.series[0];
-    if (s0) {
-      s0.markLine = s0.markLine || {
-        silent: true, symbol: 'none',
-        label: { color: C.texto3, fontSize: 11, position: 'insideEndTop', formatter: (p) => p.name || '' },
-        lineStyle: { color: C.referencia, width: 1, type: REF_TRAZO },
-        data: [],
-      };
-      s0.markLine.data = [...(s0.markLine.data || []), ...e.marcas.map((m) => ({ xAxis: m.fecha, name: m.nombre || '' }))];
-    }
-  }
-  // bandas de episodios
+    })),
+  });
+  if (e.formatoTooltip) opts.tooltip.valueFormatter = (v) => formatear(v, e.formatoTooltip);
   if ((e.bandas || []).length) {
     opts.series[0] = opts.series[0] || { type: 'line', data: [] };
     opts.series[0].markArea = {
@@ -158,50 +90,41 @@ export function linea(el, e = {}) {
       data: e.bandas.map((b) => [{ xAxis: b.desde, name: b.nombre || '' }, { xAxis: b.hasta }]),
     };
   }
-  const chart = echarts.init(el, null, { renderer: 'svg' });
+  const chart = iniciar(nodo);
   chart.setOption(opts);
   return chart;
 }
 
-/* ---------- columnas ---------- */
-export function columnas(el, e = {}) {
-  const cats = e.categorias || (e.fechas || []).map((f) => mmm_aa(f));
+/* columnas: barras verticales por categoría o por fecha, apilables, con una línea opcional. */
+function columnas(nodo, e = {}) {
   const esTiempo = Array.isArray(e.fechas);
   const opts = base({
-    xAxis: esTiempo ? ejeTiempo(e) : {
-      type: 'category', data: cats,
-      axisLine: { show: false }, axisTick: { show: false },
-      axisLabel: { color: C.texto3, fontSize: 11, interval: 0, rotate: e.rotular ? 30 : 0 },
-      splitLine: { show: false },
-    },
-    yAxis: ejeValores(e),
+    xAxis: esTiempo ? ejeTiempo(0) : ejeBase({ interval: 0 }, { type: 'category', data: e.categorias || [], splitLine: { show: false } }),
+    yAxis: ejeValores(e.eje),
     series: (e.series || []).map((s, i) => ({
       name: s.nombre, type: 'bar', barMaxWidth: 14, barGap: '20%',
       stack: e.apilar ? 'total' : undefined,
       data: s.valores,
-      // bancos: color por punto en itemStyle (antes se ignoraba)
-      itemStyle: { color: s.colorPorPunto ? ({ dataIndex }) => s.colorPorPunto[dataIndex] : (s.color || C.paleta[i % C.paleta.length]) },
+      itemStyle: { color: s.color || C.paleta[i % C.paleta.length] },
     })),
   });
-  if (e.tituloY) opts.grid = { ...opts.grid, top: 34 }; // bancos: sitio para el título del eje Y
   if (e.linea) {
     opts.series.push({
       name: e.linea.nombre, type: 'line', showSymbol: false, data: e.linea.valores,
       lineStyle: { width: 2, color: C.navy }, itemStyle: { color: C.navy }, z: 5,
     });
   }
-  const chart = echarts.init(el, null, { renderer: 'svg' });
+  const chart = iniciar(nodo);
   chart.setOption(opts);
   return chart;
 }
 
-/* ---------- barras_h ---------- */
-export function barras_h(el, e = {}) {
-  const nombres = (e.filas || []).map((f) => f.nombre);
+/* barras_h: barras horizontales por fila (apiladas salvo apilar: false), valores opcionales a la derecha. */
+function barras_h(nodo, e = {}) {
   const opts = base({
     grid: { left: 8, right: 40, top: 8, bottom: 4, containLabel: true },
-    xAxis: { type: 'value', axisLine: { show: false }, axisTick: { show: false }, axisLabel: { show: false }, splitLine: { show: true, lineStyle: { color: C.regla, width: 1 } } },
-    yAxis: { type: 'category', data: nombres, inverse: true, axisLine: { show: false }, axisTick: { show: false }, axisLabel: { color: C.texto2, fontSize: 11 } },
+    xAxis: ejeBase({ show: false }, { type: 'value', splitLine: GRILLA }),
+    yAxis: ejeBase({ color: C.texto2 }, { type: 'category', data: (e.filas || []).map((f) => f.nombre), inverse: true }),
     series: (e.series || []).map((s, i) => ({
       name: s.nombre, type: 'bar', barWidth: 9, data: s.valores,
       stack: e.apilar === false ? undefined : 'f',
@@ -209,31 +132,49 @@ export function barras_h(el, e = {}) {
       ...(e.mostrarValores ? { label: { show: true, position: 'right', color: C.texto2, fontSize: 11, formatter: (p) => numero(p.value, 1) } } : {}),
     })),
   });
-  const chart = echarts.init(el, null, { renderer: 'svg' });
+  const chart = iniciar(nodo);
   chart.setOption(opts);
   return chart;
 }
 
-/* ---------- tabla (HTML, no ECharts; patrones T4/T8) ---------- */
-export function tabla(el, e = {}) {
+/* Contenedor desplazable de una tabla: accesible por teclado y con su desplazamiento conservado al
+   redibujar (pagina.js respeta data-conservar-scroll). */
+export function cajaDesplazable(clase, titulo) {
+  const caja = el('div', `tabla-scroll ${clase || ''}`.trim());
+  caja.tabIndex = 0;
+  caja.setAttribute('role', 'region');
+  caja.setAttribute('aria-label', `${titulo || 'Tabla de datos'}. Desplázate para consultar todas las columnas.`);
+  caja.dataset.conservarScroll = '';
+  return caja;
+}
+
+/* tabla: tabla HTML de columnas declaradas ({ clave, titulo, tipo: 'texto', formatear(v, fila) }). */
+function tabla(nodo, e = {}, { titulo } = {}) {
   const cols = e.columnas || [];
-  const t = document.createElement('div');
-  t.className = 'tabla-scroll';
-  const thead = cols.map((c) => `<th class="${c.tipo === 'texto' ? '' : 'num'}"${c.ancho ? ` style="width:${c.ancho}"` : ''}>${c.titulo}</th>`).join('');
-  const cuerpo = (e.filas || []).map((f) => `<tr>${cols.map((c) => {
-    const v = f[c.clave ?? c.titulo];
-    const txt = c.formatear ? c.formatear(v, f) : (v == null ? '—' : String(v));
-    const estilo = c.color ? ` style="color:${typeof c.color === 'function' ? c.color(v, f) : c.color};font-weight:600"` : '';
-    return `<td class="${c.tipo === 'texto' ? '' : 'num'}"${estilo}>${txt}</td>`;
-  }).join('')}</tr>`).join('');
-  t.innerHTML = `<table class="tabla-datos"><thead><tr>${thead}</tr></thead><tbody>${cuerpo}</tbody></table>`;
-  el.replaceChildren(t);
+  const caja = cajaDesplazable('', titulo);
+  const t = el('table', 'tabla-datos');
+  const cabecera = el('tr');
+  for (const c of cols) cabecera.append(el('th', c.tipo === 'texto' ? '' : 'num', c.titulo));
+  const cuerpo = el('tbody');
+  for (const f of e.filas || []) {
+    const tr = el('tr');
+    for (const c of cols) {
+      const v = f[c.clave];
+      tr.append(el('td', c.tipo === 'texto' ? '' : 'num', c.formatear ? c.formatear(v, f) : (v == null ? '—' : String(v))));
+    }
+    cuerpo.append(tr);
+  }
+  const thead = el('thead');
+  thead.append(cabecera);
+  t.append(thead, cuerpo);
+  caja.append(t);
+  nodo.replaceChildren(caja);
   return null;
 }
 
-/* ---------- registro ---------- */
-export const COMPONENTES = { linea, columnas, barras_h, tabla };
-
-export function hay(nombre) { return Object.prototype.hasOwnProperty.call(COMPONENTES, nombre); }
-
-export { pct, pp, numero, anio, token, paleta };
+export const COMPONENTES_GENERALES = {
+  linea: { dibujar: linea, entrada: ['series', 'eje', 'formatoTooltip', 'bandas'], descripcion: 'Líneas en el tiempo ([fecha, valor]); nulos como hueco, bandas de episodios, discontinua para referencias.' },
+  columnas: { dibujar: columnas, entrada: ['categorias', 'fechas', 'series', 'apilar', 'linea', 'eje'], descripcion: 'Columnas por categoría o fecha, apilables, con una línea opcional.' },
+  barras_h: { dibujar: barras_h, entrada: ['filas', 'series', 'apilar', 'mostrarValores'], descripcion: 'Barras horizontales por fila, apiladas salvo apilar: false; valores a la derecha con mostrarValores.' },
+  tabla: { dibujar: tabla, entrada: ['columnas', 'filas'], descripcion: 'Tabla HTML con columnas declaradas (clave, título, tipo, formatear); patrones T4/T8.' },
+};

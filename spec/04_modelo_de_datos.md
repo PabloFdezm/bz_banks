@@ -5,8 +5,10 @@ métricas: `generado/metricas.md`. Universo de 34 bancos: `generado/bancos.md`.
 
 ## Convenciones
 
-- Archivos: `datos/gold/<tabla>.parquet`, escritos con `almacen.escribir_atomico` y registrados con
-  `almacen.guardar_derivado` (manifiesto con entradas y comando).
+- Archivos: `datos/gold/<tabla>.parquet`, publicados con `almacen.publicar_gold`: valida la tabla contra
+  `definiciones/contrato_gold.json` (columnas mínimas y clave única; una tabla bk_* fuera del contrato no se
+  publica), escribe de forma atómica y deja la procedencia (entradas y comando) en `datos/derivado/`.
+  `bk_manifiesto.producido_por` sale de esa procedencia.
 - **Unidades:** tasas y ratios en fracción (0,05 = 5 %). Cambios de tasas en pp solo cuando la columna lo
   indica (`*_pp`, `unidad_cambio = 'pp'`). Saldos IF.Data en R$; saldos SGS en R$ millones; en las tablas
   descriptivas `ultimo` va en R$ mil millones cuando `unidad_ultimo = 'brl_mm'`.
@@ -15,6 +17,8 @@ métricas: `generado/metricas.md`. Universo de 34 bancos: `generado/bancos.md`.
 - **Banco:** `cod_inst` (código del conglomerado prudencial en IF.Data) y `slug` (URL: `?banco=itau`).
 - **Grupos («ópticas»):** Modelo de negocio (Grandes, Digitales, Medianos y nicho, Pagos, Desarrollo),
   Segmento regulatorio (S1–S4), Propiedad, Tradicional vs Fintech, Total panel («Todos los grupos»).
+  Las ópticas, el universo de bancos y la regla fintech se definen en `pipeline/bancos.py`; los quiebres
+  (2025-T1, trimestres anómalos) en `pipeline/periodos.py`.
 
 ## Tablas y quién las usa
 
@@ -22,21 +26,21 @@ métricas: `generado/metricas.md`. Universo de 34 bancos: `generado/bancos.md`.
 |---|---|---|---|
 | `bank_hechos`, `bank_cuentas`, `bank_instituciones`, `bank_periodos`, `bank_balances`, `bank_resultados` | banco × trimestre × cuenta (y dimensiones) | `preparar_bancos_powerbi.py` | `preparar_metricas_bancos`, `preparar_credito_paginas`, Power BI |
 | `bk_banco` | banco (34) | `preparar_gold_bancos base` | casi todas las tarjetas de banco; `estado.js` arma la lista de bancos desde aquí |
-| `bk_metrica` | métrica (84) | `base` | B6-05, B8 (nombres, formato, `signo` que colorea cambios) |
+| `bk_metrica` | métrica (86; texto y fórmulas en `definiciones/metricas_bancos.json`) | `base` | B6-05, B8 (nombres, formato, `signo` que colorea cambios) |
 | `bk_panel` | banco × trimestre × métrica: `valor`, rezagos (`valor_t1`, `valor_t4`), cambios (`d_tt`, `d_aa`, unidad en `unidad_d`), percentiles del grupo (`p10/p50/p90_grupo`), posición (`pct_grupo`, `pct_panel`) y ranking (`rank_panel`) | `base` | particiones `metrica/<m>/bk_panel` (B4, B6, franja de B8) y `banco/<slug>/bk_panel` (B8) |
 | `bk_grupo` | óptica × grupo × trimestre × métrica, con muestra constante a/a, mediana y p25/p75 | `base` | particiones `optica/<slug>/bk_grupo` (franjas de B4 y B6, B6-01) |
 | `bk_puente` | banco × concepto: IF.Data contra lo publicado por el banco | `base` | B8-06-1 |
-| `bk_manifiesto` | tabla gold: filas, rango, sha256, último corte | `base` | B8 (cortes), tests |
+| `bk_manifiesto` | tabla gold: filas, rango, sha256, quién la produjo, último corte de cada universo | `manifiesto_gold.py` (al final) | B8 (cortes), tests |
 | `bk_roe_arbol` | entidad (banco o grupo) × trimestre × línea del árbol ROE | `base` (rentabilidad) | B6-02, B8 (`banco/<slug>/`) |
 | `bk_sensibilidad` | banco: beta del margen a la Selic | `base` (rentabilidad) | B6-04 |
-| `bk_sistema_m`, `bk_sistema_q` | serie de sistema × mes / trimestre (SGS + entradas del macro) | `preparar_gold_bancos sistema` | B4-01, franja de B4 |
+| `bk_sistema_m`, `bk_sistema_q` | serie de sistema × mes / trimestre (SGS + entradas del macro) | `preparar_gold_bancos_sistema.py` | B4-01, franja de B4 |
 | `bk_cartera` | banco × trimestre × tipo × modalidad (saldo, vencido ≥15 d, `quiebre_2025`) | `cartera` | B8 (`banco/<slug>/`), `bk_exposicion`, `bk_qcambio` |
 | `bk_cartera_totales` | totales publicados por el BCB | `cartera` | solo el verificador (no se exporta) |
 | `bk_cartera_grupo`, `bk_cartera_mix7` | grupo × trimestre × modalidad (mix y NPL) | `cartera` | B8-03 |
-| `bk_cre_panorama`, `bk_cre_calidad`, `bk_cre_contexto` | copias de `intermedio/cre_*` (crédito por grupo) | `cartera` | B4-03 |
+| `bk_cre_panorama`, `bk_cre_calidad`, `bk_cre_contexto` | `cre_*` (crédito por grupo) tal cual | `preparar_credito_paginas_powerbi.py` | B4-03 |
 | `bk_exposicion` | banco × trimestre: mora implícita del mix vs NPL observado, efectos mix y mora | `preparar_gold_bancos_exposicion.py` | B4-04 |
 | `bk_qcambio` | banco × métrica en el último trimestre: cambio, z, sentido, rango | `preparar_gold_bancos_qcambio.py` | Portada antigua («qué se movió»); hoy sin tarjeta visible |
-| `bk_scr` | mes × corte (segmento/cliente, porte, UF) | `preparar_gold_bancos_scr.py` | páginas ocultas (B1, B2) |
+| `bk_scr` | mes × corte (`corte` = segmento_cliente, porte_pj o uf) | `preparar_gold_bancos_scr.py` | páginas ocultas (B1, B2) |
 | `bk_portada_credito` | mes × modo (nominal/real) × componente: a/a y contribución en pp | `preparar_gold_bancos_portada.py` | B0-01 |
 | `bk_portada_mora` | mes: nivel y cambio a/a en pp | portada | B0-03 |
 | `bk_portada_roe` | trimestre: ROE del panel, CDI 4T, ROE − CDI | portada | B0-05 |
@@ -45,7 +49,7 @@ métricas: `generado/metricas.md`. Universo de 34 bancos: `generado/bancos.md`.
 | `bk_cred_tablas` | bloque × fila: tabla estándar | `preparar_gold_bancos_pag_credito.py` | B3 (todas las tablas y las barras) |
 | `bk_cred_series` | serie × fecha (largo): `conc12_aa`, `stock_aa`, `aa\|<modalidad>`, `aa\|Total`, `cpib_nivel/tendencia/brecha` | pag_credito | B3-01 (vista Líneas), B3-05, B3-07 |
 
-## Contrato de la tabla estándar (`bk_portada_tablas`, `bk_cred_tablas`)
+## Contrato de la tabla estándar (`bk_portada_tablas`, `bk_cred_tablas`, `bk_scr_tablas`; `tabla_estandar.py`)
 
 Una fila por indicador; el componente `tabla_estandar` la dibuja sin cálculo.
 
@@ -59,6 +63,10 @@ Una fila por indicador; el componente `tabla_estandar` la dibuja sin cálculo.
 | `d1`, `d3`, `d12`, `dventana` | m/m, 3m/3m, a/a, 12m/12m (trimestral: t/t, —, a/a, 4T/4T) |
 | `unidad_ultimo`, `unidad_cambio` | `brl_mm` (R$ mil millones), `pct` (fracción → %), `pp`, `pct_nivel` (ya en %) |
 | `trimestral` | true → cabecera t/t · — · a/a · 4T/4T |
+| `destacar` | true en la fila total del bloque (`bk_portada_tablas`, `bk_scr_tablas`) |
+
+`bk_portada_tablas` conserva además su columna `unidad` antigua hasta que el sitio pase a leer
+`unidad_ultimo` / `unidad_cambio`.
 
 La fila cuyo `fila` es el total del bloque se marca en la página (`destacar`) y va en negrita.
 

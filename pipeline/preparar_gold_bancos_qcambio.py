@@ -28,47 +28,36 @@ REGLAS
 
 Entradas: datos/gold/bk_panel.parquet, bk_metrica.parquet, bk_banco.parquet, bk_cartera.parquet
 Salida:   datos/gold/bk_qcambio.parquet (escrito con almacen.guardar_derivado)
-Uso:      python -X utf8 preparar_gold_bancos_qcambio.py
+Uso:      python -X utf8 pipeline/preparar_gold_bancos_qcambio.py
 """
 from __future__ import annotations
 
-import io
 import sys
-from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
 import almacen as A
+import bancos as B
+import periodos as PER
 
-RAIZ = Path(__file__).resolve().parents[1]
-BANKS = RAIZ / "datos" / "gold"
-COMANDO = "python -X utf8 preparar_gold_bancos_qcambio.py"
 
 METRICAS = ["share_credito", "roe_ttm", "npl15_total", "costo_riesgo_ttm", "credito_aa", "eficiencia_ttm"]
-PERIODO_FIJO = "202412"       # 2024-T4 vacío: ningún cambio que lo toque es válido
-PERIODO_QUIEBRE = "202503"    # ruptura de cobertura 2025: solo para bancos con quiebre_2025 = true
 VENTANA = 20                  # trimestres para el desvío de los cambios
 COLUMNAS = ["periodo", "fecha", "trimestre", "cod_inst", "slug", "nombre_corto", "modelo", "metrica",
             "nombre_metrica", "valor_antes", "valor_ahora", "cambio", "unidad_cambio", "z", "sentido", "rango"]
 
 
-def _trimestre(periodo: str) -> str:
-    return f"{(int(periodo[4:]) - 1) // 3 + 1}T{periodo[2:4]}"
-
-
 def _cambios(valor: pd.DataFrame, quiebre: set[str]) -> pd.DataFrame:
     """valor: trimestre × banco (fracción) sobre la grilla completa. Devuelve el cambio vs t−1 en pp,
-    vacío donde una regla de ruptura lo prohíbe."""
-    grilla = list(valor.index)
-    siguiente = {p: grilla[i + 1] for i, p in enumerate(grilla[:-1])}
+    vacío donde una regla de ruptura lo prohíbe (periodos.variacion_valida, regla «toca»)."""
     c = (valor - valor.shift(1)) * 100
-    fijos = [p for p in (PERIODO_FIJO, siguiente.get(PERIODO_FIJO)) if p in c.index]
-    c.loc[fijos, :] = np.nan
+    periodo = pd.Series(valor.index, index=valor.index)
+    c = c.where(PER.variacion_valida(periodo, 1), axis=0)
     qcols = [b for b in c.columns if b in quiebre]
     if qcols:
-        qper = [p for p in (PERIODO_QUIEBRE, siguiente.get(PERIODO_QUIEBRE)) if p in c.index]
-        c.loc[qper, qcols] = np.nan
+        ok = PER.variacion_valida(periodo, 1, pd.Series(True, index=periodo.index), regla_quiebre="toca")
+        c.loc[~ok, qcols] = np.nan
     return c
 
 
@@ -132,16 +121,13 @@ UMBRAL_RELEVANTE = 0.005  # cuota de crédito mínima para la lista «relevantes
 
 
 def construir() -> pd.DataFrame:
-    panel = pd.read_parquet(BANKS / "bk_panel.parquet",
+    panel = pd.read_parquet(A.GOLD / "bk_panel.parquet",
                             columns=["cod_inst", "periodo", "fecha", "trimestre", "metrica", "valor"])
     panel["cod_inst"] = panel["cod_inst"].astype(str)
-    meta = pd.read_parquet(BANKS / "bk_metrica.parquet", columns=["metrica", "nombre", "signo"]).set_index("metrica")
-    banco = pd.read_parquet(BANKS / "bk_banco.parquet", columns=["cod_inst", "slug", "nombre_corto", "modelo"])
+    meta = pd.read_parquet(A.GOLD / "bk_metrica.parquet", columns=["metrica", "nombre", "signo"]).set_index("metrica")
+    banco = pd.read_parquet(A.GOLD / "bk_banco.parquet", columns=["cod_inst", "slug", "nombre_corto", "modelo"])
     banco["cod_inst"] = banco["cod_inst"].astype(str)
-    cart = pd.read_parquet(BANKS / "bk_cartera.parquet", columns=["cod_inst", "quiebre_2025"])
-    cart = cart.drop_duplicates("cod_inst")
-    quiebre = set(cart.loc[cart["quiebre_2025"].fillna(False).astype(bool), "cod_inst"].astype(str))
-    t = calcular(panel, meta, banco, quiebre)
+    t = calcular(panel, meta, banco, B.con_quiebre_2025())
     # Arquitecto: los mayores |z| son casi siempre bancos chicos (CloudWalk, Agibank). Para la Portada
     # interesan los que mueven el sistema: cuota de crédito del trimestre y una marca de relevancia
     # (≥ 0,5 % del crédito del panel, ~17 bancos) con su propio orden. La tabla completa se conserva.
@@ -156,15 +142,10 @@ def construir() -> pd.DataFrame:
     return t
 
 
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
     t = construir()
-    b = io.BytesIO()
-    t.to_parquet(b, index=False)
-    datos = b.getvalue()
-    A.guardar_derivado("bcb_ifdata", "bancos_gold_qcambio", "bk_qcambio.parquet", datos,
-                       desde=["bcb_ifdata/valores"], como=COMANDO,
-                       nota="Derivado de datos/gold/bk_panel, bk_metrica, bk_banco y bk_cartera (gold).")
-    A.escribir_atomico(BANKS / "bk_qcambio.parquet", datos)
+    A.publicar_gold("bk_qcambio", t, dataset="bancos_gold_qcambio",
+                    desde=[f"gold/{n}.parquet" for n in ("bk_panel", "bk_metrica", "bk_banco", "bk_cartera")])
     print(f"bk_qcambio: {len(t):,} filas, periodo {t['periodo'].iloc[0] if len(t) else '-'}")
     print(t.head(5)[["nombre_corto", "metrica", "valor_antes", "valor_ahora", "cambio", "z", "sentido", "rango"]]
           .to_string(index=False))

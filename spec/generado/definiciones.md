@@ -1,6 +1,6 @@
 # Archivos de `definiciones/`
 
-> Generado por `herramientas/generar_spec.py` el 2026-11-06. No editar a mano: se sobrescribe.
+> Generado por `herramientas/generar_spec.py`. No editar a mano: se sobrescribe.
 
 
 ## `bancos__dashboard.json` (7 kB)
@@ -42,12 +42,29 @@
 - `trimestres_anomalos`: objeto con 1 claves
 - `nota_duplicados`: El BCB sirvió 2025-09 (informes 11, 13 y 16) con cada fila tres veces; el preparador quita duplicados exactos y falla si queda una clave (banco, grupo, cuenta,…
 
+## `contrato_gold.json` (6 kB)
+
+- `descripcion`: Contrato de la capa gold (datos/gold/bk_*.parquet): columnas mínimas y clave única de cada tabla. Lo lee herramientas/verificar_gold.py; una tabla bk_* que no …
+- `tablas`: objeto con 29 claves
+
 ## `cvm__dfp_bancos.json` (8 kB)
 
 - `fuente`: cvm
 - `datasets`: lista de 1
 - `nota`: DFP (Demonstrações Financeiras Padronizadas) de la CVM, ejercicio 2024, filtrado a bancos por `extraer_fuentes.py cvm-dfp`. DERIVADO, no dato crudo de la CVM: …
 - `columnas`: objeto con 15 claves
+
+## `metricas_bancos.json` (45 kB)
+
+- `descripcion`: Registro único de las métricas del panel de bancos: nombre, familia, unidad, formato, signo, definición y, en las razones, numerador y denominador. Lo leen pre…
+- `convenciones`: objeto con 5 claves
+- `orden_familias`: lista de 7
+- `fondeo`: lista de 7
+- `cosif_2025`: objeto con 23 claves
+- `cosif_pre2025`: objeto con 20 claves
+- `flujos`: objeto con 12 claves
+- `ttm`: lista de 11
+- `metricas`: objeto con 86 claves
 
 ## `scr_productos.json` (4 kB)
 

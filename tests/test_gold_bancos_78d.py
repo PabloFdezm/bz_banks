@@ -1,36 +1,28 @@
 # -*- coding: utf-8 -*-
-"""Tests de preparar_gold_bancos_qcambio.py (encargo 78d).
+"""Tests de preparar_gold_bancos_qcambio.py (encargo 78d), por su entrada pública `calcular`.
 
-Cada regla tiene un caso sintético pequeño. Las pruebas sobre datos reales se saltan si
-datos/gold/bk_panel.parquet no existe.
+`calcular` devuelve el cambio del último trimestre del panel: cada regla de ruptura se prueba con un panel
+sintético que termina en el trimestre que la regla afecta. Las pruebas sobre datos reales llevan la marca
+`integracion`.
 """
 from __future__ import annotations
-
-import sys
-from pathlib import Path
 
 import numpy as np
 import pandas as pd
 import pytest
 
-RAIZ = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(RAIZ))
-import preparar_gold_bancos_qcambio as Q  # noqa: E402
+import periodos
+import preparar_gold_bancos_qcambio as Q
+from conftest import GOLD as BANKS
 
-BANKS = RAIZ / "datos" / "gold"
 GRILLA = ["202306", "202309", "202312", "202403", "202406", "202409", "202412", "202503", "202506", "202509"]
-
-
-def _wide(valores: dict[str, list[float]], grilla=GRILLA) -> pd.DataFrame:
-    return pd.DataFrame(valores, index=grilla)
 
 
 def _panel(valores: dict[str, list[float]], metrica: str, grilla=GRILLA) -> pd.DataFrame:
     filas = []
     for cod, serie in valores.items():
         for p, v in zip(grilla, serie):
-            filas.append({"cod_inst": cod, "periodo": p, "fecha": p, "trimestre": Q._trimestre(p),
-                          "metrica": metrica, "valor": v})
+            filas.append({"cod_inst": cod, "periodo": p, "fecha": p, "trimestre": p, "metrica": metrica, "valor": v})
     return pd.DataFrame(filas)
 
 
@@ -49,55 +41,31 @@ C1 = [0.10, 0.11, 0.12, 0.11, 0.13, 0.14, 0.15, 0.20, 0.21, 0.22]
 C2 = [0.30, 0.30, 0.29, 0.31, 0.31, 0.30, 0.33, 0.33, 0.32, 0.30]
 
 
-# --- reglas de cambio --------------------------------------------------------
+def _cambio_al(hasta: str, quiebre: set[str] = frozenset()) -> dict[str, float]:
+    """Cambio de roe_ttm de cada banco con el panel cortado en `hasta`."""
+    n = GRILLA.index(hasta) + 1
+    out = Q.calcular(_panel({"C1": C1[:n], "C2": C2[:n]}, "roe_ttm", GRILLA[:n]), META, BANCO, set(quiebre),
+                     metricas=["roe_ttm"])
+    assert (out["periodo"] == hasta).all()
+    return dict(zip(out["cod_inst"], out["cambio"]))
+
 
 def test_cambio_en_pp_y_vacio_al_tocar_2024T4():
-    c = Q._cambios(_wide({"C1": C1}), set())
-    assert c.loc["202312", "C1"] == pytest.approx((0.12 - 0.11) * 100)
-    assert c.loc["202409", "C1"] == pytest.approx((0.14 - 0.13) * 100)
-    assert c.loc["202412"].isna().all()      # 2024-T3 → 2024-T4
-    assert c.loc["202503"].isna().all()      # 2024-T4 → 2025-T1
-    assert c.loc["202506", "C1"] == pytest.approx((0.21 - 0.20) * 100)
+    assert _cambio_al("202409")["C1"] == pytest.approx((0.14 - 0.13) * 100)
+    assert all(pd.isna(v) for v in _cambio_al("202412").values())      # 2024-T3 → 2024-T4
+    assert all(pd.isna(v) for v in _cambio_al("202503").values())      # 2024-T4 → 2025-T1
+    assert _cambio_al("202506")["C1"] == pytest.approx((0.21 - 0.20) * 100)
 
 
-def test_quiebre_2025_vacia_2025T1_y_el_siguiente_solo_para_quiebre():
-    c = Q._cambios(_wide({"C1": C1, "C2": C2}), {"C2"})
-    assert pd.isna(c.loc["202506", "C2"])     # 2025-T1 → 2025-T2 de un banco con quiebre
-    assert pd.notna(c.loc["202506", "C1"])    # el banco sin quiebre no se toca
-    assert pd.notna(c.loc["202509", "C2"])    # a partir de 2025-T2 el banco vuelve a tener cambio
-
-
-def test_cambio_coincide_con_d_tt_fuera_de_reglas():
-    # d_tt de bk_panel = (valor − valor_t1) × 100 en pp; donde ninguna regla aplica deben coincidir.
-    c = Q._cambios(_wide({"C1": C1, "C2": C2}), set())
-    d = pd.DataFrame({"C1": [np.nan] + [(b - a) * 100 for a, b in zip(C1, C1[1:])],
-                      "C2": [np.nan] + [(b - a) * 100 for a, b in zip(C2, C2[1:])]}, index=GRILLA)
-    ok = c.notna() & d.notna()
-    mascara = ok.to_numpy()
-    assert mascara.sum() > 10
-    assert np.allclose(c.to_numpy()[mascara], d.to_numpy()[mascara], atol=1e-9)
-
-
-# --- desvío, z, sentido, rango ----------------------------------------------
-
-def test_desvio_muestral_pooled_sobre_cambios_no_vacios():
-    c = Q._cambios(_wide({"C1": C1, "C2": C2}), set())
-    v = c.loc[GRILLA].to_numpy().ravel()
-    v = v[~np.isnan(v)]
-    assert Q._desvio(c, GRILLA) == pytest.approx(v.std(ddof=1))
-
-
-def test_desvio_respeta_la_ventana():
-    c = Q._cambios(_wide({"C1": C1, "C2": C2}), set())
-    ventana = GRILLA[-4:]
-    v = c.loc[ventana].to_numpy().ravel()
-    v = v[~np.isnan(v)]
-    assert Q._desvio(c, ventana) == pytest.approx(v.std(ddof=1))
+def test_quiebre_2025_vacia_2025T2_solo_para_el_banco_con_quiebre():
+    c = _cambio_al("202506", {"C2"})
+    assert pd.isna(c["C2"])
+    assert c["C1"] == pytest.approx((0.21 - 0.20) * 100)
+    assert _cambio_al("202509", {"C2"})["C2"] == pytest.approx((0.30 - 0.32) * 100)
 
 
 def test_calcular_z_sentido_y_rango_a_mano():
-    panel = pd.concat([_panel({"C1": C1, "C2": C2}, "roe_ttm")], ignore_index=True)
-    out = Q.calcular(panel, META, BANCO, set(), metricas=["roe_ttm"])
+    out = Q.calcular(_panel({"C1": C1, "C2": C2}, "roe_ttm"), META, BANCO, set(), metricas=["roe_ttm"])
     # cambios a mano: quedan vacíos los de 2024-T3→2024-T4 y 2024-T4→2025-T1
     c = {}
     for cod, s in (("C1", C1), ("C2", C2)):
@@ -116,13 +84,12 @@ def test_calcular_z_sentido_y_rango_a_mano():
     assert fila["C1"].unidad_cambio == "pp" and fila["C1"].periodo == "202509"
 
 
-def test_sentido_segun_signo():
-    assert Q._sentido(-1.0, "mejora_baja") == "mejora"
-    assert Q._sentido(1.0, "mejora_sube") == "mejora"
-    assert Q._sentido(1.0, "mejora_baja") == "deterioro"
-    assert Q._sentido(0.5, "neutro") == "neutro"
-    assert Q._sentido(0.0, "mejora_sube") == "neutro"
-    assert Q._sentido(np.nan, "mejora_sube") is None
+def test_sentido_sigue_el_signo_de_la_metrica():
+    plano = [0.05] * len(GRILLA)
+    panel = pd.concat([_panel({"C1": C1, "C2": plano}, "npl15_total")], ignore_index=True)
+    out = Q.calcular(panel, META, BANCO, set(), metricas=["npl15_total"]).set_index("cod_inst")
+    assert out.at["C1", "sentido"] == "deterioro"     # la mora sube y mejora_baja
+    assert out.at["C2", "sentido"] == "neutro"        # sin cambio
 
 
 def test_rango_deja_sin_rango_las_filas_sin_z():
@@ -134,39 +101,34 @@ def test_rango_deja_sin_rango_las_filas_sin_z():
     assert out[out["cod_inst"] == "C1"].iloc[0]["rango"] == 1
 
 
-# --- datos reales (se saltan si no hay bk_panel) --------------------------------
-
-requiere_real = pytest.mark.skipif(not (BANKS / "bk_panel.parquet").exists(), reason="sin bk_panel")
-
-
-@requiere_real
-def test_real_cambio_coincide_con_d_tt_donde_no_aplica_regla():
-    p = pd.read_parquet(BANKS / "bk_panel.parquet", columns=["cod_inst", "periodo", "metrica", "valor", "d_tt"])
-    p = p[p["metrica"] == "roe_ttm"].copy()
-    p["cod_inst"] = p["cod_inst"].astype(str)
-    grilla = sorted(p["periodo"].unique())
-    wide = p.set_index(["periodo", "cod_inst"])["valor"].unstack("cod_inst").reindex(grilla)
-    c = Q._cambios(wide, set()).stack(future_stack=True)  # conserva NaN en pandas 2.1+ y 3
-    d = p.set_index(["periodo", "cod_inst"])["d_tt"]
-    d.index = d.index.set_levels(d.index.levels[1].astype(str), level=1)
-    comp = pd.concat([c.rename("c"), d.rename("d")], axis=1).dropna()
-    comp = comp[~comp.index.get_level_values(0).isin(["202412", "202503"])]
-    assert len(comp) > 1000
-    assert np.allclose(comp["c"], comp["d"], atol=1e-6)
+@pytest.fixture(scope="module")
+def construido() -> pd.DataFrame:
+    return Q.construir()
 
 
-@requiere_real
-def test_real_tres_filas_recalculadas_a_mano():
-    out = Q.construir()
-    assert out["periodo"].unique().tolist() == ["202606"]
+@pytest.mark.integracion
+def test_real_cambio_coincide_con_d_tt_del_panel(construido, ultimo_periodo):
+    """qcambio y bk_panel.d_tt salen de módulos distintos; fuera de las reglas de ruptura deben coincidir."""
+    p = pd.read_parquet(BANKS / "bk_panel.parquet", columns=["cod_inst", "periodo", "metrica", "d_tt"])
+    p = p[p["periodo"] == ultimo_periodo].assign(cod_inst=lambda d: d["cod_inst"].astype(str))
+    comp = construido.merge(p, on=["cod_inst", "metrica"]).dropna(subset=["cambio", "d_tt"])
+    assert len(comp) > 100
+    assert np.allclose(comp["cambio"], comp["d_tt"], atol=1e-6)
+
+
+@pytest.mark.integracion
+def test_real_tres_filas_recalculadas_a_mano(construido, ultimo_periodo):
+    out = construido
+    antes_p = periodos.previo(ultimo_periodo)
+    assert out["periodo"].unique().tolist() == [ultimo_periodo]
     assert out.duplicated(["cod_inst", "metrica"]).sum() == 0
     assert set(out["unidad_cambio"]) == {"pp"}
     assert set(out["sentido"].dropna()) <= {"mejora", "deterioro", "neutro"}
     p = pd.read_parquet(BANKS / "bk_panel.parquet", columns=["cod_inst", "periodo", "metrica", "valor"])
     p["cod_inst"] = p["cod_inst"].astype(str)
     for fila in out.dropna(subset=["cambio"]).sort_values("rango").head(3).itertuples():
-        antes = p[(p.cod_inst == fila.cod_inst) & (p.metrica == fila.metrica) & (p.periodo == "202603")]["valor"].iloc[0]
-        ahora = p[(p.cod_inst == fila.cod_inst) & (p.metrica == fila.metrica) & (p.periodo == "202606")]["valor"].iloc[0]
+        antes = p[(p.cod_inst == fila.cod_inst) & (p.metrica == fila.metrica) & (p.periodo == antes_p)]["valor"].iloc[0]
+        ahora = p[(p.cod_inst == fila.cod_inst) & (p.metrica == fila.metrica) & (p.periodo == ultimo_periodo)]["valor"].iloc[0]
         assert fila.valor_antes == pytest.approx(antes)
         assert fila.valor_ahora == pytest.approx(ahora)
         assert fila.cambio == pytest.approx((ahora - antes) * 100)

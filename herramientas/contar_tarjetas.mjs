@@ -1,53 +1,71 @@
-/* Cuenta las tarjetas de cada config y las compara con el esqueleto
-   (ESQUELETO_BANCOS_v0.1.md). Sirve para el criterio «terminado» de la F0 del encargo 62:
-   B0 7, B1 11, B2 11, B3 8, B4 10, B5 6, B6 9, B7 6, B8 12, B9 1, B10 0.
-   Lee los archivos como texto y reemplaza «export default» por «return» para poder evaluarlos
-   sin un paso de build ni un package.json (los configs no importan nada).
-   Uso: node herramientas/contar_tarjetas.mjs */
-import { readFileSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
-import { dirname, join } from 'node:path';
+/* Cuenta las tarjetas de cada config y las compara con el esqueleto (esqueleto_tarjetas.json):
+   criterio «terminado» de cada página. Además revisa la config contra el sitio:
+   - falla: tarjeta colocada sin config o declarada sin colocar, estado fuera de ESTADOS_ESQUELETO,
+     tarjeta con armar() cuyo componente no existe, selector sin clave, sin opciones o con defecto inválido,
+     bloque de riel que no es selector;
+   - aviso: tarjeta sin armar() que nombra un componente inexistente (no se dibuja; el esqueleto la nombra
+     así) y tarjeta LISTO sin armar() (se muestra «en preparación»).
+   Las configs las carga inventario_paginas.mjs. Uso: node herramientas/contar_tarjetas.mjs */
+import { inventario } from './inventario_paginas.mjs';
 
-const aqui = dirname(fileURLToPath(import.meta.url));
-const PAGINAS = join(aqui, '..', 'sitio', 'assets', 'js', 'paginas');
-
-const ESPERADO = { b0: 7, b1: 11, b2: 11, b3: 8, b4: 5, b5: 6, b6: 5, b7: 6, b8: 8, b9: 1, b10: 0, b11: 8, b12: 8 };
-const ESTADOS = ['LISTO', 'DERIVAR', 'FALTA', 'REF'];
-
-function leer(nombre) {
-  const src = readFileSync(join(PAGINAS, `${nombre}.js`), 'utf8').replace(/export default/, 'return');
-  return new Function(src)();
-}
+const { paginas, ESPERADO, ESTADOS_ESQUELETO, componentes } = await inventario();
+const COMPONENTES = new Set(componentes.map((c) => c.nombre));
 
 let fallos = 0;
 const filas = [];
-for (const [clave, esperado] of Object.entries(ESPERADO)) {
-  const cfg = leer(clave);
-  const declaradas = Object.keys(cfg.tarjetas || {});
-  const colocadas = (cfg.secciones || []).flatMap((s) => (s.filas || []).flat().map((c) => c.clave));
-  const sinConfig = colocadas.filter((k) => !declaradas.includes(k));
-  const sinColocar = declaradas.filter((k) => !colocadas.includes(k));
-  const malEstado = declaradas.filter((k) => !ESTADOS.includes(cfg.tarjetas[k].estado));
-  const cuenta = { LISTO: 0, DERIVAR: 0, FALTA: 0, REF: 0 };
-  for (const k of declaradas) cuenta[cfg.tarjetas[k].estado] += 1;
+const avisos = [];
+for (const p of paginas) {
+  const esperado = ESPERADO[p.clave];
+  if (p.error) {
+    fallos += 1;
+    filas.push({ pagina: p.clave, esperado, ok: 'NO', detalle: `no se pudo cargar: ${p.error}` });
+    continue;
+  }
+  const declaradas = Object.keys(p.tarjetas);
+  const problemas = [
+    ...p.orden.filter((k) => !declaradas.includes(k)).map((k) => `${k} colocada sin config`),
+    ...declaradas.filter((k) => !p.orden.includes(k)).map((k) => `${k} sin colocar`),
+    ...declaradas.filter((k) => !ESTADOS_ESQUELETO.includes(p.tarjetas[k].estado)).map((k) => `${k} estado inválido`),
+    ...declaradas.filter((k) => p.tarjetas[k].armar && !COMPONENTES.has(p.tarjetas[k].componente)).map((k) => `${k} componente «${p.tarjetas[k].componente}» no existe`),
+  ];
+  for (const s of p.secciones) {
+    for (const sel of s.selectores) {
+      if (!sel.clave) problemas.push(`sección ${s.numero}: selector sin clave`);
+      if (!sel.opciones.length) problemas.push(`sección ${s.numero}: selector «${sel.clave}» sin opciones`);
+      if (sel.defecto !== undefined && !sel.valores.includes(sel.defecto)) problemas.push(`sección ${s.numero}: selector «${sel.clave}» con defecto que no es una opción`);
+    }
+    for (const tipo of s.otrosBloques) problemas.push(`sección ${s.numero}: bloque de riel «${tipo}» (solo hay selectores)`);
+  }
+  for (const k of declaradas) {
+    const t = p.tarjetas[k];
+    if (!t.armar && !COMPONENTES.has(t.componente)) avisos.push(`${p.clave} ${k}: componente «${t.componente}» no existe (sin armar, no se dibuja)`);
+    if (!t.armar && t.estado === 'LISTO') avisos.push(`${p.clave} ${k}: LISTO sin armar() (se muestra «en preparación»)`);
+  }
+  const cuenta = Object.fromEntries(ESTADOS_ESQUELETO.map((e) => [e, 0]));
+  for (const k of declaradas) cuenta[p.tarjetas[k].estado] += 1;
 
-  const bien = declaradas.length === esperado && !sinConfig.length && !sinColocar.length && !malEstado.length;
+  const bien = declaradas.length === esperado && !problemas.length;
   if (!bien) fallos += 1;
   filas.push({
-    pagina: cfg.clave,
+    pagina: p.clave,
     esperado,
     declaradas: declaradas.length,
-    colocadas: colocadas.length,
-    secciones: (cfg.secciones || []).length,
+    colocadas: p.orden.length,
+    secciones: p.secciones.length,
     ...cuenta,
     ok: bien ? 'sí' : 'NO',
-    detalle: [...sinConfig.map((k) => `${k} colocada sin config`), ...sinColocar.map((k) => `${k} sin colocar`), ...malEstado.map((k) => `${k} estado inválido`)].join('; '),
+    detalle: problemas.join('; '),
   });
+}
+for (const clave of Object.keys(ESPERADO).filter((k) => !paginas.some((p) => p.clave === k))) {
+  fallos += 1;
+  filas.push({ pagina: clave, esperado: ESPERADO[clave], ok: 'NO', detalle: 'en el esqueleto pero no en config.js (PAGINAS)' });
 }
 
 console.table(filas.map(({ detalle, ...f }) => f));
 for (const f of filas.filter((x) => x.detalle)) console.log(`${f.pagina}: ${f.detalle}`);
-const total = filas.reduce((s, f) => s + f.declaradas, 0);
+if (avisos.length) console.log(`\nAvisos (${avisos.length}):\n  ${avisos.join('\n  ')}`);
+const total = filas.reduce((s, f) => s + (f.declaradas || 0), 0);
 console.log(`\nTarjetas declaradas en total: ${total}`);
 console.log(fallos ? `\nFALLAN ${fallos} página(s)` : '\nTodas las páginas coinciden con el esqueleto');
 process.exit(fallos ? 1 : 0);

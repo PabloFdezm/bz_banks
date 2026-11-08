@@ -1,9 +1,27 @@
 # Scripts del pipeline (docstring completo y argumentos)
 
-> Generado por `herramientas/generar_spec.py` el 2026-11-06. No editar a mano: se sobrescribe.
+> Generado por `herramientas/generar_spec.py`. No editar a mano: se sobrescribe.
 
 
-## `pipeline/almacen.py` (424 líneas)
+## `pipeline/actualizar.py` (86 líneas)
+
+Importa del pipeline: `almacen`, `red`
+
+Argumentos: `--sin-red` — no baja nada: salta el paso sgs; un dato que falte hace fallar el paso; `--sin-verificacion` — salta pytest y verificar_gold (comparaciones); `--desde` — empieza en este paso; `--hasta` — termina en este paso
+
+```text
+Actualiza los datos del sitio de bancos de punta a punta, en orden de dependencias (lo llama actualizar.bat).
+
+Cada paso corre en su propio proceso (``python -X utf8 pipeline/<módulo>.py <argumentos>``, cuyo ``main`` devuelve
+0 o 1): así la memoria de un paso no se acumula en el siguiente. Si un paso falla, la corrida se corta y no se
+exporta nada. IF.Data no se baja aquí (es trimestral y a mano: ``ifdata.py colectar``).
+
+    python -X utf8 pipeline/actualizar.py              # completo: baja SGS y el SCR del año, ..., verifica, exporta
+    python -X utf8 pipeline/actualizar.py --sin-red    # sin descargas: un dato que falta hace fallar el paso
+    python -X utf8 pipeline/actualizar.py --desde portada
+```
+
+## `pipeline/almacen.py` (437 líneas)
 
 ```text
 Arquitectura de datos: capas, procedencia y rutas.
@@ -43,9 +61,22 @@ Los derivados llevan su propio manifiesto que además nombra los crudos de los q
 para poder rehacer la cadena.
 ```
 
-## `pipeline/bcb_api.py` (316 líneas)
+## `pipeline/bancos.py` (116 líneas)
 
-Importa del pipeline: `certificados`
+Importa del pipeline: `almacen`
+
+```text
+Universo de bancos del panel y sus ópticas de grupo: el único lugar que los lee de definiciones/.
+
+El universo (cod_inst, nombre_corto, categoría, modelo de negocio) está en
+``definiciones/bcb_ifdata__bancos_balances.json``; los atributos del sitio (slug, ticker, ficha) en
+``definiciones/bancos__dashboard.json``. Las dos listas repiten cod_inst y nombre_corto para que se puedan
+editar a mano; ``universo()`` falla si dejan de coincidir.
+```
+
+## `pipeline/bcb_api.py` (308 líneas)
+
+Importa del pipeline: `certificados`, `red`
 
 Subcomandos: `datos` — descarga los valores de series; `ultimos` — ultimas N observaciones de una serie
 
@@ -60,23 +91,23 @@ Endpoints usados (documentados en https://dadosabertos.bcb.gov.br/):
   GET https://api.bcb.gov.br/dados/serie/bcdata.sgs.{codigo}/dados/ultimos/{n}
 
 Nota: la API limita las series diarias a ventanas de 10 anios (3652 dias);
-el script lo gestiona automaticamente. Metadatos: usar bcb_scraper.py
-(no hay endpoint de metadatos en la API actual).
+el script lo gestiona automaticamente. No hay endpoint de metadatos en la API actual.
+
+El pipeline usa descargar_serie a traves de sgs.py; el resto es la linea de comandos.
 
 OJO con los errores: una serie inexistente NO da 404. La API contesta una pagina
 HTML, con un status que varia (visto 200 y 502), asi que el status code no alcanza
 para saber si la respuesta sirve. Ver RespuestaNoJSON mas abajo.
 
 Ejemplos:
-  python3 bcb_api.py datos 432                       # serie completa (JSON->CSV)
-  python3 bcb_api.py datos 432 11 433 -o tasas.csv   # varias series a un CSV
-  python3 bcb_api.py datos 433 --desde 01/01/2024    # rango de fechas
-  python3 bcb_api.py datos 11 432 --ancho -o x.csv   # una columna por serie
-  python3 bcb_api.py ultimos 432 -n 5                # ultimas 5 observaciones
-  # varias series en paralelo: se descargan una a una automaticamente
+  python -X utf8 pipeline/bcb_api.py datos 432                       # serie completa (JSON->CSV)
+  python -X utf8 pipeline/bcb_api.py datos 432 11 433 -o tasas.csv   # varias series a un CSV
+  python -X utf8 pipeline/bcb_api.py datos 433 --desde 01/01/2024    # rango de fechas
+  python -X utf8 pipeline/bcb_api.py datos 11 432 --ancho -o x.csv   # una columna por serie
+  python -X utf8 pipeline/bcb_api.py ultimos 432 -n 5                # ultimas 5 observaciones
 ```
 
-## `pipeline/certificados.py` (149 líneas)
+## `pipeline/certificados.py` (147 líneas)
 
 ```text
 Hace que Python confie en los certificados que ya confia el sistema operativo.
@@ -105,8 +136,7 @@ por certificado, es la firma del proxy.
 
 truststore resuelve el caso parcheando ssl.SSLContext para que valide contra el almacen
 del sistema (el de Windows en el equipo del proyecto, el de OpenSSL en Linux/WSL). Eso
-arregla de una sola vez requests (bcb_api, bcb_scraper, ifdata, extraer_fuentes) y
-urllib.request (bajar_documentacion, verificar.py), porque los dos terminan en el mismo
+arregla de una sola vez requests y urllib.request, porque los dos terminan en el mismo
 ssl del stdlib.
 
 Si truststore no esta instalado, se respeta REQUESTS_CA_BUNDLE / SSL_CERT_FILE por si
@@ -117,12 +147,14 @@ USO
 ---
     import certificados   # basta con importarlo, se activa solo
 
-Va como primer import de cada script que salga a la red, ANTES de requests.
+Va como primer import de cada modulo que salga a la red (bcb_api, ifdata, sgs, scr_zip), ANTES de requests.
 ```
 
-## `pipeline/diccionario_ifdata.py` (743 líneas)
+## `pipeline/diccionario_ifdata.py` (714 líneas)
 
-Importa del pipeline: `almacen`
+Importa del pipeline: `almacen`, `ifdata_texto`
+
+Argumentos: `--periodo` — trimestre del inventario de cuentas (defecto: el último volcado)
 
 ```text
 Genera el DICCIONARIO COMPLETO de la base IFDATA del BCB en HTML
@@ -133,19 +165,21 @@ autocontenido, a partir de:
   - ifdata_cache/docs/trel_202503/*.json    (estructura+notas por informe)
   - ifdata_cache/docs/nuevo_filtro202503.json (dominios TCB/TC/TD/TI/SR/TCip)
   - ifdata_cache/docs/nuevo_info202503.json  (descripciones de etiquetas)
-  - datos/crudo/bcb_ifdata/valores/actual/valores_202603_{1,2,3}.csv  (inventario de cuentas)
-  - datos/crudo/bcb_ifdata/valores/actual/valores_200003_3.csv        (ejemplos de renumeracion de era)
-  - datos/crudo/bcb_ifdata/cadastro/actual/cadastro_202603.csv         (dominios empiricos del registro)
+  - datos/crudo/bcb_ifdata/valores/actual/valores_<último>_{1,2,3}     (inventario de cuentas; --periodo)
+  - datos/crudo/bcb_ifdata/valores/actual/valores_200003_3            (ejemplos de renumeracion de era)
+  (los crudos de OLinda estan en parquet; se leen con almacen.leer_crudo_tabla)
 
 Las secciones narrativas (generalidades, escopos, API, eras) provienen de la
 metodologia oficial de la pagina IF.data, del PDF "Esclarecimentos e
 Metodologia" del BCB y de verificaciones empiricas documentadas.
 
 Uso:
-    python3 diccionario_ifdata.py [-o ifdata_diccionario.html]
+    python -X utf8 pipeline/diccionario_ifdata.py [-o ifdata_diccionario.html]
 ```
 
-## `pipeline/exportar_web_bancos.py` (192 líneas)
+## `pipeline/exportar_web_bancos.py` (187 líneas)
+
+Importa del pipeline: `almacen`, `bancos`, `reglas_gold`
 
 ```text
 Exporta la capa gold de bancos (datos/gold/bk_*.parquet) al JSON del sitio «Bancos Brasil».
@@ -174,12 +208,12 @@ Licencias (spec web bancos §9, criterio 17): antes de escribir nada, falla si a
 columna contiene `px_`, `pbv`, `pe_`, `bbg`, `bloomberg`, `consenso` o `target`.
 
 Uso (desde la raíz del repo, Windows con `-X utf8`):
-    python -X utf8 exportar_web_bancos.py
+    python -X utf8 pipeline/exportar_web_bancos.py
 ```
 
-## `pipeline/ifdata.py` (865 líneas)
+## `pipeline/ifdata.py` (774 líneas)
 
-Importa del pipeline: `almacen`, `certificados`
+Importa del pipeline: `almacen`, `certificados`, `ifdata_texto`, `red`
 
 Subcomandos: `relatorios` — catalogo de informes disponibles (numero y nombre); `instituciones` — buscar entidades en el registro del trimestre; `cadastro` — exportar el registro de entidades; `valores` — exportar valores (todas las entidades); `datos` — datos de UNA entidad a lo largo del tiempo ; `colectar` — descarga masiva al cache (valores completos + 
 
@@ -232,11 +266,81 @@ Todo lo que sale de `cadastro`, `valores` y `datos` es DERIVADO aunque cada nume
 venga del BCB: esta filtrado por escopo, informe, cuenta, institucion o situacion.
 ```
 
-## `pipeline/preparar_bancos_powerbi.py` (666 líneas)
+## `pipeline/ifdata_credito.py` (170 líneas)
 
-Importa del pipeline: `almacen`, `certificados`, `ifdata`
+Importa del pipeline: `almacen`, `ifdata_texto`, `periodos`
 
-Argumentos: `--desde` — trimestre inicial AAAAMM (opcional); `--hasta` — trimestre final AAAAMM (opcional)
+```text
+Cartera de crédito por banco y modalidad desde IF.Data (informes 11 personas y 13 empresas) y NPL total.
+
+Lo leen preparar_credito_paginas_powerbi.py (tablas cre_* por grupo) y preparar_gold_bancos_cartera.py
+(bk_cartera por banco), para que no haya dos lecturas del mismo crudo que puedan divergir.
+
+Por qué los datos son estos:
+* **Cartera activa en Brasil de los informes 11 y 13, no la cuenta del balance.** Solo esos informes abren
+  por modalidad. El "Total da Carteira" del BCB incluye las operaciones en el exterior (Itaú 2014-T2:
+  R$ 124 mil millones solo en empresas); aquí se valida que Σ modalidades + exterior = total publicado.
+* **Antes de 2025 los informes de crédito van en el conglomerado financeiro**, con otros códigos que el panel
+  (prudencial). El cadastro de cada trimestre dice qué unidades financeiras forman cada conglomerado
+  prudencial (``CodConglomeradoFinanceiro`` / ``CodConglomeradoPrudencial``; ``"null"`` = la institución va sola).
+* **NPL total** (E–H): hasta 2024, cartera E–H / AA–H del informe 8 (financeiro). Desde 2025 la Res. 4.966
+  eliminó la escala AA–H: "Ativos problemáticos" / (total − exterior) del informe 16 (prudencial).
+* **Bancos con cambio de cobertura en 2025** (BNDES y varias fintechs): su cartera cambia en la frontera
+  mucho más que su balance (``rupturas_frontera``).
+```
+
+## `pipeline/ifdata_texto.py` (60 líneas)
+
+```text
+Texto de los CSV de IF.Data (OLinda): limpieza, nulos, saldos y periodos. Sin red.
+
+- Los nombres de cuenta vienen con saltos de línea dentro de las comillas del CSV.
+- ``null`` literal (y ``NI``, «no informado», en los saldos) significa sin dato, nunca 0.
+- Los saldos usan coma decimal brasileña; si no hay coma, un punto seguido de grupos de 3 dígitos es separador
+  de miles.
+```
+
+## `pipeline/manifiesto_gold.py` (68 líneas)
+
+Importa del pipeline: `almacen`, `bancos`, `reglas_gold`
+
+```text
+bk_manifiesto: una fila por tabla gold (filas, columnas, rango, sha256, quién la produjo) y una por universo
+(último corte). Se arma una sola vez, después de que todos los pasos publicaron (actualizar.py).
+
+El comando que produjo cada tabla sale de su procedencia en ``datos/derivado/`` (almacen.publicar_gold).
+```
+
+## `pipeline/mora_sistema.py` (25 líneas)
+
+Importa del pipeline: `almacen`
+
+```text
+Mora del sistema (SGS > 90 días, bk_sistema_q) para cada modalidad de la cartera IF.Data del panel.
+
+Las equivalencias modalidad → serie del SGS están en ``definiciones/bancos__equivalencias_mora.json``. Las
+definiciones no son iguales (panel ≥ 15 días; SGS > 90 días): se comparan en evolución, nunca en nivel.
+```
+
+## `pipeline/periodos.py` (91 líneas)
+
+Importa del pipeline: `almacen`
+
+```text
+Periodos AAAAMM (trimestres de IF.Data y meses del SGS/SCR): aritmética, etiquetas y quiebres conocidos.
+
+Los quiebres de la fuente viven aquí una sola vez:
+
+- ``QUIEBRE_2025`` (2025-T1): el BCB renumeró las cuentas COSIF y movió los informes de crédito del
+  escopo financeiro al prudencial. Los bancos con cambio de cobertura (``quiebre_2025`` en bk_cartera)
+  quedan fuera de las variaciones que cruzan este trimestre.
+- ``ANOMALOS``: trimestres que el BCB sirve con saltos imposibles; se dejan vacíos, nunca interpolados.
+  La lista y el motivo están en ``definiciones/bcb_ifdata__credito_modalidades.json`` (``trimestres_anomalos``).
+```
+
+## `pipeline/preparar_bancos_powerbi.py` (614 líneas)
+
+Importa del pipeline: `almacen`, `bancos`, `ifdata_texto`, `periodos`
 
 ```text
 Prepara balances y resultados trimestrales de bancos brasileños para Power BI.
@@ -261,22 +365,20 @@ des-acumula los flujos, conserva intactos los stocks y escribe parquets atómico
 
 Receta:
 
-    python ifdata.py colectar --desde 201403 --hasta 202606 --escopo prudencial         --informe 2 --informe 3 --informe 4
-    python preparar_bancos_powerbi.py
+    python pipeline/ifdata.py colectar --desde 201403 --hasta 202606 --escopo prudencial         --informe 2 --informe 3 --informe 4
+    python pipeline/preparar_bancos_powerbi.py
 ```
 
-## `pipeline/preparar_credito_paginas_powerbi.py` (763 líneas)
+## `pipeline/preparar_credito_paginas_powerbi.py` (552 líneas)
 
-Importa del pipeline: `almacen`, `bcb_api`, `certificados`
-
-Argumentos: `--descargar` — baja antes las series SGS 20714 y 4389; `--solo-descargar` — solo baja las series SGS (runner, paso D7)
+Importa del pipeline: `almacen`, `bancos`, `ifdata_credito`, `periodos`, `reglas_gold`, `sgs`
 
 ```text
 Tablas de las hojas "Crédito: panorama" y "Crédito: calidad" del PBIP dual (prefijo ``cre_``), trimestral.
 
 POR QUÉ EXISTE
 --------------
-Pablo vio la hoja 8 "Bancos" el 2026-10-13 y pidió otro concepto (``docs/orquestacion/41_diseno_paginas_credito.md``):
+Pablo vio la hoja 8 "Bancos" el 2026-10-13 y pidió otro concepto:
 no comparar bancos, sino ver **de qué está hecho el crédito** del panel según dos cortes que se cruzan:
 
 * **tipo de institución**: segmento S1–S4, propiedad, modelo de negocio, tradicional vs fintech; siempre grupos,
@@ -288,7 +390,7 @@ Un botón decide qué dimensión se apila. El slicer de tipo tiene solo Total, P
 muestra sus modalidades. Del 2026-10-14 al 2026-10-20 "Total" apilaba las 16 modalidades y cada modalidad era un
 nodo del slicer; se sacaron (no se elige un producto suelto). "Panorama" muestra nivel,
 aportes al crecimiento, tabla y momentum;
-"calidad", NPL / NIM / ROE y la tasa de los créditos nuevos contra el CDI. Reemplaza a ``preparar_bancos_pagina_powerbi``.
+"calidad", NPL / NIM / ROE y la tasa de los créditos nuevos contra el CDI.
 
 Por qué los datos son estos y no otros
 --------------------------------------
@@ -335,21 +437,17 @@ Por qué los datos son estos y no otros
 
 Uso::
 
-    python preparar_credito_paginas_powerbi.py               # con el crudo en disco
-    python preparar_credito_paginas_powerbi.py --descargar   # antes baja SGS 20714 y 4389
-    python preparar_credito_paginas_powerbi.py --solo-descargar   # solo eso (runner, paso D7)
+    python -X utf8 pipeline/preparar_credito_paginas_powerbi.py   # SGS ya al día (actualizar.py lo refresca al empezar)
 
-Los informes de IF.data se bajan a mano (``ifdata.py colectar``; ver doc 41 §4). Corre después de
-``preparar_bancos_powerbi.py`` (usa ``datos/gold``).
+La lectura de IF.data (informes 11, 13, 8 y 16) está en ``ifdata_credito.py``; los informes se bajan a mano
+(``ifdata.py colectar``). Corre después de ``preparar_bancos_powerbi.py`` (usa ``datos/gold``).
 ```
 
-## `pipeline/preparar_gold_bancos.py` (1379 líneas)
+## `pipeline/preparar_gold_bancos.py` (764 líneas)
 
-Importa del pipeline: `almacen`, `preparar_gold_bancos_cartera`, `preparar_gold_bancos_exposicion`, `preparar_gold_bancos_sistema`, `preparar_metricas_bancos`
+Importa del pipeline: `almacen`, `bancos`, `periodos`, `registro_metricas`, `reglas_gold`, `sgs`
 
-Subcomandos: `base` — construye bk_banco, bk_metrica, bk_panel, bk_grupo, bk_puente y bk_manifiesto, sin red; `rentabilidad` — construye bk_roe_arbol y bk_sensibilidad (encargo 64), sin red; `sistema` — construye bk_sistema_m y bk_sistema_q (SGS; baja lo que falte); `cartera` — construye bk_cartera y bk_cartera_totales desde los informes 11 y 13, sin red; `exposicion` — construye bk_exposicion (mora implícita del mix), sin red; `todo` — corre todo en orden de dependencias
-
-Argumentos: `--descargar` — re-baja las series del SGS aunque el crudo exista; `--descargar` — pasa --descargar a sistema
+Subcomandos: `base` — bk_banco, bk_metrica, bk_panel, bk_grupo y bk_puente; necesita bk_cartera y bk_sistema_q; `rentabilidad` — bk_roe_arbol y bk_sensibilidad (encargo 64)
 
 ```text
 Capa gold base del dashboard de bancos: tablas bk_* que leen el sitio, y el puente IF.Data ↔ publicado.
@@ -357,56 +455,43 @@ Capa gold base del dashboard de bancos: tablas bk_* que leen el sitio, y el puen
 POR QUÉ EXISTE
 --------------
 El sitio de bancos no calcula nada («Python calcula, el navegador dibuja»,
-docs/dashboard_bancos/SPEC_DATOS_BANCOS_v0.1.md §1.3). Las fórmulas viven aquí, una sola vez, y el
+docs/SPEC_DATOS_BANCOS_v0.1.md §1.3). Las fórmulas viven aquí, una sola vez, y el
 sitio lee tablas ya listas. Este subcomando (``base``) no baja nada de la red: reordena lo que ya
-existe en el repo —el panel de métricas por banco y trimestre, con TTM, ROE, ROA, cuotas y crédito
-total (``datos/intermedio/metricas_bancos.parquet``); las dimensiones de los bancos
-(``datos/gold/bank_instituciones.parquet`` y ``definiciones/bcb_ifdata__bancos_balances.json``); los
-cotizados y tickers (``definiciones/bancos__dashboard.json``); las ópticas de grupo que ya usa
-``cre_*`` (``datos/intermedio/cre_institucion.parquet``) y el cruce IF.Data ↔ publicado
-(``definiciones/validacion_bancos.json``)— y lo entrega en seis tablas: ``bk_banco`` (34 bancos),
-``bk_metrica`` (definición de cada métrica), ``bk_panel`` (banco × trimestre × métrica, con rezagos,
-percentiles del grupo y rankings), ``bk_grupo`` (óptica × grupo × trimestre × métrica, con muestra
-constante a/a), ``bk_puente`` y ``bk_manifiesto`` (filas, rangos, sha256 y último corte de cada
-universo).
+existe —el panel de métricas por banco y trimestre (``datos/intermedio/metricas_bancos.parquet``), las
+dimensiones de los bancos (``bancos.py``), las métricas (``registro_metricas.py``) y el cruce IF.Data ↔
+publicado (``definiciones/validacion_bancos.json``)— y lo entrega en cinco tablas: ``bk_banco``, ``bk_metrica``
+(definición de cada métrica), ``bk_panel`` (banco × trimestre × métrica, con rezagos, percentiles del grupo y
+rankings), ``bk_grupo`` (óptica × grupo × trimestre × métrica, con muestra constante) y ``bk_puente``.
 
-Reglas que no se tocan (SPEC §1.5 y cabeceras de ``preparar_metricas_bancos.py`` y
-``preparar_credito_paginas_powerbi.py``): no se recalculan TTM, ROE, ROA, cuotas ni crédito total.
-Los agregados de grupo son sumas o cocientes de sumas, nunca promedios de ratios. Lo que no tiene
-definición segura queda en null y se lista en el resultado del encargo.
-
-Salidas: ``datos/derivado/bcb_ifdata/bancos_gold/`` (con ``almacen.guardar_derivado``, que deja en el
-manifiesto de qué entradas salió cada tabla y con qué comando) y una copia en ``datos/gold/``, donde
-las leen el exportador y el sitio.
+Reglas que no se tocan: no se recalculan TTM, ROE, ROA, cuotas ni crédito total (salen de
+preparar_metricas_bancos.py). Los agregados de grupo son sumas o cocientes de sumas, nunca promedios de ratios.
+Lo que no tiene definición segura queda en null.
 
 Uso:
 
-    python -X utf8 preparar_gold_bancos.py base
+    python -X utf8 pipeline/preparar_gold_bancos.py base
 
 El subcomando ``rentabilidad`` (encargo 64) añade ``bk_roe_arbol`` (árbol del ROE por banco y
 por grupo) y ``bk_sensibilidad`` (beta del NIM contra el CDI); no reescribe las tablas de base.
 
-    python -X utf8 preparar_gold_bancos.py rentabilidad
+    python -X utf8 pipeline/preparar_gold_bancos.py rentabilidad
 ```
 
-## `pipeline/preparar_gold_bancos_cartera.py` (354 líneas)
+## `pipeline/preparar_gold_bancos_cartera.py` (282 líneas)
 
-Importa del pipeline: `almacen`, `preparar_credito_paginas_powerbi`
+Importa del pipeline: `almacen`, `bancos`, `ifdata_credito`, `mora_sistema`, `periodos`, `reglas_gold`
 
 ```text
 Cartera de crédito por banco × modalidad (capa gold del dashboard de bancos): bk_cartera, bk_cartera_totales,
-bk_cartera_grupo, bk_cartera_mix7 y las copias bk_cre_*.
+bk_cartera_grupo y bk_cartera_mix7.
 
 POR QUÉ EXISTE
 --------------
-`preparar_credito_paginas_powerbi.py` ya lee los informes 11 (PF) y 13 (PJ) de IF.data y arma, por banco,
-el saldo y el vencido ≥15 días de cada modalidad; pero solo publica agregados por grupo (`cre_*`), porque
-la hoja del PBIP compara grupos, nunca bancos sueltos. La ficha por banco del dashboard web necesita el
-dato por banco. En vez de copiar el parser (y dejar dos lecturas del mismo crudo que pueden divergir),
-este módulo **importa** sus funciones (`periodos_credito`, `bancos`, `leer_credito`, `rupturas_frontera`)
-y solo agrega lo que el panel por banco necesita. No toca `cre_*` ni el PBIP.
+La ficha por banco del dashboard web necesita el saldo y el vencido ≥15 días de cada modalidad por banco
+(los `cre_*` del PBIP solo tienen grupos). La lectura de los informes 11 (PF) y 13 (PJ) es la de
+`ifdata_credito.py`, la misma que usa preparar_credito_paginas_powerbi.py.
 
-Reglas heredadas, que no se tocan (docstring de preparar_credito_paginas_powerbi.py):
+Reglas (ver ifdata_credito.py):
 - Cartera activa en Brasil de los informes 11 y 13; financeiro hasta 2024-T4 (vía cadastro) y prudencial desde 2025.
 - NPL por modalidad = atraso ≥ 15 días.
 - 2024-T4 vacío (trimestre anómalo del BCB, `trimestres_anomalos` en definiciones).
@@ -419,8 +504,7 @@ Salidas (spec de datos §3.5 y decisión del arquitecto del 2026-11-02 sobre la 
 - datos/gold/bk_cartera_grupo.parquet    mix y NPL por modalidad por grupo y panel, con la mora del sistema al lado (B8-03);
                                        desde 78b, columna `dirigido_peso` (ver abajo)
 - datos/gold/bk_cartera_mix7.parquet     (78b) mix en 7 categorías por banco, grupo y panel (B3-03-0)
-- datos/gold/bk_cre_panorama / bk_cre_calidad / bk_cre_contexto: copia de cre_* (aportes, calidad, ROE/NIM/CDI por grupo) para el sitio
-Se escriben con almacen.guardar_derivado en datos/derivado/bcb_ifdata/bancos_gold_cartera/ y se copian a datos/gold/.
+Se publican con almacen.publicar_gold (procedencia en datos/derivado/bcb_ifdata/bancos_gold_cartera/).
 
 78b · Mix en 7 categorías (B3-03-0) y peso del dirigido aproximado
 -------------------------------------------------------------------
@@ -436,14 +520,17 @@ no por nombre de modalidad).
 `dirigido_peso` se publica en bk_cartera_mix7 (banco, grupo y panel, repetido en cada categoría del mismo
 trimestre) y en bk_cartera_grupo (grupo y panel). Es el peso del dirigido aproximado sobre la cartera de Brasil.
 
-Uso:  python -X utf8 preparar_gold_bancos_cartera.py               (reconstruye desde el crudo vía el parser de cre_*)
-      python -X utf8 preparar_gold_bancos_cartera.py --solo-mix7  (lee datos/gold/bk_cartera*.parquet; reescribe
+Uso:  python -X utf8 pipeline/preparar_gold_bancos_cartera.py               (reconstruye desde el crudo, vía ifdata_credito.py)
+      python -X utf8 pipeline/preparar_gold_bancos_cartera.py --solo-mix7  (lee datos/gold/bk_cartera*.parquet; reescribe
                                                                    solo bk_cartera_grupo y bk_cartera_mix7)
+
+La comprobación de mix7 contra cartera_saldo de bk_panel la hace `preparar_gold_bancos.py base`, que es
+quien produce bk_panel (y lo produce después de este script).
 ```
 
-## `pipeline/preparar_gold_bancos_exposicion.py` (104 líneas)
+## `pipeline/preparar_gold_bancos_exposicion.py` (92 líneas)
 
-Importa del pipeline: `almacen`
+Importa del pipeline: `almacen`, `mora_sistema`, `periodos`, `reglas_gold`
 
 ```text
 Exposición de cada banco al deterioro del sistema: bk_exposicion (spec de datos §3.6, esqueleto B4-04 y B8-03).
@@ -461,13 +548,13 @@ nivel. Las modalidades sin serie del SGS quedan fuera y la columna `cobertura` d
 cartera entra en el cálculo; con cobertura < 50 % (bancos de desarrollo, cartera dirigida) todo queda vacío. Equivalencias en definiciones/bancos__equivalencias_mora.json.
 
 Entradas: datos/gold/bk_cartera.parquet, datos/gold/bk_sistema_q.parquet.
-Salida:   datos/gold/bk_exposicion.parquet (banco × trimestre), con almacen.guardar_derivado.
-Uso:      python -X utf8 preparar_gold_bancos_exposicion.py
+Salida:   datos/gold/bk_exposicion.parquet (banco × trimestre).
+Uso:      python -X utf8 pipeline/preparar_gold_bancos_exposicion.py
 ```
 
-## `pipeline/preparar_gold_bancos_pag_credito.py` (162 líneas)
+## `pipeline/preparar_gold_bancos_pag_credito.py` (148 líneas)
 
-Importa del pipeline: `almacen`, `preparar_gold_bancos_portada`
+Importa del pipeline: `almacen`, `periodos`, `sgs`, `tabla_estandar`
 
 ```text
 Tablas de la página Crédito v3 (canvas «Bancos Brasil — propuesta visual», tablero 06).
@@ -492,9 +579,9 @@ REGLAS
   al menos 20 trimestres de historia; el punto t usa solo datos hasta t.
 ```
 
-## `pipeline/preparar_gold_bancos_portada.py` (238 líneas)
+## `pipeline/preparar_gold_bancos_portada.py` (192 líneas)
 
-Importa del pipeline: `almacen`, `preparar_gold_bancos_sistema`
+Importa del pipeline: `almacen`, `bancos`, `ifdata_texto`, `sgs`, `tabla_estandar`
 
 ```text
 Tablas de la Portada v3 del sitio de bancos (canvas «Bancos Brasil — propuesta visual», tablero 05).
@@ -513,7 +600,7 @@ TABLAS (datos/gold/)
 - bk_portada_roe: periodo, fecha, trimestre, roe, cdi_4t, roe_cdi_pp (ROE del panel menos CDI promedio
   de 4 trimestres, en pp).
 - bk_portada_tablas: bloque (credito_nominal, credito_real, mora, roe), orden, fila, ultimo, d1, d3,
-  d12, dventana, unidad, corte. En crédito: saldo (R$ mil millones), y % de variación; en mora: nivel
+  d12, dventana, corte y las unidades de la tabla estándar. En crédito: saldo (R$ mil millones), y % de variación; en mora: nivel
   en % y cambios en pp; en ROE: % y pp con d1 = t/t, d3 vacío, d12 = a/a, dventana = 4T/4T.
 - bk_portada_cuotas: vista, orden, banco, cuota (fracción), grupo, periodo. Diez mayores + «Resto».
 
@@ -524,15 +611,15 @@ REGLAS
 - Real: saldo deflactado por el índice IPCA encadenado (SGS 433), base último mes.
 - Contribución: (componente_t − componente_t−12) / total_t−12, en pp. Libre + direccionado = total
   (diferencia < 1 %); PF + PJ = total.
-- Series SGS: se leen del crudo (cualquier dataset de bcb_sgs). Si falta, se bajan con el mismo
-  mecanismo de preparar_gold_bancos_sistema; sin red, la fila queda vacía y se avisa.
+- Series SGS: saldos del crudo bcb_sgs/bancos_sistema (sgs.py); mora > 90 días de bk_sistema_m; CDI de
+  sgs.cdi_12m (promedio de los 12 meses que terminan en el trimestre).
 - Cuotas: último trimestre del panel IF.Data con informes de pasivo (r3) y cartera PF/PJ (r11, r13);
   activos y crédito total desde bk_panel (share_ativo, share_credito). Solo conglomerados del panel.
 ```
 
-## `pipeline/preparar_gold_bancos_qcambio.py` (175 líneas)
+## `pipeline/preparar_gold_bancos_qcambio.py` (156 líneas)
 
-Importa del pipeline: `almacen`
+Importa del pipeline: `almacen`, `bancos`, `periodos`
 
 ```text
 «Qué se movió» de la Portada: cambio del último trimestre por banco y métrica, con su z (encargo 78d, plan 57).
@@ -564,12 +651,12 @@ REGLAS
 
 Entradas: datos/gold/bk_panel.parquet, bk_metrica.parquet, bk_banco.parquet, bk_cartera.parquet
 Salida:   datos/gold/bk_qcambio.parquet (escrito con almacen.guardar_derivado)
-Uso:      python -X utf8 preparar_gold_bancos_qcambio.py
+Uso:      python -X utf8 pipeline/preparar_gold_bancos_qcambio.py
 ```
 
-## `pipeline/preparar_gold_bancos_scr.py` (297 líneas)
+## `pipeline/preparar_gold_bancos_scr.py` (202 líneas)
 
-Importa del pipeline: `almacen`, `certificados`
+Importa del pipeline: `almacen`, `scr_zip`
 
 Argumentos: `--solo-descargar` — solo baja los ZIP 2012-2023 que falten, no deriva
 
@@ -578,53 +665,36 @@ bk_scr: SCR.data 2012-2026 agregado en tres cortes para el dashboard de bancos.
 
 POR QUÉ EXISTE
 --------------
-El spec de datos (``docs/dashboard_bancos/SPEC_DATOS_BANCOS_v0.1.md`` §3.10) pide
+El spec de datos (``docs/SPEC_DATOS_BANCOS_v0.1.md`` §3.10) pide
 publicar del SCR.data solo tres cortes agregados — mes × segmento × cliente,
 mes × porte (solo PJ) y mes × UF — y no el cubo granular, porque el sitio
 grafica series de sistema y el cubo entero son cientos de MB por año. Este
-módulo lee los ZIP anuales crudos (``datos/crudo/bcb_scr/scrdata/actual/``)
-**por partes** (``chunksize``): un año no cabe entero en memoria y
-``credito_garantizado.py scr`` ya estableció el patrón de lectura por chunks
-desde el ZIP sin descomprimir a disco.
+módulo lee los ZIP anuales crudos **por partes**: un año no cabe entero en memoria.
 
-La tasa es la oficial del BCB (docs/fuentes_datos_sector_bancario_brasil.md §15):
-``tasa = Σ carteira_inadimplencia / Σ carteira_ativa``. La columna
-``carteira_inadimplencia`` del SCR.data está en R$, NO en %; escribirla como
-porcentaje es el error que §15 corrige. Las tasas van como fracción (0,05 = 5 %),
+La tasa es la oficial del BCB: ``tasa = Σ carteira_inadimplencia / Σ carteira_ativa``. La columna
+``carteira_inadimplencia`` del SCR.data está en R$, NO en %; escribirla como porcentaje es un error. Las tasas van como fracción (0,05 = 5 %),
 igual que el resto de la capa gold.
 
-Decisiones del encargo 67 (03-11-2026) registradas para el que relea:
+Decisiones del encargo 67 (03-11-2026):
 
-- **Los CSV del SCR.data son UTF-8 con BOM**, verificado byte a byte en 2012 y
-  2024 (el encargo decía cp1252, que es lo normal en los archivos del gobierno
-  brasileño, pero estos no: leerlos como cp1252 mojibakea «mínimos» y las UFs).
-  La lectura prueba UTF-8 estricto sobre una muestra y cae a cp1252 solo si
-  falla, por si el BCB cambia de era otra vez.
-- **La descarga de 2012-2023 va streameada a disco con ``almacen.registrar_crudo``**,
-  no con ``extraer_fuentes.py scrdata``: ese comando publica en el crudo un CSV
-  combinado re-codificado (con nombre que colisiona entre años), no el ZIP anual
-  que este preparador y ``credito_garantizado.py`` leen. Misma URL, misma
-  procedencia; el patrón streameado es el del repo para archivos de decenas de
-  MB (``ifdata.py``). Política de reintentos del encargo: 3 intentos por año,
-  30 s de pausa; un año que falla 3 veces se anota y se sigue.
+- Descarga y codificación de los ZIP: ver ``scr_zip.py``. Un año que falla 3 veces corta la corrida.
 - **``numero_de_operacoes`` == -1 es secreto estadístico**, no un número; no se
   suma (aquí ni se usa: los cortes son de saldo). Las filas con -1 sí traen
   valores en R$ y entran a las sumas de cartera.
 - **``porte`` del corte PJ va tal cual lo publica el BCB** (Micro, Pequeno,
-  Médio, Grande, Indisponível): traducirlo es una decisión de presentación que
-  no pide el encargo y mejor la toma quien consume la tabla.
-- **``modalidad`` va siempre vacía**: el contrato gold del verificador la exige
-  (y §3.10 la lista), pero los tres cortes publicados no abren por modalidad.
+  Médio, Grande, Indisponível); la etiqueta del sitio va aparte en ``porte_es``.
+- Cada ZIP se agrega una vez y queda en ``datos/intermedio/scr/scrdata_<año>.parquet``; se recalcula si el ZIP
+  es más nuevo (el del año en curso cambia cada mes).
 
 Receta::
 
-    python -X utf8 preparar_gold_bancos_scr.py                # baja 2012-2023 y deriva
-    python -X utf8 preparar_gold_bancos_scr.py --solo-descargar
+    python -X utf8 pipeline/preparar_gold_bancos_scr.py                # baja 2012-2023 y deriva
+    python -X utf8 pipeline/preparar_gold_bancos_scr.py --solo-descargar
 ```
 
-## `pipeline/preparar_gold_bancos_scr_productos.py` (411 líneas)
+## `pipeline/preparar_gold_bancos_scr_productos.py` (318 líneas)
 
-Importa del pipeline: `almacen`, `certificados`
+Importa del pipeline: `almacen`, `reglas_gold`, `scr_zip`, `tabla_estandar`
 
 Argumentos: `--descargar` — baja de nuevo el ZIP del año en curso; `--desde` — primer año del cubo (default 2018)
 
@@ -665,36 +735,30 @@ REGLAS
   (salto del mix); ago-26 ~R$ 15 mil millones de tarjeta pasan de «más de 20 SM» a «Indisponível».
 
 Uso (desde pipeline/, Windows con -X utf8):
-    python -X utf8 preparar_gold_bancos_scr_productos.py [--descargar] [--desde AAAA]
+    python -X utf8 pipeline/preparar_gold_bancos_scr_productos.py [--descargar] [--desde AAAA]
 ```
 
-## `pipeline/preparar_gold_bancos_sistema.py` (458 líneas)
+## `pipeline/preparar_gold_bancos_sistema.py` (354 líneas)
 
-Importa del pipeline: `almacen`, `bcb_api`, `certificados`
-
-Argumentos: `--descargar` — re-baja las series del SGS aunque el crudo exista
+Importa del pipeline: `almacen`, `sgs`
 
 ```text
 Series del Sistema financiero (SGS + tablas del macro) para el dashboard de bancos.
 
 POR QUÉ EXISTE
 --------------
-El spec de datos del dashboard de bancos (``docs/dashboard_bancos/SPEC_DATOS_BANCOS_v0.1.md``
+El spec de datos del dashboard de bancos (``docs/SPEC_DATOS_BANCOS_v0.1.md``
 §3.9) pide las series del Sistema —mora 90, atrasos 15-90, crédito real, crédito dirigido,
 spread, ICC, deuda de hogares— en formato largo mensual y trimestral con bandas. Esas series
-viven mitad en el SGS y mitad en tablas que el dashboard macro ya construyó en ``pb/``;
+viven mitad en el SGS y mitad en tablas que el dashboard macro dejó en ``datos/intermedio/``;
 reunirlas en cada página del sitio produciría cifras divergentes. Este módulo es el único
 lugar donde se transforman, y escribe ``datos/gold/bk_sistema_m.parquet`` y
 ``datos/gold/bk_sistema_q.parquet``.
 
-Es un archivo aparte de ``preparar_gold_bancos.py`` a propósito: ese lo escribe otro worker
-en la misma ola del plan 57 y el arquitecto integra ambos como subcomandos.
-
 Decisiones del encargo 61 y su corrección 61b (02-11-2026, «Decisiones del arquitecto»
-en ``docs/dashboard_bancos/PENDIENTES.md``), registradas aquí para el que relea:
+en ``docs/PENDIENTES.md``), registradas aquí para el que relea:
 
-- Los 38 códigos del encargo respondieron con JSON y fechas recientes (paso 1, tabla en
-  ``docs/orquestacion/61_resultado_sgs_sistema_2026-11-02.md``). Ninguno se reemplazó.
+- Los 38 códigos del encargo respondieron con JSON y fechas recientes (2-nov-2026). Ninguno se reemplazó.
 - ``impulso_credito`` no existe como tabla en ``pb/`` (se revisó el inventario; solo aparece
   en un docstring), así que se recalcula con SGS 20539 + 4382. Se publica en pp del PIB
   como ``impulso_credito_pp``.
@@ -723,11 +787,13 @@ En _q, ipca_12m toma el último mes del trimestre; el resto, promedio como siemp
 
 Receta:
 
-    python -X utf8 preparar_gold_bancos_sistema.py             # baja lo que falta y deriva
-    python -X utf8 preparar_gold_bancos_sistema.py --descargar  # fuerza re-descarga del SGS
+    python -X utf8 pipeline/preparar_gold_bancos_sistema.py   # deriva; una serie que falte en el crudo se baja
+                                                     # (el refresco de todas: paso «sgs» de actualizar.py)
 ```
 
-## `pipeline/preparar_metricas_bancos.py` (297 líneas)
+## `pipeline/preparar_metricas_bancos.py` (175 líneas)
+
+Importa del pipeline: `almacen`, `periodos`, `registro_metricas`
 
 ```text
 Prepara la capa de métricas del dashboard de bancos (proyecto independiente).
@@ -736,7 +802,7 @@ Consume los parquets curados (datos/gold/) y produce una tabla limpia de métric
 en formato largo (una fila por banco × período × métrica) para consumo directo
 por la capa visual (HTML/Plotly hoy, Power BI DAX mañana).
 
-Reglas de diseño (ver docs/validacion_multibanco.md):
+Reglas de diseño (fórmulas y códigos en definiciones/metricas_bancos.json, vía registro_metricas.py):
 - Solo escopo prudencial.
 - Códigos COSIF por era: cosif_2025 (140xxx/141xxx) y cosif_pre2025 (78xxx).
 - 'credito_total' = (e)+(f)+(g)+(h) en era nueva; (d)+(e)+(f) en era vieja
@@ -746,18 +812,89 @@ Reglas de diseño (ver docs/validacion_multibanco.md):
 - ROE/ROA TTM con promedio de patrimônio/ativo entre t-4 y t (2 puntos).
 - Cuotas de mercado dentro del panel presente en cada trimestre.
 Salidas:
-- datos/intermedio/metricas_bancos.parquet  (largo, consumo visual)
-- datos/intermedio/panel_bancos_wide.csv    (ancha, inspección)
+- datos/intermedio/metricas_bancos.parquet  (largo: banco × trimestre × métrica)
 ```
 
-## `herramientas/comparar_gold.py` (51 líneas)
+## `pipeline/red.py` (62 líneas)
+
+```text
+Reintentos y descargas a disco: la única política de reintento del pipeline (bcb_api, ifdata, scr_zip).
+```
+
+## `pipeline/registro_metricas.py` (70 líneas)
+
+Importa del pipeline: `almacen`
+
+```text
+Registro único de las métricas del panel (``definiciones/metricas_bancos.json``).
+
+De aquí salen los valores por banco (preparar_metricas_bancos.py y preparar_gold_bancos.py), los agregados por
+grupo (Σ numerador / Σ denominador) y el texto de ``bk_metrica``. Cambiar una fórmula es cambiar el JSON.
+```
+
+## `pipeline/reglas_gold.py` (59 líneas)
+
+Importa del pipeline: `periodos`
+
+```text
+Reglas de la capa gold que comparten los preparadores, el exportador y herramientas/verificar_gold.py:
+tolerancias y umbrales, marcas de dato con licencia, rango de fechas de una tabla y la comprobación de mix7.
+
+Va aparte para que el verificador no tenga que importar los scripts que producen las tablas.
+```
+
+## `pipeline/scr_zip.py` (85 líneas)
+
+Importa del pipeline: `almacen`, `certificados`, `red`
+
+```text
+ZIP anuales del SCR.data (``datos/crudo/bcb_scr/scrdata/actual/scrdata_<año>.zip``): descarga y lectura.
+
+- La descarga va streameada a disco y se registra con ``almacen.registrar_crudo`` (los ZIP pesan cientos de MB).
+- Los CSV del SCR.data son UTF-8 con BOM, no cp1252 como el resto de los archivos del gobierno brasileño
+  (verificado byte a byte en 2012 y 2024); se prueba UTF-8 estricto y se cae a cp1252 solo si falla.
+- Valores con coma decimal y sin separador de miles.
+```
+
+## `pipeline/sgs.py` (148 líneas)
+
+Importa del pipeline: `almacen`, `bcb_api`, `certificados`, `red`
+
+```text
+Series del SGS del BCB: el único lector y descargador del pipeline.
+
+Cada serie vive en ``datos/crudo/bcb_sgs/<dataset>/actual/serie_<codigo>.json`` con la forma
+``[{"data": "DD/MM/AAAA", "valor": "..."}]``. Si falta, se baja con ``bcb_api.descargar_serie`` (que sabe
+que una serie inexistente llega como HTML y no como 404) y se guarda por ``almacen`` con su URL.
+
+Siempre se pide con ``dataInicial``: sin fechas el SGS llegó a servir series atrasadas.
+```
+
+## `pipeline/tabla_estandar.py` (85 líneas)
+
+Importa del pipeline: `periodos`
+
+```text
+La tabla estándar del sitio (Indicador · Corte · Último · Share · m/m · 3m/3m · a/a · 12m/12m): sus variaciones.
+
+Mensuales:
+- saldos: m/m y a/a punta contra punta; 3m/3m y 12m/12m = promedio de la ventana sobre el de la ventana
+  anterior (en flujos, 12m/12m compara sumas de doce meses);
+- tasas: las mismas ventanas como diferencias (en la unidad de la serie × ``escala``).
+Trimestrales: d1 = t/t, d3 vacío, d12 = a/a, dventana = 4T/4T, como diferencias.
+
+Las variaciones son un dict con ultimo, d1, d3, d12, dventana y corte; ``fila`` les antepone las columnas propias
+de cada tabla, en el orden en que se pasan (ese es el orden de las columnas del parquet), y exige ``COLUMNAS``.
+```
+
+## `herramientas/comparar_gold.py` (56 líneas)
 
 ```text
 Compara celda por celda dos carpetas de parquets gold (misma forma, mismas columnas, mismos valores).
 
 Uso: python -X utf8 herramientas/comparar_gold.py <carpeta_a> <carpeta_b>
 Los floats se comparan con tolerancia relativa 1e-12 (solo ruido de redondeo); todo lo demás exacto.
-`bk_manifiesto` se compara sin las columnas que dependen del momento de la corrida (bytes, sha256, generado).
+`bk_manifiesto` se compara sin bytes ni sha256.
 ```
 
 ## `herramientas/convertir_crudo_parquet.py` (53 líneas)
@@ -777,7 +914,7 @@ Uso (desde la raíz del repo):
     python -X utf8 herramientas/convertir_crudo_parquet.py --borrar   # además borra cada CSV ya convertido
 ```
 
-## `herramientas/generar_spec.py` (183 líneas)
+## `herramientas/generar_spec.py` (187 líneas)
 
 ```text
 Regenera spec/generado/: el inventario automático del repo (tablas gold, métricas, bancos, páginas,
@@ -788,23 +925,27 @@ Uso (desde la raíz del repo):  python -X utf8 herramientas/generar_spec.py
 Requiere los parquet de datos/gold (no van a git) y Node para leer la configuración de páginas.
 ```
 
-## `herramientas/verificar_f1.py` (220 líneas)
+## `herramientas/verificar_f1.py` (241 líneas)
 
 Argumentos: `--url` — sitio publicado (sin / final); si falta, levanta uno local; `--anchos` — anchos en px separados por coma, p. ej. 1920,1280,390
 
 ```text
-Verifica la F1 del sitio de bancos (encargo 76) sobre las once páginas, con y sin ?banco=itau.
+Verifica el sitio de bancos sobre todas las páginas de config.js (PAGINAS), con y sin ?banco=itau.
 
 Qué comprueba, con un Chromium real sobre un servidor propio (python -m http.server, que se cierra
 al terminar con su mismo PID; no se usa ningún servidor que ya estuviera corriendo):
   1. cada página responde 200 y carga sin errores de consola ni de página;
-  2. el número de secciones y de tarjetas es el de la config y el del esqueleto (contar_tarjetas.mjs);
+  2. el número de secciones y de tarjetas es el de la config y el del esqueleto (esqueleto_tarjetas.json);
   3. cada tarjeta lleva el título de su config; si la config NO tiene armar(), la tarjeta está
      «en preparación» (esa exigencia no aplica a las tarjetas con armar());
-  4. ninguna tarjeta con armar() muestra error de carga o de cálculo;
+  4. ninguna tarjeta con armar() muestra error de carga o de cálculo, y ninguna queda cargando: se espera a
+     <html data-pagina="lista"> y a que ningún nodo siga en data-estado cargando/actualizando (ciclo de vida
+     explícito de pagina.js; el estado se lee de data-estado, no del texto visible);
   5. ningún «[» visible en el texto de la página;
-  6. la cabecera tiene una pestaña por página visible (las de config.js sin oculta: true) y la marca BANCOS BRASIL.
-  7. en cada ancho de --anchos, la página no tiene scroll horizontal.
+  6. la cabecera tiene una pestaña por página visible (las de config.js sin oculta: true) y la marca de config.js;
+  7. en cada ancho de --anchos, la página no tiene scroll horizontal;
+  8. cada color de tokens.js (COLOR) es igual a su token de tokens.css (navy → --navy, texto2 → --texto-2).
+Las configs, el esqueleto y los colores salen de herramientas/inventario_paginas.mjs (Node).
 Captura de página completa solo si se pide con --captura DIR.
 
 Con --url BASE (p. ej. https://banks-bz.pages.dev) revisa el sitio publicado en vez del local, con las fuentes
@@ -813,9 +954,11 @@ reales de Google (en local se cortan, para no depender de la red) y reporta si c
 Uso: python -X utf8 herramientas/verificar_f1.py [--puerto 8080] [--url BASE] [--anchos 1920,1280,390] [--captura DIR]
 ```
 
-## `herramientas/verificar_gold.py` (1480 líneas)
+## `herramientas/verificar_gold.py` (1261 líneas)
 
-Argumentos: `--comparar` — parquet candidato de staging a comparar con el actual; `--auditoria` — ejecuta también tests/auditoria/auditar_fuentes.py; `--estricto` — trata las advertencias como errores; `--gold` — comprueba solo las tablas gold bk_* de datos/gold (encargo 59); `--json` — salida JSON
+Importa del pipeline: `almacen`, `bancos`, `periodos`, `reglas_gold`
+
+Argumentos: `--comparar` — parquet candidato de staging a comparar con el actual; `--estricto` — trata las advertencias como errores; `--gold` — comprueba solo las tablas gold bk_* de datos/gold (encargo 59); `--json` — salida JSON
 
 ```text
 Verificador de solo lectura del pipeline del dashboard de bancos.
@@ -829,24 +972,25 @@ antes de promover un trimestre nuevo y sirve como *dry run*: no escribe nada.
 
 Comprueba:
 - `metricas_bancos.parquet`: columnas, nulos, duplicados, fechas, períodos
-  trimestrales continuos, cobertura mínima, cuotas de mercado y la identidad
-  de crédito total (si está disponible `panel_bancos_wide.csv`).
+  trimestrales continuos, cobertura mínima y cuotas de mercado.
 - `cre_panorama.parquet` y `cre_calidad.parquet`: contrato que consume la API,
   duplicados y períodos.
 - `validacion.json`: claves, números y `dif_pct` calculado.
 - Opcionalmente, compara un candidato de staging contra el parquet actual.
 
-No audita PDFs ni reemplaza `tests/auditoria/auditar_fuentes.py`; con
-`--auditoria` lo ejecuta como una puerta más. Los PDFs son otra fuente, con
-estados explícitos (`verificado`, `aproximado_press_release`, etc.).
+No audita PDFs: son otra fuente, con estados explícitos (`verificado`,
+`aproximado_press_release`, etc.).
+
+Con `--gold` comprueba, en cambio, las tablas gold bk_* de datos/gold contra el
+contrato de `definiciones/contrato_gold.json` y sus reglas propias.
 
 Uso desde la raíz del repo:
 
-    python herramientas/verificar_gold.py
+    python herramientas/verificar_gold.py            # intermedio, crédito y validación
+    python herramientas/verificar_gold.py --gold     # tablas gold bk_*
     python herramientas/verificar_gold.py --json
     python herramientas/verificar_gold.py --comparar <ruta>/metricas.parquet
-    python herramientas/verificar_gold.py --estricto --auditoria
-    python herramientas/verificar_gold.py --gold
+    python herramientas/verificar_gold.py --estricto
 
 Código de salida: 0 si no hay errores (o advertencias con `--estricto`), 1 si
 hay algún error. Las advertencias no bloquean por defecto: los saltos de un

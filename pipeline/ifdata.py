@@ -51,8 +51,6 @@ import csv
 import json
 import re
 import sys
-import time
-import unicodedata
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
@@ -60,10 +58,9 @@ import certificados  # noqa: F401  parchea ssl para la CA corporativa; ver certi
 import requests
 
 import almacen as A
+import red
+from ifdata_texto import a_valor, limpiar, normalizar, nulo, parsear_periodo
 
-# Los CSV de OLinda se guardan en parquet (todo texto, sin pérdida; ~80 veces menos espacio) y el CSV se borra.
-GUARDAR_PARQUET = True
-BORRAR_CSV = True
 
 
 def filas_crudo(archivo):
@@ -73,7 +70,6 @@ def filas_crudo(archivo):
         with open(archivo, newline="", encoding="utf-8") as f:
             yield from csv.DictReader(f)
     else:
-        import pandas as pd
         yield from A.leer_crudo_tabla(archivo).to_dict("records")
 
 BASE = "https://olinda.bcb.gov.br/olinda/servico/IFDATA/versao/v1/odata"
@@ -92,58 +88,12 @@ CAMPOS_CADASTRO = ["periodo", "cod_inst", "institucion", "tipo_entidad",
                    "cod_congl_prud", "cnpj_lider", "situacion"]
 
 
-# --------------------------------------------------------------------------- #
-#  Utilidades
-# --------------------------------------------------------------------------- #
-
-def limpiar(s):
-    """Colapsa saltos de linea y espacios repetidos (los nombres de cuenta
-    del BCB vienen con \\n dentro de las comillas del CSV)."""
-    return " ".join((s or "").split())
-
-
-def nulo(s):
-    """'null' literal del CSV -> ''."""
-    v = limpiar(s)
-    return "" if v.lower() == "null" else v
-
-
-def normalizar(s):
-    """Minusculas sin acentos, para busquedas."""
-    s = limpiar(s).casefold()
-    return "".join(c for c in unicodedata.normalize("NFD", s)
-                   if unicodedata.category(c) != "Mn")
-
-
-def a_valor(s):
-    """Saldo con coma decimal (formato brasileno) -> string con punto."""
-    s = (s or "").strip()
-    if not s or s.lower() in ("null", "ni"):
-        return ""
-    if "," in s:
-        s = s.replace(".", "").replace(",", ".")
-    elif "." in s:
-        partes = s.split(".")
-        if len(partes) > 1 and all(len(p) == 3 for p in partes[1:]):
-            s = "".join(partes)
-    return s
-
-
 def tamano(ruta):
     n = Path(ruta).stat().st_size
     for unidad in ("B", "KB", "MB", "GB"):
         if n < 1024 or unidad == "GB":
             return f"{n:.1f} {unidad}" if unidad != "B" else f"{n} B"
         n /= 1024
-
-
-def parsear_periodo(s, que="periodo"):
-    p = str(s).strip().replace("-", "").replace("/", "")
-    if not re.fullmatch(r"(19|20)\d{4}", p):
-        raise ValueError(f"{que} invalido: '{s}' (se espera AAAAMM, ej. 202603)")
-    if p[4:] not in ("03", "06", "09", "12"):
-        raise ValueError(f"{que} invalido: '{s}' (el mes debe ser 03, 06, 09 o 12)")
-    return p
 
 
 def trimestres(desde, hasta):
@@ -256,10 +206,6 @@ def como_se_invoco(argv=None):
     return "ifdata.py " + " ".join(argv if argv is not None else sys.argv[1:])
 
 
-# --------------------------------------------------------------------------- #
-#  Cliente de la API OLinda con cache local
-# --------------------------------------------------------------------------- #
-
 class IFData:
     def __init__(self, delay=0.3, verbose=True, refrescar=False, max_edad_dias=95):
         # Los crudos leidos durante esta corrida, para que un derivado pueda decir
@@ -279,29 +225,9 @@ class IFData:
         if self.verbose:
             print(msg, file=sys.stderr)
 
-    # -- descarga cruda con cache -------------------------------------------
-
     def _descargar(self, url, destino):
-        destino = Path(destino)
-        tmp = destino.with_name(destino.name + ".part")
-        for intento in range(1, 4):
-            time.sleep(self.delay)
-            try:
-                with self.s.get(url, stream=True, timeout=(30, 300)) as r:
-                    r.raise_for_status()
-                    with open(tmp, "wb") as f:
-                        for bloque in r.iter_content(1 << 20):
-                            if bloque:
-                                f.write(bloque)
-                tmp.replace(destino)
-                return
-            except requests.RequestException as e:
-                if tmp.exists():
-                    tmp.unlink()
-                if intento == 3:
-                    raise
-                self.log(f"  [error de red: {e}; reintento {intento}/2]")
-        raise RuntimeError(f"Descarga fallida: {url}")
+        red.bajar_a_disco(self.s.get, url, destino, intentos=3, reintentables=(requests.RequestException,),
+                          pausa_previa=self.delay)
 
     def periodos_refrescables(self):
         """Trimestres recientes que la fuente todavia puede republicar."""
@@ -329,7 +255,7 @@ class IFData:
             return bool(pq.exists() and meta and meta.get("bytes") == pq.stat().st_size)
         tam = destino.stat().st_size
         if not reg:
-            return tam > 200
+            return tam > A.MIN_BYTES_CRUDO
         if reg.get("bytes") != tam:
             return False
         esperado = reg.get("sha256")
@@ -379,8 +305,8 @@ class IFData:
             self._descargar(url, destino)
             A.registrar_crudo("bcb_ifdata", dataset, destino, url)
             self.log(f"[+] {destino.name} ({tamano(destino)})")
-            if GUARDAR_PARQUET and destino.suffix == ".csv":
-                pq = A.csv_a_parquet("bcb_ifdata", dataset, destino, borrar_csv=BORRAR_CSV)
+            if destino.suffix == ".csv":   # todo texto, sin pérdida y ~80 veces menos espacio
+                pq = A.csv_a_parquet("bcb_ifdata", dataset, destino, borrar_csv=True)
                 self.log(f"    -> {pq.name} ({tamano(pq)})")
         elif destino.exists() and not self._registro_crudo(d, nombre):
             mtime = datetime.fromtimestamp(destino.stat().st_mtime, timezone.utc)
@@ -392,8 +318,6 @@ class IFData:
         if rel not in self.crudos_usados:
             self.crudos_usados.append(rel)
         return destino
-
-    # -- catalogo de informes -------------------------------------------------
 
     def relatorios(self):
         if self._relatorios is None:
@@ -427,38 +351,35 @@ class IFData:
             raise SystemExit(f"[!] '{ref}' coincide con varios informes:\n  {lista}")
         raise SystemExit(f"[!] Informe no encontrado: {ref}")
 
-    # -- cadastro (registro de entidades) -------------------------------------
-
     def archivo_cadastro(self, ano_mes):
         url = (f"{BASE}/IfDataCadastro(AnoMes=@AnoMes)"
                f"?@AnoMes={ano_mes}&$format=text/csv")
-        return self._asegurar("cadastro", f"cadastro_{ano_mes}.csv", url,
+        return self._asegurar("cadastro", A.ruta_cadastro(ano_mes).name, url,
                               f"cadastro {ano_mes}", periodo=ano_mes)
 
     def leer_cadastro(self, ano_mes):
         archivo = self.archivo_cadastro(ano_mes)
-        if True:
-            for fila in filas_crudo(archivo):
-                cod = nulo(fila.get("CodInst"))
-                yield {
-                    "periodo": nulo(fila.get("Data")) or ano_mes,
-                    "cod_inst": cod,
-                    "institucion": limpiar(fila.get("NomeInstituicao")),
-                    "tipo_entidad": tipo_de_codigo(cod, fila),
-                    "inicio_actividad": nulo(fila.get("DataInicioAtividade")),
-                    "tcb": nulo(fila.get("Tcb")),
-                    "td": nulo(fila.get("Td")),
-                    "tc": nulo(fila.get("Tc")),
-                    "segmento": nulo(fila.get("SegmentoTb")),
-                    "actividad": nulo(fila.get("Atividade")),
-                    "uf": nulo(fila.get("Uf")),
-                    "municipio": nulo(fila.get("Municipio")),
-                    "sr": nulo(fila.get("Sr")),
-                    "cod_congl_fin": nulo(fila.get("CodConglomeradoFinanceiro")),
-                    "cod_congl_prud": nulo(fila.get("CodConglomeradoPrudencial")),
-                    "cnpj_lider": nulo(fila.get("CnpjInstituicaoLider")),
-                    "situacion": nulo(fila.get("Situacao")),
-                }
+        for fila in filas_crudo(archivo):
+            cod = nulo(fila.get("CodInst"))
+            yield {
+                "periodo": nulo(fila.get("Data")) or ano_mes,
+                "cod_inst": cod,
+                "institucion": limpiar(fila.get("NomeInstituicao")),
+                "tipo_entidad": tipo_de_codigo(cod, fila),
+                "inicio_actividad": nulo(fila.get("DataInicioAtividade")),
+                "tcb": nulo(fila.get("Tcb")),
+                "td": nulo(fila.get("Td")),
+                "tc": nulo(fila.get("Tc")),
+                "segmento": nulo(fila.get("SegmentoTb")),
+                "actividad": nulo(fila.get("Atividade")),
+                "uf": nulo(fila.get("Uf")),
+                "municipio": nulo(fila.get("Municipio")),
+                "sr": nulo(fila.get("Sr")),
+                "cod_congl_fin": nulo(fila.get("CodConglomeradoFinanceiro")),
+                "cod_congl_prud": nulo(fila.get("CodConglomeradoPrudencial")),
+                "cnpj_lider": nulo(fila.get("CnpjInstituicaoLider")),
+                "situacion": nulo(fila.get("Situacao")),
+            }
 
     def nombres(self, ano_mes):
         """Mapa cod_inst -> nombre para el trimestre (memoizado)."""
@@ -469,8 +390,6 @@ class IFData:
             }
         return self._nombres[ano_mes]
 
-    # -- valores ----------------------------------------------------------------
-
     def _url_valores(self, ano_mes, tipo, numero=None):
         rel = "T" if numero is None else str(numero)
         return (f"{BASE}/IfDataValores(AnoMes=@AnoMes,"
@@ -479,11 +398,10 @@ class IFData:
                 f"&@Relatorio=%27{rel}%27&$format=text/csv")
 
     def archivo_valores(self, ano_mes, tipo, numero=None):
+        nombre = A.ruta_valores(ano_mes, tipo, numero).name
         if numero is None:
-            nombre = f"valores_{ano_mes}_{tipo}.csv"
             etiqueta = f"valores {ano_mes} escopo {TIPOS[tipo]} (todos los informes)"
         else:
-            nombre = f"valores_{ano_mes}_{tipo}_r{numero}.csv"
             etiqueta = f"valores {ano_mes} escopo {TIPOS[tipo]} informe {numero}"
         return self._asegurar("valores", nombre,
                               self._url_valores(ano_mes, tipo, numero), etiqueta,
@@ -503,9 +421,8 @@ class IFData:
         if numero is None:
             archivo = self.archivo_valores(ano_mes, tipo)
         else:
-            completo = A.ruta_cruda("bcb_ifdata", "valores") / f"valores_{ano_mes}_{tipo}.csv"
-            if A.existe_crudo(completo) and not self.refrescar \
-                    and A.crudo_con_datos(completo, 200):
+            completo = A.ruta_valores(ano_mes, tipo)
+            if A.existe_crudo(completo) and not self.refrescar and A.crudo_con_datos(completo):
                 archivo, filtro = completo, ("num", str(numero))
                 rel = str(completo.relative_to(A.DATOS))
                 if rel not in self.crudos_usados:
@@ -521,22 +438,20 @@ class IFData:
                                  f"y se filtra por nombre")
                         archivo = self.archivo_valores(ano_mes, tipo)
                         filtro = ("nombre", nombre)
-        if True:
-            vistos = set()
-            for fila in filas_crudo(archivo):
-                if filtro:
-                    if filtro[0] == "num":
-                        if nulo(fila.get("NumeroRelatorio")) != filtro[1]:
-                            continue
-                    elif normalizar(fila.get("NomeRelatorio")) != normalizar(filtro[1]):
+        vistos = set()
+        for fila in filas_crudo(archivo):
+            if filtro:
+                if filtro[0] == "num":
+                    if nulo(fila.get("NumeroRelatorio")) != filtro[1]:
                         continue
-                # la API a veces devuelve filas exactas repetidas
-                # (republicaciones); se descartan
-                clave = hash(tuple(fila.values()))
-                if clave in vistos:
+                elif normalizar(fila.get("NomeRelatorio")) != normalizar(filtro[1]):
                     continue
-                vistos.add(clave)
-                yield fila
+            # la API a veces devuelve filas exactas repetidas (republicaciones); se descartan
+            clave = hash(tuple(fila.values()))
+            if clave in vistos:
+                continue
+            vistos.add(clave)
+            yield fila
 
     def valores(self, ano_mes, tipo, informe=None):
         """Itera filas NORMALIZADAS (tidy) de un trimestre/escopo."""
@@ -556,8 +471,6 @@ class IFData:
                 "composicion": nulo(fila.get("DescricaoColuna")),
                 "valor": a_valor(fila.get("Saldo")),
             }
-
-    # -- resolucion de entidades -------------------------------------------------
 
     def resolver_institucion(self, ref, periodo):
         """
@@ -606,10 +519,6 @@ def _tipos_de(entidad_cadastro):
         return [1, 2]
     return [3]
 
-
-# --------------------------------------------------------------------------- #
-#  CLI
-# --------------------------------------------------------------------------- #
 
 def add_periodos(sp):
     sp.add_argument("--periodo", default="",

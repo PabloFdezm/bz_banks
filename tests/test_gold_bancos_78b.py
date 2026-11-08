@@ -2,33 +2,26 @@
 """Tests de la cartera post-MVP (encargo 78b): mix en 7 categorías y peso del dirigido aproximado.
 
 Pruebas sintéticas (con el error a propósito que la comprobación debe detectar) y pruebas sobre los datos reales
-de datos/gold, que se saltan mientras bk_cartera_mix7 no exista.
-Correr: python3 -X utf8 -m pytest tests/test_gold_bancos_78b.py -q
+de datos/gold (marca `integracion`).
 """
 from __future__ import annotations
 
 import json
-import sys
-from pathlib import Path
 
-import numpy as np
 import pandas as pd
 import pytest
 
-RAIZ = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(RAIZ))
-import preparar_gold_bancos_cartera as G  # noqa: E402
+import preparar_gold_bancos_cartera as G
+from conftest import GOLD as BANKS, RAIZ
 
-BANKS = RAIZ / "datos" / "gold"
 MIX = BANKS / "bk_cartera_mix7.parquet"
-necesita_datos = pytest.mark.skipif(not MIX.exists(), reason="bk_cartera_mix7 todavía no existe en datos/gold")
 
 
 def _cartera_sintetica(filas: list[tuple]) -> pd.DataFrame:
     """filas: (cod_inst, periodo, tipo, modalidad_id, saldo)."""
     df = pd.DataFrame(filas, columns=["cod_inst", "periodo", "tipo", "modalidad_id", "saldo"])
     df["fecha"] = pd.to_datetime(df["periodo"], format="%Y%m") + pd.offsets.MonthEnd(0)
-    df["trimestre"] = df["periodo"].map(G._trimestre)
+    df["trimestre"] = df["periodo"]  # mix7 solo lo arrastra
     return df
 
 
@@ -37,9 +30,13 @@ def test_mapeo_cubre_todas_las_modalidades_de_personas():
     ids_pf = {m["id"] for m in defs["tipos"]["PF"]["modalidades"]}
     assert ids_pf == set(G.MIX7_PF), "toda modalidad de personas debe tener categoría de 7"
     assert set(G.MIX7_PF.values()) <= set(G.ETIQUETA_MIX7)
-    # Empresas: todas van a PJ, incluida la rural de empresas, que también es dirigido.
     assert G.categoria_mix7("PJ", "pj_rural") == "PJ"
-    assert "pj_rural" in G.DIRIGIDO and "pf_rural" in G.DIRIGIDO
+
+
+def test_rural_de_personas_y_de_empresas_es_dirigido():
+    c = _cartera_sintetica([("A", "202506", "PF", "pf_rural", 100.0), ("A", "202506", "PJ", "pj_rural", 100.0)])
+    b = G.mix7(c).query("nivel == 'banco'")
+    assert b["dirigido_peso"].eq(1.0).all()
 
 
 def test_modalidad_desconocida_no_se_adivina():
@@ -90,7 +87,7 @@ def test_verificar_mix7_detecta_2024_t4():
     assert any("2024-T4" in e for e in G.verificar_mix7(G.mix7(c)))
 
 
-@necesita_datos
+@pytest.mark.integracion
 def test_datos_reales_suman_uno_y_cuadran_con_bk_panel():
     m = pd.read_parquet(MIX)
     assert (m["periodo"] != "202412").all()
@@ -100,7 +97,7 @@ def test_datos_reales_suman_uno_y_cuadran_con_bk_panel():
     assert ((dp >= 0) & (dp <= 1)).all()
 
 
-@necesita_datos
+@pytest.mark.integracion
 def test_cifras_contrastadas_contra_bk_cartera():
     """Tres cifras recalculadas por otro camino (directo desde bk_cartera) contra bk_cartera_mix7."""
     c = pd.read_parquet(BANKS / "bk_cartera.parquet")
@@ -120,7 +117,7 @@ def test_cifras_contrastadas_contra_bk_cartera():
     assert obtenido == pytest.approx(esperado, rel=1e-12)
 
 
-@necesita_datos
+@pytest.mark.integracion
 def test_grupo_dirigido_coincide_con_mix7():
     g = pd.read_parquet(BANKS / "bk_cartera_grupo.parquet")
     m = pd.read_parquet(MIX)
