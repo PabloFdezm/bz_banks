@@ -155,3 +155,16 @@ def test_apilado_aportes_suman_la_variacion_y_base_cero_no_da_infinito():
     vacio = CP.apilado({"a": pd.DataFrame({"B1": [0.0, 5.0]}, index=per)}, 1)
     assert not np.isinf(vacio["_padre_var"].to_numpy(dtype=float)).any()   # bug B2
     assert not np.isinf(vacio["a"]["aporte"].to_numpy(dtype=float)).any()
+
+
+def test_focus_ipca_12m_toma_suavizada_base_0_en_fraccion(monkeypatch, tmp_path):
+    # La variante que usaba el macro (validada el 8-nov): Suavizada S y baseCalculo 0; la mediana llega en %.
+    import json
+    import almacen as A
+    import focus as FO
+    filas = [{"Indicador": "IPCA", "Data": "2026-10-30", "Suavizada": s, "baseCalculo": b, "Mediana": m}
+             for s, b, m in (("S", 0, 5.0), ("S", 1, 9.0), ("N", 0, 7.0))]
+    (tmp_path / FO.ARCHIVO).write_text(json.dumps(filas), encoding="utf-8")
+    monkeypatch.setattr(A, "ruta_cruda", lambda fuente, dataset, version="actual": tmp_path)
+    s = FO.ipca_12m()
+    assert list(s.index) == [pd.Timestamp("2026-10-30")] and s.iloc[0] == pytest.approx(0.05)

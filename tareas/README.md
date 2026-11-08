@@ -34,7 +34,8 @@ Netlify borrados; Personas y Mora publicadas y verificadas en 3 anchos; fuente S
 - [ ] Frente 4: ROE y provisiones por segmento, y Anexo del REF.
 - [ ] spec/08 punto 5: validar los nombres de las series SGS de modalidades.
 - [ ] spec/08 punto 6: `credito_aa` 2025 vacío en la franja del quiebre COSIF.
-- [ ] spec/08 punto 4: `tasa_real_exante` y Focus siguen congelados; leerlos del SGS y Focus.
+- [x] spec/08 punto 4: Focus (`focus.py`) y Selic real ex ante (SGS 432) se leen de la fuente desde el 8-nov.
+      Ninguna tarjeta visible los usa (B1 está oculta). Falta borrar las tablas viejas de `datos/intermedio/` (con permiso).
 
 **Operación**
 - [ ] Pasar el SCR de ZIP a parquet (como IF.Data el 4-nov) y borrar los CSV originales del IF.Data (con permiso).

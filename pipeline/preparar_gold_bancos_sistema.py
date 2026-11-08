@@ -6,7 +6,7 @@ POR QUÉ EXISTE
 El spec de datos del dashboard de bancos (``docs/SPEC_DATOS_BANCOS_v0.1.md``
 §3.9) pide las series del Sistema —mora 90, atrasos 15-90, crédito real, crédito dirigido,
 spread, ICC, deuda de hogares— en formato largo mensual y trimestral con bandas. Esas series
-viven mitad en el SGS y mitad en tablas que el dashboard macro dejó en ``datos/intermedio/``;
+vienen del SGS, de la encuesta Focus (``focus.py``) y del BIS;
 reunirlas en cada página del sitio produciría cifras divergentes. Este módulo es el único
 lugar donde se transforman, y escribe ``datos/gold/bk_sistema_m.parquet`` y
 ``datos/gold/bk_sistema_q.parquet``.
@@ -31,8 +31,10 @@ en ``docs/PENDIENTES.md``), registradas aquí para el que relea:
   ``mora90_grande`` (27704).
 - ``comprometimento`` (29034), ``endividamento`` (29037) y ``desocupación`` (24369, PNADC = IBGE
   t6381|v4099) se leen del SGS desde el 6-nov-2026 (tarea 1.3; antes venían congeladas de
-  ``datos/intermedio/``). ``selic_real_exante`` sigue en ``datos/intermedio/tasa_real_exante.parquet``
-  (media mensual de la serie diaria; 23 trimestres es excepción aceptada) y no se re-baja.
+  ``datos/intermedio/``). Desde el 8-nov-2026 tampoco quedan entradas congeladas: ``ipca_esperado_12m`` sale
+  de Focus (``focus.py``) y ``selic_real_exante`` = (1 + meta Selic SGS 432) / (1 + Focus IPCA 12m) − 1 por día
+  de encuesta, media mensual (23 trimestres es excepción aceptada). Reproduce al decimal la entrada congelada
+  ``datos/intermedio/tasa_real_exante.parquet`` que dejó el dashboard macro.
 - ``bis_hiato_credito_pib_pp`` se lee del crudo local ``datos/crudo/bis/credit_gap`` tal
   cual, en pp (solo trimestral). ``pix_share`` queda fuera: encargo propio en la ola 2.
 
@@ -56,6 +58,7 @@ import numpy as np
 import pandas as pd
 
 import almacen as A
+import focus as FO
 import sgs as SG
 
 
@@ -86,7 +89,6 @@ REAL_M3M3A = ["conc_pf_livre_sa"]
 
 # Hogares y empleo directo del SGS (tarea 1.3), en % → fracción.
 HOGARES_SGS = ["endividamento", "comprometimento", "desocupacion"]
-FOCUS_PARQUET = A.INTERMEDIO / "expectativas_focus.parquet"
 
 # Únicas series en puntos porcentuales; todo lo demás va en fracción (61b).
 SERIES_EN_PP = frozenset({"impulso_credito_pp", "bis_hiato_credito_pib_pp"})
@@ -138,14 +140,11 @@ def leer_focus_ipca_12m() -> pd.Series:
     La mediana ya viene en fracción (es_porcentaje = True: 0,046 = 4,6 %). Solo el horizonte
     «12 meses» de tipo_horizonte; nunca el año calendario, que no es 12 meses adelante.
     """
-    d = pd.read_parquet(FOCUS_PARQUET)
-    d = d[(d["indicador"] == "IPCA") & (d["tipo_horizonte"] == "12 meses")].copy()
+    d = FO.ipca_12m()
     if d.empty:
-        raise ValueError("expectativas_focus: no hay IPCA con horizonte 12 meses")
-    d["fecha_encuesta"] = pd.to_datetime(d["fecha_encuesta"])
-    d["mes"] = d["fecha_encuesta"].dt.to_period("M").dt.to_timestamp()
-    d = d.sort_values("fecha_encuesta").drop_duplicates("mes", keep="last")
-    s = pd.Series(d["mediana"].to_numpy(dtype=float), index=pd.DatetimeIndex(d["mes"]))
+        raise ValueError("Focus: no hay IPCA con horizonte 12 meses")
+    s = d.groupby(d.index.to_period("M")).last()
+    s.index = s.index.to_timestamp()
     return SG.mensual(s).rename("ipca_esperado_12m")
 
 
@@ -167,9 +166,14 @@ def deltas_mensuales(m: pd.DataFrame) -> pd.DataFrame:
 
 
 def leer_selic_real_exante() -> pd.Series:
-    """Entrada congelada del dashboard macro (media mensual de la serie diaria); no se re-baja."""
-    d = pd.read_parquet(A.INTERMEDIO / "tasa_real_exante.parquet")
-    s = pd.Series(d["tasa_real_exante"].to_numpy(), index=pd.to_datetime(d["fecha"]))
+    """Selic real ex ante: (1 + meta Selic) / (1 + Focus IPCA 12m) − 1 en cada día de encuesta, media mensual.
+
+    La meta (SGS 432) viene publicada hasta la próxima reunión del Copom; solo cuentan los días con encuesta."""
+    esperado = FO.ipca_12m()
+    meta = (SG.serie(SG.CODIGOS["selic_meta"]) / 100).reindex(esperado.index)
+    if meta.isna().any():
+        raise ValueError("SGS 432: faltan días de meta Selic en fechas con encuesta Focus")
+    s = (1.0 + meta) / (1.0 + esperado) - 1.0
     return s.groupby(pd.PeriodIndex(s.index, freq="M")).mean().rename("selic_real_exante")
 
 
@@ -339,8 +343,7 @@ def main(argv=None) -> int:
         print("[!] bk_sistema no se publica: la verificación falló", file=sys.stderr)
         return 1
 
-    desde = [f"crudo/{SG.FUENTE}/{SG.DATASET}", "crudo/bis/credit_gap", "intermedio/expectativas_focus.parquet",
-             "intermedio/tasa_real_exante.parquet"]
+    desde = [f"crudo/{SG.FUENTE}/{SG.DATASET}", "crudo/bis/credit_gap", f"crudo/{FO.FUENTE}/{FO.DATASET}"]
     for nombre, tabla in (("bk_sistema_m", m), ("bk_sistema_q", q)):
         A.publicar_gold(nombre, tabla, fuente=SG.FUENTE, dataset="bancos_gold_sistema", desde=desde)
     print(f"[+] bk_sistema_m: {len(m)} filas, {m['serie_id'].nunique()} series, "

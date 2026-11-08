@@ -20,8 +20,9 @@ Estado al 4-nov-2026.
    originales (con permiso de Pablo). SCR sigue en ZIP.
 3b. ~~pandas distinto entre equipos~~ Resuelto el 6-nov: `stack(future_stack=True).dropna()` en `_bk_panel`
    (104.396 filas en pandas 2 y 3); `requirements.txt` pide pandas ≥ 2.1.
-4. **Entradas congeladas del macro:** endeudamiento, comprometimiento y desocupación se leen del SGS desde el
-   6-nov (29037, 29034, 24369). Siguen congeladas `tasa_real_exante` y `expectativas_focus`.
+4. ~~Entradas congeladas del macro~~ Resuelto: endeudamiento, comprometimiento y desocupación se leen del SGS
+   desde el 6-nov; Focus (`focus.py`) y la Selic real ex ante (SGS 432 + Focus) desde el 8-nov. Las tablas viejas
+   de `datos/intermedio/` (`tasa_real_exante`, `expectativas_focus`, `fh_deuda`, `tasas_pnad`) quedan sin uso.
 4b. Resuelto el 6-nov: `bk_sistema_m/q` se escribían en `datos/intermedio/Banks/` y el gold no se refrescaba.
 5. Validar contra el catálogo del SGS los nombres de las series de modalidades. Concesiones validadas el 8-nov:
    20631 es el total (= 20632 PJ + 20633 PF); las libres son 20634 (= 20635 + 20662).

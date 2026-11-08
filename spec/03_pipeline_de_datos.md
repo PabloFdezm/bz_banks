@@ -9,6 +9,7 @@ Detalle exhaustivo de cada script (docstring completo, subcomandos y argumentos)
 | **IF.Data** | Estados financieros por institución: balance (informe 2 activo, 3 pasivo), resultados (4), cartera por modalidad PF (11) y PJ (13), otros | Trimestral (mar/jun/sep/dic), ~60 días de rezago (~90 en diciembre) | API OLinda (OData) `olinda.bcb.gov.br/olinda/servico/IFDATA/versao/v1/odata` | `datos/crudo/bcb_ifdata/{valores,cadastro,catalogo}/actual/` — `valores_AAAAMM_<escopo>_r<informe>.parquet` (ver «Crudo en parquet») |
 | **SGS** | Series de sistema: saldos y concesiones de crédito por modalidad, mora, tasas, CDI, IPCA, crédito/PIB… | Mensual (algunas diarias o trimestrales), ~1–2 meses | `api.bcb.gov.br/dados/serie/bcdata.sgs.{codigo}/dados` | `datos/crudo/bcb_sgs/bancos_sistema/actual/serie_<codigo>.json` (todo el pipeline lee solo este dataset, vía `sgs.py`; los demás datasets de `bcb_sgs/` son copias congeladas del proyecto macro) |
 | **SCR.data** | Cartera y morosidad del sistema por segmento, porte, UF | Mensual; ZIP anuales | descarga de ZIP | `datos/crudo/bcb_scr/scrdata/actual/*.zip` |
+| **Focus** | Mediana del IPCA esperado a 12 meses (suavizada, `baseCalculo = 0`) | Diaria (días hábiles), ~1 semana | API OLinda `olinda.bcb.gov.br/olinda/servico/Expectativas/versao/v1/odata/ExpectativasMercadoInflacao12Meses` | `datos/crudo/bcb_focus/expectativas/actual/ipca_12m.json`, vía `focus.py` |
 | BIS | Brecha crédito/PIB (referencia) | Trimestral | — | `datos/crudo/bis/` |
 
 IF.Data tiene **escopos**: 1 prudencial (conglomerado prudencial, el que usa el panel), 2 financiero, 3
@@ -133,10 +134,12 @@ concesiones (se identificaron cuadrando montos).
 
 ## Entradas congeladas (vienen del dashboard macro)
 
-`preparar_gold_bancos_sistema.py` lee dos tablas que construyó el proyecto macro y que se copiaron a
-`datos/intermedio/` el 4-nov-2026: `tasa_real_exante` y `expectativas_focus`. **Aquí no se actualizan.**
-Endeudamiento, comprometimiento y desocupación se leen del SGS (29037, 29034, 24369) desde el 6-nov.
-`fh_deuda` y `tasas_pnad` siguen en `datos/intermedio/` pero ya nadie las lee.
+Ya no queda ninguna en uso. Endeudamiento, comprometimiento y desocupación se leen del SGS (29037, 29034, 24369)
+desde el 6-nov. Desde el 8-nov `ipca_esperado_12m` sale de Focus (`focus.py`, paso `focus` de `actualizar.py`) y
+`selic_real_exante` se calcula como (1 + meta Selic, SGS 432) / (1 + Focus IPCA 12m) − 1 en cada día de encuesta,
+con media mensual; reproduce al decimal la tabla del macro (solo cambian ene-21 y sep-26, que allí estaban a medias).
+`tasa_real_exante`, `expectativas_focus`, `fh_deuda` y `tasas_pnad` siguen en `datos/intermedio/` pero ya nadie las
+lee.
 
 ## Red corporativa
 

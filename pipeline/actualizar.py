@@ -22,6 +22,7 @@ import red
 # (nombre, módulo, argumentos, necesita red). Cada paso lee lo que dejaron los anteriores.
 PASOS = [
     ("sgs", "sgs", [], True),                                         # todas las series del catálogo
+    ("focus", "focus", [], True),                                     # Focus IPCA 12m (API Olinda)
     ("balances", "preparar_bancos_powerbi", [], False),               # bank_* desde IF.Data
     ("metricas", "preparar_metricas_bancos", [], False),              # intermedio/metricas_bancos
     ("credito", "preparar_credito_paginas_powerbi", [], False),       # cre_* y bk_cre_*
@@ -54,7 +55,7 @@ def verificar() -> int:
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    ap.add_argument("--sin-red", action="store_true", help="no baja nada: salta el paso sgs; un dato que falte hace fallar el paso")
+    ap.add_argument("--sin-red", action="store_true", help="no baja nada: salta los pasos sgs y focus; un dato que falte hace fallar el paso")
     ap.add_argument("--sin-verificacion", action="store_true", help="salta pytest y verificar_gold (comparaciones)")
     ap.add_argument("--desde", choices=NOMBRES, default=NOMBRES[0], help="empieza en este paso")
     ap.add_argument("--hasta", choices=NOMBRES, default=NOMBRES[-1], help="termina en este paso")
@@ -66,7 +67,7 @@ def main(argv: list[str] | None = None) -> int:
         if nombre == "verificacion" and args.sin_verificacion:
             continue
         if args.sin_red and usa_red:
-            if nombre == "sgs":
+            if nombre in ("sgs", "focus"):
                 continue
             argumentos = [a for a in argumentos if a != "--descargar"]
         print(f"\n[{i}/{len(pasos)}] {nombre}", flush=True)

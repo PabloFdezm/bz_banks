@@ -45,7 +45,7 @@ CODIGOS = {
     "mora90_inmobiliario_mercado": 21149, "mora90_inmobiliario_dirigido": 21150, "mora90_inmobiliario_total": 21151,
     "mora90_mpme": 27703, "mora90_grande": 27704,
     # tasas, precios, actividad, hogares
-    "spread_livre": 20786, "icc": 25351, "tasa_creditos_nuevos": 20714, "cdi": 4389, "ipca": 433,
+    "spread_livre": 20786, "icc": 25351, "tasa_creditos_nuevos": 20714, "cdi": 4389, "ipca": 433, "selic_meta": 432,
     "credito_pib": 20622, "pib_12m": 4382,
     "endividamento": 29037, "comprometimento": 29034,
     "desocupacion": 24369,                # PNADC (IBGE t6381|v4099)

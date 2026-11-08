@@ -3,11 +3,11 @@
 > Generado por `herramientas/generar_spec.py`. No editar a mano: se sobrescribe.
 
 
-## `pipeline/actualizar.py` (86 líneas)
+## `pipeline/actualizar.py` (87 líneas)
 
 Importa del pipeline: `almacen`, `red`
 
-Argumentos: `--sin-red` — no baja nada: salta el paso sgs; un dato que falte hace fallar el paso; `--sin-verificacion` — salta pytest y verificar_gold (comparaciones); `--desde` — empieza en este paso; `--hasta` — termina en este paso
+Argumentos: `--sin-red` — no baja nada: salta los pasos sgs y focus; un dato que falte hace fallar el paso; `--sin-verificacion` — salta pytest y verificar_gold (comparaciones); `--desde` — empieza en este paso; `--hasta` — termina en este paso
 
 ```text
 Actualiza los datos del sitio de bancos de punta a punta, en orden de dependencias (lo llama actualizar.bat).
@@ -209,6 +209,22 @@ columna contiene `px_`, `pbv`, `pe_`, `bbg`, `bloomberg`, `consenso` o `target`.
 
 Uso (desde la raíz del repo, Windows con `-X utf8`):
     python -X utf8 pipeline/exportar_web_bancos.py
+```
+
+## `pipeline/focus.py` (77 líneas)
+
+Importa del pipeline: `almacen`, `certificados`, `red`
+
+```text
+Encuesta Focus del BCB (API Olinda): el único lector y descargador de expectativas del pipeline.
+
+Solo se usa la mediana del IPCA a 12 meses adelante (``ExpectativasMercadoInflacao12Meses``), en la variante
+suavizada (``Suavizada = 'S'``) y con todas las respuestas de los últimos 30 días (``baseCalculo = 0``). Es la
+que usaba el dashboard macro: cuadra al decimal con la entrada que estaba congelada en
+``datos/intermedio/expectativas_focus.parquet`` (validado el 8-nov-2026).
+
+Vive en ``datos/crudo/bcb_focus/expectativas/actual/ipca_12m.json`` tal como lo devuelve la API (la lista
+``value``), con su URL en el manifiesto del almacén.
 ```
 
 ## `pipeline/ifdata.py` (774 líneas)
@@ -738,9 +754,9 @@ Uso (desde pipeline/, Windows con -X utf8):
     python -X utf8 pipeline/preparar_gold_bancos_scr_productos.py [--descargar] [--desde AAAA]
 ```
 
-## `pipeline/preparar_gold_bancos_sistema.py` (354 líneas)
+## `pipeline/preparar_gold_bancos_sistema.py` (357 líneas)
 
-Importa del pipeline: `almacen`, `sgs`
+Importa del pipeline: `almacen`, `focus`, `sgs`
 
 ```text
 Series del Sistema financiero (SGS + tablas del macro) para el dashboard de bancos.
@@ -750,7 +766,7 @@ POR QUÉ EXISTE
 El spec de datos del dashboard de bancos (``docs/SPEC_DATOS_BANCOS_v0.1.md``
 §3.9) pide las series del Sistema —mora 90, atrasos 15-90, crédito real, crédito dirigido,
 spread, ICC, deuda de hogares— en formato largo mensual y trimestral con bandas. Esas series
-viven mitad en el SGS y mitad en tablas que el dashboard macro dejó en ``datos/intermedio/``;
+vienen del SGS, de la encuesta Focus (``focus.py``) y del BIS;
 reunirlas en cada página del sitio produciría cifras divergentes. Este módulo es el único
 lugar donde se transforman, y escribe ``datos/gold/bk_sistema_m.parquet`` y
 ``datos/gold/bk_sistema_q.parquet``.
@@ -775,8 +791,10 @@ en ``docs/PENDIENTES.md``), registradas aquí para el que relea:
   ``mora90_grande`` (27704).
 - ``comprometimento`` (29034), ``endividamento`` (29037) y ``desocupación`` (24369, PNADC = IBGE
   t6381|v4099) se leen del SGS desde el 6-nov-2026 (tarea 1.3; antes venían congeladas de
-  ``datos/intermedio/``). ``selic_real_exante`` sigue en ``datos/intermedio/tasa_real_exante.parquet``
-  (media mensual de la serie diaria; 23 trimestres es excepción aceptada) y no se re-baja.
+  ``datos/intermedio/``). Desde el 8-nov-2026 tampoco quedan entradas congeladas: ``ipca_esperado_12m`` sale
+  de Focus (``focus.py``) y ``selic_real_exante`` = (1 + meta Selic SGS 432) / (1 + Focus IPCA 12m) − 1 por día
+  de encuesta, media mensual (23 trimestres es excepción aceptada). Reproduce al decimal la entrada congelada
+  ``datos/intermedio/tasa_real_exante.parquet`` que dejó el dashboard macro.
 - ``bis_hiato_credito_pib_pp`` se lee del crudo local ``datos/crudo/bis/credit_gap`` tal
   cual, en pp (solo trimestral). ``pix_share`` queda fuera: encargo propio en la ola 2.
 
