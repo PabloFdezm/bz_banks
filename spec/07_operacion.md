@@ -1,26 +1,51 @@
 # 07 · Operación
 
-Todos los comandos desde PowerShell en Windows; la raíz es `C:\Users\pablo\OneDrive\Documentos\bz_banks`.
+Todos los comandos desde PowerShell en Windows; la raíz es `C:\dev\bz_banks`.
 Siempre `python -X utf8` (los textos tienen tildes y la consola de Windows no es UTF-8 por defecto).
 
 ## Instalación (una vez)
 
 ```powershell
-Set-Location "C:\Users\pablo\OneDrive\Documentos\bz_banks"
-python -m pip install -r requirements.txt
-python -m playwright install chromium
+Set-Location "C:\dev\bz_banks"
+python -m venv .venv
+.venv\Scripts\python -m pip install -r requirements.lock
+.venv\Scripts\python -m playwright install chromium
 npx wrangler login
+powershell -ExecutionPolicy Bypass -File herramientas\registrar_tarea.ps1
 ```
+
+`actualizar.bat` y `publicar.bat` usan `.venv\Scripts\python.exe` si existe (si no, el `python` del sistema).
+`requirements.lock` fija las versiones exactas con las que corre el pipeline; `requirements.txt`, los rangos.
+Para subir una versión: instalarla en `.venv`, correr `actualizar.bat` completo y regenerar el lock con
+`.venv\Scripts\python -m pip freeze`.
+
+El repo vivió en OneDrive hasta el 8-nov-2026. Se sacó porque OneDrive bloquea archivos mientras sincroniza
+(el pipeline escribe por temporal + rename), puede corromper `.git` y sincronizaba 2 GB de datos que se pueden
+volver a bajar. `referencias/` (reportes de terceros, no se pueden volver a bajar) conviene respaldarla aparte.
 
 ## Actualizar datos y publicar
 
 ```powershell
-Set-Location "C:\Users\pablo\OneDrive\Documentos\bz_banks"
+Set-Location "C:\dev\bz_banks"
 .\actualizar.bat      # baja SGS y el ZIP SCR del año, recalcula, verifica (pytest + verificar_gold) y exporta
 .\actualizar.bat --sin-red   # lo mismo sin descargas (un dato que falte hace fallar el paso)
 .\publicar.bat        # sitio\ → Cloudflare Pages producción
 .\publicar.bat datos  # las dos cosas seguidas
+.\publicar.bat datos auto   # igual, sin pausas (lo usa la tarea programada)
 ```
+
+## Actualización automática
+
+- Tarea programada de Windows **«bz_banks actualizar»**, lunes a viernes 07:30 (si el equipo estaba apagado,
+  corre apenas puede). La registra `herramientas\registrar_tarea.ps1` (`-Hora HH:MM` para cambiarla); hay que
+  volver a registrarla si el repo cambia de carpeta.
+- Corre `herramientas\actualizar_y_publicar.ps1` → `publicar.bat datos auto`. Log por corrida en
+  `datos\logs\AAAA-MM-DD_HHMM.log` (guarda los últimos 60).
+- Si un paso falla no se publica nada (actualizar.bat corta antes de exportar), aparece una notificación de
+  Windows y queda `datos\logs\ULTIMO_ERROR.txt` hasta la siguiente corrida buena.
+- IF.Data sigue siendo manual y trimestral (abajo).
+- CI: `.github/workflows/tests.yml` corre `pytest` en GitHub en cada push con las versiones del lock (sin
+  `datos/`: solo las pruebas unitarias; las de integración corren aquí en `actualizar.bat`).
 
 Trimestral, cuando el BCB publica un IF.Data nuevo (~60 días después del cierre):
 

@@ -1,0 +1,25 @@
+# Pruebas en cada push y PR. datos/ no va a git: las pruebas marcadas `integracion` se omiten solas y
+# aquí solo corren las unitarias (código, contratos, definiciones y sitio). Las de datos corren en el equipo
+# con actualizar.bat.
+name: tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+          cache: pip
+          cache-dependency-path: requirements.lock
+      - name: Dependencias (las del lock, sin playwright)
+        run: |
+          grep -viE '^(playwright|greenlet|pyee)==' requirements.lock > /tmp/req.txt
+          pip install -r /tmp/req.txt
+      - name: pytest
+        run: python -m pytest -q

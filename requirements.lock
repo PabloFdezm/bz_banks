@@ -1,0 +1,26 @@
+# Versiones exactas con las que corre el pipeline (8-nov-2026, Python 3.14). Rangos mínimos en requirements.txt.
+# Instalar: .venv\Scripts\python -m pip install -r requirements.lock
+certifi==2026.2.25
+charset-normalizer==3.4.5
+colorama==0.4.6
+et_xmlfile==2.0.0
+greenlet==3.3.2
+idna==3.20
+iniconfig==2.3.0
+numpy==2.4.2
+openpyxl==3.1.5
+packaging==26.0
+pandas==3.0.1
+playwright==1.58.0
+pluggy==1.6.0
+pyarrow==24.0.0
+pyee==13.0.1
+Pygments==2.19.2
+pytest==9.0.2
+python-dateutil==2.9.0.post0
+requests==2.34.2
+six==1.17.0
+truststore==0.10.4
+typing_extensions==4.15.0
+tzdata==2025.3
+urllib3==2.6.3

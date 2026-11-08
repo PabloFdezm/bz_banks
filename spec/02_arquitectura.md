@@ -47,7 +47,7 @@ pasos es `PASOS` en `pipeline/actualizar.py`.
   agregan `pipeline/` al path en `tests/conftest.py`. La raíz del repo y las carpetas de datos las define
   `almacen.py` (`RAIZ`, `GOLD`, `INTERMEDIO`, `DEFINICIONES`); el resto las importa de ahí.
 - **Datos fuera de git.** `datos/` (≈2 GB, sobre todo ZIP del SCR.data; IF.Data va en parquet) y `sitio/data/` están en
-  `.gitignore`. El repo guarda código y definiciones; los datos viven en el equipo (carpeta en OneDrive).
+  `.gitignore`. El repo guarda código y definiciones; los datos viven en el equipo (`C:\dev\bz_banks\datos`, fuera de OneDrive desde el 8-nov).
 - **Cloudflare Pages** publica `sitio/` tal cual (desde el 6-nov; antes Netlify). `publicar.bat` arma `deploy_web/`
   con `robocopy /MIR` (los encabezados HTTP van en `sitio/_headers`) y corre `wrangler pages deploy deploy_web --project-name banks-bz --branch main`.
   Cabeceras `no-cache` en `/assets/*` y `/data/*` para que un deploy se vea sin limpiar caché.
@@ -61,7 +61,7 @@ pasos es `PASOS` en `pipeline/actualizar.py`.
 | Verificación del sitio | Playwright + Chromium (`herramientas/verificar_f1.py`), Node (`contar_tarjetas.mjs`) |
 | Tests | pytest |
 | Publicación | Cloudflare Pages (wrangler vía npx) |
-| Entorno | Windows 11, PowerShell, OneDrive; red corporativa con proxy HTTPS (ver `pipeline/certificados.py`) |
+| Entorno | Windows 11, PowerShell, Python 3.14 en `.venv` (`requirements.lock`); repo fuera de OneDrive; red corporativa con proxy HTTPS (ver `pipeline/certificados.py`) |
 
 ## Origen
 

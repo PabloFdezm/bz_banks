@@ -20,7 +20,7 @@ Datos del BCB (IF.Data, SGS, SCR). Se publica en Cloudflare Pages: https://banks
 ## Uso diario
 
 ```powershell
-Set-Location "C:\Users\pablo\OneDrive\Documentos\bz_banks"
+Set-Location "C:\dev\bz_banks"
 .\publicar.bat          # publica lo que hay en sitio\
 .\publicar.bat datos    # antes recalcula el gold y los JSON (actualizar.bat)
 ```
@@ -37,19 +37,23 @@ python -X utf8 pipeline\ifdata.py colectar --desde 201403 --hasta AAAAMM --escop
 .\publicar.bat datos
 ```
 
-## Entradas que vienen del dashboard macro (congeladas)
+## Entradas del dashboard macro
 
-`preparar_gold_bancos_sistema.py` lee dos tablas que construyó el dashboard macro y que se copiaron a
-`datos/intermedio/` el 4-nov-2026: `tasa_real_exante` y `expectativas_focus`. **No se actualizan desde aquí.**
-Endeudamiento, comprometimiento y desocupación se leen del SGS desde el 6-nov.
+Ya no queda ninguna: desde el 8-nov todo se lee de la fuente (SGS, Focus por la API Olinda, IF.Data, SCR.data).
 
 ## Instalación (una vez)
 
 ```powershell
-python -m pip install -r requirements.txt
-python -m playwright install chromium
+Set-Location "C:\dev\bz_banks"
+python -m venv .venv
+.venv\Scripts\python -m pip install -r requirements.lock   # versiones exactas que funcionan
+.venv\Scripts\python -m playwright install chromium
 npx wrangler login
+powershell -ExecutionPolicy Bypass -File herramientas\registrar_tarea.ps1   # actualización automática
 ```
+
+`actualizar.bat` y `publicar.bat` usan `.venv` si existe. `requirements.txt` lleva los rangos mínimos;
+`requirements.lock`, las versiones exactas (las mismas que instala el CI de GitHub).
 
 ## Reglas del sitio
 
