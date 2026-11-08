@@ -49,7 +49,7 @@ function armarConc(d) {
   if (!c.length) return enPreparacion('falta bk_cred_series');
   const fechas = ultimasFechas(s, MESES);
   const entrada = { categorias: fechas.map(etiquetaMes), barras: [],
-    lineas: [{ nombre: 'Concesiones libres 12m, a/a', color: COLOR.navy, valores: valoresEn(c, fechas) }, { nombre: 'Saldo total, a/a', color: COLOR.texto, valores: valoresEn(s, fechas) }],
+    lineas: [{ nombre: 'Concesiones totales 12m, a/a', color: COLOR.navy, valores: valoresEn(c, fechas) }, { nombre: 'Saldo total, a/a', color: COLOR.texto, valores: valoresEn(s, fechas) }],
     ejeIzq: 'pct_nivel', intervalo: 5 };
   return { ...entrada, leyenda: leyendaDe(entrada) };
 }

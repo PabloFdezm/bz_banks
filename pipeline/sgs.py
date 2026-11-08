@@ -21,8 +21,9 @@ FUENTE = "bcb_sgs"
 DATASET = "bancos_sistema"
 DESDE = "01/01/2000"
 
-# Catálogo de las series del SGS que usa el pipeline: nombre → código. Los nombres de las modalidades y
-# concesiones se identificaron cuadrando montos (pendiente: validarlos contra el catálogo del SGS).
+# Catálogo de las series del SGS que usa el pipeline: nombre → código. Los nombres de las modalidades se
+# identificaron cuadrando montos (pendiente: validarlos contra el catálogo del SGS). Concesiones validadas el 8-nov
+# cuadrando contra la API: 20631 = 20632 (PJ) + 20633 (PF) es el total; las libres son 20634 = 20635 (PJ) + 20662 (PF).
 CODIGOS = {
     # saldos de crédito (R$ millones)
     "credito_total": 20539, "credito_libre": 20542, "credito_direccionado": 20593,
@@ -32,7 +33,7 @@ CODIGOS = {
     "credito_pf_inmobiliario": 20612, "credito_pf_rural": 20609, "credito_pf_bndes": 20616,
     "credito_pj_libre": 20543, "credito_pj_bndes": 20604, "credito_pj_rural": 20597, "credito_pj_inmobiliario": 20600,
     # concesiones (flujo mensual)
-    "concesiones_libres": 20631, "concesiones_pf": 20633, "concesiones_pj": 20632, "conc_pf_livre_sa": 24444,
+    "concesiones_total": 20631, "concesiones_pf": 20633, "concesiones_pj": 20632, "conc_pf_livre_sa": 24444,
     # mora > 90 días y atrasos 15-90 (en %)
     "mora90_total": 21082, "mora90_libre": 21085, "mora90_direccionado": 21132, "mora90_pf": 21084,
     "mora90_pj": 21083, "mora90_pf_livre": 21112, "mora90_pj_livre": 21086,

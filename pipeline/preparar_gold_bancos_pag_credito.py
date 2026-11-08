@@ -45,9 +45,10 @@ MODALIDADES = [  # (fila, grupo, series de sgs.CODIGOS que se suman)
     ("Rural (empresas)", "Empresas", ["credito_pj_rural"]),
     ("Inmobiliario (empresas)", "Empresas", ["credito_pj_inmobiliario"]),
 ]
-CONCESIONES = [("Concesiones libres", "concesiones_libres"), ("Concesiones personas", "concesiones_pf"),
+# Concesiones totales (libres + direccionadas); 20631 = 20632 + 20633.
+CONCESIONES = [("Concesiones totales", "concesiones_total"), ("Concesiones personas", "concesiones_pf"),
                ("Concesiones empresas", "concesiones_pj")]
-CONCESIONES_GRAFICO = "concesiones_libres"   # la serie del gráfico concesiones contra stock
+CONCESIONES_GRAFICO = "concesiones_total"   # la serie del gráfico concesiones contra stock
 
 
 def _serie(nombre: str) -> pd.Series:

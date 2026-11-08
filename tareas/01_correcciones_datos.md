@@ -78,6 +78,10 @@ Abierta: 1.6 (notas de lectura).
 | Lucro Itaú / Bradesco 2T25 | 11,50 / 6,05 | 11,5 / 6,07 |
 
 ## 1.7 Concesiones mal rotuladas (hallazgo del 6-nov)
+**Hecho el 8-nov (falta publicar).** Validado contra la API: 20631 = 20632 + 20633 (total) y 20634 = 20635 + 20662
+(libres, ~89–91 % del total). Se rotula «Concesiones totales» (clave `concesiones_total` en `sgs.py`), coherente con
+el «Saldo total» 20539 del gráfico B3-05. Agregar filas de libres (20634/20635/20662) a B3-06: pendiente de aprobación.
+
 - `pipeline/preparar_gold_bancos_pag_credito.py`, línea ~48: `CONCESIONES = [("Concesiones libres", 20631), …]`.
 - 20631 es el **total** de concesiones, libres más direccionadas: 20631 = 20632 (PJ) + 20633 (PF), con el mismo
   patrón que los stocks 20539/20540/20541.

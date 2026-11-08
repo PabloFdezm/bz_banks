@@ -23,7 +23,8 @@ Estado al 4-nov-2026.
 4. **Entradas congeladas del macro:** endeudamiento, comprometimiento y desocupación se leen del SGS desde el
    6-nov (29037, 29034, 24369). Siguen congeladas `tasa_real_exante` y `expectativas_focus`.
 4b. Resuelto el 6-nov: `bk_sistema_m/q` se escribían en `datos/intermedio/Banks/` y el gold no se refrescaba.
-5. Validar contra el catálogo del SGS los nombres de las series de modalidades y concesiones.
+5. Validar contra el catálogo del SGS los nombres de las series de modalidades. Concesiones validadas el 8-nov:
+   20631 es el total (= 20632 PJ + 20633 PF); las libres son 20634 (= 20635 + 20662).
 6. `credito_aa` en 2025 cruza el quiebre COSIF y aparece vacío en la franja; corregir en el gold.
 7. Automatizar la actualización: tarea programada de Windows (simple) o GitHub Actions (requiere guardar los
    datos fuera de git; viable si el crudo baja a ~200 MB en parquet).

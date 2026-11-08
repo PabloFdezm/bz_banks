@@ -552,7 +552,7 @@ Salida:   datos/gold/bk_exposicion.parquet (banco × trimestre).
 Uso:      python -X utf8 pipeline/preparar_gold_bancos_exposicion.py
 ```
 
-## `pipeline/preparar_gold_bancos_pag_credito.py` (148 líneas)
+## `pipeline/preparar_gold_bancos_pag_credito.py` (149 líneas)
 
 Importa del pipeline: `almacen`, `periodos`, `sgs`, `tabla_estandar`
 
@@ -856,7 +856,7 @@ ZIP anuales del SCR.data (``datos/crudo/bcb_scr/scrdata/actual/scrdata_<año>.zi
 - Valores con coma decimal y sin separador de miles.
 ```
 
-## `pipeline/sgs.py` (148 líneas)
+## `pipeline/sgs.py` (149 líneas)
 
 Importa del pipeline: `almacen`, `bcb_api`, `certificados`, `red`
 

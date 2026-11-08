@@ -49,7 +49,7 @@ pasos es `PASOS` en `pipeline/actualizar.py`.
 - **Datos fuera de git.** `datos/` (≈2 GB, sobre todo ZIP del SCR.data; IF.Data va en parquet) y `sitio/data/` están en
   `.gitignore`. El repo guarda código y definiciones; los datos viven en el equipo (carpeta en OneDrive).
 - **Cloudflare Pages** publica `sitio/` tal cual (desde el 6-nov; antes Netlify). `publicar.bat` arma `deploy_web/`
-  con `robocopy /MIR` (sin `netlify.toml`) y corre `wrangler pages deploy deploy_web --project-name banks-bz --branch main`.
+  con `robocopy /MIR` (los encabezados HTTP van en `sitio/_headers`) y corre `wrangler pages deploy deploy_web --project-name banks-bz --branch main`.
   Cabeceras `no-cache` en `/assets/*` y `/data/*` para que un deploy se vea sin limpiar caché.
 
 ## Tecnologías

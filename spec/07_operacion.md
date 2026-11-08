@@ -36,7 +36,7 @@ python -X utf8 pipeline\ifdata.py colectar --desde 201403 --hasta AAAAMM --escop
 
 - Proyecto `banks-bz` (creado el 6-nov; Pages clásico, no Workers), producción https://banks-bz.pages.dev.
   Netlify (`banks-bz.netlify.app`) quedó en desuso y ya no se actualiza.
-- `publicar.bat` arma `deploy_web/` (copia espejo de `sitio/` sin `netlify.toml`, más `sitio/data`) y corre
+- `publicar.bat` arma `deploy_web/` (copia espejo de `sitio/`, más `sitio/data`) y corre
   `npx wrangler@4.158.0 pages deploy deploy_web --project-name banks-bz --branch main`.
 - Límites de Pages: 20.000 archivos y 25 MB por archivo (hoy 253 archivos, ninguno cerca).
 - Tras publicar, recargar con Ctrl+F5 la primera vez.
