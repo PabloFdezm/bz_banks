@@ -27,7 +27,9 @@ function Avisar([string]$titulo, [string]$texto) {
 $inicio = Get-Date
 "[$($inicio.ToString('s'))] inicio en $raiz" | Out-File $log -Encoding utf8
 $env:PYTHONUTF8 = '1'
-cmd /c "publicar.bat datos auto" *>&1 | Out-File $log -Append -Encoding utf8
+# cmd escribe el log directo: si PowerShell 5.1 recibe el stderr de un programa externo (el pipeline informa
+# su avance por stderr), con ErrorActionPreference = Stop lo toma como error y corta el script.
+cmd /c "publicar.bat datos auto >> `"$log`" 2>&1"
 $codigo = $LASTEXITCODE
 $fin = Get-Date
 "[$($fin.ToString('s'))] fin, codigo $codigo, $([int]($fin - $inicio).TotalMinutes) min" | Out-File $log -Append -Encoding utf8
