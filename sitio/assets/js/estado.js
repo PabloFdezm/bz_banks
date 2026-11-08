@@ -1,7 +1,9 @@
 import { RUTA_DATOS } from './config.js';
 
 /* Estado global del sitio de bancos (SPEC_WEB_BANCOS_00_GENERAL.md §3). La URL es la fuente de verdad:
-     ?banco=<slug>&optica=modelo&grupo=<grupo>&t=<AAAAMM>
+     ?banco=<slug>&optica=modelo&grupo=<grupo>&t=<AAAAMM>[&s<NN>.<clave>=<valor>…]
+   Los s<NN>.<clave> son los selectores de sección de ESTA página (solo si difieren del defecto); no viajan
+   en los enlaces a otras páginas, donde el mismo número de sección es otra cosa (busquedaCompartida).
    Sin parámetros: banco nulo, óptica «Modelo de negocio», grupo nulo (panel total), último trimestre.
    Con banco y sin grupo explícito, el grupo es el modelo del banco. `grupo=panel` fuerza el panel total.
    No se guarda nada en storage: la URL basta. */
@@ -93,6 +95,34 @@ function parametros() {
   try { return new URLSearchParams(location.search); } catch { return new URLSearchParams(); }
 }
 
+function reemplazarUrl(p) {
+  const q = p.toString();
+  try {
+    history.replaceState(history.state, '', `${location.pathname}${q ? `?${q}` : ''}${location.hash}`);
+  } catch { /* sin historial: el estado sigue en memoria de la página */ }
+}
+
+/* ---------- selectores de sección en la URL ---------- */
+const ES_SELECCION = /^s\d+\./;
+export function leerSeleccion(numero, clave) {
+  return parametros().get(`s${numero}.${clave}`);
+}
+/* No dispara bancos:estado: un selector solo redibuja su sección (pagina.js, elegirSeleccion). */
+export function fijarSeleccion(numero, clave, valor, defecto) {
+  const p = parametros();
+  const k = `s${numero}.${clave}`;
+  if (valor == null || valor === defecto) p.delete(k);
+  else p.set(k, String(valor));
+  reemplazarUrl(p);
+}
+/* La query que se lleva a OTRA página: banco, grupo, trimestre y óptica, sin los selectores de esta. */
+export function busquedaCompartida() {
+  const p = parametros();
+  for (const k of [...p.keys()]) if (ES_SELECCION.test(k)) p.delete(k);
+  const q = p.toString();
+  return q ? `?${q}` : '';
+}
+
 export function leer() {
   const p = parametros();
   const banco = bancoPorSlug(p.get('banco') || '') ? p.get('banco') : null;
@@ -118,10 +148,7 @@ export function fijar(cambios = {}) {
     if (v == null || v === '') p.delete(clave);
     else p.set(clave, String(v));
   }
-  const q = p.toString();
-  try {
-    history.replaceState(history.state, '', `${location.pathname}${q ? `?${q}` : ''}${location.hash}`);
-  } catch { /* sin historial: el estado sigue en memoria de la página */ }
+  reemplazarUrl(p);
   window.dispatchEvent(new CustomEvent('bancos:estado', { detail: leer() }));
 }
 
@@ -142,7 +169,7 @@ export function alCambiar(fn) {
 
 /* Los enlaces de la cabecera conservan los parámetros del estado (spec §3). */
 export function enlazarCabecera() {
-  for (const a of document.querySelectorAll('a[data-base]')) a.href = a.dataset.base + location.search;
+  for (const a of document.querySelectorAll('a[data-base]')) a.href = a.dataset.base + busquedaCompartida();
 }
 
 function trimestreTexto(t) {

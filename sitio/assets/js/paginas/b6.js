@@ -143,7 +143,7 @@ export default {
       banco: true,
       estado: 'LISTO',
       armar: (d, e) => {
-        if (!e.banco) return { enPreparacion: 'elige un banco en la barra: la descomposición compara un banco con su grupo' };
+        if (!e.banco) return { enPreparacion: 'elige un banco en la barra: la descomposición compara un banco con su grupo', requiereBanco: true };
         const b = bancoPorSlug(d, e.banco);
         if (!b) return { enPreparacion: 'el banco activo no está en la lista de bancos' };
         const periodo = e.trimestre || maxPeriodo(d.bk_roe_arbol);

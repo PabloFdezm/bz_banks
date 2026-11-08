@@ -112,7 +112,7 @@ const NOTA_QUIEBRE = 'Cambio de cobertura en 2025 (COSIF 2025 y Res. 4.966): la 
 
 /* Contexto común: banco activo, trimestre y (si la tarjeta lo necesita) grupo igual al modelo del banco. */
 async function contexto(d, estado, { conGrupo = false } = {}) {
-  if (!estado.banco) return { motivo: 'elija un banco en la barra superior' };
+  if (!estado.banco) return { motivo: 'elija un banco en la barra superior', requiereBanco: true };
   const banco = (d.bk_banco || []).find((b) => b.slug === estado.banco);
   if (!banco) return { motivo: `el banco «${estado.banco}» no está en bk_banco` };
   const t = periodoDe(d, estado);
@@ -152,7 +152,7 @@ const COL_DATOS = [
 /* ---------- B8-01-0 · ficha técnica ---------- */
 async function armarFicha(d, estado) {
   const c = await contexto(d, estado);
-  if (c.motivo) return { enPreparacion: c.motivo };
+  if (c.motivo) return { enPreparacion: c.motivo, requiereBanco: c.requiereBanco };
   const b = c.banco;
   const corte = ultimoPanel(d);
   const filas = [
@@ -177,7 +177,7 @@ const METRICAS_TAMANO = ['ativo_total', 'credito_total', 'depositos', 'patrimoni
 
 async function armarTamano(d, estado) {
   const c = await contexto(d, estado);
-  if (c.motivo) return { enPreparacion: c.motivo };
+  if (c.motivo) return { enPreparacion: c.motivo, requiereBanco: c.requiereBanco };
   const panel = await tablaBanco(c.banco.slug, 'bk_panel');
   if (!panel.some((f) => f.periodo === c.t)) return sinDato(c.t);
   const meta = new Map((d.bk_metrica || []).map((m) => [m.metrica, m]));
@@ -199,7 +199,7 @@ async function armarTamano(d, estado) {
 /* ---------- B8-02-0 · doce métricas (percentiles) ---------- */
 async function armarPercentiles(d, estado) {
   const c = await contexto(d, estado, { conGrupo: true });
-  if (c.motivo) return { enPreparacion: c.motivo };
+  if (c.motivo) return { enPreparacion: c.motivo, requiereBanco: c.requiereBanco };
   const panel = await tablaBanco(c.banco.slug, 'bk_panel');
   const filas = panel.filter((f) => f.periodo === c.t);
   if (!filas.length) return sinDato(c.t);
@@ -229,7 +229,7 @@ const COLORES_SEG = () => [token('--navy'), token('--petroleo'), token('--acero'
 
 async function armarMezcla(d, estado) {
   const c = await contexto(d, estado, { conGrupo: true });
-  if (c.motivo) return { enPreparacion: c.motivo };
+  if (c.motivo) return { enPreparacion: c.motivo, requiereBanco: c.requiereBanco };
   const cart = await tablaBanco(c.banco.slug, 'bk_cartera');
   const filas = cart.filter((f) => f.periodo === c.t);
   if (!filas.length) return sinDato(c.t);
@@ -255,7 +255,7 @@ const CALIDAD = { exacta: 'exacta', proxy: 'proxy (serie más amplia)', sin_dato
 
 async function armarNpl(d, estado) {
   const c = await contexto(d, estado, { conGrupo: true });
-  if (c.motivo) return { enPreparacion: c.motivo };
+  if (c.motivo) return { enPreparacion: c.motivo, requiereBanco: c.requiereBanco };
   const cart = await tablaBanco(c.banco.slug, 'bk_cartera');
   const filas = cart.filter((f) => f.periodo === c.t);
   if (!filas.length) return sinDato(c.t);
@@ -294,7 +294,7 @@ async function armarNpl(d, estado) {
 /* ---------- B8-03-2 · crecimiento de cartera a/a, 12 trimestres ---------- */
 async function armarCredito(d, estado) {
   const c = await contexto(d, estado, { conGrupo: true });
-  if (c.motivo) return { enPreparacion: c.motivo };
+  if (c.motivo) return { enPreparacion: c.motivo, requiereBanco: c.requiereBanco };
   const panel = await tablaBanco(c.banco.slug, 'bk_panel');
   const cart = await tablaBanco(c.banco.slug, 'bk_cartera');
   const ps = ventana(panel, c.t);
@@ -329,7 +329,7 @@ const LINEAS_ARBOL = [
 
 async function armarArbol(d, estado) {
   const c = await contexto(d, estado, { conGrupo: true });
-  if (c.motivo) return { enPreparacion: c.motivo };
+  if (c.motivo) return { enPreparacion: c.motivo, requiereBanco: c.requiereBanco };
   const arbol = await tablaBanco(c.banco.slug, 'bk_roe_arbol');
   const porL = new Map(arbol.filter((r) => r.periodo === c.t).map((r) => [r.linea, r]));
   const roa = porL.get('roa');
@@ -361,7 +361,7 @@ async function armarArbol(d, estado) {
 /* ---------- B8-04-1 · ROE TTM, 12 trimestres ---------- */
 async function armarRoe(d, estado) {
   const c = await contexto(d, estado, { conGrupo: true });
-  if (c.motivo) return { enPreparacion: c.motivo };
+  if (c.motivo) return { enPreparacion: c.motivo, requiereBanco: c.requiereBanco };
   const panel = await tablaBanco(c.banco.slug, 'bk_panel');
   const ps = ventana(panel, c.t);
   if (!ps.length) return sinDato(c.t);
@@ -378,7 +378,7 @@ async function armarRoe(d, estado) {
 /* ---------- B8-05-0 · mix de fondeo, banco vs. mediana del grupo ---------- */
 async function armarFondeo(d, estado) {
   const c = await contexto(d, estado, { conGrupo: true });
-  if (c.motivo) return { enPreparacion: c.motivo };
+  if (c.motivo) return { enPreparacion: c.motivo, requiereBanco: c.requiereBanco };
   const panel = await tablaBanco(c.banco.slug, 'bk_panel');
   const porM = new Map(panel.filter((f) => f.periodo === c.t && f.metrica.startsWith('fondeo_')).map((f) => [f.metrica, f]));
   const meta = (d.bk_metrica || []).filter((m) => porM.has(m.metrica)).sort((a, b) => a.orden - b.orden);
@@ -406,7 +406,7 @@ const COL_PUENTE = [
 
 async function armarPuente(d, estado) {
   const c = await contexto(d, estado);
-  if (c.motivo) return { enPreparacion: c.motivo };
+  if (c.motivo) return { enPreparacion: c.motivo, requiereBanco: c.requiereBanco };
   const pu = (d.bk_puente || []).filter((p) => p.cod_inst === c.banco.cod_inst);
   if (!pu.length) {
     return { columnas: [{ clave: 'linea', titulo: 'Puente', tipo: 'texto' }], filas: [{ linea: 'sin auditoría para este banco' }] };
@@ -424,7 +424,7 @@ const kpiBanco = (rotulo, metrica, signo) => ({
   datos: ['bk_banco', 'bk_manifiesto'],
   armar: async (d, estado) => {
     const c = await contexto(d, estado);
-    if (c.motivo) return { enPreparacion: c.motivo };
+    if (c.motivo) return { enPreparacion: c.motivo, requiereBanco: c.requiereBanco };
     const panel = await tablaBanco(c.banco.slug, 'bk_panel');
     const f = panel.find((x) => x.metrica === metrica && x.periodo === c.t);
     if (!f || f.valor == null) return sinDato(c.t);

@@ -4,7 +4,7 @@
    Ninguno calcula ratios, percentiles ni agregados: la suma acumulada de la cascada es posición en pantalla. */
 import { C, linea } from './charts.js'; // bancos: linea para la línea de la Ficha
 import { numero, pct, pb, pp } from './formato.js';
-import { COLOR_GRUPO } from './estado.js';
+import { COLOR_GRUPO, busquedaCompartida } from './estado.js';
 
 const NS = 'http://www.w3.org/2000/svg';
 
@@ -801,8 +801,8 @@ export function puertas(zona, e = {}) {
     const a = nodo('a', 'puerta-enlace', p.nombre);
     a.style.cssText = 'font-weight:600;font-size:16px;';
     a.dataset.base = p.ruta ? `/${p.ruta}/` : '/';
-    a.href = a.dataset.base + location.search;
-    a.addEventListener('click', () => { a.href = a.dataset.base + location.search; }); // el banco activo puede haber cambiado desde que se dibujó
+    a.href = a.dataset.base + busquedaCompartida();
+    a.addEventListener('click', () => { a.href = a.dataset.base + busquedaCompartida(); }); // el banco activo puede haber cambiado desde que se dibujó
     const pregunta = nodo('p', 'puerta-pregunta', p.pregunta);
     pregunta.style.cssText = 'margin:4px 0 0;color:var(--texto-2);font-size:14px;';
     li.append(a, pregunta);

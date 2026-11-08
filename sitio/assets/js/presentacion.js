@@ -6,6 +6,7 @@
    Al final de una página, → pasa a la primera lámina de la siguiente (orden de config.js) con el mismo estado. */
 import { PAGINAS } from './config.js';
 import { crearColaVisual } from './fluidez.js';
+import { busquedaCompartida } from './estado.js';
 const COLA_VISUAL = crearColaVisual();
 const GRAFICOS_ESCALADOS = new WeakSet();
 let versionLamina = 0;
@@ -43,6 +44,17 @@ function nodo(tag, clase, texto) {
 }
 
 const textoDe = (sel, raiz) => raiz.querySelector(sel)?.textContent.trim() || '';
+
+/* Las láminas: secciones ya montadas que tienen cuerpo (un hueco «Cargando sección…» o con error no cuenta). */
+const seccionesConLamina = () => [...document.querySelectorAll('section.seccion')].filter((sec) => sec.querySelector(':scope > .cuerpo'));
+
+/* Estado de la presentación en la URL, como el resto del sitio (estado.js): mientras se presenta, el hash es
+   #presentar=sNN de la lámina visible. Recargar o compartir el enlace abre esa misma lámina; al salir se
+   devuelve el hash que había antes (p. ej. #s03), así recargar después no vuelve a entrar. */
+let hashPrevio = '';
+function fijarHash(h) {
+  try { history.replaceState(history.state, '', `${location.pathname}${location.search}${h}`); } catch { /* sin historial */ }
+}
 
 function paginaIndice() {
   const ruta = location.pathname.replace(/\/index\.html$/, '/').replace(/\/?$/, '/');
@@ -109,6 +121,7 @@ function mostrar(i) {
   idx = i;
   const sec = secciones[i];
   seccionActual = sec;
+  if (sec.id) fijarHash(`#presentar=${sec.id}`);
   cuerpoActual = sec.querySelector(':scope > .cuerpo');
 
   lamina.replaceChildren();
@@ -158,8 +171,9 @@ function mostrar(i) {
 
 export function entrar(i = 0) {
   if (activo) return;
-  secciones = [...document.querySelectorAll('section.seccion:not(.seccion-vacia)')].filter((sec) => sec.querySelector(':scope > .cuerpo'));
+  secciones = seccionesConLamina();
   if (!secciones.length) return;
+  hashPrevio = /^#presentar/.test(location.hash) ? '' : location.hash;
   scrollPrevio = window.scrollY;
   focoPrevio = document.activeElement;
   capa = nodo('div', 'presentacion');
@@ -222,6 +236,7 @@ export function salir() {
   pantallaCompletaPropia = false;
   clearTimeout(timerTecleo);
   tecleo = '';
+  fijarHash(hashPrevio);
   window.scrollTo({ top: scrollPrevio, left: 0, behavior: 'instant' });
   if (focoPrevio?.isConnected) focoPrevio.focus({ preventScroll: true });
 }
@@ -231,7 +246,7 @@ function irPagina(dir) {
   const destino = PAGINAS_VISIBLES[k + dir];
   if (k < 0 || !destino) return;
   try { sessionStorage.setItem(CLAVE_SESION, dir > 0 ? 'primera' : 'ultima'); } catch { /* sin storage: entra en la lámina 1 */ }
-  location.href = enlace(destino.ruta) + location.search + (dir > 0 ? '#presentar' : '#presentar=ultima');
+  location.href = enlace(destino.ruta) + busquedaCompartida() + (dir > 0 ? '#presentar' : '#presentar=ultima');
 }
 
 function actualizarControles() {
@@ -307,15 +322,18 @@ export function alMontar() {
     sessionStorage.removeItem(CLAVE_SESION);
   } catch { /* sin storage */ }
   const m = location.hash.match(/^#presentar(?:=(ultima|s?\d{1,2}))?$/);
-  const sec = [...document.querySelectorAll('section.seccion:not(.seccion-vacia)')].filter((s) => s.querySelector(':scope > .cuerpo'));
+  const sec = seccionesConLamina();
+  if ((m || marca) && !sec.length) {
+    // página sin láminas (p. ej. B10): si venimos recorriendo, el recorrido sigue a la próxima. Antes el
+    // hash #presentar que pone irPagina ganaba, entrar() no hacía nada y la presentación se cortaba aquí.
+    if (marca) irPagina(marca === 'ultima' ? -1 : 1);
+    return;
+  }
   if (m) {
     const j = m[1] === 'ultima' ? sec.length - 1 : m[1] ? sec.findIndex((s) => s.id === `s${m[1].replace(/^s/, '').padStart(2, '0')}`) : 0;
     entrar(j < 0 ? 0 : j);
-  } else if (marca && sec.length) {
-    entrar(marca === 'ultima' ? sec.length - 1 : 0);
   } else if (marca) {
-    // página sin láminas (p. ej. B10 mientras no tiene secciones): el recorrido sigue a la próxima
-    irPagina(marca === 'ultima' ? -1 : 1);
+    entrar(marca === 'ultima' ? sec.length - 1 : 0);
   }
 }
 

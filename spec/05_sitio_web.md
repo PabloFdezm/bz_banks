@@ -33,8 +33,27 @@ que lee cada uno: `generado/componentes.md`.
 6. Cada tarjeta se dibuja en paralelo (`dibujar`): espera las fuentes (máx. 3 s), carga sus `datos`, llama
    `armar(d, est)` y pasa el resultado al componente. **La sección se muestra de inmediato**; no espera a
    sus tarjetas (antes esperaba y las páginas con tablas grandes quedaban en blanco 20–30 s).
-7. Cuando terminan, `repartirFilas` redistribuye el ancho si alguna tarjeta quedó vacía (`tarjeta-vacia`),
-   y oculta la sección si quedaron todas vacías.
+7. Al terminar la estructura, `<html data-pagina="lista">` (antes `montando`). Las tarjetas siguen su propio
+   ciclo de vida (abajo). Una tarjeta sin dato nunca se oculta: va «en preparación» (regla de CLAUDE.md; el
+   antiguo `repartirFilas`/`tarjeta-vacia` nunca se activaba y se quitó el 8-nov).
+
+### Ciclo de vida de tarjetas, franja y secciones (`data-estado`)
+
+Una sola máquina de estados en `pagina.js` (`marcar`, `estadoDatos`). El estado vive en `data-estado` de la
+`<figure class="tarjeta">` (o del nodo de la franja / del hueco de la sección) y `aria-busy` se deriva de él.
+
+| Estado | Qué se ve | Sale a |
+|---|---|---|
+| `cargando` | «Cargando indicador…» (sin resultado previo) | `lista`, `en-preparacion`, `requiere-banco`, `error` |
+| `actualizando` | el resultado anterior; «Actualizando…» si tarda más de 300 ms | ídem |
+| `lista` | el gráfico o la tabla | `actualizando` (cambio de banco, trimestre o selector) |
+| `en-preparacion` | «Sin datos disponibles» + motivo | `cargando` |
+| `requiere-banco` | «Elige un banco para continuar» + botón | `cargando` |
+| `error` | «No pudimos…» + Reintentar | `cargando` |
+
+- Solo se entra a `actualizando` desde `lista`/`actualizando`; otra transición deja un `console.warn`.
+- Para inspeccionar o probar (personas, `verificar_f1.py`, agentes): la página terminó cuando
+  `html[data-pagina=lista]` y no queda ningún `[data-estado=cargando|actualizando]`. No leer el texto visible.
 
 ## Configuración de página (`paginas/bN.js`, `export default {...}`)
 
@@ -65,7 +84,8 @@ que lee cada uno: `generado/componentes.md`.
 - `armar(d, est)`: `d` es un objeto `{tabla: filas}`; `est` = `{clave, banco, optica, grupo, trimestre,
   seleccion: {clave: valor de los selectores de la sección}, codBanco, grupoBanco}`.
 - Lo que devuelve es la `entrada` del componente, más claves que entiende el motor:
-  `{ enPreparacion: 'motivo' }` (muestra el aviso), `componente` (cambia el componente según el selector),
+  `{ enPreparacion: 'motivo' }` (muestra el aviso; con `requiereBanco: true` la tarjeta pasa a
+  `requiere-banco` y ofrece el botón «Elegir banco»; ya no se adivina del texto del motivo), `componente` (cambia el componente según el selector),
   `leyenda` (reemplaza la leyenda; `[]` = la dibuja el gráfico), `ariaLabel`, `pastilla`.
 - Un selector cambia → solo se redibujan las tarjetas de **esa** sección.
 - Las configs no pueden importar nada (las leen herramientas de Node como texto/módulo aislado).
@@ -103,9 +123,16 @@ SVG lo pinta con la de la página; si no coinciden, las etiquetas se cortan.
 `bancos:estado` y se redibujan las tarjetas marcadas `banco: true` y la franja. Los enlaces del menú
 conservan la query.
 
+Los selectores de sección también van en la query, como `s<NN>.<clave>=<valor>` (p. ej. `?s01.grafico=lineas`),
+solo cuando difieren del defecto; un valor que no es una opción del selector se ignora. Son de la página: los
+enlaces a otras páginas (menú, Portada, recorrido de Presentar) usan `busquedaCompartida()`, que los quita,
+porque el mismo número de sección es otra cosa en otra página. Cambiar un selector no dispara `bancos:estado`.
+
 ## Modo Presentar (`presentacion.js`)
 
-- Entra con el botón, la tecla **P** o `#presentar=sNN` en la URL. **Esc** sale; **→ / Espacio** siguiente;
+- Entra con el botón, la tecla **P** o `#presentar=sNN` en la URL. Mientras se presenta, el hash es
+  `#presentar=sNN` de la lámina visible (recargar o compartir abre esa lámina); al salir vuelve el hash previo.
+  Al pasar a una página sin láminas, el recorrido sigue a la próxima. **Esc** sale; **→ / Espacio** siguiente;
   **←** anterior; **Inicio/Fin**; número + Enter salta. Al final de una página pasa a la siguiente del menú.
 - Cada sección es una lámina 1920×1080 escalada con `transform` para caber en la ventana. El cuerpo de la
   sección **se mueve** (no se clona) a la lámina para que ECharts siga vivo; al salir vuelve a su lugar.

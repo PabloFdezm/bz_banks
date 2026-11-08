@@ -370,7 +370,6 @@ body { font-family: var(--fuente); font-size: var(--t-cuerpo); line-height: 1.5;
 
 /* Secciones a todo el ancho, separadas por una línea fina; el riel pasa a ser la cabecera de la sección */
 .seccion { display: block; border-top: 0; border-bottom: 1px solid var(--borde); padding: 24px 28px 28px; scroll-margin-top: 72px; }
-.seccion-vacia { display: none; }
 .riel { flex-direction: row; flex-wrap: wrap; align-items: baseline; gap: 6px 16px; margin-bottom: 16px; }
 .riel-numero { font-family: var(--fuente-mono); font-size: 10px; font-weight: 400; letter-spacing: .14em; color: var(--texto-3); }
 .riel-nombre { font-family: var(--fuente-display); font-size: 20px; font-weight: 600; letter-spacing: -.01em; }
@@ -385,7 +384,6 @@ body { font-family: var(--fuente); font-size: var(--t-cuerpo); line-height: 1.5;
 
 /* Tarjetas: superficie blanca, línea fina, sin sombra */
 .tarjeta { border-color: var(--borde); border-radius: var(--radio); padding: 14px 18px 10px; gap: 6px; }
-.tarjeta-vacia { display: none !important; }
 .tarjeta-titulo { font-family: var(--fuente); font-size: 13.5px; font-weight: 600; letter-spacing: .005em; }
 .tarjeta-sub { font-size: 12px; }
 .tarjeta-nota, .tarjeta-pie { font-size: 11px; }

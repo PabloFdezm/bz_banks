@@ -6,7 +6,7 @@ import { cargarTodas, maxFecha, tablasExportadas } from './datos.js';
 import { mmm_aa, trimestre, token } from './formato.js';
 import { COMPONENTES, hay } from './charts.js';
 import { COMPONENTES_BANCOS, formatear } from './charts_bancos.js'; // bancos:
-import { leer, barra, enlazarCabecera, alCambiar, cargarBancos, bancoPorSlug } from './estado.js'; // bancos:
+import { leer, barra, enlazarCabecera, alCambiar, cargarBancos, bancoPorSlug, leerSeleccion, fijarSeleccion, busquedaCompartida } from './estado.js'; // bancos:
 import { crearColaVisual } from './fluidez.js';
 import * as presentacion from './presentacion.js'; // bancos:
 Object.assign(COMPONENTES, COMPONENTES_BANCOS); // bancos: componentes propios de bancos
@@ -77,7 +77,7 @@ function cabecera(cfg, ultimoDato) {
     const a = document.createElement('a');
     a.className = 'pestana';
     a.dataset.base = enlace(p.ruta); // bancos: los enlaces conservan los parámetros del estado
-    a.href = a.dataset.base + location.search; // bancos:
+    a.href = a.dataset.base + busquedaCompartida(); // bancos: (sin los selectores de esta página)
     a.append(el('span', 'pestana-num', String(i + 1).padStart(2, '0')), el('span', 'pestana-nombre', p.nombre));
     if (cfg.clave === p.clave) a.setAttribute('aria-current', 'page');
     nav.append(a);
@@ -146,12 +146,14 @@ function serieSvg(valores, tono, huecos) {
 async function pintarFranja(cfg, nodo) {
   const tablas = [...new Set(cfg.franja.map((k) => (typeof k.tabla === 'function' ? null : k.tabla)).filter(Boolean))];
   const version = nodo._version = (nodo._version || 0) + 1;
-  nodo.setAttribute('aria-busy', 'true');
+  // con cifras ya pintadas se conservan mientras llegan las nuevas; tras un error, el reintento se ve
+  if (conResultado(nodo)) marcar(nodo, 'actualizando');
+  else if (nodo.dataset.estado !== 'cargando') estadoDatos(nodo, 'cargando', 'Cargando indicadores…', '');
   const resultados = await Promise.allSettled(tablas.map(async (tabla) => cargarTodas([tabla])));
   if (nodo._version !== version) return;
   const d = Object.assign({}, ...resultados.filter((r) => r.status === 'fulfilled').map((r) => r.value));
   if (tablas.length && resultados.every((r) => r.status === 'rejected')) {
-    estadoDatos(nodo, 'No pudimos cargar los indicadores', 'Revisa tu conexión y vuelve a intentarlo.', () => pintarFranja(cfg, nodo));
+    estadoDatos(nodo, 'error', 'No pudimos cargar los indicadores', 'Revisa tu conexión y vuelve a intentarlo.', () => pintarFranja(cfg, nodo));
     return;
   }
   const banco = bancoPorSlug(leer().banco);
@@ -190,14 +192,14 @@ async function pintarFranja(cfg, nodo) {
     celdas.push(c);
   }
   nodo.replaceChildren(...celdas);
-  nodo.setAttribute('aria-busy', 'false');
+  marcar(nodo, 'lista');
 }
 function franja(cfg) {
   const n = el('div', 'franja');
   n.setAttribute('role', 'region');
   n.setAttribute('aria-label', 'Indicadores principales');
   FRANJA = n;
-  estadoDatos(n, 'Cargando indicadores…', '', null, true);
+  estadoDatos(n, 'cargando', 'Cargando indicadores…', '');
   pintarFranja(cfg, n);
   return n;
 }
@@ -360,11 +362,30 @@ function tarjetaShell(cfgTar, alto) {
   return { figura: f, zona };
 }
 
-function estadoDatos(zona, titulo, detalle, reintentar = null, cargando = false) {
+/* ---------- Ciclo de vida de un nodo con datos (tarjeta, franja, hueco de sección) ----------
+   Una sola máquina de estados, explícita en data-estado (en la <figure> si es tarjeta; si no, en el nodo).
+   La leen el CSS, herramientas/verificar_f1.py y cualquier agente que inspeccione el DOM:
+     cargando ─────────────► lista | en-preparacion | requiere-banco | error
+     lista ─► actualizando ─► lista | en-preparacion | requiere-banco | error   (conserva el resultado anterior)
+     en-preparacion | requiere-banco | error ─► cargando   (reintento, cambio de banco o de selector)
+   aria-busy se deriva del estado: nadie lo fija a mano. */
+const ESTADOS = new Set(['cargando', 'actualizando', 'lista', 'en-preparacion', 'requiere-banco', 'error']);
+const TRANSITORIOS = new Set(['cargando', 'actualizando']);
+const portador = (zona) => zona.closest('figure.tarjeta') || zona;
+const conResultado = (zona) => ['lista', 'actualizando'].includes(portador(zona).dataset.estado);
+
+function marcar(zona, estado) {
+  if (!ESTADOS.has(estado)) throw new Error(`estado desconocido: ${estado}`);
+  const nodo = portador(zona);
+  if (estado === 'actualizando' && !conResultado(zona)) console.warn(`transición inválida ${nodo.dataset.estado} → actualizando`, nodo);
+  nodo.dataset.estado = estado;
+  zona.setAttribute('aria-busy', String(TRANSITORIOS.has(estado)));
+}
+
+function estadoDatos(zona, estado, titulo, detalle, reintentar = null) {
   clearTimeout(zona._cargaTimer);
   zona.classList.remove('actualizacion-visible');
   liberar(zona);
-  zona._lista = false;
   const mensaje = el('div', 'estado-datos od-stack');
   mensaje.setAttribute('role', 'status');
   mensaje.append(el('strong', '', titulo));
@@ -375,36 +396,24 @@ function estadoDatos(zona, titulo, detalle, reintentar = null, cargando = false)
     boton.addEventListener('click', reintentar);
     mensaje.append(boton);
   }
-  zona.setAttribute('aria-busy', String(cargando));
   zona.replaceChildren(mensaje);
-  zona.closest('.tarjeta')?.classList.remove('tarjeta-vacia');
+  marcar(zona, estado);
 }
 
-function enPreparacion(zona, motivo) {
-  const requiereBanco = /elige|selecciona|sin banco/i.test(motivo || '');
+/* requiereBanco lo declara armar() ({ enPreparacion, requiereBanco: true }); antes se adivinaba del texto
+   del motivo y «elija un banco» (Ficha) quedaba como «Sin datos disponibles», sin botón. */
+function enPreparacion(zona, motivo, requiereBanco = false) {
   const detalle = /función|componente|armar|implementad|error/i.test(motivo || '')
     ? 'Este indicador todavía no está disponible. Puedes consultar los demás indicadores de la página.'
     : (motivo || 'No hay observaciones disponibles para esta selección.');
-  estadoDatos(zona, requiereBanco ? 'Elige un banco para continuar' : 'Sin datos disponibles', detalle);
+  estadoDatos(zona, requiereBanco ? 'requiere-banco' : 'en-preparacion',
+    requiereBanco ? 'Elige un banco para continuar' : 'Sin datos disponibles', detalle);
   if (requiereBanco && document.getElementById('banco-activo')) {
     const boton = el('button', '', 'Elegir banco');
     boton.type = 'button';
     boton.addEventListener('click', () => document.getElementById('banco-activo')?.focus());
     zona.firstElementChild.append(boton);
   }
-}
-
-/* v2: en cada fila, las tarjetas visibles se reparten las 9 columnas; una sección sin ninguna se oculta. */
-function repartirFilas(s, filas) {
-  let visiblesSeccion = 0;
-  for (const figs of filas) {
-    const vis = figs.filter((f) => !f.classList.contains('tarjeta-vacia'));
-    visiblesSeccion += vis.length;
-    if (!vis.length || vis.length === figs.length) continue;
-    const base = Math.floor(9 / vis.length);
-    vis.forEach((f, i) => { f.style.gridColumn = `span ${i === 0 ? 9 - base * (vis.length - 1) : base}`; });
-  }
-  if (!visiblesSeccion) s.classList.add('seccion-vacia');
 }
 
 /* bancos: libera las instancias de ECharts de una tarjeta antes de volver a dibujarla */
@@ -428,9 +437,9 @@ async function dibujar(clave, cfgTar, zona, figura, numeroSeccion) {
   clearTimeout(zona._cargaTimer);
   zona.querySelector('.actualizacion-dato')?.remove();
   zona.classList.remove('actualizacion-visible');
-  zona.setAttribute('aria-busy', 'true');
-  if (zona._lista) {
+  if (conResultado(zona)) {
     // Mantiene el resultado anterior. La carga solo se anuncia si la espera es perceptible.
+    marcar(zona, 'actualizando');
     zona._cargaTimer = setTimeout(() => {
       if (!vigente()) return;
       const aviso = el('span', 'actualizacion-dato', 'Actualizando…');
@@ -438,7 +447,7 @@ async function dibujar(clave, cfgTar, zona, figura, numeroSeccion) {
       zona.append(aviso);
       zona.classList.add('actualizacion-visible');
     }, 300);
-  } else estadoDatos(zona, 'Cargando indicador…', 'La vista se actualizará cuando lleguen los datos.', null, true);
+  } else estadoDatos(zona, 'cargando', 'Cargando indicador…', 'La vista se actualizará cuando lleguen los datos.');
   const reintentar = () => programarDibujo(clave, cfgTar, zona, figura, numeroSeccion);
   await FUENTES;
   if (!vigente()) return; // 4-nov: ECharts mide las etiquetas con la fuente real (antes cortaba nombres)
@@ -468,15 +477,13 @@ async function dibujar(clave, cfgTar, zona, figura, numeroSeccion) {
     enPreparacion(zona, `componente «${cfgTar.componente}» todavía no implementado`);
     return;
   }
-  figura.classList.remove('tarjeta-vacia'); // v2
-  zona.setAttribute('aria-busy', 'true');
   let d;
   try {
     d = await cargarTodas(cfgTar.datos || []);
   } catch (e) {
     if (!vigente()) return;
     console.warn('No se pudieron cargar los datos de', clave, e);
-    estadoDatos(zona, 'No pudimos cargar este indicador', 'Revisa tu conexión y vuelve a intentarlo. El resto de la página sigue disponible.', reintentar);
+    estadoDatos(zona, 'error', 'No pudimos cargar este indicador', 'Revisa tu conexión y vuelve a intentarlo. El resto de la página sigue disponible.', reintentar);
     return;
   }
   if (!vigente()) return;
@@ -486,12 +493,12 @@ async function dibujar(clave, cfgTar, zona, figura, numeroSeccion) {
   } catch (e) {
     if (!vigente()) return;
     console.warn('No se pudo preparar el indicador', clave, e);
-    estadoDatos(zona, 'No pudimos mostrar este indicador', 'Vuelve a intentarlo o consulta otra sección.', reintentar);
+    estadoDatos(zona, 'error', 'No pudimos mostrar este indicador', 'Vuelve a intentarlo o consulta otra sección.', reintentar);
     return;
   }
   if (!vigente()) return;
   if (!entrada) { enPreparacion(zona, cfgTar.motivo || 'la función armar() no devolvió datos'); return; }
-  if (entrada.enPreparacion) { enPreparacion(zona, entrada.enPreparacion); return; }
+  if (entrada.enPreparacion) { enPreparacion(zona, entrada.enPreparacion, entrada.requiereBanco === true); return; }
 
   const desplazamientos = [...zona.querySelectorAll('.tabla-scroll')].map((n) => ({ izquierda: n.scrollLeft, arriba: n.scrollTop }));
   const glosarioAbierto = !!zona.querySelector('.tabla-glosario[open]');
@@ -514,12 +521,11 @@ async function dibujar(clave, cfgTar, zona, figura, numeroSeccion) {
   let chart;
   try {
     chart = fn(cont, entrada, { clave });
-    zona._lista = true;
-    zona.setAttribute('aria-busy', 'false');
+    marcar(zona, 'lista');
   } catch (e) {
     liberar(zona);
     console.warn('No se pudo dibujar el indicador', clave, e);
-    estadoDatos(zona, 'No pudimos mostrar este indicador', 'Vuelve a intentarlo o consulta otra sección.', reintentar);
+    estadoDatos(zona, 'error', 'No pudimos mostrar este indicador', 'Vuelve a intentarlo o consulta otra sección.', reintentar);
     return;
   }
   if (!chart) {
@@ -570,10 +576,17 @@ function seleccionDe(numero) {
   return { ...(SELECCION.get(numero) || {}) };
 }
 
-/* Al elegir una opción, se redibujan solo las tarjetas de su sección y se recalcula su riel. */
-function elegirSeleccion(numero, clave, valor, pintarRiel) {
+/* Valor por defecto de un selector: el declarado o la primera opción. */
+const defectoDe = (b) => b.defecto ?? b.opciones?.[0]?.valor;
+
+/* Al elegir una opción, se redibujan solo las tarjetas de su sección, se recalcula su riel y la elección
+   queda en la URL (s<NN>.<clave>, solo si no es el defecto): recargar o compartir conserva la vista. */
+function elegirSeleccion(sec, clave, valor, pintarRiel) {
+  const numero = sec.numero;
   if (SELECCION.get(numero)?.[clave] === valor) return;
   SELECCION.set(numero, { ...(SELECCION.get(numero) || {}), [clave]: valor });
+  const b = (sec.riel || []).find((x) => x.tipo === 'selector' && (x.clave || 'seleccion') === clave);
+  fijarSeleccion(numero, clave, valor, b ? defectoDe(b) : undefined);
   for (const redibujar of SECCIONES.get(numero) || []) redibujar();
   pintarRiel();
 }
@@ -585,11 +598,13 @@ function seccion(cfg, sec) {
   if (sec.ultimo) tablas.push(sec.ultimo.tabla);
   const kpis = (sec.riel || []).filter((b) => b.tipo === 'kpi' && typeof b.armar === 'function');
   const tablasKpi = [...new Set(kpis.flatMap((k) => k.datos || []))];
-  for (const b of sec.riel || []) { // bancos: valor inicial de cada selector (el primero o el declarado)
+  for (const b of sec.riel || []) { // bancos: valor inicial de cada selector: el de la URL si es una opción válida; si no, el defecto
     if (b.tipo !== 'selector') continue;
     const clave = b.clave || 'seleccion';
     const previo = SELECCION.get(sec.numero) || {};
-    if (previo[clave] === undefined) SELECCION.set(sec.numero, { ...previo, [clave]: b.defecto ?? b.opciones?.[0]?.valor });
+    const enUrl = leerSeleccion(sec.numero, clave);
+    const deUrl = (b.opciones || []).find((o) => String(o.valor) === enUrl);
+    if (previo[clave] === undefined) SELECCION.set(sec.numero, { ...previo, [clave]: deUrl ? deUrl.valor : defectoDe(b) });
   }
   SECCIONES.set(sec.numero, new Set());
   return cargarTodas(tablas).catch(() => ({})).then(async (d) => {
@@ -606,7 +621,7 @@ function seccion(cfg, sec) {
           resultados.set(k, { enPreparacion: `error al armar: ${e.message}` });
         }
       }
-      const nuevo = riel(cfg, sec, ult, resultados, (clave, valor) => elegirSeleccion(sec.numero, clave, valor, pintarRiel));
+      const nuevo = riel(cfg, sec, ult, resultados, (clave, valor) => elegirSeleccion(sec, clave, valor, pintarRiel));
       const viejo = s.querySelector(':scope > .riel');
       if (viejo) {
         const bloques = [...nuevo.querySelectorAll(':scope > .riel-bloque:not(.riel-selector)')];
@@ -618,10 +633,7 @@ function seccion(cfg, sec) {
     await pintarRiel();
     const cuerpo = el('div', sec.apilada ? 'cuerpo apilada' : 'cuerpo');
     if (sec.altoTabla) cuerpo.style.setProperty('--alto-tabla', `${sec.altoTabla}px`);
-    const pendientes = [];
-    const figsPorFila = []; // v2
     for (const fila of sec.filas || []) {
-      const figs = []; figsPorFila.push(figs); // v2
       // bancos: el alto de la fila sale de las tarjetas que lo fijan; `auto` no impone alto.
       const altos = fila.map((c) => (typeof c.alto === 'number' ? c.alto : 0));
       const alto = Math.max(0, ...altos) || null;
@@ -630,15 +642,13 @@ function seccion(cfg, sec) {
         const { figura, zona } = tarjetaShell(cfgTar, typeof c.alto === 'number' ? c.alto : alto);
         figura.dataset.clave = c.clave; // 4-nov: número de tarjeta visible para revisar (canvas, capturas)
         figura.style.gridColumn = `span ${c.ancho}`;
-        figs.push(figura); // v2
         cuerpo.append(figura);
-        pendientes.push(dibujar(c.clave, cfgTar, zona, figura, sec.numero));
+        dibujar(c.clave, cfgTar, zona, figura, sec.numero);
       }
     }
     s.append(cuerpo);
-    // 4-nov: la sección se muestra de inmediato; antes se esperaba a que TODAS sus tarjetas cargaran datos
-    // (con bk_grupo de 12 MB, Calidad/Rentabilidad/Ficha quedaban en blanco 20–30 s)
-    Promise.all(pendientes).then(() => repartirFilas(s, figsPorFila));
+    // 4-nov: la sección se muestra de inmediato; no espera a sus tarjetas (con bk_grupo de 12 MB,
+    // Calidad/Rentabilidad/Ficha quedaban en blanco 20–30 s). Cada tarjeta lleva su propio data-estado.
     return s;
   });
 }
@@ -683,6 +693,8 @@ function instalarIndice(contenedor) {
 
 export async function montar(cfg) {
   CFG = cfg;
+  // montando → lista: la estructura está armada (las tarjetas siguen su propio data-estado)
+  document.documentElement.dataset.pagina = 'montando';
   const app = document.getElementById('app');
   app.replaceChildren(cabecera(cfg, null));
   const espera = el('p', 'carga-inicial', 'Cargando indicadores…');
@@ -719,16 +731,16 @@ export async function montar(cfg) {
   const montajes = (cfg.secciones || []).map((sec) => {
     const hueco = el('section', 'seccion');
     hueco.id = `s${sec.numero}`;
-    estadoDatos(hueco, sec.nombre, 'Cargando sección…', null, true);
+    estadoDatos(hueco, 'cargando', sec.nombre, 'Cargando sección…');
     cont.append(hueco);
     const montarSeccion = async () => {
-      estadoDatos(hueco, sec.nombre, 'Cargando sección…', null, true);
+      estadoDatos(hueco, 'cargando', sec.nombre, 'Cargando sección…');
       try {
         const nueva = await seccion(cfg, sec);
         hueco.replaceWith(nueva);
       } catch (error) {
         console.warn('No se pudo montar la sección', sec.numero, error);
-        estadoDatos(hueco, `No pudimos cargar ${sec.nombre}`, 'Vuelve a intentarlo. Las demás secciones siguen disponibles.', montarSeccion);
+        estadoDatos(hueco, 'error', `No pudimos cargar ${sec.nombre}`, 'Vuelve a intentarlo. Las demás secciones siguen disponibles.', montarSeccion);
       }
     };
     return montarSeccion();
@@ -746,6 +758,7 @@ export async function montar(cfg) {
   instalarIndice(cont);
   actualizarApertura();
   presentarBarra.disabled = !cont.querySelector('.seccion .cuerpo');
+  document.documentElement.dataset.pagina = 'lista';
   presentacion.alMontar();
   if (/^#s\d+$/.test(location.hash)) document.getElementById(location.hash.slice(1))?.scrollIntoView({ behavior: 'instant', block: 'start' });
 }
