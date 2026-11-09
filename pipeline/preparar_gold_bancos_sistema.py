@@ -24,7 +24,7 @@ en ``docs/PENDIENTES.md``), registradas aquí para el que relea:
   (fraccion | pp).
 - 61b · mora90 por modalidad: TODAS salen del SGS (21119, 21121, 21127, 21151 incluidas);
   ``hogares_modalidades`` queda fuera de esta tabla (solo B4-02). ``mora90_personal`` =
-  21114 (incluye consignado). Equivalencia «Tarjeta de crédito» = 21129 (total); 21127 y
+  21114 (personal NO consignado, nombre oficial del SGS). Equivalencia «Tarjeta de crédito» = 21129 (total); 21127 y
   21128 son detalle.
 - 61b · Nombres sin la expansión mecánica del shorthand de §3.9:
   ``dirigido_{rural,imob,bndes}_real_aa``, ``credito_grande_real_aa`` (27702),

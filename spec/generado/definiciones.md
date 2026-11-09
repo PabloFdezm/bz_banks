@@ -64,6 +64,13 @@
 - `meses_candidatos`: objeto con 2 claves
 - `usados`: objeto con 2 claves
 
+## `bcb_sgs__catalogo.json` (12 kB)
+
+- `fuente`: Servicio web público del SGS (FachadaWSSGS.getUltimoValorXML)
+- `descripcion`: Nombre, unidad y periodicidad oficiales de cada serie de sgs.CODIGOS. Lo escribe herramientas/validar_sgs.py --escribir; la correspondencia clave ↔ nombre se r…
+- `validado`: 2026-11-09
+- `series`: objeto con 58 claves
+
 ## `contrato_gold.json` (7 kB)
 
 - `descripcion`: Contrato de la capa gold (datos/gold/bk_*.parquet): columnas mínimas y clave única de cada tabla. Lo lee herramientas/verificar_gold.py; una tabla bk_* que no …

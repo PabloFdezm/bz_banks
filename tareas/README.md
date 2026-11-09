@@ -40,7 +40,7 @@ Netlify borrados; Personas y Mora publicadas y verificadas en 3 anchos; fuente S
       `tcb` vacío desde 2025-07. Si se retoma, una alternativa más chica es bajar solo los últimos 2–3 años.
 - [ ] Frente 4: fuente `bk_ref` hecha el 9-nov. Decisiones en `borradores/ref_informe.md` §4 (Mora propio vs REF,
       ROE/provisiones por segmento desde el anexo, tarjeta de estrés, qué exportar). Faltan las tarjetas.
-- [ ] spec/08 punto 5: validar los nombres de las series SGS de modalidades.
+- [x] spec/08 punto 5: nombres SGS validados contra el catálogo oficial el 9-nov (`herramientas/validar_sgs.py`).
 - [x] spec/08 punto 6: crecimientos a/a de crédito, activo y depósitos vacíos en 2025 (8-nov; antes salían mal).
       Opcional: medirlos con `bk_cartera`. Ojo: el a/a de 2024-T4 (trimestre anómalo) sigue publicado; ¿vaciarlo?
 - [x] spec/08 punto 4: Focus (`focus.py`) y Selic real ex ante (SGS 432) se leen de la fuente desde el 8-nov.

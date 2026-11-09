@@ -37,8 +37,11 @@ Estado al 9-nov-2026.
    desde el 6-nov; Focus (`focus.py`) y la Selic real ex ante (SGS 432 + Focus) desde el 8-nov. Las tablas viejas
    de `datos/intermedio/` (`tasa_real_exante`, `expectativas_focus`, `fh_deuda`, `tasas_pnad`) quedan sin uso.
 4b. Resuelto el 6-nov: `bk_sistema_m/q` se escribían en `datos/intermedio/Banks/` y el gold no se refrescaba.
-5. Validar contra el catálogo del SGS los nombres de las series de modalidades. Concesiones validadas el 8-nov:
-   20631 es el total (= 20632 PJ + 20633 PF); las libres son 20634 (= 20635 + 20662).
+5. ~~Validar contra el catálogo del SGS los nombres de las series~~ Resuelto el 9-nov: las 58 series de
+   `sgs.CODIGOS` tienen nombre, unidad y periodicidad oficiales en `definiciones/bcb_sgs__catalogo.json`
+   (`herramientas/validar_sgs.py`, servicio web del SGS) y `tests/test_sgs_catalogo.py` exige que todo código nuevo
+   lo tenga. Todas calzan con su uso; solo estaba mal un comentario: 21114 es personal **no** consignado (ya estaba
+   bien en `bancos__equivalencias_mora.json` y en los rótulos del sitio).
 6. ~~`credito_aa` en 2025~~ Resuelto el 8-nov. No estaba vacío sino mal: comparaba `credito_total` de dos
    definiciones (balance COSIF nuevo contra viejo) y daba Santander −25 %, XP −44 %, total panel −4 %. Ahora
    `credito_aa`, `ativo_aa` y `depositos_aa` (y `credito_real_aa`) quedan vacíos de 2025-T1 a 2025-T4 en todos los

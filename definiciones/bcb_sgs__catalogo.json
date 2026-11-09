@@ -1,0 +1,355 @@
+{
+ "fuente": "Servicio web público del SGS (FachadaWSSGS.getUltimoValorXML)",
+ "descripcion": "Nombre, unidad y periodicidad oficiales de cada serie de sgs.CODIGOS. Lo escribe herramientas/validar_sgs.py --escribir; la correspondencia clave ↔ nombre se revisa a mano.",
+ "validado": "2026-11-09",
+ "series": {
+  "credito_total": {
+   "codigo": 20539,
+   "nombre": "Saldo da carteira de crédito - Total",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "credito_libre": {
+   "codigo": 20542,
+   "nombre": "Saldo da carteira de crédito com recursos livres - Total",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "credito_direccionado": {
+   "codigo": 20593,
+   "nombre": "Saldo da carteira de crédito com recursos direcionados - Total",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "credito_pf": {
+   "codigo": 20541,
+   "nombre": "Saldo da carteira de crédito - Pessoas físicas - Total",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "credito_pj": {
+   "codigo": 20540,
+   "nombre": "Saldo da carteira de crédito - Pessoas jurídicas - Total",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "credito_mpme": {
+   "codigo": 27701,
+   "nombre": "Saldo das operações de crédito por porte da empresa - Micro, Pequena e Média (MPMe)",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "credito_grande": {
+   "codigo": 27702,
+   "nombre": "Saldo das operações de crédito por porte da empresa - Grande",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "credito_pf_tarjeta": {
+   "codigo": 20590,
+   "nombre": "Saldo da carteira de crédito com recursos livres - Pessoas físicas - Cartão de crédito total",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "credito_pf_consignado_a": {
+   "codigo": 20576,
+   "nombre": "Saldo da carteira de crédito com recursos livres - Pessoas físicas - Crédito pessoal consignado para trabalhadores do setor privado",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "credito_pf_consignado_b": {
+   "codigo": 20577,
+   "nombre": "Saldo da carteira de crédito com recursos livres - Pessoas físicas - Crédito pessoal consignado para trabalhadores do setor público",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "credito_pf_consignado_c": {
+   "codigo": 20578,
+   "nombre": "Saldo da carteira de crédito com recursos livres - Pessoas físicas - Crédito pessoal consignado para aposentados e pensionistas do INSS",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "credito_pf_personal": {
+   "codigo": 20574,
+   "nombre": "Saldo da carteira de crédito com recursos livres - Pessoas físicas - Crédito pessoal não consignado total",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "credito_pf_vehiculos": {
+   "codigo": 20581,
+   "nombre": "Saldo da carteira de crédito com recursos livres - Pessoas físicas - Aquisição de veículos",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "credito_pf_inmobiliario": {
+   "codigo": 20612,
+   "nombre": "Saldo da carteira de crédito com recursos direcionados - Pessoas físicas - Financiamento imobiliário total",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "credito_pf_rural": {
+   "codigo": 20609,
+   "nombre": "Saldo da carteira de crédito com recursos direcionados - Pessoas físicas - Crédito rural total",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "credito_pf_bndes": {
+   "codigo": 20616,
+   "nombre": "Saldo da carteira de crédito com recursos direcionados - Pessoas físicas - Financiamento com recursos do BNDES total",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "credito_pj_libre": {
+   "codigo": 20543,
+   "nombre": "Saldo da carteira de crédito com recursos livres - Pessoas jurídicas - Total",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "credito_pj_bndes": {
+   "codigo": 20604,
+   "nombre": "Saldo da carteira de crédito com recursos direcionados - Pessoas jurídicas - Financiamento com recursos do BNDES total",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "credito_pj_rural": {
+   "codigo": 20597,
+   "nombre": "Saldo da carteira de crédito com recursos direcionados - Pessoas jurídicas - Crédito rural total",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "credito_pj_inmobiliario": {
+   "codigo": 20600,
+   "nombre": "Saldo da carteira de crédito com recursos direcionados - Pessoas jurídicas - Financiamento imobiliário total",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "concesiones_total": {
+   "codigo": 20631,
+   "nombre": "Concessões de crédito - Total",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "concesiones_pf": {
+   "codigo": 20633,
+   "nombre": "Concessões de crédito - Pessoas físicas - Total",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "concesiones_pj": {
+   "codigo": 20632,
+   "nombre": "Concessões de crédito - Pessoas jurídicas - Total",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "conc_pf_livre_sa": {
+   "codigo": 24444,
+   "nombre": "Concessões de crédito com recursos livres sazonalmente ajustadas - Pessoas físicas - Total",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "mora90_total": {
+   "codigo": 21082,
+   "nombre": "Inadimplência da carteira de crédito - Total",
+   "unidad": "%",
+   "periodicidad": "M"
+  },
+  "mora90_libre": {
+   "codigo": 21085,
+   "nombre": "Inadimplência da carteira de crédito com recursos livres - Total",
+   "unidad": "%",
+   "periodicidad": "M"
+  },
+  "mora90_direccionado": {
+   "codigo": 21132,
+   "nombre": "Inadimplência da carteira de crédito com recursos direcionados - Total",
+   "unidad": "%",
+   "periodicidad": "M"
+  },
+  "mora90_pf": {
+   "codigo": 21084,
+   "nombre": "Inadimplência da carteira de crédito - Pessoas físicas - Total",
+   "unidad": "%",
+   "periodicidad": "M"
+  },
+  "mora90_pj": {
+   "codigo": 21083,
+   "nombre": "Inadimplência da carteira de crédito - Pessoas jurídicas - Total",
+   "unidad": "%",
+   "periodicidad": "M"
+  },
+  "mora90_pf_livre": {
+   "codigo": 21112,
+   "nombre": "Inadimplência da carteira de crédito com recursos livres - Pessoas físicas - Total",
+   "unidad": "%",
+   "periodicidad": "M"
+  },
+  "mora90_pj_livre": {
+   "codigo": 21086,
+   "nombre": "Inadimplência da carteira de crédito com recursos livres - Pessoas jurídicas - Total",
+   "unidad": "%",
+   "periodicidad": "M"
+  },
+  "atraso15_90_pf": {
+   "codigo": 21005,
+   "nombre": "Percentual da carteira de crédito com atraso entre 15 e 90 dias - Pessoas físicas - Total",
+   "unidad": "%",
+   "periodicidad": "M"
+  },
+  "atraso15_90_pj": {
+   "codigo": 21004,
+   "nombre": "Percentual da carteira de crédito com atraso entre 15 e 90 dias - Pessoas jurídicas - Total",
+   "unidad": "%",
+   "periodicidad": "M"
+  },
+  "mora90_personal": {
+   "codigo": 21114,
+   "nombre": "Inadimplência da carteira de crédito com recursos livres - Pessoas físicas - Crédito pessoal não consignado total",
+   "unidad": "%",
+   "periodicidad": "M"
+  },
+  "mora90_consignado_privado": {
+   "codigo": 21116,
+   "nombre": "Inadimplência da carteira de crédito com recursos livres - Pessoas físicas - Crédito pessoal consignado para trabalhadores do setor privado",
+   "unidad": "%",
+   "periodicidad": "M"
+  },
+  "mora90_consignado_publico": {
+   "codigo": 21117,
+   "nombre": "Inadimplência da carteira de crédito com recursos livres - Pessoas físicas - Crédito pessoal consignado para trabalhadores do setor público",
+   "unidad": "%",
+   "periodicidad": "M"
+  },
+  "mora90_consignado_inss": {
+   "codigo": 21118,
+   "nombre": "Inadimplência da carteira de crédito com recursos livres - Pessoas físicas - Crédito pessoal consignado para aposentados e pensionistas do INSS",
+   "unidad": "%",
+   "periodicidad": "M"
+  },
+  "mora90_consignado_total": {
+   "codigo": 21119,
+   "nombre": "Inadimplência da carteira de crédito com recursos livres - Pessoas físicas - Crédito pessoal consignado total",
+   "unidad": "%",
+   "periodicidad": "M"
+  },
+  "mora90_vehiculos": {
+   "codigo": 21121,
+   "nombre": "Inadimplência da carteira de crédito com recursos livres - Pessoas físicas - Aquisição de veículos",
+   "unidad": "%",
+   "periodicidad": "M"
+  },
+  "mora90_rotativo": {
+   "codigo": 21127,
+   "nombre": "Inadimplência da carteira de crédito com recursos livres - Pessoas físicas - Cartão de crédito rotativo",
+   "unidad": "%",
+   "periodicidad": "M"
+  },
+  "mora90_parcelado": {
+   "codigo": 21128,
+   "nombre": "Inadimplência da carteira de crédito com recursos livres - Pessoas físicas - Cartão de crédito parcelado",
+   "unidad": "%",
+   "periodicidad": "M"
+  },
+  "mora90_cartao_total": {
+   "codigo": 21129,
+   "nombre": "Inadimplência da carteira de crédito com recursos livres - Pessoas físicas - Cartão de crédito total",
+   "unidad": "%",
+   "periodicidad": "M"
+  },
+  "mora90_inmobiliario_mercado": {
+   "codigo": 21149,
+   "nombre": "Inadimplência da carteira de crédito com recursos direcionados - Pessoas físicas - Financiamento imobiliário com taxas de mercado",
+   "unidad": "%",
+   "periodicidad": "M"
+  },
+  "mora90_inmobiliario_dirigido": {
+   "codigo": 21150,
+   "nombre": "Inadimplência da carteira de crédito com recursos direcionados - Pessoas físicas - Financiamento imobiliário com taxas reguladas",
+   "unidad": "%",
+   "periodicidad": "M"
+  },
+  "mora90_inmobiliario_total": {
+   "codigo": 21151,
+   "nombre": "Inadimplência da carteira de crédito com recursos direcionados - Pessoas físicas - Financiamento imobiliário total",
+   "unidad": "%",
+   "periodicidad": "M"
+  },
+  "mora90_mpme": {
+   "codigo": 27703,
+   "nombre": "Inadimplência da carteira de crédito por porte da empresa - Micro, Pequena e Média (MPMe)",
+   "unidad": "%",
+   "periodicidad": "M"
+  },
+  "mora90_grande": {
+   "codigo": 27704,
+   "nombre": "Inadimplência da carteira de crédito por porte da empresa - Grande",
+   "unidad": "%",
+   "periodicidad": "M"
+  },
+  "spread_livre": {
+   "codigo": 20786,
+   "nombre": "Spread médio das operações de crédito com recursos livres - Total",
+   "unidad": "p.p.",
+   "periodicidad": "M"
+  },
+  "icc": {
+   "codigo": 25351,
+   "nombre": "Indicador de Custo do Crédito - ICC - Total",
+   "unidad": "% a.a.",
+   "periodicidad": "M"
+  },
+  "tasa_creditos_nuevos": {
+   "codigo": 20714,
+   "nombre": "Taxa média de juros das operações de crédito - Total",
+   "unidad": "% a.a.",
+   "periodicidad": "M"
+  },
+  "cdi": {
+   "codigo": 4389,
+   "nombre": "Taxa de juros - CDI anualizada base 252",
+   "unidad": "% a.a.",
+   "periodicidad": "D"
+  },
+  "ipca": {
+   "codigo": 433,
+   "nombre": "Índice nacional de preços ao consumidor-amplo (IPCA)",
+   "unidad": "Var. % mensal",
+   "periodicidad": "M"
+  },
+  "selic_meta": {
+   "codigo": 432,
+   "nombre": "Taxa de juros - Meta Selic definida pelo Copom",
+   "unidad": "% a.a.",
+   "periodicidad": "D"
+  },
+  "credito_pib": {
+   "codigo": 20622,
+   "nombre": "Saldo da carteira de crédito em relação ao PIB",
+   "unidad": "%",
+   "periodicidad": "M"
+  },
+  "pib_12m": {
+   "codigo": 4382,
+   "nombre": "PIB acumulado dos últimos 12 meses - Valores correntes (R$ milhões)",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "endividamento": {
+   "codigo": 29037,
+   "nombre": "Endividamento das famílias com o Sistema Financeiro Nacional em relação à renda acumulada dos últimos doze meses (RNDBF)",
+   "unidad": "%",
+   "periodicidad": "M"
+  },
+  "comprometimento": {
+   "codigo": 29034,
+   "nombre": "Comprometimento de renda das famílias com o serviço da dívida com o Sistema Financeiro Nacional - Com ajuste sazonal (RNDBF)",
+   "unidad": "%",
+   "periodicidad": "M"
+  },
+  "desocupacion": {
+   "codigo": 24369,
+   "nombre": "Taxa de desocupação - PNADC",
+   "unidad": "%",
+   "periodicidad": "M"
+  }
+ }
+}

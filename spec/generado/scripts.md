@@ -876,7 +876,7 @@ en ``docs/PENDIENTES.md``), registradas aquí para el que relea:
   (fraccion | pp).
 - 61b · mora90 por modalidad: TODAS salen del SGS (21119, 21121, 21127, 21151 incluidas);
   ``hogares_modalidades`` queda fuera de esta tabla (solo B4-02). ``mora90_personal`` =
-  21114 (incluye consignado). Equivalencia «Tarjeta de crédito» = 21129 (total); 21127 y
+  21114 (personal NO consignado, nombre oficial del SGS). Equivalencia «Tarjeta de crédito» = 21129 (total); 21127 y
   21128 son detalle.
 - 61b · Nombres sin la expansión mecánica del shorthand de §3.9:
   ``dirigido_{rural,imob,bndes}_real_aa``, ``credito_grande_real_aa`` (27702),
@@ -996,7 +996,7 @@ ZIP anuales del SCR.data (``datos/crudo/bcb_scr/scrdata/actual/scrdata_<año>.zi
 - Valores con coma decimal y sin separador de miles.
 ```
 
-## `pipeline/sgs.py` (149 líneas)
+## `pipeline/sgs.py` (151 líneas)
 
 Importa del pipeline: `almacen`, `bcb_api`, `certificados`, `red`
 
@@ -1063,6 +1063,25 @@ para que no quede desactualizada.
 
 Uso (desde la raíz del repo):  python -X utf8 herramientas/generar_spec.py
 Requiere los parquet de datos/gold (no van a git) y Node para leer la configuración de páginas.
+```
+
+## `herramientas/validar_sgs.py` (95 líneas)
+
+Importa del pipeline: `almacen`, `certificados`, `red`, `sgs`
+
+Argumentos: `--escribir` — reescribe definiciones/bcb_sgs__catalogo.json
+
+```text
+Valida las series de sgs.CODIGOS contra el catálogo oficial del SGS (nombre, unidad, periodicidad).
+
+Consulta el servicio web público del SGS (FachadaWSSGS.getUltimoValorXML), que devuelve el nombre oficial de cada
+código, y lo compara con definiciones/bcb_sgs__catalogo.json. Sirve para no volver a identificar una serie solo
+porque «los montos cuadran» (spec/08 punto 5, cerrado el 9-nov-2026).
+
+Uso:
+    python -X utf8 herramientas/validar_sgs.py            compara y avisa diferencias (no escribe)
+    python -X utf8 herramientas/validar_sgs.py --escribir   reescribe el catálogo con lo que dice hoy el SGS
+Después de --escribir, revisar a mano que cada nombre oficial corresponda a la clave que lo usa.
 ```
 
 ## `herramientas/verificar_cvm.py` (371 líneas)

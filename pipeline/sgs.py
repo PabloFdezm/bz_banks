@@ -24,6 +24,8 @@ DESDE = "01/01/2000"
 # Catálogo de las series del SGS que usa el pipeline: nombre → código. Los nombres de las modalidades se
 # identificaron cuadrando montos (pendiente: validarlos contra el catálogo del SGS). Concesiones validadas el 8-nov
 # cuadrando contra la API: 20631 = 20632 (PJ) + 20633 (PF) es el total; las libres son 20634 = 20635 (PJ) + 20662 (PF).
+# Nombre, unidad y periodicidad oficiales de cada código: definiciones/bcb_sgs__catalogo.json
+# (herramientas/validar_sgs.py). Un código nuevo sin entrada allí hace fallar tests/test_sgs_catalogo.py.
 CODIGOS = {
     # saldos de crédito (R$ millones)
     "credito_total": 20539, "credito_libre": 20542, "credito_direccionado": 20593,
@@ -38,7 +40,7 @@ CODIGOS = {
     "mora90_total": 21082, "mora90_libre": 21085, "mora90_direccionado": 21132, "mora90_pf": 21084,
     "mora90_pj": 21083, "mora90_pf_livre": 21112, "mora90_pj_livre": 21086,
     "atraso15_90_pf": 21005, "atraso15_90_pj": 21004,
-    "mora90_personal": 21114,             # incluye consignado
+    "mora90_personal": 21114,             # personal NO consignado (nombre oficial; ver bcb_sgs__catalogo.json)
     "mora90_consignado_privado": 21116, "mora90_consignado_publico": 21117, "mora90_consignado_inss": 21118,
     "mora90_consignado_total": 21119, "mora90_vehiculos": 21121, "mora90_rotativo": 21127,
     "mora90_parcelado": 21128, "mora90_cartao_total": 21129,   # tarjeta = 21129 (total); 21127 y 21128 son detalle
