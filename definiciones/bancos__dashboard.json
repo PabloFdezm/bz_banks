@@ -61,7 +61,7 @@
    "ticker_estado": "validar",
    "ficha": "completa",
    "color": null,
-   "nota": "No es Nu Holdings: excluye México y Colombia y el capital que queda en la holding, así que su ROE es mayor que el consolidado publicado."
+   "nota": "No es Nu Holdings: excluye México y Colombia y el capital que queda en la holding, así que su ROE es mayor que el consolidado publicado (2T26: 51 % en 12 meses aquí, contra 33 % trimestral de Nu Holdings en su release). En 2T26 el vencido de más de 15 días cae 26 % t/t (NPL15 de 12,9 % a 9,5 %) con la cartera plana. El release de Nu del 2T26 no lo explica: no menciona venta de cartera ni cambio de castigos, y su mora consolidada a más de 90 días sube 35 pb, a 6,9 %. Leer esa caída con cautela."
   },
   {
    "cod_inst": "C0082475",
@@ -261,7 +261,8 @@
    "ticker": null,
    "ticker_estado": null,
    "ficha": "panel",
-   "color": null
+   "color": null,
+   "nota": "Entrega IF.Data al día, pero no entrega ITR/DFP a la CVM desde el 2T25. En 2T26 la cartera cae 13 % t/t y el NPL15 sube de 8,7 % a 10,8 %. El REF del BCB lo excluye (junto con Master) de sus series del SFN por comparabilidad."
   },
   {
    "cod_inst": "C0084820",
@@ -281,7 +282,8 @@
    "ticker": "PAGS",
    "ticker_estado": "validar",
    "ficha": "completa",
-   "color": null
+   "color": null,
+   "nota": "El vencido de más de 15 días es ínfimo (0,03 % de la cartera en 2T26): sus variaciones porcentuales (−43 % t/t en 2T26) no son una señal de calidad de crédito."
   },
   {
    "cod_inst": "C0084686",

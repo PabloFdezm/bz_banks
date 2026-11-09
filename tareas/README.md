@@ -5,7 +5,7 @@ Lista ordenada por prioridad. Cada frente tiene su archivo con el detalle, los d
 
 | # | Frente | Archivo | Estado |
 |---|---|---|---|
-| 1 | Correcciones de datos detectadas en la auditoría del 6-nov | `01_correcciones_datos.md` | 1.1–1.5 cerradas el 6-nov (1.2: se deja el corte mixto); falta 1.6 (notas); 1.7 hecha y publicada el 8-nov |
+| 1 | Correcciones de datos detectadas en la auditoría del 6-nov | `01_correcciones_datos.md` | 1.1–1.5 cerradas el 6-nov (1.2: se deja el corte mixto); 1.6 hecha el 9-nov (falta publicar); 1.7 hecha y publicada el 8-nov |
 | 2 | Módulo Personas (SCR.data por renda) | `02_modulo_personas_scr.md` | páginas Personas (B11) y Mora (B12) publicadas el 6-nov; canvas sin revisar por Pablo |
 | 3 | Réplica del reporte sell-side de crédito por renda (detalle en `referencias/`, fuera de git) | `03_replica_sellside.md` | **en pausa** (Pablo, 9-nov): la fuente sirve (sondeo en `03_replica_sellside.md`), pero bajar 2017–2026 son ~3,5 GB y medio día de trabajo |
 | 4 | Réplica de gráficos del REF (BCB, oct-26) | `04_replica_ref.md` | fuente `bcb_ref` construida el 9-nov (`bk_ref`, 8 ediciones del Anexo; informe en `borradores/ref_informe.md`); faltan las tarjetas, con el rediseño |
@@ -33,8 +33,11 @@ Netlify borrados; Personas y Mora publicadas y verificadas en 3 anchos; fuente S
 - [x] Frente 7 (CVM): decisiones cerradas el 9-nov (§7 de `borradores/cvm_informe.md`). Quedan: borrar los volcados
       de `borradores/` (lista mostrada a Pablo), BRB sin entregas desde 2T25, Daycoval 3T26 consolidado, y
       conectar B8-06-0 después del rediseño.
-- [ ] 1.6 Notas de lectura: confirmar con el release 2T26 de Nu la caída del vencido (y PagSeguro); nota de ROE
-      ~51 % de Nubank, BRB sin 2T26 y 2024-T4 vacío.
+- [x] 1.6 Notas de lectura (9-nov), en `bancos__dashboard.json` → `bk_banco.nota` (ficha B8). El release 2T26 de Nu
+      **no** confirma la caída del vencido de IF.Data (sin venta de cartera ni cambio de castigos; su 90+ consolidado
+      sube): la nota pide leerla con cautela. PagSeguro: vencido ínfimo, no es señal. BRB sí tiene 2T26 (la nota vieja
+      ya no valía): cartera −13 % t/t, NPL15 a 10,8 %, fuera de la CVM y excluido del REF. 2024-T4 ya estaba anotado
+      en B4 y B6. Falta publicar.
 - [x] 1.7 Concesiones: rotuladas «totales» el 8-nov (validado contra la API), publicadas y verificadas en vivo el 9-nov. Filas de libres por aprobar.
 - [ ] Frente 3 en pausa (decisión de Pablo, 9-nov: ~3,5 GB y medio día). Sondeo hecho: `sr` desde 2017-06,
       `tcb` vacío desde 2025-07. Si se retoma, una alternativa más chica es bajar solo los últimos 2–3 años.
