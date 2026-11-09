@@ -27,6 +27,19 @@ La página B7 · Capital tiene cinco tarjetas en FALTA y su pregunta es la centr
 - Diseño de datos ya aprobado: `docs/SPEC_DATOS_BANCOS_v0.1.md` §3.11. Tarjetas: `docs/ESQUELETO_BANCOS_v0.1.md`,
   sección «B7 · Capital».
 
+## Sondeo de la API (9-nov-2026, antes de construir)
+- OLinda `IfDataValores` con `TipoInstituicao=1` (conglomerado prudencial) y `Relatorio='5'` responde HTTP 200 y
+  trae datos **desde 2015-03** (2014-12 sale vacío) hasta **2026-06**. «El crudo no trae el 5» era solo que nunca
+  se bajó: la fuente existe y está viva.
+- Columnas en 2026-06 (1.398 filas cada una): Capital Principal (a), Capital Complementar (b), Nível I (c), Nível II
+  (d), PR (e), RWA crédito (f), mercado (g, con g1–g6), operacional (h), RWAsp (i), RWA total (j), Exposição Total
+  (k), **índices ya calculados** de CP (l), Nível I (m) y Basileia (n), Razão de Alavancagem (o), Índice de
+  Imobilização (p), Adicional de Capital Principal e IRRBB.
+- **Las letras cambian por época**: hasta 2020-12 el RWA total es (i) = (f)+(g)+(h) y la exposición (j); desde
+  2023-12 entra RWAsp (i) y el total pasa a (j); el mercado suma g1–g4, luego g1–g5 y desde 2024-12 g1–g6; el
+  «Adicional de Capital Principal» e IRRBB aparecen en 2024-12 (no en 2020-12). Mapear por nombre sin la letra,
+  nunca por la etiqueta completa.
+
 ## Qué construir
 1. **Descarga** del informe 5, escopo prudencial (el mismo de la tabla `bk_panel`), para toda la historia que
    exista. Usar `ifdata.py colectar` tal como está. Si hay que ampliarlo, que sea sin romper lo existente. El crudo
