@@ -1,0 +1,182 @@
+{
+ "descripcion": "Mínimos de capital y Adicional de Capital Principal (ACP) por fecha de vigencia, como fracción del RWA. Fuente: texto de las normas CMN/BCB, relevado el 9-nov-2026. Lo que la norma no respalda por banco queda vacío: el Pilar 2 no es público y queda fuera. Desde 2023-03 bk_capital usa el ACP en R$ que publica el BCB en el informe 5 y esta tabla solo aporta los mínimos.",
+ "relevado": "2026-11-09",
+ "minimos": [
+  {
+   "desde": "2015-01-01",
+   "hasta": "2015-12-31",
+   "cp": 0.045,
+   "nivel1": 0.06,
+   "pr": 0.11,
+   "norma": "Res. CMN 4.193/2013 arts. 4 (I), 5 (II) y 6",
+   "url": "https://www.bcb.gov.br/estabilidadefinanceira/exibenormativo?tipo=Resolução&numero=4193"
+  },
+  {
+   "desde": "2016-01-01",
+   "hasta": "2016-12-31",
+   "cp": 0.045,
+   "nivel1": 0.06,
+   "pr": 0.09875,
+   "norma": "Res. CMN 4.193/2013 art. 4 (II)",
+   "url": "https://www.bcb.gov.br/estabilidadefinanceira/exibenormativo?tipo=Resolução&numero=4193"
+  },
+  {
+   "desde": "2017-01-01",
+   "hasta": "2017-12-31",
+   "cp": 0.045,
+   "nivel1": 0.06,
+   "pr": 0.0925,
+   "norma": "Res. CMN 4.193/2013 art. 4 (III)",
+   "url": "https://www.bcb.gov.br/estabilidadefinanceira/exibenormativo?tipo=Resolução&numero=4193"
+  },
+  {
+   "desde": "2018-01-01",
+   "hasta": "2018-12-31",
+   "cp": 0.045,
+   "nivel1": 0.06,
+   "pr": 0.08625,
+   "norma": "Res. CMN 4.193/2013 art. 4 (IV)",
+   "url": "https://www.bcb.gov.br/estabilidadefinanceira/exibenormativo?tipo=Resolução&numero=4193"
+  },
+  {
+   "desde": "2019-01-01",
+   "hasta": "2022-01-02",
+   "cp": 0.045,
+   "nivel1": 0.06,
+   "pr": 0.08,
+   "norma": "Res. CMN 4.193/2013 art. 4 (V)",
+   "url": "https://www.bcb.gov.br/estabilidadefinanceira/exibenormativo?tipo=Resolução&numero=4193"
+  },
+  {
+   "desde": "2022-01-03",
+   "hasta": "",
+   "cp": 0.045,
+   "nivel1": 0.06,
+   "pr": 0.08,
+   "norma": "Res. CMN 4.958/2021 arts. 4, 5 y 6 (revoca la 4.193 desde el 3-ene-2022)",
+   "url": "https://www.bcb.gov.br/estabilidadefinanceira/exibenormativo?tipo=Resolução%20CMN&numero=4958"
+  }
+ ],
+ "conservacion": [
+  {
+   "desde": "2015-01-01",
+   "hasta": "2015-12-31",
+   "valor": 0.0,
+   "norma": "Res. CMN 4.443/2015 art. 8 §4 (I)",
+   "url": "https://www.bcb.gov.br/estabilidadefinanceira/exibenormativo?tipo=Resolução&numero=4443"
+  },
+  {
+   "desde": "2016-01-01",
+   "hasta": "2016-12-31",
+   "valor": 0.00625,
+   "norma": "Res. CMN 4.443/2015 art. 8 §4 (II)",
+   "url": "https://www.bcb.gov.br/estabilidadefinanceira/exibenormativo?tipo=Resolução&numero=4443"
+  },
+  {
+   "desde": "2017-01-01",
+   "hasta": "2017-12-31",
+   "valor": 0.0125,
+   "norma": "Res. CMN 4.443/2015 art. 8 §4 (III)",
+   "url": "https://www.bcb.gov.br/estabilidadefinanceira/exibenormativo?tipo=Resolução&numero=4443"
+  },
+  {
+   "desde": "2018-01-01",
+   "hasta": "2018-12-31",
+   "valor": 0.01875,
+   "norma": "Res. CMN 4.443/2015 art. 8 §4 (IV)",
+   "url": "https://www.bcb.gov.br/estabilidadefinanceira/exibenormativo?tipo=Resolução&numero=4443"
+  },
+  {
+   "desde": "2019-01-01",
+   "hasta": "2020-03-31",
+   "valor": 0.025,
+   "norma": "Res. CMN 4.443/2015 art. 8 §4 (V)",
+   "url": "https://www.bcb.gov.br/estabilidadefinanceira/exibenormativo?tipo=Resolução&numero=4443"
+  },
+  {
+   "desde": "2020-04-01",
+   "hasta": "2021-03-31",
+   "valor": 0.0125,
+   "norma": "Res. CMN 4.783/2020 art. 1 (I), reducción COVID",
+   "url": "https://www.bcb.gov.br/estabilidadefinanceira/exibenormativo?tipo=Resolução&numero=4783"
+  },
+  {
+   "desde": "2021-04-01",
+   "hasta": "2021-09-30",
+   "valor": 0.01625,
+   "norma": "Res. CMN 4.783/2020 art. 1 (II)",
+   "url": "https://www.bcb.gov.br/estabilidadefinanceira/exibenormativo?tipo=Resolução&numero=4783"
+  },
+  {
+   "desde": "2021-10-01",
+   "hasta": "2022-03-31",
+   "valor": 0.02,
+   "norma": "Res. CMN 4.783/2020 art. 1 (III); Res. CMN 4.958/2021 art. 8 §4 (I)",
+   "url": "https://www.bcb.gov.br/estabilidadefinanceira/exibenormativo?tipo=Resolução%20CMN&numero=4958"
+  },
+  {
+   "desde": "2022-04-01",
+   "hasta": "",
+   "valor": 0.025,
+   "norma": "Res. CMN 4.958/2021 art. 8 §4 (II)",
+   "url": "https://www.bcb.gov.br/estabilidadefinanceira/exibenormativo?tipo=Resolução%20CMN&numero=4958"
+  }
+ ],
+ "contraciclico": [
+  {
+   "desde": "2015-01-01",
+   "hasta": "",
+   "valor": 0.0,
+   "norma": "Circ. BCB 3.769/2015 art. 3 (ACCPBrasil = 0 %); Comef lo mantiene en 0 % (Ata 65, may-2026, §15)",
+   "url": "https://normativos.bcb.gov.br/Lists/Normativos/Attachments/50099/Circ_3769_v4_P.pdf",
+   "nota": "Es el ACCP brasileño. El contracíclico de cada banco suma además el de sus exposiciones en el exterior (Circ. 3.769 art. 2): Itaú 0,1 % y BTG 0,036 % al 2T26. Antes de 2023-03 ese componente no se conoce por banco y se toma 0, lo que puede subestimar el requerimiento en hasta ~0,1 pp."
+  }
+ ],
+ "sistemico": {
+  "descripcion": "ACP Sistêmico: FIS según Exposición Total / PIB del penúltimo año (Circ. BCB 3.768/2015 art. 3); 0 si la razón es < 10 %. Aplica a bancos múltiplos, comerciales, de inversión y cajas económicas (Res. 4.443 art. 8 §2) y desde el 3-ene-2022 al Segmento 1 (Res. 4.958 art. 8 §2). Antes de 2017 no existía (valor 0 para todos). De 2017 a 2022 no se verificó qué banco tuvo qué FIS: queda vacío. Al 2T26 lo informan en 1,0 % Itaú, BB, Bradesco y Santander, y en 0 % BTG (KM1 y notas de capital), pero desde 2023-03 el requerimiento ya sale del ACP del BCB.",
+  "cronograma": [
+   {
+    "desde": "2015-01-01",
+    "hasta": "2016-12-31",
+    "valor": 0.0,
+    "norma": "Res. CMN 4.443/2015 art. 8 §9; Circ. 3.768/2015 art. 3 (entrada en 2017)",
+    "url": "https://www.bcb.gov.br/estabilidadefinanceira/exibenormativo?tipo=Circular&numero=3768"
+   },
+   {
+    "desde": "2017-01-01",
+    "hasta": "2017-12-31",
+    "valor": null,
+    "bandas": {
+     "10-50%": 0.0025,
+     ">=50%": 0.005
+    },
+    "norma": "Circ. 3.768/2015 art. 3",
+    "url": "https://www.bcb.gov.br/estabilidadefinanceira/exibenormativo?tipo=Circular&numero=3768"
+   },
+   {
+    "desde": "2018-01-01",
+    "hasta": "2018-12-31",
+    "valor": null,
+    "bandas": {
+     "10-50%": 0.005,
+     ">=50%": 0.01
+    },
+    "norma": "Circ. 3.768/2015 art. 3",
+    "url": "https://www.bcb.gov.br/estabilidadefinanceira/exibenormativo?tipo=Circular&numero=3768"
+   },
+   {
+    "desde": "2019-01-01",
+    "hasta": "",
+    "valor": null,
+    "bandas": {
+     "10-50%": 0.01,
+     ">=50%": 0.02
+    },
+    "norma": "Circ. 3.768/2015 art. 3; Res. CMN 4.958/2021 art. 8 §9",
+    "url": "https://www.bcb.gov.br/estabilidadefinanceira/exibenormativo?tipo=Circular&numero=3768"
+   }
+  ],
+  "bancos": {},
+  "lista_completa": false
+ }
+}

@@ -27,6 +27,17 @@
 - `columnas`: objeto con 45 claves
 - `nota_modelo_negocio`: modelo_negocio: criterio del analista (Opus), aprobado por Pablo 2026-10-09 para la hoja 8 del PBIP dual (docs/orquestacion/38). No es una clasificación del BC…
 
+## `bcb_ifdata__capital.json` (4 kB)
+
+- `fuente`: BCB IF.Data, informe 5 «Informações de Capital», escopo 1 (conglomerado prudencial). API OLinda IfDataValores(AnoMes, TipoInstituicao=1, Relatorio='5').
+- `descripcion`: Mapeo de las columnas del informe 5 a los campos de bk_capital. Se casa por el nombre de la columna SIN la letra entre paréntesis: el BCB reetiqueta las letras…
+- `verificado`: 2026-11-09
+- `unidades`: Montos en R$ (unidades). Índices como fracción (0,1231 = 12,31 %), tal como los publica el BCB.
+- `campos`: objeto con 18 claves
+- `componentes_rwa`: lista de 4
+- `ignorar`: lista de 6
+- `ignorar_nota`: Subcomponentes del RWA de mercado (cambio, commodities, tasas, acciones, CVA, DRC). Se leen pero no se publican: el total de mercado ya está en rwa_mercado.
+
 ## `bcb_ifdata__credito_modalidades.json` (7 kB)
 
 - `fuente`: bcb_ifdata
@@ -45,7 +56,7 @@
 ## `contrato_gold.json` (7 kB)
 
 - `descripcion`: Contrato de la capa gold (datos/gold/bk_*.parquet): columnas mínimas y clave única de cada tabla. Lo lee herramientas/verificar_gold.py; una tabla bk_* que no …
-- `tablas`: objeto con 30 claves
+- `tablas`: objeto con 32 claves
 
 ## `cvm__bancos.json` (27 kB)
 
@@ -83,7 +94,7 @@
 - `clave_bk_publicado`: lista de 4
 - `lineas_por_diseno_vacias`: Las líneas que un banco no puede tener (Cielo, que es institución de pagos y no tiene cartera ni depósitos) o que la fuente no divulga (la provisión de Banco d…
 
-## `metricas_bancos.json` (45 kB)
+## `metricas_bancos.json` (49 kB)
 
 - `descripcion`: Registro único de las métricas del panel de bancos: nombre, familia, unidad, formato, signo, definición y, en las razones, numerador y denominador. Lo leen pre…
 - `convenciones`: objeto con 5 claves
@@ -93,7 +104,16 @@
 - `cosif_pre2025`: objeto con 20 claves
 - `flujos`: objeto con 12 claves
 - `ttm`: lista de 11
-- `metricas`: objeto con 86 claves
+- `metricas`: objeto con 96 claves
+
+## `minimos_regulatorios.json` (7 kB)
+
+- `descripcion`: Mínimos de capital y Adicional de Capital Principal (ACP) por fecha de vigencia, como fracción del RWA. Fuente: texto de las normas CMN/BCB, relevado el 9-nov-…
+- `relevado`: 2026-11-09
+- `minimos`: lista de 6 · campos: `desde`, `hasta`, `cp`, `nivel1`, `pr`, `norma`, `url`
+- `conservacion`: lista de 9 · campos: `desde`, `hasta`, `valor`, `norma`, `url`
+- `contraciclico`: lista de 1 · campos: `desde`, `hasta`, `valor`, `norma`, `url`, `nota`
+- `sistemico`: objeto con 4 claves
 
 ## `scr_productos.json` (4 kB)
 

@@ -3,7 +3,7 @@
 > Generado por `herramientas/generar_spec.py`. No editar a mano: se sobrescribe.
 
 
-## `pipeline/actualizar.py` (88 líneas)
+## `pipeline/actualizar.py` (89 líneas)
 
 Importa del pipeline: `almacen`, `red`
 
@@ -105,6 +105,39 @@ Ejemplos:
   python -X utf8 pipeline/bcb_api.py datos 433 --desde 01/01/2024    # rango de fechas
   python -X utf8 pipeline/bcb_api.py datos 11 432 --ancho -o x.csv   # una columna por serie
   python -X utf8 pipeline/bcb_api.py ultimos 432 -n 5                # ultimas 5 observaciones
+```
+
+## `pipeline/capital.py` (397 líneas)
+
+Importa del pipeline: `almacen`, `bancos`, `ifdata_texto`, `periodos`
+
+Argumentos: `--resumen` — no publica: imprime cobertura y avisos
+
+```text
+Capital: informe 5 de IF.Data («Informações de Capital») → bk_capital y bk_capital_grupo.
+
+Fuente: el crudo que deja ``ifdata.py colectar --escopo prudencial --informe 5`` en
+datos/crudo/bcb_ifdata/valores/actual/valores_<AAAAMM>_1_r5.(csv|parquet). Este paso no baja nada: la colecta de
+IF.Data es trimestral y a mano (ver spec/07). Si falta un trimestre, queda como hueco con su motivo.
+
+Trampas (verificadas el 9-nov-2026 sobre 2015-03 a 2026-06; detalle en spec/08):
+1. El informe 5 existe desde 2015-03. Los archivos de 2014 vienen vacíos (la API responde, sin filas).
+2. Las letras de las columnas cambian por época («RWA (i) = (f)+(g)+(h)» hasta 2022-12, «(j) = (f)+(g)+(h)+(i)»
+   desde 2023-03): se casa por el nombre sin la letra (definiciones/bcb_ifdata__capital.json).
+3. En 2025-09 la API sirve cada fila tres veces (99.000 filas para 1.375 entidades). Se deduplica por
+   entidad × campo y se exige que las copias tengan el mismo valor; si difieren, falla.
+4. Desde 2023-03 el informe trae el «Adicional de Capital Principal» exigido en R$: el requerimiento de CP de
+   cada banco sale de ahí (lo calcula el BCB). Antes de 2023-03 se reconstruye con
+   definiciones/minimos_regulatorios.json; lo que la norma no respalda queda vacío.
+5. Saldos con coma decimal y «null» literal (ifdata_texto.a_valor).
+
+Salidas:
+- datos/gold/bk_capital.parquet          banco × trimestre (columnas anchas)
+- datos/gold/bk_capital_grupo.parquet    óptica × grupo × trimestre; índices = Σ capital / Σ RWA
+- datos/derivado/bcb_ifdata/capital/huecos_capital.csv
+
+Uso:  python -X utf8 pipeline/capital.py            (arma y publica)
+      python -X utf8 pipeline/capital.py --resumen  (solo imprime cobertura y avisos, sin publicar)
 ```
 
 ## `pipeline/certificados.py` (147 líneas)

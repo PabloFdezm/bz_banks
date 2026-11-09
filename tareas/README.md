@@ -12,7 +12,7 @@ Lista ordenada por prioridad. Cada frente tiene su archivo con el detalle, los d
 | 5 | Rediseño de gráficos (cambio grande anunciado por Pablo) | `05_rediseno_graficos.md` | por definir |
 | 6 | Operación: automatización, limpieza, deuda técnica | `06_operacion.md` | sitio en Cloudflare Pages desde el 6-nov; resto pendiente |
 | 7 | Fuente CVM (ITR/DFP) → `bk_publicado` | `07_fuente_cvm.md` | construido y commiteado el 9-nov; decisiones §7 cerradas el 9-nov (15 bancos, 202312–202609, ROE desde 1T24); la tarjeta B8-06-0 espera el rediseño |
-| 8 | Capital: informe 5 de IF.Data → `bk_capital` (página B7) | `08_fuente_capital.md` | 9-nov: el worker no dejó resultado. Sondeo: la API sirve el informe 5 de 2015-03 a 2026-06, con índices calculados; listo para construir |
+| 8 | Capital: informe 5 de IF.Data → `bk_capital` (página B7) | `08_fuente_capital.md` | construido el 9-nov (`pipeline/capital.py`, `bk_capital`, `bk_capital_grupo`, tests); 2T26 calza con el Pilar 3 de los 5 grandes; decisiones en `borradores/capital_informe.md` §6; B7 espera el rediseño |
 
 Orden sugerido: 1 → 2 → 4 (fuente `bcb_ref`) → 3 → 5 → 6. El 5 puede cambiar cómo se construyen 2–4: preguntar a
 Pablo antes de construir páginas nuevas.
@@ -28,6 +28,8 @@ Netlify borrados; Personas y Mora publicadas y verificadas en 3 anchos; fuente S
 - [ ] Coordinar las sesiones en paralelo: un frente por sesión.
 
 **Datos**
+- [ ] Frente 8 (capital): decisiones de `borradores/capital_informe.md` §6 — requerimiento 2017–2022 (ACP
+      sistémico por banco), dividendos en el puente del CP, definición de `holgura_crecimiento`, trimestres repetidos.
 - [x] Frente 7 (CVM): decisiones cerradas el 9-nov (§7 de `borradores/cvm_informe.md`). Quedan: borrar los volcados
       de `borradores/` (lista mostrada a Pablo), BRB sin entregas desde 2T25, Daycoval 3T26 consolidado, y
       conectar B8-06-0 después del rediseño.

@@ -1,6 +1,6 @@
 # Frente 8 · Capital: informe 5 de IF.Data → `bk_capital`
 
-Estado al 9-nov-2026: **por construir.** Pensado para que lo ejecute un worker (otra sesión u otra LLM) sin
+Estado al 9-nov-2026: **construido** (informe en `borradores/capital_informe.md`). Lo que sigue era el encargo original. Pensado para que lo ejecute un worker (otra sesión u otra LLM) sin
 contexto previo. Puede correr en paralelo al frente 7 (CVM).
 
 ## Por qué

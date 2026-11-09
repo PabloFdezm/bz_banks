@@ -4,6 +4,11 @@ Estado al 9-nov-2026.
 
 ## Hecho
 
+- **Capital (IF.Data informe 5) construido el 9-nov** (frente 8): `pipeline/capital.py` publica `bk_capital`
+  (34 bancos, 2015-03–2026-06) y `bk_capital_grupo`; requerimiento de CP desde el ACP que publica el BCB (desde
+  2023-03) o desde `definiciones/minimos_regulatorios.json`. 2T26 calza con el Pilar 3 de Itaú, BB, Bradesco,
+  Santander y BTG (±0,1 pp). Informe y decisiones: `tareas/borradores/capital_informe.md`. B7 todavía no lo consume.
+
 - **Fuente CVM (ITR/DFP) construida el 9-nov** (frente 7): `pipeline/cvm.py` baja los ZIP oficiales a
   `datos/crudo/cvm/`, filtra a los 16 bancos del panel que entregan, resuelve el plan de cuentas de cada banco
   y publica `bk_publicado` (1.421 filas, 202312–202609, 11 líneas). Verificador en `herramientas/verificar_cvm.py`,
@@ -101,6 +106,27 @@ Estado al 9-nov-2026.
   anota `definiciones/validacion_bancos.json`), −11,1 % en Itaú y −7,7 % en BTG; el PL de Santander difiere −17,3 %
   de forma sistemática. La «Operações de Crédito» de la CVM se parece al `credito_total` del COSIF, no a su
   `credito_bruto`. Se mide y se informa (`pipeline/cvm.py contrastar`), no se corrige.
+
+### Capital (IF.Data informe 5) — trampas verificadas sobre el dato el 9-nov-2026
+
+- **El informe 5 empieza en 2015-03.** Los trimestres de 2014 responden vacíos (sin filas): `bk_capital` arranca
+  en 2015-03 y el panel de 2014 queda como hueco `INFORME_5_VACIO`.
+- **Las letras de las columnas cambian por época** («RWA (i) = (f)+(g)+(h)» hasta 2022-12, «(j) = …+(i)» desde
+  2023-03, cuando entra RWAsp) y **en 2023-03 y 2023-06 el nombre del índice de CP viene sin salto de línea**
+  («Índice de Capital Principal (k) = (a) / (i)»). Se casa por nombre sin la letra (`capital.nombre_base`).
+- **En 2025-09 la API sirve cada fila tres veces** (99.000 filas para 1.375 entidades). Se deduplica exigiendo que
+  las copias sean idénticas; si alguna vez difieren, el paso falla.
+- **Trimestres repetidos al centavo**: Agibank 2015-06 a 2016-06 y PagSeguro 4T25 = 2T25 traen CP, PR y RWA
+  idénticos. Se publica lo que dice el BCB con la columna `alerta`; no usar esos puntos para variaciones.
+- **Las instituciones de pago y digitales no tienen capital principal antes de 2023-07** (Nubank, Stone, PagSeguro,
+  Mercado Pago, Neon, CloudWalk; Cielo solo informa Basilea y RWA): huecos `SIN_CAPITAL_PRINCIPAL_O_RWA`.
+  Los agregados de grupo suman solo los bancos con dato y llevan `n_bancos`.
+- **Desde 2023-03 el informe trae el «Adicional de Capital Principal» exigido en R$** y el requerimiento sale de
+  ahí, no de suponer colchones: 2,5 % en la mayoría, 3,5–3,75 % en los sistémicos, y niveles propios en los
+  conglomerados de pago (Neon y PagSeguro 5 %, Nubank, Stone y Mercado Pago 1,25 %). Antes de 2023-03 se usa
+  `definiciones/minimos_regulatorios.json` y lo que la norma no respalde queda vacío.
+- **El panel no es el sistema**: en 2T26 cubre el 85 % del RWA de los 440 conglomerados prudenciales y su índice
+  de CP (12,9 %) queda 1 pp por debajo del sistema (13,9 %), ambos calculados con el mismo informe 5.
 
 ## Riesgos técnicos conocidos
 

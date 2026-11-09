@@ -1,0 +1,158 @@
+{
+ "fuente": "BCB IF.Data, informe 5 «Informações de Capital», escopo 1 (conglomerado prudencial). API OLinda IfDataValores(AnoMes, TipoInstituicao=1, Relatorio='5').",
+ "descripcion": "Mapeo de las columnas del informe 5 a los campos de bk_capital. Se casa por el nombre de la columna SIN la letra entre paréntesis: el BCB reetiqueta las letras por época (hasta 2022-12 el RWA total es «(i) = (f)+(g)+(h)» y la exposición «(j)»; desde 2023-03 entra RWAsp (i), el RWA total pasa a «(j)» y la exposición a «(k)»; el RWA de mercado suma g1–g4, luego g1–g5 y desde 2024-12 g1–g6). El nombre base es el texto antes del salto de línea, comparado sin acentos ni mayúsculas. «conta» es el código Conta observado (verificado el 9-nov-2026 sobre 2015-03 a 2026-06): solo audita, no decide; si cambia, el verificador avisa.",
+ "verificado": "2026-11-09",
+ "unidades": "Montos en R$ (unidades). Índices como fracción (0,1231 = 12,31 %), tal como los publica el BCB.",
+ "campos": {
+  "capital_principal": {
+   "nombre": "Capital Principal para Comparação com RWA",
+   "conta": [
+    "79645"
+   ],
+   "unidad": "brl"
+  },
+  "capital_complementar": {
+   "nombre": "Capital Complementar",
+   "conta": [
+    "79646"
+   ],
+   "unidad": "brl"
+  },
+  "nivel1": {
+   "nombre": "Patrimônio de Referência Nível I para Comparação com RWA",
+   "conta": [
+    "79647"
+   ],
+   "unidad": "brl"
+  },
+  "nivel2": {
+   "nombre": "Capital Nível II",
+   "conta": [
+    "79648"
+   ],
+   "unidad": "brl"
+  },
+  "pr": {
+   "nombre": "Patrimônio de Referência para Comparação com o RWA",
+   "conta": [
+    "79649"
+   ],
+   "unidad": "brl"
+  },
+  "rwa_credito": {
+   "nombre": "RWA para Risco de Crédito",
+   "conta": [
+    "79650",
+    "138232"
+   ],
+   "unidad": "brl",
+   "nota": "La Conta pasa de 79650 a 138232 en 2023-03; el nombre no cambia."
+  },
+  "rwa_mercado": {
+   "nombre": "RWA para Risco de Mercado",
+   "conta": [
+    "79651"
+   ],
+   "unidad": "brl"
+  },
+  "rwa_operacional": {
+   "nombre": "RWA para Risco Operacional",
+   "conta": [
+    "79656"
+   ],
+   "unidad": "brl"
+  },
+  "rwa_sp": {
+   "nombre": "RWAsp",
+   "conta": [
+    "134461"
+   ],
+   "unidad": "brl",
+   "desde": "202303",
+   "nota": "RWA de servicios de pago (Resolução BCB 200/2022). No existe antes de 2023-03: ahí el RWA total es f+g+h."
+  },
+  "rwa_total": {
+   "nombre": "Ativos Ponderados pelo Risco (RWA)",
+   "conta": [
+    "79665"
+   ],
+   "unidad": "brl"
+  },
+  "exposicion_total": {
+   "nombre": "Exposição Total",
+   "conta": [
+    "79658"
+   ],
+   "unidad": "brl",
+   "nota": "Denominador de la razón de apalancamiento. Vacío en 2015 (la razón empezó a publicarse después)."
+  },
+  "indice_cp": {
+   "nombre": "Índice de Capital Principal",
+   "conta": [
+    "79659"
+   ],
+   "unidad": "ratio"
+  },
+  "indice_nivel1": {
+   "nombre": "Índice de Capital Nível I",
+   "conta": [
+    "79660"
+   ],
+   "unidad": "ratio"
+  },
+  "basilea": {
+   "nombre": "Índice de Basileia",
+   "conta": [
+    "79664"
+   ],
+   "unidad": "ratio"
+  },
+  "razon_apalancamiento": {
+   "nombre": "Razão de Alavancagem",
+   "conta": [
+    "79661"
+   ],
+   "unidad": "ratio"
+  },
+  "indice_inmovilizacion": {
+   "nombre": "Índice de Imobilização",
+   "conta": [
+    "79662"
+   ],
+   "unidad": "ratio"
+  },
+  "acp_requerido": {
+   "nombre": "Adicional de Capital Principal",
+   "conta": [
+    "92999"
+   ],
+   "unidad": "brl",
+   "desde": "202303",
+   "nota": "Monto en R$ del Adicional de Capital Principal exigido al conglomerado (conservación + sistémico + contracíclico, este último incluye el de exposiciones en otras jurisdicciones). Lo calcula el BCB: desde 2023-03 el requerimiento de CP sale de aquí, no de suponer colchones por banco."
+  },
+  "irrbb": {
+   "nombre": "IRRBB",
+   "conta": [
+    "98576"
+   ],
+   "unidad": "brl",
+   "desde": "202412",
+   "nota": "Capital para el riesgo de tasa de interés del banking book. Informativo: no entra al requerimiento de CP."
+  }
+ },
+ "componentes_rwa": [
+  "rwa_credito",
+  "rwa_mercado",
+  "rwa_operacional",
+  "rwa_sp"
+ ],
+ "ignorar": [
+  "RWAcam",
+  "RWAcom",
+  "RWAjur",
+  "RWAacs",
+  "RWAcva",
+  "RWAdrc"
+ ],
+ "ignorar_nota": "Subcomponentes del RWA de mercado (cambio, commodities, tasas, acciones, CVA, DRC). Se leen pero no se publican: el total de mercado ya está en rwa_mercado."
+}

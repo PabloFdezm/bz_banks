@@ -1263,6 +1263,126 @@
    "fuente": "Derivado de BCB IF.Data (prudencial), preparar_metricas_bancos.py",
    "definicion": "Suma de los 4 trimestres consecutivos que terminan en t de resultado_nao_operacional_q; vacío si falta uno.",
    "en_ficha": false
+  },
+  "capital_principal": {
+   "nombre": "Capital principal",
+   "familia": "capital",
+   "unidad": "brl",
+   "formato": "brl_mm",
+   "signo": "neutro",
+   "signo_fuente": "arquitecto",
+   "fuente": "BCB IF.Data, informe 5 «Informações de Capital» (prudencial), pipeline/capital.py → bk_capital",
+   "definicion": "Capital Principal para Comparação com RWA (a), en R$.",
+   "en_ficha": false,
+   "tabla": "bk_capital"
+  },
+  "rwa_total": {
+   "nombre": "Activos ponderados por riesgo (RWA)",
+   "familia": "capital",
+   "unidad": "brl",
+   "formato": "brl_mm",
+   "signo": "neutro",
+   "signo_fuente": "arquitecto",
+   "fuente": "BCB IF.Data, informe 5 «Informações de Capital» (prudencial), pipeline/capital.py → bk_capital",
+   "definicion": "Ativos Ponderados pelo Risco: crédito + mercado + operacional (+ servicios de pago desde 2023-03), en R$.",
+   "en_ficha": false,
+   "tabla": "bk_capital"
+  },
+  "indice_cp": {
+   "nombre": "Índice de capital principal",
+   "familia": "capital",
+   "unidad": "ratio",
+   "formato": "pct1",
+   "signo": "mejora_sube",
+   "signo_fuente": "arquitecto",
+   "fuente": "BCB IF.Data, informe 5 «Informações de Capital» (prudencial), pipeline/capital.py → bk_capital",
+   "definicion": "Capital principal / RWA, tal como lo publica el BCB. Grupos: Σ capital principal / Σ RWA.",
+   "en_ficha": false,
+   "tabla": "bk_capital"
+  },
+  "indice_nivel1": {
+   "nombre": "Índice de nivel I",
+   "familia": "capital",
+   "unidad": "ratio",
+   "formato": "pct1",
+   "signo": "mejora_sube",
+   "signo_fuente": "arquitecto",
+   "fuente": "BCB IF.Data, informe 5 «Informações de Capital» (prudencial), pipeline/capital.py → bk_capital",
+   "definicion": "Nivel I (capital principal + complementario) / RWA, publicado por el BCB.",
+   "en_ficha": false,
+   "tabla": "bk_capital"
+  },
+  "basilea": {
+   "nombre": "Índice de Basilea",
+   "familia": "capital",
+   "unidad": "ratio",
+   "formato": "pct1",
+   "signo": "mejora_sube",
+   "signo_fuente": "arquitecto",
+   "fuente": "BCB IF.Data, informe 5 «Informações de Capital» (prudencial), pipeline/capital.py → bk_capital",
+   "definicion": "Patrimonio de referencia / RWA, publicado por el BCB.",
+   "en_ficha": false,
+   "tabla": "bk_capital"
+  },
+  "razon_apalancamiento": {
+   "nombre": "Razón de apalancamiento (Basilea III)",
+   "familia": "capital",
+   "unidad": "ratio",
+   "formato": "pct1",
+   "signo": "mejora_sube",
+   "signo_fuente": "arquitecto",
+   "fuente": "BCB IF.Data, informe 5 «Informações de Capital» (prudencial), pipeline/capital.py → bk_capital",
+   "definicion": "Nivel I / exposición total, publicada por el BCB. Distinta de «apalancamiento» (activo / PL).",
+   "en_ficha": false,
+   "tabla": "bk_capital"
+  },
+  "densidad_rwa": {
+   "nombre": "Densidad de RWA",
+   "familia": "capital",
+   "unidad": "ratio",
+   "formato": "pct1",
+   "signo": "neutro",
+   "signo_fuente": "arquitecto",
+   "fuente": "BCB IF.Data, informe 5 «Informações de Capital» (prudencial), pipeline/capital.py → bk_capital",
+   "definicion": "rwa_total / ativo_total (bk_panel).",
+   "en_ficha": false,
+   "tabla": "bk_capital"
+  },
+  "requerimiento_cp": {
+   "nombre": "Requerimiento de capital principal",
+   "familia": "capital",
+   "unidad": "ratio",
+   "formato": "pct1",
+   "signo": "neutro",
+   "signo_fuente": "arquitecto",
+   "fuente": "BCB IF.Data, informe 5 «Informações de Capital» (prudencial), pipeline/capital.py → bk_capital",
+   "definicion": "Mínimo de CP (4,5 %) + adicional de capital principal. Desde 2023-03, el adicional es el que publica el BCB en el informe 5 / RWA; antes, conservación + contracíclico + sistémico según definiciones/minimos_regulatorios.json. Vacío si la norma no lo respalda.",
+   "en_ficha": false,
+   "tabla": "bk_capital"
+  },
+  "holgura_cp_pp": {
+   "nombre": "Holgura de capital principal",
+   "familia": "capital",
+   "unidad": "ratio",
+   "formato": "pct1",
+   "signo": "mejora_sube",
+   "signo_fuente": "arquitecto",
+   "fuente": "BCB IF.Data, informe 5 «Informações de Capital» (prudencial), pipeline/capital.py → bk_capital",
+   "definicion": "indice_cp − requerimiento_cp, en puntos porcentuales (fracción). No incluye Pilar 2, que no es público.",
+   "en_ficha": false,
+   "tabla": "bk_capital"
+  },
+  "holgura_crecimiento": {
+   "nombre": "Crecimiento de RWA que cubre el CP actual",
+   "familia": "capital",
+   "unidad": "ratio",
+   "formato": "pct1",
+   "signo": "mejora_sube",
+   "signo_fuente": "arquitecto",
+   "fuente": "BCB IF.Data, informe 5 «Informações de Capital» (prudencial), pipeline/capital.py → bk_capital",
+   "definicion": "indice_cp / requerimiento_cp − 1: cuánto pueden crecer los RWA (y el activo a densidad constante) con el capital principal de hoy.",
+   "en_ficha": false,
+   "tabla": "bk_capital"
   }
  }
 }

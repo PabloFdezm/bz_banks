@@ -169,6 +169,87 @@ Carpeta `datos/gold/`.
 | `primer_periodo` | str | 0 | 201403 | 7 |
 | `ultimo_periodo` | str | 0 | 202606 | 1 |
 
+### `bk_capital`
+
+1,390 filas · 41 columnas · periodo: 201503 → 202606 · 0.29 MB
+
+| Columna | Tipo | % nulos | Ejemplo | Valores distintos |
+|---|---|---|---|---|
+| `cod_inst` | str | 0 | C0080075 | 34 |
+| `periodo` | str | 0 | 201503 | 46 |
+| `fecha` | object | 0 | 2015-03-31 | 46 |
+| `trimestre` | str | 0 | 1T15 | 46 |
+| `capital_principal` | float64 | 11 | 74094585634.92 | 1236 |
+| `capital_complementar` | float64 | 11 | 0.0 | 553 |
+| `nivel1` | float64 | 11 | 74094585634.92 | 1236 |
+| `nivel2` | float64 | 11 | 19513014808.41 | 781 |
+| `pr` | float64 | 9 | 93607600443.33 | 1255 |
+| `rwa_credito` | float64 | 9 | 557017644945.93 | 1255 |
+| `rwa_mercado` | float64 | 9 | 18441506611.76 | 1242 |
+| `rwa_operacional` | float64 | 9 | 39117366603.7 | 661 |
+| `rwa_sp` | float64 | 71 | 0.0 | 155 |
+| `rwa_total` | float64 | 9 | 614576518161.39 | 1255 |
+| `exposicion_total` | float64 | 16 | 988502623527.27 | 1045 |
+| `indice_cp` | float64 | 11 | 0.120562018634533 | 1235 |
+| `indice_nivel1` | float64 | 11 | 0.120562018634533 | 1235 |
+| `basilea` | float64 | 10 | 0.152312360913777 | 1254 |
+| `razon_apalancamiento` | float64 | 25 | 0.0784084419223211 | 1044 |
+| `indice_inmovilizacion` | float64 | 13 | 0.47889936855414 | 1178 |
+| `acp_requerido` | float64 | 68 | 33079066502.64 | 424 |
+| `irrbb` | float64 | 83 | 5957744925.58 | 219 |
+| `ativo_total` | float64 | 1 | 869914674568.74 | 1379 |
+| `densidad_rwa` | float64 | 9 | 0.7064790790729748 | 1255 |
+| `min_cp` | float64 | 0 | 0.045 | 1 |
+| `min_nivel1` | float64 | 0 | 0.06 | 1 |
+| `min_pr` | float64 | 0 | 0.11 | 5 |
+| `acp_pct` | float64 | 53 | 0.0 | 418 |
+| `fuente_acp` | str | 0 | normas (definiciones/minimos_regulatorios.json) | 3 |
+| `requerimiento_cp` | float64 | 53 | 0.045 | 415 |
+| `requerimiento_nivel1` | float64 | 53 | 0.06 | 411 |
+| `requerimiento_pr` | float64 | 53 | 0.11 | 415 |
+| `holgura_cp_pp` | float64 | 55 | 0.075562018634533 | 620 |
+| `holgura_nivel1_pp` | float64 | 55 | 0.060562018634533005 | 620 |
+| `holgura_basilea_pp` | float64 | 54 | 0.042312360913777006 | 639 |
+| `exceso_cp` | float64 | 55 | 46438642317.65745 | 621 |
+| `holgura_crecimiento` | float64 | 55 | 1.6791559696562892 | 620 |
+| `var_cp_4t` | float64 | 20 | 2609741542.4400024 | 1106 |
+| `lucro_ttm` | float64 | 4 | 15902624880.74001 | 1329 |
+| `otros_var_cp_4t` | float64 | 21 | -14455212162.809998 | 1099 |
+| `alerta` | str | 0 |  | 8 |
+
+### `bk_capital_grupo`
+
+806 filas · 26 columnas · periodo: 201503 → 202606 · 0.09 MB
+
+| Columna | Tipo | % nulos | Ejemplo | Valores distintos |
+|---|---|---|---|---|
+| `optica` | str | 0 | Total panel | 5 |
+| `grupo` | str | 0 | Todos los grupos | 15 |
+| `periodo` | str | 0 | 201503 | 46 |
+| `fecha` | object | 0 | 2015-03-31 | 46 |
+| `trimestre` | str | 0 | 1T15 | 46 |
+| `n_bancos` | int64 | 0 | 24 | 27 |
+| `capital_principal` | float64 | 0 | 463156580184.35 | 542 |
+| `nivel1` | float64 | 0 | 493932988699.7 | 542 |
+| `pr` | float64 | 0 | 653476178592.98 | 542 |
+| `rwa_credito` | float64 | 0 | 3852134138712.3403 | 542 |
+| `rwa_mercado` | float64 | 0 | 202928241983.91 | 542 |
+| `rwa_operacional` | float64 | 0 | 214161236459.25 | 390 |
+| `rwa_total` | float64 | 0 | 4269223617155.5 | 542 |
+| `ativo_total` | float64 | 0 | 6737628344118.91 | 542 |
+| `indice_cp` | float64 | 0 | 0.10848730863457139 | 542 |
+| `indice_nivel1` | float64 | 0 | 0.11569620919243342 | 542 |
+| `basilea` | float64 | 0 | 0.15306674870977557 | 542 |
+| `densidad_rwa` | float64 | 0 | 0.6336389303636772 | 542 |
+| `acp_brl` | float64 | 51 | 0.0 | 235 |
+| `acp_pct` | float64 | 51 | 0.0 | 195 |
+| `min_cp` | float64 | 0 | 0.045 | 1 |
+| `requerimiento_cp` | float64 | 51 | 0.045 | 192 |
+| `holgura_cp_pp` | float64 | 51 | 0.06348730863457139 | 278 |
+| `holgura_crecimiento` | float64 | 51 | 1.410829080768253 | 278 |
+| `orden_optica` | int64 | 0 | 1 | 5 |
+| `orden_grupo` | int64 | 0 | 0 | 15 |
+
 ### `bk_cartera`
 
 22,864 filas · 14 columnas · periodo: 201406 → 202606 · 0.91 MB
@@ -390,19 +471,19 @@ Carpeta `datos/gold/`.
 
 ### `bk_manifiesto`
 
-32 filas · 12 columnas · — · 0.01 MB
+34 filas · 12 columnas · — · 0.01 MB
 
 | Columna | Tipo | % nulos | Ejemplo | Valores distintos |
 |---|---|---|---|---|
 | `tipo` | str | 0 | tabla | 2 |
-| `tabla` | str | 9 | bk_banco | 29 |
-| `archivo` | str | 9 | bk_banco.parquet | 29 |
-| `filas` | float64 | 9 | 34.0 | 28 |
-| `columnas` | float64 | 9 | 17.0 | 15 |
-| `rango` | str | 28 | 2014-06-30 00:00:00–2026-06-30 00:00:00 | 13 |
-| `sha256` | str | 9 | 280bfed071740cd2261356e9a39189f1dc83a96750b33a0f234bbb6626b1aa47 | 29 |
-| `bytes` | float64 | 9 | 12217.0 | 29 |
-| `producido_por` | str | 9 | python -X utf8 preparar_gold_bancos.py base | 12 |
+| `tabla` | str | 9 | bk_banco | 31 |
+| `archivo` | str | 9 | bk_banco.parquet | 31 |
+| `filas` | float64 | 9 | 34.0 | 30 |
+| `columnas` | float64 | 9 | 17.0 | 16 |
+| `rango` | str | 26 | 2015-03-31–2026-06-30 | 14 |
+| `sha256` | str | 9 | 280bfed071740cd2261356e9a39189f1dc83a96750b33a0f234bbb6626b1aa47 | 31 |
+| `bytes` | float64 | 9 | 12217.0 | 31 |
+| `producido_por` | str | 9 | python -X utf8 preparar_gold_bancos.py base | 13 |
 | `universo` | str | 91 | Panel | 3 |
 | `ultimo_corte` | str | 91 | 2026-06-30 | 3 |
 | `nota` | str | 91 | IF.Data prudencial, trimestral | 3 |
