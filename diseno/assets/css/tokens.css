@@ -1,0 +1,165 @@
+/* Fuentes servidas desde el propio sitio (assets/fonts, licencia SIL OFL 1.1): sin pedidos a Google Fonts. */
+@font-face { font-family: 'IBM Plex Sans'; font-style: normal; font-weight: 400; font-display: swap; src: url('../fonts/ibm-plex-sans-latin-400-normal.woff2') format('woff2'); }
+@font-face { font-family: 'IBM Plex Sans'; font-style: normal; font-weight: 500; font-display: swap; src: url('../fonts/ibm-plex-sans-latin-500-normal.woff2') format('woff2'); }
+@font-face { font-family: 'IBM Plex Sans'; font-style: normal; font-weight: 600; font-display: swap; src: url('../fonts/ibm-plex-sans-latin-600-normal.woff2') format('woff2'); }
+@font-face { font-family: 'IBM Plex Mono'; font-style: normal; font-weight: 400; font-display: swap; src: url('../fonts/ibm-plex-mono-latin-400-normal.woff2') format('woff2'); }
+@font-face { font-family: 'IBM Plex Mono'; font-style: normal; font-weight: 500; font-display: swap; src: url('../fonts/ibm-plex-mono-latin-500-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Bricolage Grotesque'; font-style: normal; font-weight: 600; font-display: swap; src: url('../fonts/bricolage-grotesque-latin-600-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Bricolage Grotesque'; font-style: normal; font-weight: 700; font-display: swap; src: url('../fonts/bricolage-grotesque-latin-700-normal.woff2') format('woff2'); }
+/* Monitor Brasil ? Design System 1.0
+   Fuente ejecutable de tokens. Ver DESIGN.md para reglas y adaptaci?n de Carbon.
+   Primitivos ? roles sem?nticos ? aliases compatibles con el monitor existente. */
+:root {
+  color-scheme: light;
+  --mb-white: #FFFFFF;
+  --mb-gray-05: #F6F7F8;
+  --mb-gray-10: #E6EAEF;
+  --mb-gray-20: #E1E6EC;
+  --mb-gray-30: #C9D2DC;
+  --mb-gray-60: #606C7A;
+  --mb-gray-70: #5B6573;
+  --mb-gray-90: #24324A;
+  --mb-blue: #2E5C8A;
+  --mb-teal: #2F7A86;
+  --mb-steel: #6C819B;
+  --mb-plum: #7B5E8C;
+  --mb-steel-light: #A9B8CB;
+  --mb-copper-text: #A85E24;
+  --mb-copper: #C2773A;
+  --mb-sand: #EDC9A6;
+  --mb-reference: #8A8F96;
+  --mb-blue-soft: #E8EEF5;
+
+  /* Roles. Color de serie y color de interacci?n tienen contratos distintos. */
+  --mb-background: var(--mb-gray-05);
+  --mb-layer: var(--mb-white);
+  --mb-layer-hover: var(--mb-blue-soft);
+  --mb-layer-selected: var(--mb-blue-soft);
+  --mb-text-primary: var(--mb-gray-90);
+  --mb-text-secondary: var(--mb-gray-70);
+  --mb-text-helper: var(--mb-gray-60);
+  --mb-text-on-color: var(--mb-white);
+  --mb-border-subtle: var(--mb-gray-20);
+  --mb-border-strong: var(--mb-gray-30);
+  --mb-border-control: var(--mb-steel);
+  --mb-divider: var(--mb-gray-10);
+  --mb-interactive: var(--mb-blue);
+  --mb-interactive-hover: var(--mb-gray-90);
+  --mb-interactive-active: var(--mb-gray-90);
+  --mb-focus: var(--mb-blue);
+  --mb-focus-inset: var(--mb-white);
+  --mb-disabled-background: var(--mb-gray-10);
+  --mb-disabled-text: var(--mb-gray-70);
+  --mb-support-success: var(--mb-teal);
+  --mb-support-error: var(--mb-copper-text);
+  --mb-support-warning: var(--mb-copper-text);
+  --mb-data-01: var(--mb-blue);
+  --mb-data-02: var(--mb-teal);
+  --mb-data-03: var(--mb-steel);
+  --mb-data-04: var(--mb-plum);
+  --mb-data-05: var(--mb-steel-light);
+  --mb-data-better: var(--mb-teal);
+  --mb-data-worse: var(--mb-copper-text);
+  --mb-data-worse-fill: var(--mb-copper);
+  --mb-data-gap: var(--mb-sand);
+  --mb-data-reference: var(--mb-reference);
+
+  --mb-font-body: 'IBM Plex Sans', 'Segoe UI', system-ui, sans-serif;
+  --mb-font-display: 'Bricolage Grotesque', 'IBM Plex Sans', sans-serif;
+  --mb-font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+  --mb-size-12: .75rem;
+  --mb-size-14: .875rem;
+  --mb-size-16: 1rem;
+  --mb-size-20: 1.25rem;
+  --mb-size-24: 1.5rem;
+  --mb-size-32: 2rem;
+  --mb-size-40: 2.5rem;
+  --mb-size-48: 3rem;
+  --mb-type-caption: 400 var(--mb-size-12)/1.5 var(--mb-font-body);
+  --mb-type-label: 500 var(--mb-size-14)/1.5 var(--mb-font-body);
+  --mb-type-body: 400 var(--mb-size-16)/1.6 var(--mb-font-body);
+  --mb-type-title: 600 var(--mb-size-20)/1.4 var(--mb-font-body);
+  --mb-type-heading: 600 var(--mb-size-24)/1.25 var(--mb-font-display);
+  --mb-type-display: 600 clamp(2rem, 4vw, 3rem)/1.15 var(--mb-font-display);
+  --mb-type-number: 500 var(--mb-size-32)/1.25 var(--mb-font-mono);
+
+  --mb-space-01: 4px;
+  --mb-space-02: 8px;
+  --mb-space-03: 12px;
+  --mb-space-04: 16px;
+  --mb-space-05: 24px;
+  --mb-space-06: 32px;
+  --mb-space-07: 48px;
+  --mb-space-08: 64px;
+  --mb-space-09: 96px;
+  --mb-radius-small: 2px;
+  --mb-radius-control: 4px;
+  --mb-radius-dialog: 8px;
+  --mb-control-height: 44px;
+  --mb-control-compact: 36px;
+  --mb-icon-size: 20px;
+  --mb-focus-width: 2px;
+  --mb-focus-offset: 4px;
+  --mb-motion-in: 240ms;
+  --mb-motion-out: 160ms;
+  --mb-motion-feedback: 180ms;
+  --mb-ease-out: cubic-bezier(.16, 1, .3, 1);
+  --mb-ease-in: cubic-bezier(.7, 0, .84, 0);
+  --mb-shadow-tooltip: 0 6px 18px rgb(36 50 74 / .14);
+  --mb-overlay: rgb(36 50 74 / .48);
+  --mb-content-max: 1440px;
+  --mb-measure: 70ch;
+
+  /* API anterior: conserva valores y contratos de gr?ficos/layout. */
+  --fondo: var(--mb-background);
+  --tarjeta: var(--mb-layer);
+  --borde: var(--mb-border-subtle);
+  --borde-fuerte: var(--mb-border-strong);
+  --regla: var(--mb-divider);
+  --texto: var(--mb-text-primary);
+  --texto-2: var(--mb-text-secondary);
+  --texto-3: var(--mb-text-helper);
+  --navy: var(--mb-data-01);
+  --petroleo: var(--mb-data-02);
+  --acero: var(--mb-data-03);
+  --ciruela: var(--mb-data-04);
+  --acero-claro: var(--mb-data-05);
+  --mejor: var(--mb-data-better);
+  --peor: var(--mb-data-worse);
+  --cobre: var(--mb-data-worse-fill);
+  --arena: var(--mb-data-gap);
+  --referencia: var(--mb-data-reference);
+  --suave-activo: var(--mb-layer-selected);
+  --fuente: var(--mb-font-body);
+  --fuente-display: var(--mb-font-display);
+  --fuente-mono: var(--mb-font-mono);
+  --espacio-xs: var(--mb-space-01);
+  --espacio-sm: var(--mb-space-02);
+  --espacio-md: var(--mb-space-04);
+  --espacio-lg: var(--mb-space-05);
+  --espacio-xl: var(--mb-space-06);
+  --espacio-seccion: var(--mb-space-07);
+  --control: var(--mb-control-height);
+  --radio-control: var(--mb-radius-control);
+  --motion-in: var(--mb-motion-in);
+  --motion-out: var(--mb-motion-out);
+  --motion-feedback: var(--mb-motion-feedback);
+  --ease-out: var(--mb-ease-out);
+  --barra-alto: 80px;
+  --pres-controles-alto: 88px;
+  --rail: 224px;
+  --t-min: 10px;
+  --t-nota: 11px;
+  --t-sub: 12px;
+  --t-cuerpo: 16px;
+  --t-titulo-tarjeta: 14px;
+  --t-seccion: 22px;
+  --t-kpi: 28px;
+  --t-pagina: 30px;
+  --t-titular: 40px;
+  --ancho-max: 1920px;
+  --margen: 32px;
+  --gap: var(--mb-space-04);
+  --alto-fila: 372px;
+  --radio: var(--mb-radius-small);
+}

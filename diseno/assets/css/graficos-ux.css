@@ -1,0 +1,90 @@
+/* Monitor Brasil · visualización compartida 1.1. Roles de diseño y flujo normal. */
+:root{--ux-plot-height:320px;--ux-plot-large:520px;--ux-touch:44px;--ux-row-gap:8px;--ux-axis-size:12px;--ux-value-size:14px}
+.tarjeta[data-ux-chart]{height:auto!important;min-height:0;overflow:visible;align-self:stretch}
+.tarjeta[data-ux-chart] .tarjeta-titulo{font-size:18px;line-height:1.4;white-space:normal;text-wrap:balance}
+.tarjeta[data-ux-chart] .tarjeta-sub{font-size:14px;line-height:1.5;white-space:normal}
+.tarjeta[data-ux-chart] .tarjeta-zona{position:relative;flex:none;min-height:0;height:var(--ux-plot-height);overflow:visible}
+.tarjeta[data-ux-chart] .tarjeta-zona[data-ux-render="html"]{height:auto}
+.tarjeta[data-ux-chart] .tarjeta-zona[data-ux-render="html"]>.ux-render{position:relative!important;inset:auto!important;height:auto!important;min-height:0;overflow-x:auto;padding:4px}
+.tarjeta[data-ux-chart] .tarjeta-zona[data-ux-render="chart"]>.ux-render{position:relative!important;inset:auto!important;width:100%;height:100%!important}
+.tarjeta[data-ux-chart] :is(.pesas,.caminos,.embudos,.apilada100,.senales,.kpi-galeria,.am3-paneles){height:auto}
+.tarjeta[data-ux-chart] .pesas{display:grid;gap:8px}
+.tarjeta[data-ux-chart] .pesas-fila{flex:none;min-height:40px;padding-block:4px;gap:12px}
+.tarjeta[data-ux-chart] .pesas-nombre{font-size:14px;line-height:1.5;white-space:normal;overflow:visible}
+.tarjeta[data-ux-chart] .pesas-valor{font-size:14px}
+.tarjeta[data-ux-chart] .caminos{height:280px;min-height:280px;gap:12px}
+.tarjeta[data-ux-chart] .caminos-fila{min-height:240px;flex:1 1 auto}
+.tarjeta[data-ux-chart] .am1-con-leyenda{height:auto;gap:16px}
+.tarjeta[data-ux-chart] .am1-caja{height:var(--ux-plot-height);min-height:var(--ux-plot-height);flex:none}
+.tarjeta[data-ux-chart] .embudos{min-height:260px}
+.tarjeta[data-ux-chart] .cajas{height:auto;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}
+.tarjeta[data-ux-chart] .cajas-panel{min-height:280px}
+.tarjeta[data-ux-chart] .cajas-zona{min-height:220px;flex:1 1 auto}
+.tarjeta[data-ux-chart] .ux-render .pesas-nombre{white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:break-word}
+.tarjeta[data-ux-chart] .am1-chev{display:inline-flex;align-items:center;justify-content:center;min-width:44px;min-height:44px}
+.tarjeta[data-ux-chart] .fijo-lectura{display:none}
+.riel .riel-flechas-fila{grid-template-columns:minmax(0,1fr) auto;gap:12px 16px}
+.riel .riel-flechas-fila .riel-flechas-fl{grid-column:1;justify-self:start}
+.riel .riel-flechas-fila .chip{grid-column:2;justify-self:end;color:var(--texto);background:var(--suave-activo)!important;border:1px solid var(--borde);font-size:12px}
+.tarjeta[data-ux-chart] .escala{min-height:140px}
+.tarjeta[data-ux-chart] .kpi-fila{min-height:36px;font-size:14px}
+.tarjeta[data-ux-chart] .kpi-nombre{white-space:normal;line-height:1.5}
+.tarjeta[data-ux-chart] :is(table,.senales-fila,.am3-panel-cab,.am3-barras-fila){font-size:14px}
+.tarjeta[data-ux-chart] :is(table th,table td){padding:8px}
+.tarjeta[data-ux-chart] .leyenda{font-size:14px;line-height:1.5;gap:8px 20px;flex-wrap:wrap;white-space:normal;height:auto}
+.tarjeta[data-ux-chart] [hidden]{display:none!important}
+.tarjeta[data-ux-chart] .leyenda-item{min-width:0;white-space:normal;line-height:1.5}
+.tarjeta[data-ux-chart] .tarjeta-controles{gap:12px;flex-wrap:wrap;align-items:flex-end}
+.tarjeta[data-ux-chart] .tarjeta-desp{display:grid;gap:8px;font-size:14px;min-width:0}
+.tarjeta[data-ux-chart] :is(.riel-desp,select,button.tarjeta-agrandar,.leyenda-flecha){min-height:var(--ux-touch)}
+.tarjeta[data-ux-chart] :is(.leyenda-flecha,.tarjeta-agrandar){min-width:var(--ux-touch)}
+.tarjeta[data-ux-chart] .fijo-lectura{font-size:12px}
+.tarjeta[data-ux-chart] .fijo-soltar{width:28px;height:28px}
+.ux-tools{display:grid;gap:12px;min-width:0;margin:16px 0 0;flex:none;color:var(--texto)}
+.ux-help{font:400 12px/1.6 var(--fuente);color:var(--texto-2);margin:0;max-width:75ch}
+.ux-reader{padding:16px;background:var(--fondo);min-width:0;overflow-wrap:anywhere}
+.ux-reader-head{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:12px}
+.ux-reading{font:400 14px/1.6 var(--fuente);font-variant-numeric:tabular-nums}
+.ux-reading>div{max-width:100%}.ux-reading>div>div{flex-wrap:wrap;gap:8px 16px!important}
+.ux-button{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:8px 16px;background:var(--tarjeta);color:var(--navy);border:1px solid var(--borde-fuerte);border-radius:var(--radio-control);font:500 14px/1.5 var(--fuente);cursor:pointer}
+.ux-button:disabled{opacity:.6;cursor:default;color:var(--texto-2)}
+.ux-button:focus-visible,.ux-tools :focus-visible,.tarjeta[data-ux-chart] [data-tt]:focus-visible{outline:2px solid var(--navy);outline-offset:4px}
+.ux-data{border-top:1px solid var(--borde);padding-top:8px;min-width:0}
+.ux-data>summary{display:list-item;min-height:44px;padding:8px 0;cursor:pointer;font:500 14px/1.5 var(--fuente);color:var(--navy)}
+.ux-data-body{display:grid;gap:24px;padding-top:8px}
+.ux-data-block{min-width:0}.ux-table-region{overflow:auto;max-height:480px;scrollbar-color:var(--acero) var(--fondo)}
+.ux-table-region table{width:100%;border-collapse:collapse;font:400 14px/1.6 var(--fuente);font-variant-numeric:tabular-nums}
+.ux-table-region caption{text-align:left;font-weight:600;padding:12px 0;max-width:72ch}
+.ux-table-region :is(th,td){text-align:left;border-bottom:1px solid var(--borde);padding:12px;vertical-align:top}
+.ux-table-region thead th{background:var(--fondo);font-weight:500;white-space:normal;min-width:96px}
+.ux-table-region tbody th{font-weight:400;min-width:128px}.ux-table-region td{white-space:nowrap}
+.ux-pagination{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-top:16px;font:400 12px/1.5 var(--fuente)}
+.tarjeta-grande[data-ux-chart]{--ux-plot-height:var(--ux-plot-large)}
+.tarjeta-grande[data-ux-chart] .tarjeta-zona[data-ux-render="html"]{height:auto!important}
+.modo-presentacion .tarjeta[data-ux-chart]{height:100%!important;overflow:auto;min-height:0}
+.modo-presentacion .tarjeta[data-ux-chart] .ux-tools{display:none}
+.modo-presentacion .tarjeta[data-ux-chart] .tarjeta-zona{height:auto;flex:1 1 auto;min-height:180px}
+@media(hover:hover){.ux-button:not(:disabled):hover{background:var(--suave-activo);color:var(--texto)}}
+@media(max-width:767px){
+ :root{--ux-plot-height:300px;--ux-plot-large:440px}
+ .tarjeta[data-ux-chart] .tarjeta-controles{display:grid;grid-template-columns:minmax(0,1fr)}
+ .tarjeta[data-ux-chart] :is(.riel-desp,select){max-width:100%;width:100%}
+ .tarjeta[data-ux-chart] .ux-render .pesas-fila{grid-template-columns:minmax(0,1fr) auto;gap:8px 16px}
+ .tarjeta[data-ux-chart] .cajas{grid-template-columns:minmax(0,1fr)}
+ .tarjeta[data-ux-chart] .pesas-nombre{grid-column:1;grid-row:1;white-space:normal}
+ .tarjeta[data-ux-chart] .pesas-valor{grid-column:2;grid-row:1}
+ .tarjeta[data-ux-chart] .pesas-pista{grid-column:1 / -1;grid-row:2;margin-bottom:8px;min-height:24px}
+ .tarjeta[data-ux-chart] .apilada100-barra{height:20px!important;min-height:20px;overflow:visible}
+ .tarjeta[data-ux-chart] .apilada100-parte{padding:0;min-width:0}
+ .tarjeta[data-ux-chart] .apilada100-parte :is(.apilada100-nombre,.apilada100-valor){display:none}
+ .tarjeta[data-ux-chart] .apilada100-fila{gap:12px;margin-bottom:16px}
+ .tarjeta[data-ux-chart] .apilada100-cabecera{display:grid;gap:4px;font-size:12px}
+ .tarjeta[data-ux-chart] .apilada100-cabecera span:last-child{text-align:left}
+ .ux-composition-legend{display:grid;gap:8px;margin:0;padding:0;list-style:none}
+ .ux-composition-legend li{display:grid;grid-template-columns:12px minmax(0,1fr) auto;gap:8px;font:400 14px/1.5 var(--fuente)}
+ .ux-composition-mark{display:block;width:12px;height:12px;border:1px solid var(--texto-2);align-self:center}
+ .ux-composition-legend strong{white-space:nowrap}
+ .ux-reading>div{font-size:14px}.ux-reader{padding:12px}
+}
+@media(min-width:768px){.ux-composition-legend{display:none}}
+@media(prefers-reduced-motion:reduce){.ux-tools *{scroll-behavior:auto;transition:none;animation:none}}
