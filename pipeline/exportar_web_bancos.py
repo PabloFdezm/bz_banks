@@ -46,7 +46,7 @@ ORIGEN = A.GOLD
 SALIDA = A.RAIZ / "sitio" / "data"
 
 # Auxiliar del verificador (decisión 59): no es parte del contrato del sitio.
-# bk_ref: todas las ediciones del Anexo del REF pesan ~81 MB en JSON; cuando una página lo use, se exportan solo
+# bk_ref: todas las ediciones del Anexo del REF pesan ~81 MB en JSON; el sitio usa bk_ref_sitio (ref.py), con solo
 # los gráficos que use (frente 4, 9-nov-2026).
 EXCLUIDAS = {"bk_cartera_totales", "bk_ref"}
 # Columna que identifica al banco en cada tabla que se parte por banco.

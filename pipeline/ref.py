@@ -11,8 +11,9 @@ Trampas (verificadas el 9-nov-2026 sobre las ediciones 202304 a 202610):
 2. Cada hoja tiene su forma: título, «Fonte», notas, una fila de unidad («%», «R$ bilhões»), uno o dos niveles de
    encabezado (el superior en celdas combinadas que openpyxl lee como vacías a la derecha) y después los datos.
 3. Las fechas vienen como datetime, como «2020-12», o como «Jun\\n2023» seguido de «Jul», «Ago»… sin año.
-4. Hay hojas sin eje temporal (distribuciones, tablas por categoría, escenarios de estrés): se guardan con
-   ``categoria`` en vez de ``fecha_ref``.
+4. Hay hojas sin eje temporal (distribuciones, tablas por categoría, resultados del estrés): se guardan con
+   ``categoria`` en vez de ``fecha_ref``. La hoja de supuestos del estrés («Grafs 1.2.5.1 a 1.2.5.5») tiene su
+   propio lector (leer_escenarios): bloques por variable, una fila por escenario y trimestres en columnas.
 5. Algunas columnas vienen vacías a propósito (el contrafactual de 1.2.2.21 solo existe en la proyección):
    no se rellena nada; una celda vacía no genera fila.
 
@@ -208,11 +209,76 @@ def _es_unidad(fila: list) -> str | None:
     return None
 
 
+def _fila_cenario(filas: list[list]) -> int | None:
+    """Índice de la fila «Cenário | Q1 | Q2…» de la hoja de escenarios de estrés, si la hoja tiene esa forma."""
+    for i, f in enumerate(filas[:15]):
+        textos = [limpiar(x).lower() for x in f if x is not None and str(x).strip()]
+        if textos and textos[0] in ("cenário", "cenario") and any(re.fullmatch(r"q[1-4]", t) for t in textos):
+            return i
+    return None
+
+
+def _variable_escenario(texto: str) -> str:
+    """Nombre de la variable comparable entre ediciones: hasta 2024-10 viene como «Gráfico 1.2.5.3 – Variação do
+    PIB»; desde 2025, «PIB» o «Desemprego (ajustado sazonalmente)»."""
+    t = re.sub(r"^gr[áa]fico\s+[\d.]+\s*[–—:-]\s*", "", texto, flags=re.I)
+    t = re.sub(r"\s*\(ajustado sazonalmente\)$", "", t, flags=re.I)
+    return {"variação do pib": "PIB"}.get(t.lower(), t)
+
+
+def leer_escenarios(filas: list[list], i_cab: int, hoja: str, edicion: str, titulo: str,
+                    avisos: list[str]) -> pd.DataFrame:
+    """Hoja «Grafs 1.2.5.1 a 1.2.5.5»: supuestos de cada escenario del test de estrés macro.
+
+    Forma: una fila con los años (en la primera columna de cada bloque de cuatro trimestres), debajo la fila
+    «Cenário | Q1…Q4», y luego bloques por variable («Inflação», «PIB», «Selic»…) con una fila por escenario.
+    Sale con tipo «serie», serie «<variable> | <escenario>» y fecha_ref en el mes de cierre del trimestre
+    («2027-03» para 2027 Q1), igual que el resto de las series trimestrales del anexo.
+    """
+    anios, fechas, anio = filas[i_cab - 1], {}, None
+    for j, q in enumerate(filas[i_cab]):
+        if isinstance(anios[j], (int, float)) and not isinstance(anios[j], bool):
+            anio = int(anios[j])
+        m = re.fullmatch(r"q([1-4])", limpiar(q).lower()) if q is not None else None
+        if m and anio is not None:
+            fechas[j] = f"{anio}-{3 * int(m[1]):02d}"
+    if not fechas:
+        avisos.append(f"{edicion} {hoja}: escenarios sin trimestres reconocibles")
+        return pd.DataFrame(columns=COLUMNAS)
+    j_rotulo = next(j for j, x in enumerate(filas[i_cab]) if x is not None and str(x).strip())
+    salida, variable = [], ""
+    for i in range(i_cab + 1, len(filas)):
+        f = filas[i]
+        numeros = [j for j in fechas if _es_numero(f[j])]
+        if not numeros:
+            texto = next((limpiar(x) for x in f[:j_rotulo + 1] if x is not None and str(x).strip()), "")
+            if texto and not re.match(r"^(fonte|\*|obs[.:]|notas?[.:]|\(\d+\)\s)", texto, re.I):
+                variable = _variable_escenario(texto)
+            continue
+        escenario = limpiar(f[j_rotulo]) if f[j_rotulo] is not None else ""
+        if not variable or not escenario:
+            avisos.append(f"{edicion} {hoja}: fila {i + 1} con números sin variable o escenario (se omite)")
+            continue
+        for j in numeros:
+            salida.append({"edicion": edicion, "hoja": hoja, "grafico": grafico_de_hoja(hoja), "titulo": titulo,
+                           # una fila trae todos los trimestres: «orden» = fila × 1000 + columna, para que la
+                           # clave (edición, hoja, serie, orden) siga siendo única
+                           "unidad": "", "tipo": "serie", "serie": f"{variable} | {escenario}",
+                           "orden": (i + 1) * 1000 + j,
+                           "fecha_ref": fechas[j], "categoria": "", "valor": float(f[j])})
+    return pd.DataFrame(salida, columns=COLUMNAS)
+
+
 def leer_hoja(filas: list[tuple], hoja: str, edicion: str, avisos: list[str]) -> pd.DataFrame:
     """Una hoja del anexo en formato largo. Ver las trampas 2 a 5 del encabezado."""
     filas = [list(f) for f in filas]
     ancho = max((len(f) for f in filas), default=0)
     filas = [f + [None] * (ancho - len(f)) for f in filas]
+    i_cab = _fila_cenario(filas)
+    if i_cab is not None and i_cab > 0:
+        titulo = next((limpiar(c) for f in filas[:i_cab] for c in f
+                       if isinstance(c, str) and re.match(r"^(box|gr[áa]f|tabela)", limpiar(c), re.I)), "")
+        return leer_escenarios(filas, i_cab, hoja, edicion, titulo, avisos)
     titulo, i_titulo = "", -1
     for i, f in enumerate(filas[:10]):
         c = next((x for x in f if isinstance(x, str) and x.strip()), None)
@@ -356,6 +422,17 @@ def construir(*, avisos: list[str] | None = None) -> pd.DataFrame:
     return df
 
 
+def para_sitio(df: pd.DataFrame) -> pd.DataFrame:
+    """bk_ref_sitio: los gráficos de «sitio» en la definición, solo de la última edición (bk_ref entero pesa ~81 MB
+    en JSON y no se exporta)."""
+    graficos = definicion()["sitio"]["graficos"]
+    s = df[(df["edicion"] == df["edicion"].max()) & df["grafico"].isin(graficos)]
+    faltan = sorted(set(graficos) - set(s["grafico"]))
+    if faltan:
+        raise ValueError(f"bk_ref_sitio: la última edición no trae {faltan}")
+    return s.reset_index(drop=True)
+
+
 def gold(*, publicar: bool = True) -> int:
     avisos: list[str] = []
     df = construir(avisos=avisos)
@@ -372,6 +449,13 @@ def gold(*, publicar: bool = True) -> int:
         A.publicar_gold("bk_ref", df, fuente=FUENTE, dataset=DATASET_GOLD,
                         desde=[f"datos/crudo/{FUENTE}/{DATASET_CRUDO}", f"definiciones/{DEF}.json"],
                         nota="Anexo Estatístico del REF (BCB), todas las ediciones bajadas, en formato largo")
+    sitio = para_sitio(df)
+    print(f"[+] bk_ref_sitio: {len(sitio):,} filas de la edición {df['edicion'].max()}, "
+          f"gráficos {sorted(sitio['grafico'].unique())}")
+    if publicar:
+        A.publicar_gold("bk_ref_sitio", sitio, fuente=FUENTE, dataset=DATASET_GOLD,
+                        desde=[f"datos/crudo/{FUENTE}/{DATASET_CRUDO}", f"definiciones/{DEF}.json"],
+                        nota="Gráficos del REF que usa el sitio («sitio» en la definición), última edición")
     return 0
 
 

@@ -29,6 +29,10 @@
    "columnas": ["edicion", "hoja", "grafico", "titulo", "unidad", "tipo", "serie", "orden", "fecha_ref", "categoria", "valor"],
    "clave": ["edicion", "hoja", "serie", "orden"]
   },
+  "bk_ref_sitio": {
+   "columnas": ["edicion", "hoja", "grafico", "titulo", "unidad", "tipo", "serie", "orden", "fecha_ref", "categoria", "valor"],
+   "clave": ["edicion", "hoja", "serie", "orden"]
+  },
   "bk_capital": {
    "columnas": ["cod_inst", "periodo", "fecha", "trimestre", "capital_principal", "nivel1", "pr", "rwa_total", "rwa_credito", "rwa_mercado", "rwa_operacional", "basilea", "indice_nivel1", "indice_cp", "densidad_rwa", "requerimiento_cp", "fuente_acp", "holgura_cp_pp", "holgura_crecimiento", "var_cp_4t", "lucro_ttm", "otros_var_cp_4t"],
    "clave": ["cod_inst", "periodo"]

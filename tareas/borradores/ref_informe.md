@@ -44,9 +44,15 @@ Set-Location C:\dev\bz_banks
 - **Hojas sin eje temporal** (distribuciones por tramo de CRI, entidades del FGC, escenarios de estrés, tablas): van
   con `tipo = categorias`, y la primera columna en `categoria`, aunque sea numérica.
 - **Celdas vacías a propósito** (el contrafactual de 1.2.2.21 solo existe en la proyección): no generan fila.
-- **Sin leer en 202610**: 3 hojas. Son «Grafs 1.2.5.1 a 1.2.5.5» (escenarios con dos columnas de rótulos), Tab 2.2.1
-  y Tab 2.6.1. En ediciones viejas, las cascadas de liquidez (1.2.1.12–14) pierden las filas por categoría. Ninguna se
-  usa hoy.
+- **Supuestos del estrés («Grafs 1.2.5.1 a 1.2.5.5»)**: lector propio desde el 9-nov (`leer_escenarios`). Sale
+  como serie «<variable> | <escenario>» por trimestre (Q1 → «AAAA-03»), en las 8 ediciones. La variable se normaliza
+  («Gráfico 1.2.5.3 – Variação do PIB» → «PIB»); el escenario no: hasta 202410 el BCB los llama «Estresse 1/2» en
+  cambio, PIB, desempleo y Selic, y «Recessão Aguda / Confiança/Fiscal» en inflación; desde 202504, «Recessão aguda /
+  Crise de confiança» en todas. No se asume la equivalencia.
+- **1.2.5.7 (necesidad de capital, % PR)** viene traspuesta: los trimestres como columnas, los escenarios como filas.
+  Queda con `tipo = categorias` y el trimestre en `serie` («202906»); si se usa, se pivota al exportar.
+- **Sin leer en 202610**: 2 hojas, Tab 2.2.1 y Tab 2.6.1. En ediciones viejas, las cascadas de liquidez
+  (1.2.1.12–14) pierden las filas por categoría. Ninguna se usa hoy.
 
 ## 3. Contraste con lo que ya publica el sitio (edición 202610)
 
@@ -81,6 +87,11 @@ En la réplica del 6-nov, hecha con el panel de 34 bancos, los digitales daban R
 
 > **Cerradas el 9-nov (Pablo):** 1) Mora sigue con SCR.data propio y el REF como control (test de 1.2.2.16).
 > 2) ROE y provisiones por segmento desde el REF. Quedan 3 (tarjeta de estrés) y 4 (qué exportar), con el rediseño.
+>
+> **Avance del 9-nov (tarde):** 4 queda armado: `bk_ref_sitio` (última edición, gráficos de «sitio» en
+> `definiciones/bcb_ref.json`: hoy 1.2.3.1, 1.2.3.5 y 1.2.3.8; 185 KB en JSON) se exporta solo. Para sumar un gráfico
+> basta agregarlo a esa lista. Para 3 están los supuestos de los escenarios; la propuesta de tarjeta está en la ficha de
+> datos del rediseño.
 
 1. **1.2.2.15 y 1.2.2.16 en la página Mora.** Hoy salen del SCR.data propio, que es mensual y llega a sep-26. El REF
    llega a jun-26 y se actualiza cada seis meses. Recomiendo:

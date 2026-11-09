@@ -70,6 +70,27 @@ def test_hoja_por_categorias_con_tramos_numericos():
     assert sorted(df["categoria"].unique()) == ["0", "1"]
 
 
+def test_hoja_de_escenarios_de_estres():
+    filas = _hoja(("Boxe – Descrição dos cenários utilizados no teste de estresse macroeconômico",),
+                  ("Fonte: Banco Central do Brasil",), (),
+                  (None, None, None, 2026, None, None, None, None, 2027),
+                  (None, "Cenário", None, "Q1", "Q2", "Q3", "Q4", None, "Q1"),
+                  ("Selic",),
+                  (None, "Cenário Base", None, 14.8, 14.4, 13.9, 13.6, None, 13.6),
+                  (None, "Crise de confiança", None, 14.8, 14.4, 13.9, 20.3, None, 25.3),
+                  (),
+                  ("PIB",),
+                  (None, "Cenário Base", None, 2.0, 1.9, 1.9, 1.9, None, 1.8))
+    av = []
+    df = R.leer_hoja(filas, "Grafs 1.2.5.1 a 1.2.5.5", "202610", av)
+    assert av == [] and (df["tipo"] == "serie").all()
+    assert df["grafico"].iloc[0] == "1.2.5.1-1.2.5.5" and df["titulo"].iloc[0].startswith("Boxe")
+    assert sorted(df["serie"].unique()) == ["PIB | Cenário Base", "Selic | Cenário Base", "Selic | Crise de confiança"]
+    s = df[df["serie"] == "Selic | Crise de confiança"]
+    assert s["fecha_ref"].tolist() == ["2026-03", "2026-06", "2026-09", "2026-12", "2027-03"]
+    assert s["valor"].iloc[-1] == 25.3
+
+
 def test_candidatas_de_la_edicion_siguiente():
     meses = {"primer_semestre": ["03", "04"], "segundo_semestre": ["09", "10"]}
     assert R.candidatas_siguientes("202605", meses) == ["202609", "202610"]
@@ -87,6 +108,24 @@ def bk_ref():
 def test_graficos_usados_existen_en_la_ultima_edicion(bk_ref):
     """Si el BCB renombra una hoja o una serie usada, falla aquí y no en una tarjeta vacía."""
     assert R.controlar_usados(bk_ref, []) == []
+
+
+@pytest.mark.integracion
+def test_escenarios_de_estres_en_todas_las_ediciones(bk_ref):
+    """La hoja de supuestos del estrés se lee en cada edición, con PIB y Selic por escenario."""
+    e = bk_ref[bk_ref["grafico"] == "1.2.5.1-1.2.5.5"]
+    assert set(e["edicion"]) == set(bk_ref["edicion"])
+    for ed, g in e.groupby("edicion"):
+        variables = {s.split(" | ")[0] for s in g["serie"]}
+        assert {"PIB", "Selic", "Inflação"} <= variables, ed
+
+
+@pytest.mark.integracion
+def test_bk_ref_sitio_es_la_ultima_edicion_de_los_graficos_definidos(bk_ref):
+    sitio = pd.read_parquet(GOLD / "bk_ref_sitio.parquet")
+    assert set(sitio["edicion"]) == {bk_ref["edicion"].max()}
+    assert set(sitio["grafico"]) == set(R.definicion()["sitio"]["graficos"])
+    assert len(sitio) == len(R.para_sitio(bk_ref))
 
 
 @pytest.mark.integracion
