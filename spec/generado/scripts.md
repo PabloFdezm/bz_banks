@@ -3,7 +3,7 @@
 > Generado por `herramientas/generar_spec.py`. No editar a mano: se sobrescribe.
 
 
-## `pipeline/actualizar.py` (87 líneas)
+## `pipeline/actualizar.py` (88 líneas)
 
 Importa del pipeline: `almacen`, `red`
 
@@ -148,6 +148,65 @@ USO
     import certificados   # basta con importarlo, se activa solo
 
 Va como primer import de cada modulo que salga a la red (bcb_api, ifdata, sgs, scr_zip), ANTES de requests.
+```
+
+## `pipeline/cvm.py` (1090 líneas)
+
+Importa del pipeline: `almacen`, `bancos`, `certificados`, `periodos`, `red`
+
+Argumentos: `--forzar` — vuelve a bajar aunque el tamaño no haya cambiado; `--descargar` — con «todo», baja antes los ZIP: así lo llama actualizar.py. Sin esta opción trabaja ; `--periodo` — para «contrastar»: solo este trimestre (AAAAMM)
+
+```text
+Fuente CVM (ITR y DFP) de los bancos cotizados: descarga, extracción filtrada y tabla gold ``bk_publicado``.
+
+POR QUÉ EXISTE
+--------------
+El IF.Data del BCB llega con rezago: el trimestre cierra y los datos aparecen semanas después. Los bancos
+cotizados, en cambio, publican su ITR (Informe Trimestral) en la CVM mucho antes. Esta fuente da el último
+trimestre publicado con la base contable rotulada (IFRS o BR GAAP), que es lo que necesita la tarjeta
+B8-06-0 «Último trimestre publicado (CVM)».
+
+Es OTRA contabilidad, no un reemplazo del IF.Data: el ITR/DFP es el consolidado societario bajo
+pronunciamientos del CPC (o IFRS, según el banco), mientras que el IF.Data es el conglomerado prudencial
+bajo COSIF. Los dos números del mismo trimestre difieren —por las subsidiarias de seguros, por el método
+de participación y por reglas de consolidación— y esa diferencia se mide y se informa
+(``contrastar``), nunca se corrige.
+
+CAPAS
+-----
+    datos/crudo/cvm/itr/<año>/itr_cia_aberta_<año>.zip      el ZIP íntegro de la CVM, sin tocar
+    datos/crudo/cvm/dfp/<año>/dfp_cia_aberta_<año>.zip      idem, estados anuales
+    datos/crudo/cvm/cadastro/actual/cad_cia_aberta.csv      registro de compañías abiertas
+    datos/derivado/cvm/bancos/...                           solo las filas de los bancos del mapa (parquet)
+    datos/gold/bk_publicado.parquet                         las líneas mínimas por banco y trimestre
+
+El ZIP se vuelve a bajar cuando cambia de tamaño en el servidor: la CVM regenera el del año en curso casi
+todas las semanas (entra el ITR nuevo, o una compañía reentrega y sube la VERSAO).
+
+TRAMPAS DE LA FUENTE (todas verificadas sobre el dato; ver también definiciones/cvm__dfp_bancos.json)
+------------------------------------------------------------------------------------------------------
+1. Cada cuenta viene DOS veces por ``ORDEM_EXERC`` («ÚLTIMO» y «PENÚLTIMO», el ejercicio comparativo):
+   sin filtrar se duplica todo y se mezclan dos años. Este módulo toma «ÚLTIMO» para el cierre del archivo
+   y usa ``DT_FIM_EXERC`` para saber de qué periodo es cada cifra.
+2. ``ESCALA_MOEDA`` vale «MIL»: los valores están en R$ mil. ``bk_publicado`` los publica en R$ (×1000).
+   La escala se LEE de la columna, no se asume: la CVM también usa «UNIDADE».
+3. En el ITR, la DRE trae el trimestre y el acumulado del año en la misma cuenta: se distinguen por
+   ``DT_INI_EXERC`` (1 de enero = acumulado; inicio del trimestre = trimestre). La DFP solo trae el año.
+4. Una compañía puede reentregar (``VERSAO``): se usa la mayor por compañía y documento.
+5. ``CD_CONTA`` es jerárquico y el plan de cuentas lo arma cada compañía dentro del esqueleto de la CVM:
+   la misma cuenta puede tener códigos distintos entre bancos. De ahí el mapa por banco de
+   ``definiciones/cvm__bancos_lineas.json``.
+6. Nubank, Inter, XP, Stone y PagSeguro NO entregan ITR/DFP: reportan en EE.UU. (20-F/6-K). Quedan fuera
+   de alcance en la v1, con ``bk_publicado`` vacío para ellos.
+
+Uso (desde la raíz del repo, con el .venv):
+
+    python -X utf8 pipeline/cvm.py descargar              # ZIP ITR/DFP + registro, solo si cambiaron
+    python -X utf8 pipeline/cvm.py extraer                # derivado filtrado a los bancos del mapa
+    python -X utf8 pipeline/cvm.py gold                   # bk_publicado + huecos
+    python -X utf8 pipeline/cvm.py contrastar             # contra IF.Data: activo, PL, depósitos, crédito y lucro
+    python -X utf8 pipeline/cvm.py todo                   # extraer + gold + contrastar, sin tocar la red
+    python -X utf8 pipeline/cvm.py todo --descargar       # idem, bajando antes lo que cambió (actualizar.py)
 ```
 
 ## `pipeline/diccionario_ifdata.py` (714 líneas)
@@ -941,6 +1000,47 @@ para que no quede desactualizada.
 
 Uso (desde la raíz del repo):  python -X utf8 herramientas/generar_spec.py
 Requiere los parquet de datos/gold (no van a git) y Node para leer la configuración de páginas.
+```
+
+## `herramientas/verificar_cvm.py` (371 líneas)
+
+Importa del pipeline: `almacen`, `bancos`, `cvm`, `periodos`
+
+Argumentos: `--estricto` — las advertencias también fallan; `--json` — salida en JSON; `--sin-contraste` — no compara contra IF.Data
+
+```text
+Verificador de solo lectura de la fuente CVM (ITR/DFP) y de su tabla gold ``bk_publicado``.
+
+POR QUÉ EXISTE
+--------------
+``bk_publicado`` se arma encadenando decisiones: qué CNPJ es cada banco del panel, si se lee el estado
+consolidado o el individual, qué versión de la entrega vale, si la DRE es el trimestre o el acumulado, en qué
+escala viene el número y qué cuenta del plan de cada banco es «la cartera de crédito». Un error en cualquiera
+no revienta: publica un número plausible y equivocado. Este script comprueba la cadena de punta a punta sin
+escribir nada, y además compara contra IF.Data (dos contabilidades del mismo trimestre) para que una
+diferencia grande sea ruido visible y no una sorpresa en el sitio.
+
+Comprueba:
+- integridad del crudo (sha256 de los manifiestos de ``datos/crudo/cvm/``);
+- que el mapa cubra exactamente el universo del panel, sin CNPJ repetidos y con tipo de estado válido;
+- que ningún CNPJ fuera del mapa haya entrado al derivado ni a ``bk_publicado``;
+- estructura de ``bk_publicado``: contrato gold, dominio de medida/documento/consolidación, periodos de fin
+  de trimestre, sin valores nulos ni infinitos;
+- la escala: rehace el valor de una muestra de filas desde el derivado (VL_CONTA × 1000 si ESCALA_MOEDA=MIL)
+  y exige que coincida al céntimo — es la prueba de que no se publicó en R$ mil;
+- coherencia interna del balance: el activo total de la CVM contra la suma de sus cuentas de nivel 1.0x;
+- que cada banco que entrega tenga datos en el último trimestre que le corresponde;
+- el contraste contra IF.Data (activo, PL, depósitos, crédito y lucro del trimestre), avisando de las
+  diferencias mayores al umbral.
+
+Uso desde la raíz del repo:
+
+    python -X utf8 herramientas/verificar_cvm.py                 # errores y avisos
+    python -X utf8 herramientas/verificar_cvm.py --estricto      # los avisos también fallan
+    python -X utf8 herramientas/verificar_cvm.py --json
+    python -X utf8 herramientas/verificar_cvm.py --sin-contraste  # no lee bk_panel
+
+Código de salida: 0 si no hay errores (o solo avisos sin ``--estricto``), 1 si los hay.
 ```
 
 ## `herramientas/verificar_f1.py` (241 líneas)

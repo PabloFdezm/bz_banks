@@ -1,0 +1,1152 @@
+{
+ "fuente": "cvm",
+ "descripcion": "Mapeo de cuentas del ITR/DFP de la CVM a las líneas mínimas de bk_publicado. Una línea se busca por REGLA (código candidato + texto que debe contener la descripción), no por código fijo: el esqueleto de la CVM cambió con el CPC 48 y cada banco migró en un momento distinto, así que el mismo concepto vive en códigos distintos según banco y año. Si una regla no casa, la línea queda VACÍA con su motivo: nunca se inventa un número.",
+ "convenciones": {
+  "regla": "«cd» lista códigos candidatos; «ds» lista textos que la descripción debe contener TODOS (comparados normalizados: minúsculas, sin acentos ni puntuación); «ds_no» textos que NO debe contener; «desde»/«hasta» acotan por DT_REFER cuando el banco cambió de criterio. Una regla que casa con más de una cuenta es un error (ambigua), no un empate.",
+  "alternativas": "Se prueban en orden; gana la primera cuyas reglas casan todas. «suma» suma cuentas y «resta» las descuenta (p. ej. el PL del controlador = PL total − no controladores).",
+  "cero_es_vacio": "true en la provisión: un banco con cartera siempre tiene provisión esperada, así que un 0 en esa cuenta significa «no la divulgo», no «no tengo».",
+  "signo": "«positivo» publica el valor absoluto (la provisión viene negativa en la fuente).",
+  "plantillas": "«banco» cubre los dos esqueletos con reglas genéricas; «no_financiera» es para Cielo. Las líneas de cada banco reemplazan a las de la plantilla (no se mezclan).",
+  "generado_por": "tareas/borradores/cvm_generar_lineas.py, 9-nov-2026, sobre el relevamiento de los ZIP de ITR 2025-2026 y DFP 2023-2026. Los overrides están validados cuenta por cuenta; las notas de cada banco dicen qué trampa tiene."
+ },
+ "lineas": {
+  "ativo_total": {
+   "cero_es_vacio": true,
+   "nombre": "Ativo total",
+   "estado": "BPA",
+   "medida": "saldo",
+   "unidad": "R$",
+   "orden": 1,
+   "definicion": "Cuenta 1 del activo. Consolidado cuando el banco lo entrega; si no, individual (lo dice la columna consolidacion de bk_publicado)."
+  },
+  "credito_bruto": {
+   "cero_es_vacio": true,
+   "nombre": "Cartera de crédito bruta",
+   "estado": "BPA",
+   "medida": "saldo",
+   "unidad": "R$",
+   "orden": 2,
+   "definicion": "Operações de crédito ANTES de la provisión por pérdida esperada. El alcance varía por banco (Itaú y BMG incluyen arrendamento mercantil financeiro en la misma cuenta): la nota de cada banco lo dice."
+  },
+  "credito_liquido": {
+   "cero_es_vacio": true,
+   "nombre": "Cartera de crédito neta",
+   "estado": "BPA",
+   "medida": "saldo",
+   "unidad": "R$",
+   "orden": 3,
+   "definicion": "Operações de crédito NETAS de provisión. Se usa cuando el banco no publica la provisión en las cuentas estándar de la CVM (1.02.04.05 = 0 en todos los periodos) y por tanto su saldo de crédito ya viene neto. Clasificado así por contraste contra IF.Data."
+  },
+  "provisao_perda": {
+   "cero_es_vacio": true,
+   "nombre": "Provisión para pérdidas esperadas (saldo)",
+   "estado": "BPA",
+   "medida": "saldo",
+   "unidad": "R$",
+   "orden": 4,
+   "definicion": "Saldo de la provisión por pérdida esperada de crédito, en positivo (en la fuente viene negativa, como contra-activo). Vacía cuando el banco no la divulga en el archivo estructurado."
+  },
+  "depositos": {
+   "cero_es_vacio": true,
+   "nombre": "Depósitos",
+   "estado": "BPP",
+   "medida": "saldo",
+   "unidad": "R$",
+   "orden": 5,
+   "definicion": "Depósitos de clientes (cuenta estandarizada del pasivo). No incluye captaciones en mercado abierto ni recursos interfinancieros, que van en cuentas separadas."
+  },
+  "patrimonio_liquido": {
+   "cero_es_vacio": true,
+   "nombre": "Patrimonio líquido",
+   "estado": "BPP",
+   "medida": "saldo",
+   "unidad": "R$",
+   "orden": 6,
+   "definicion": "Patrimonio líquido total, incluida la participación de los no controladores."
+  },
+  "patrimonio_liquido_controlador": {
+   "cero_es_vacio": true,
+   "nombre": "Patrimonio líquido del controlador",
+   "estado": "BPP",
+   "medida": "saldo",
+   "unidad": "R$",
+   "orden": 7,
+   "definicion": "Patrimonio líquido atribuible a los accionistas de la controladora. Es el denominador del ROE anualizado, para que sea consistente con el lucro atribuible."
+  },
+  "resultado_intermediacion": {
+   "nombre": "Resultado bruto de intermediación financiera",
+   "estado": "DRE",
+   "medida": "flujo",
+   "unidad": "R$",
+   "orden": 8,
+   "definicion": "Cuenta 3.03 de la DRE. OJO: no es comparable entre bancos sin leer la nota — Itaú y Santander incluyen ahí servicios, seguros y cambio; Banco do Nordeste y Mercantil incluyen la provisión de crédito en las despesas de intermediación."
+  },
+  "lucro_liquido": {
+   "nombre": "Lucro líquido del período",
+   "estado": "DRE",
+   "medida": "flujo",
+   "unidad": "R$",
+   "orden": 9,
+   "definicion": "Lucro o prejuízo líquido consolidado (o del período, en estados individuales), incluidos los no controladores."
+  },
+  "lucro_liquido_controlador": {
+   "nombre": "Lucro líquido atribuible al controlador",
+   "estado": "DRE",
+   "medida": "flujo",
+   "unidad": "R$",
+   "orden": 10,
+   "definicion": "Lucro atribuible a los accionistas de la controladora. En estados individuales no hay no controladores: coincide con el lucro del período."
+  },
+  "roe_anualizado": {
+   "nombre": "ROE anualizado",
+   "estado": "",
+   "medida": "trimestre",
+   "unidad": "ratio",
+   "orden": 11,
+   "definicion": "Lucro atribuible del trimestre × 4 / PL promedio de 12 meses del controlador ((PL_t + PL_t−4) / 2, la convención del repo para el ROE de IF.Data). Derivado: no sale de una cuenta de la CVM. Vacío si falta el PL de t−4."
+  }
+ },
+ "plantillas": {
+  "banco": {
+   "ativo_total": {
+    "alternativas": [
+     {
+      "suma": [
+       {
+        "cd": [
+         "1"
+        ],
+        "ds": [
+         "ativo total"
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   "depositos": {
+    "cero_es_vacio": true,
+    "alternativas": [
+     {
+      "suma": [
+       {
+        "cd": [
+         "2.02.01",
+         "2.03.01",
+         "2.03.02",
+         "2.03.03"
+        ],
+        "ds": [
+         "depositos"
+        ],
+        "ds_no": [
+         "banco central",
+         "instituicoes de credito",
+         "interfinanceiros"
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   "patrimonio_liquido": {
+    "alternativas": [
+     {
+      "suma": [
+       {
+        "cd": [
+         "2.07",
+         "2.08",
+         "2.03"
+        ],
+        "ds": [
+         "patrimonio liquido",
+         "consolidado"
+        ]
+       }
+      ]
+     },
+     {
+      "suma": [
+       {
+        "cd": [
+         "2.07",
+         "2.08",
+         "2.03"
+        ],
+        "ds": [
+         "patrimonio liquido"
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   "patrimonio_liquido_controlador": {
+    "alternativas": [
+     {
+      "suma": [
+       {
+        "cd": [
+         "2.07.01"
+        ],
+        "ds": [
+         "patrimonio liquido",
+         "controlador"
+        ]
+       }
+      ]
+     },
+     {
+      "suma": [
+       {
+        "cd": [
+         "2.07",
+         "2.08",
+         "2.03"
+        ],
+        "ds": [
+         "patrimonio liquido"
+        ]
+       }
+      ],
+      "resta": [
+       {
+        "cd": [
+         "2.07.02",
+         "2.08.09",
+         "2.03.09"
+        ],
+        "ds": [
+         "nao controladores"
+        ]
+       }
+      ]
+     },
+     {
+      "suma": [
+       {
+        "cd": [
+         "2.07",
+         "2.08",
+         "2.03"
+        ],
+        "ds": [
+         "patrimonio liquido"
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   "resultado_intermediacion": {
+    "alternativas": [
+     {
+      "suma": [
+       {
+        "cd": [
+         "3.03"
+        ],
+        "ds": [
+         "resultado bruto",
+         "intermediacao financeir"
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   "lucro_liquido": {
+    "alternativas": [
+     {
+      "suma": [
+       {
+        "cd": [
+         "3.11",
+         "3.09"
+        ],
+        "ds": [
+         "lucro",
+         "periodo"
+        ],
+        "ds_no": [
+         "antes das participacoes",
+         "operacoes continuadas",
+         "operacoes descontinuadas"
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   "lucro_liquido_controlador": {
+    "alternativas": [
+     {
+      "suma": [
+       {
+        "cd": [
+         "3.11.01",
+         "3.09.01"
+        ],
+        "ds": [
+         "atribuido",
+         "controladora"
+        ]
+       }
+      ],
+      "cero_es_vacio": true
+     },
+     {
+      "suma": [
+       {
+        "cd": [
+         "3.11",
+         "3.09"
+        ],
+        "ds": [
+         "lucro",
+         "periodo"
+        ],
+        "ds_no": [
+         "antes das participacoes",
+         "operacoes continuadas",
+         "operacoes descontinuadas"
+        ]
+       }
+      ],
+      "resta": [
+       {
+        "cd": [
+         "3.11.02",
+         "3.09.02"
+        ],
+        "ds": [
+         "atribuido",
+         "nao controladores"
+        ]
+       }
+      ]
+     },
+     {
+      "suma": [
+       {
+        "cd": [
+         "3.11",
+         "3.09"
+        ],
+        "ds": [
+         "lucro",
+         "periodo"
+        ],
+        "ds_no": [
+         "antes das participacoes",
+         "operacoes continuadas",
+         "operacoes descontinuadas"
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   "credito_bruto": {
+    "alternativas": [
+     {
+      "suma": [
+       {
+        "cd": [
+         "1.02.04.04"
+        ],
+        "ds": [
+         "operacoes de credito"
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   "provisao_perda": {
+    "signo": "positivo",
+    "cero_es_vacio": true,
+    "alternativas": [
+     {
+      "suma": [
+       {
+        "cd": [
+         "1.02.04.05"
+        ],
+        "ds": [
+         "perdas esperadas",
+         "risco de credito"
+        ]
+       }
+      ]
+     }
+    ]
+   }
+  },
+  "no_financiera": {
+   "ativo_total": {
+    "alternativas": [
+     {
+      "suma": [
+       {
+        "cd": [
+         "1"
+        ],
+        "ds": [
+         "ativo total"
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   "patrimonio_liquido": {
+    "alternativas": [
+     {
+      "suma": [
+       {
+        "cd": [
+         "2.07",
+         "2.08",
+         "2.03"
+        ],
+        "ds": [
+         "patrimonio liquido",
+         "consolidado"
+        ]
+       }
+      ]
+     },
+     {
+      "suma": [
+       {
+        "cd": [
+         "2.07",
+         "2.08",
+         "2.03"
+        ],
+        "ds": [
+         "patrimonio liquido"
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   "patrimonio_liquido_controlador": {
+    "alternativas": [
+     {
+      "suma": [
+       {
+        "cd": [
+         "2.07.01"
+        ],
+        "ds": [
+         "patrimonio liquido",
+         "controlador"
+        ]
+       }
+      ]
+     },
+     {
+      "suma": [
+       {
+        "cd": [
+         "2.07",
+         "2.08",
+         "2.03"
+        ],
+        "ds": [
+         "patrimonio liquido"
+        ]
+       }
+      ],
+      "resta": [
+       {
+        "cd": [
+         "2.07.02",
+         "2.08.09",
+         "2.03.09"
+        ],
+        "ds": [
+         "nao controladores"
+        ]
+       }
+      ]
+     },
+     {
+      "suma": [
+       {
+        "cd": [
+         "2.07",
+         "2.08",
+         "2.03"
+        ],
+        "ds": [
+         "patrimonio liquido"
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   "lucro_liquido": {
+    "alternativas": [
+     {
+      "suma": [
+       {
+        "cd": [
+         "3.11",
+         "3.09"
+        ],
+        "ds": [
+         "lucro",
+         "periodo"
+        ],
+        "ds_no": [
+         "antes das participacoes",
+         "operacoes continuadas",
+         "operacoes descontinuadas"
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   "lucro_liquido_controlador": {
+    "alternativas": [
+     {
+      "suma": [
+       {
+        "cd": [
+         "3.11.01",
+         "3.09.01"
+        ],
+        "ds": [
+         "atribuido",
+         "controladora"
+        ]
+       }
+      ],
+      "cero_es_vacio": true
+     },
+     {
+      "suma": [
+       {
+        "cd": [
+         "3.11",
+         "3.09"
+        ],
+        "ds": [
+         "lucro",
+         "periodo"
+        ],
+        "ds_no": [
+         "antes das participacoes",
+         "operacoes continuadas",
+         "operacoes descontinuadas"
+        ]
+       }
+      ],
+      "resta": [
+       {
+        "cd": [
+         "3.11.02",
+         "3.09.02"
+        ],
+        "ds": [
+         "atribuido",
+         "nao controladores"
+        ]
+       }
+      ]
+     },
+     {
+      "suma": [
+       {
+        "cd": [
+         "3.11",
+         "3.09"
+        ],
+        "ds": [
+         "lucro",
+         "periodo"
+        ],
+        "ds_no": [
+         "antes das participacoes",
+         "operacoes continuadas",
+         "operacoes descontinuadas"
+        ]
+       }
+      ]
+     }
+    ]
+   }
+  }
+ },
+ "bancos": {
+  "C0080312": {
+   "nombre_corto": "ABC Brasil",
+   "plantilla": "banco",
+   "lineas": {
+    "credito_bruto": {
+     "alternativas": [
+      {
+       "suma": [
+        {
+         "cd": [
+          "1.02.04.04"
+         ],
+         "ds": [
+          "operacoes de credito"
+         ],
+         "desde": "2025-03-31"
+        }
+       ]
+      }
+     ],
+     "nota": "Desde el 1T25 ABC publica la provisión (1.02.04.05): el saldo de crédito pasa a ser bruto."
+    },
+    "credito_liquido": {
+     "alternativas": [
+      {
+       "suma": [
+        {
+         "cd": [
+          "1.02.04.04"
+         ],
+         "ds": [
+          "operacoes de credito"
+         ],
+         "hasta": "2024-12-31"
+        }
+       ]
+      }
+     ],
+     "nota": "Hasta el DFP 2024 la provisión viene en 0: el saldo es neto y no es comparable con el crédito bruto de 2025 en adelante."
+    }
+   }
+  },
+  "C0080178": {
+   "nombre_corto": "BMG",
+   "plantilla": "banco",
+   "lineas": {
+    "credito_bruto": {
+     "alternativas": [
+      {
+       "suma": [
+        {
+         "cd": [
+          "1.02.03.05"
+         ],
+         "ds": [
+          "operacoes de credito"
+         ]
+        }
+       ]
+      }
+     ],
+     "nota": "1.02.03.05 «Operações de crédito e arrendamento mercantil»: incluye leasing."
+    },
+    "provisao_perda": {
+     "signo": "positivo",
+     "cero_es_vacio": true,
+     "alternativas": [
+      {
+       "suma": [
+        {
+         "cd": [
+          "1.02.03.06"
+         ],
+         "ds": [
+          "provisao para perdas por nao recuperacao"
+         ]
+        }
+       ]
+      }
+     ],
+     "nota": "1.02.03.06 «Provisão para perdas por não recuperação (Impairment)»."
+    },
+    "depositos": {
+     "alternativas": [
+      {
+       "suma": [
+        {
+         "cd": [
+          "2.03.01"
+         ],
+         "ds": [
+          "depositos de clientes"
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   }
+  },
+  "C0080288": {
+   "nombre_corto": "BRB",
+   "plantilla": "banco"
+  },
+  "C0080336": {
+   "nombre_corto": "BTG Pactual",
+   "plantilla": "banco",
+   "lineas": {
+    "credito_bruto": {
+     "alternativas": [
+      {
+       "suma": [
+        {
+         "cd": [
+          "1.02.03.04"
+         ],
+         "ds": [
+          "operacoes de credito"
+         ]
+        }
+       ]
+      }
+     ],
+     "nota": "1.02.03.04 «Operações de crédito». BTG no publica la provisión en el archivo estructurado, así que no se pudo verificar si el saldo es bruto o neto: se clasificó como bruto por el contraste contra IF.Data (ver cvm_informe.md)."
+    },
+    "provisao_perda": {
+     "signo": "positivo",
+     "cero_es_vacio": true,
+     "alternativas": [],
+     "vacia": "BTG no divulga la provisión de crédito en las cuentas estructuradas de la CVM (solo 2.04.02, provisión de avales y fianzas, que es otra cosa).",
+     "nota": "BTG no divulga la provisión de crédito en las cuentas estructuradas de la CVM (solo 2.04.02, provisión de avales y fianzas, que es otra cosa)."
+    }
+   }
+  },
+  "C0081249": {
+   "nombre_corto": "Banco da Amazônia",
+   "plantilla": "banco"
+  },
+  "C0080329": {
+   "nombre_corto": "Banco do Brasil",
+   "plantilla": "banco",
+   "lineas": {
+    "credito_liquido": {
+     "alternativas": [
+      {
+       "suma": [
+        {
+         "cd": [
+          "1.02.04.04"
+         ],
+         "ds": [
+          "operacoes de credito"
+         ]
+        }
+       ]
+      }
+     ],
+     "nota": "BB entrega 1.02.04.05 «Provisão para Perdas Esperadas» en 0 en todos los periodos: su 1.02.04.04 viene neto. Confirmado contra definiciones/validacion_bancos.json («Neto de provisión p.64, bruto 1.245,87»)."
+    },
+    "credito_bruto": {
+     "alternativas": [],
+     "vacia": "BB entrega 1.02.04.04 neto de provisión: se publica como credito_liquido."
+    },
+    "provisao_perda": {
+     "signo": "positivo",
+     "cero_es_vacio": true,
+     "alternativas": [],
+     "vacia": "BB no publica el saldo de la provisión en las cuentas estándar de la CVM (1.02.04.05 = 0 siempre). La despesa del período sí está (3.04.01).",
+     "nota": "BB no publica el saldo de la provisión en las cuentas estándar de la CVM (1.02.04.05 = 0 siempre). La despesa del período sí está (3.04.01)."
+    }
+   }
+  },
+  "C0081593": {
+   "nombre_corto": "Banco do Nordeste",
+   "plantilla": "banco",
+   "lineas": {
+    "resultado_intermediacion": {
+     "alternativas": [
+      {
+       "suma": [
+        {
+         "cd": [
+          "3.03"
+         ],
+         "ds": [
+          "resultado bruto",
+          "intermediacao financeir"
+         ]
+        }
+       ]
+      }
+     ],
+     "nota": "Nordeste pone la provisión de crédito dentro de las despesas de intermediación (3.02.04) y deja 3.04.01 en 0: su 3.03 ya viene después de provisiones."
+    }
+   }
+  },
+  "C0080147": {
+   "nombre_corto": "Banestes",
+   "plantilla": "banco",
+   "lineas": {
+    "credito_liquido": {
+     "alternativas": [
+      {
+       "suma": [
+        {
+         "cd": [
+          "1.02.04.04"
+         ],
+         "ds": [
+          "operacoes de credito"
+         ]
+        }
+       ]
+      }
+     ],
+     "nota": "Banestes entrega 1.02.04.05 en 0 en todos los periodos: su 1.02.04.04 viene neto (contraste contra IF.Data)."
+    },
+    "credito_bruto": {
+     "alternativas": [],
+     "vacia": "Banestes entrega 1.02.04.04 neto de provisión: se publica como credito_liquido."
+    },
+    "provisao_perda": {
+     "signo": "positivo",
+     "cero_es_vacio": true,
+     "alternativas": [],
+     "vacia": "No publica el saldo de la provisión (1.02.04.05 = 0 siempre).",
+     "nota": "No publica el saldo de la provisión (1.02.04.05 = 0 siempre)."
+    }
+   }
+  },
+  "C0080154": {
+   "nombre_corto": "Banrisul",
+   "plantilla": "banco"
+  },
+  "C0080075": {
+   "nombre_corto": "Bradesco",
+   "plantilla": "banco"
+  },
+  "C0084710": {
+   "nombre_corto": "Cielo",
+   "plantilla": "no_financiera",
+   "nota": "Institución de pagos: entrega el plan de cuentas de una compañía no financiera (activo/passivo circulante, PL en 2.03). No tiene cartera de crédito, depósitos ni resultado de intermediación. DECISIÓN PENDIENTE de Pablo: entra a bk_publicado con activo, PL y lucro, o queda fuera."
+  },
+  "C0081744": {
+   "nombre_corto": "Daycoval",
+   "plantilla": "banco"
+  },
+  "C0080099": {
+   "nombre_corto": "Itaú Unibanco",
+   "plantilla": "banco",
+   "lineas": {
+    "credito_bruto": {
+     "alternativas": [
+      {
+       "suma": [
+        {
+         "cd": [
+          "1.02.03.05",
+          "1.02.03.04"
+         ],
+         "ds": [
+          "operacoes de credito"
+         ]
+        }
+       ]
+      }
+     ],
+     "nota": "1.02.03.05 «Operações de Crédito e Arrendamento Mercantil Financeiro»: incluye el arrendamento mercantil financiero. El código era 1.02.03.04 hasta el DFP 2023."
+    },
+    "provisao_perda": {
+     "signo": "positivo",
+     "cero_es_vacio": true,
+     "alternativas": [
+      {
+       "suma": [
+        {
+         "cd": [
+          "1.02.03.07",
+          "1.02.03.06"
+         ],
+         "ds": [
+          "provisao para perda esperada"
+         ]
+        }
+       ]
+      }
+     ],
+     "nota": "1.02.03.07 «(-) Provisão para Perda Esperada» cubre TODOS los activos financieros al costo amortizado (1.02.03), no solo la cartera de crédito: sobreestima la provisión de crédito. El código era 1.02.03.06 hasta el DFP 2023."
+    },
+    "depositos": {
+     "alternativas": [
+      {
+       "suma": [
+        {
+         "cd": [
+          "2.03.01"
+         ],
+         "ds": [
+          "depositos"
+         ]
+        }
+       ]
+      }
+     ],
+     "nota": "2.03.01 «Depósitos»: cuadra al R$ mil con definiciones/validacion_bancos.json (1.134,49 bn en 2T26)."
+    },
+    "resultado_intermediacion": {
+     "alternativas": [
+      {
+       "suma": [
+        {
+         "cd": [
+          "3.03"
+         ],
+         "ds": [
+          "resultado bruto",
+          "intermediacao financeir"
+         ]
+        }
+       ]
+      }
+     ],
+     "nota": "Itaú mete en 3.01 las tarifas bancarias (3.01.05) y el resultado de seguros y previdência (3.01.06): su 3.03 NO es comparable con el de un banco que los deja fuera."
+    }
+   }
+  },
+  "C0080123": {
+   "nombre_corto": "Mercantil do Brasil",
+   "plantilla": "banco",
+   "lineas": {
+    "credito_bruto": {
+     "alternativas": [
+      {
+       "suma": [
+        {
+         "cd": [
+          "1.02.04.04"
+         ],
+         "ds": [
+          "operacoes de credito"
+         ],
+         "desde": "2025-03-31"
+        }
+       ]
+      }
+     ],
+     "nota": "Desde el 1T25 publica la provisión (1.02.04.05): el saldo pasa a ser bruto."
+    },
+    "credito_liquido": {
+     "alternativas": [
+      {
+       "suma": [
+        {
+         "cd": [
+          "1.02.04.04"
+         ],
+         "ds": [
+          "operacoes de credito"
+         ],
+         "hasta": "2024-12-31"
+        }
+       ]
+      }
+     ],
+     "nota": "Hasta el DFP 2024 la provisión viene en 0: el saldo es neto."
+    },
+    "resultado_intermediacion": {
+     "alternativas": [
+      {
+       "suma": [
+        {
+         "cd": [
+          "3.03"
+         ],
+         "ds": [
+          "resultado bruto",
+          "intermediacao financeir"
+         ]
+        }
+       ]
+      }
+     ],
+     "nota": "Mercantil pone la provisión de crédito DENTRO de las despesas de intermediación (3.02.03) y deja 3.04.01 en 0: su 3.03 ya viene después de provisiones, al revés que el esqueleto estándar."
+    }
+   }
+  },
+  "C0080374": {
+   "nombre_corto": "Pine",
+   "plantilla": "banco",
+   "lineas": {
+    "credito_liquido": {
+     "alternativas": [
+      {
+       "suma": [
+        {
+         "cd": [
+          "1.02.04.04"
+         ],
+         "ds": [
+          "operacoes de credito"
+         ],
+         "desde": "2025-03-31"
+        }
+       ]
+      }
+     ],
+     "nota": "Pine no publica la provisión de crédito (1.02.04.05 = 0 en todos los periodos; solo 1.02.04.07, de arrendamento, y 1.04.03.03/04, de activos a valor justo). Antes del 1T25 usaba el esqueleto CPC 48 sin detalle: no hay cartera."
+    },
+    "credito_bruto": {
+     "alternativas": [],
+     "vacia": "Pine no publica la provisión de crédito (1.02.04.05 = 0 siempre), así que su saldo de crédito se publica como neto (credito_liquido)."
+    },
+    "provisao_perda": {
+     "signo": "positivo",
+     "cero_es_vacio": true,
+     "alternativas": [],
+     "vacia": "No divulga la provisión de crédito en cuenta estándar: solo 1.02.04.07 (arrendamento) y 1.04.03.03/04 (activos a valor justo), que no son la provisión de la cartera al costo amortizado.",
+     "nota": "No divulga la provisión de crédito en cuenta estándar."
+    }
+   }
+  },
+  "C0080185": {
+   "nombre_corto": "Santander Brasil",
+   "plantilla": "banco",
+   "lineas": {
+    "credito_bruto": {
+     "alternativas": [
+      {
+       "suma": [
+        {
+         "cd": [
+          "1.02.04.04"
+         ],
+         "ds": [
+          "operacoes de credito"
+         ]
+        }
+       ]
+      }
+     ],
+     "nota": "Santander llena el archivo estructurado de forma irregular: solo el DFP 2024 trae la cartera abierta (1.02.04.04 bruto, con la provisión en 1.02.04.05). En el DFP 2023 y 2025 vuelca todo el costo amortizado en 1.02.04.01 y deja 1.02.04.04 en 0; en los ITR de 2025 en adelante no abre 1.02.03. Por eso esta línea solo tiene valor en 2024."
+    },
+    "credito_liquido": {
+     "alternativas": [
+      {
+       "suma": [
+        {
+         "cd": [
+          "1.02.03.02"
+         ],
+         "ds": [
+          "emprestimos e adiantamentos a clientes"
+         ]
+        }
+       ]
+      }
+     ],
+     "nota": "Solo el ITR 1T25: 1.02.03.02 «Empréstimos e Adiantamentos a Clientes» (536,19 bn), que suma exactamente a 1.02.03 sin cuenta de provisión, o sea que viene neto."
+    },
+    "provisao_perda": {
+     "signo": "positivo",
+     "cero_es_vacio": true,
+     "alternativas": [
+      {
+       "suma": [
+        {
+         "cd": [
+          "1.02.04.05"
+         ],
+         "ds": [
+          "perdas esperadas",
+          "risco de credito"
+         ]
+        }
+       ]
+      }
+     ],
+     "nota": "Solo el DFP 2024 trae la provisión."
+    },
+    "depositos": {
+     "cero_es_vacio": true,
+     "alternativas": [
+      {
+       "suma": [
+        {
+         "cd": [
+          "2.03.02"
+         ],
+         "ds": [
+          "depositos de clientes"
+         ]
+        }
+       ]
+      },
+      {
+       "suma": [
+        {
+         "cd": [
+          "2.02.01"
+         ],
+         "ds": [
+          "depositos"
+         ],
+         "ds_no": [
+          "banco central",
+          "instituicoes de credito"
+         ]
+        }
+       ]
+      }
+     ],
+     "nota": "Santander detalla los depósitos solo en algunas entregas (1T25: 2.03.02 «Depósitos de Clientes», 608,16 bn). En las demás deja 2.02.01 en 0 y no abre 2.03: la línea queda vacía antes que en 0."
+    },
+    "lucro_liquido": {
+     "alternativas": [
+      {
+       "suma": [
+        {
+         "cd": [
+          "3.11.01",
+          "3.09.01"
+         ],
+         "ds": [
+          "atribuido",
+          "controladora"
+         ]
+        },
+        {
+         "cd": [
+          "3.11.02",
+          "3.09.02"
+         ],
+         "ds": [
+          "atribuido",
+          "nao controladores"
+         ]
+        }
+       ]
+      }
+     ],
+     "nota": "TRAMPA: en varios ITR Santander entrega 3.06 «Imposto de Renda» en 0, así que su 3.09 «Lucro/Prejuízo Consolidado do Período» queda ANTES de impuestos (1S26: 8,104 bn contra 6,244 bn de 3.09.01 + 3.09.02; también en el 3T25). El total se reconstruye sumando la atribución a controladores y a no controladores, que sí viene después de impuestos y que en las entregas correctas da el mismo número."
+    },
+    "resultado_intermediacion": {
+     "alternativas": [
+      {
+       "suma": [
+        {
+         "cd": [
+          "3.03"
+         ],
+         "ds": [
+          "resultado bruto",
+          "intermediacao financeir"
+         ]
+        }
+       ]
+      }
+     ],
+     "nota": "Santander deja en 3.01 solo «Receitas com Juros e Similares»; el cambio, los servicios y las pérdidas de crédito van en 3.04 (otras receitas/despesas operacionales). Su 3.03 no es comparable con el de Itaú ni con el del esqueleto viejo."
+    }
+   }
+  }
+ }
+}

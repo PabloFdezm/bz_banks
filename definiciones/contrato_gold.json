@@ -21,6 +21,10 @@
    "columnas": ["banco", "linea", "periodo", "gaap", "ifdata", "dif_pct"],
    "clave": ["banco", "linea", "periodo"]
   },
+  "bk_publicado": {
+   "columnas": ["cod_inst", "periodo", "linea", "valor", "base", "fecha_entrega", "cd_cvm", "versao", "documento", "medida", "consolidacion", "cd_conta", "ds_conta", "nota"],
+   "clave": ["cod_inst", "periodo", "linea", "medida"]
+  },
   "bk_manifiesto": {
    "columnas": ["tabla", "filas", "columnas", "rango", "sha256", "producido_por", "universo", "ultimo_corte"],
    "clave": ["tabla", "universo"]

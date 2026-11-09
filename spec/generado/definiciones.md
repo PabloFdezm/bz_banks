@@ -42,17 +42,46 @@
 - `trimestres_anomalos`: objeto con 1 claves
 - `nota_duplicados`: El BCB sirvió 2025-09 (informes 11, 13 y 16) con cada fila tres veces; el preparador quita duplicados exactos y falla si queda una clave (banco, grupo, cuenta,…
 
-## `contrato_gold.json` (6 kB)
+## `contrato_gold.json` (7 kB)
 
 - `descripcion`: Contrato de la capa gold (datos/gold/bk_*.parquet): columnas mínimas y clave única de cada tabla. Lo lee herramientas/verificar_gold.py; una tabla bk_* que no …
-- `tablas`: objeto con 29 claves
+- `tablas`: objeto con 30 claves
 
-## `cvm__dfp_bancos.json` (8 kB)
+## `cvm__bancos.json` (27 kB)
 
+- `fuente`: cvm
+- `descripcion`: Mapa CNPJ de la CVM → cod_inst del panel IF.Data, para la fuente ITR/DFP (pipeline/cvm.py). El filtro de bk_publicado es este mapa: un CNPJ que no está acá no …
+- `convenciones`: objeto con 7 claves
+- `bancos`: lista de 34 · campos: `cod_inst`, `nombre_corto`, `cnpj_raiz`, `cnpj_ifdata`, `cd_cvm`, `denominacion_cvm`, `tipo_estado`, `usar_individual_si_falta`, `base`, `entrega`, `registro_cvm`, `primera_referencia`, `ultima_referencia`, `referencias`
+
+## `cvm__bancos_lineas.json` (28 kB)
+
+- `fuente`: cvm
+- `descripcion`: Mapeo de cuentas del ITR/DFP de la CVM a las líneas mínimas de bk_publicado. Una línea se busca por REGLA (código candidato + texto que debe contener la descri…
+- `convenciones`: objeto con 6 claves
+- `lineas`: objeto con 11 claves
+- `plantillas`: objeto con 2 claves
+- `bancos`: objeto con 16 claves
+
+## `cvm__dfp_bancos.json` (9 kB)
+
+- `obsoleto`: True
+- `obsoleto_nota`: OBSOLETO desde el 9-nov-2026. Describe el extracto que producía el viejo extraer_fuentes.py cvm-dfp (un CSV filtrado con SETOR_ATIV, solo el activo consolidado…
 - `fuente`: cvm
 - `datasets`: lista de 1
 - `nota`: DFP (Demonstrações Financeiras Padronizadas) de la CVM, ejercicio 2024, filtrado a bancos por `extraer_fuentes.py cvm-dfp`. DERIVADO, no dato crudo de la CVM: …
 - `columnas`: objeto con 15 claves
+
+## `cvm__estados_bancos.json` (12 kB)
+
+- `fuente`: cvm
+- `datasets`: lista de 1
+- `descripcion`: Columnas del derivado de la fuente CVM (datos/derivado/cvm/bancos/estados_<doc>_<año>.parquet) y de la tabla gold bk_publicado. Lo produce pipeline/cvm.py filt…
+- `nota`: DERIVADO, no dato crudo: el ZIP oficial trae todas las compañías abiertas y todos los estados contables; acá quedan solo las filas de los 16 bancos del panel q…
+- `columnas_derivado`: objeto con 21 claves
+- `columnas_bk_publicado`: objeto con 14 claves
+- `clave_bk_publicado`: lista de 4
+- `lineas_por_diseno_vacias`: Las líneas que un banco no puede tener (Cielo, que es institución de pagos y no tiene cartera ni depósitos) o que la fuente no divulga (la provisión de Banco d…
 
 ## `metricas_bancos.json` (45 kB)
 

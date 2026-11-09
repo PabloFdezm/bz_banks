@@ -390,22 +390,22 @@ Carpeta `datos/gold/`.
 
 ### `bk_manifiesto`
 
-31 filas · 12 columnas · — · 0.01 MB
+32 filas · 12 columnas · — · 0.01 MB
 
 | Columna | Tipo | % nulos | Ejemplo | Valores distintos |
 |---|---|---|---|---|
 | `tipo` | str | 0 | tabla | 2 |
-| `tabla` | str | 10 | bk_banco | 28 |
-| `archivo` | str | 10 | bk_banco.parquet | 28 |
-| `filas` | float64 | 10 | 34.0 | 27 |
-| `columnas` | float64 | 10 | 17.0 | 15 |
-| `rango` | str | 29 | 2014-06-30 00:00:00–2026-06-30 00:00:00 | 12 |
-| `sha256` | str | 10 | 280bfed071740cd2261356e9a39189f1dc83a96750b33a0f234bbb6626b1aa47 | 28 |
-| `bytes` | float64 | 10 | 12217.0 | 28 |
-| `producido_por` | str | 10 | python -X utf8 preparar_gold_bancos.py base | 11 |
-| `universo` | str | 90 | Panel | 3 |
-| `ultimo_corte` | str | 90 | 2026-06-30 | 3 |
-| `nota` | str | 90 | IF.Data prudencial, trimestral | 3 |
+| `tabla` | str | 9 | bk_banco | 29 |
+| `archivo` | str | 9 | bk_banco.parquet | 29 |
+| `filas` | float64 | 9 | 34.0 | 28 |
+| `columnas` | float64 | 9 | 17.0 | 15 |
+| `rango` | str | 28 | 2014-06-30 00:00:00–2026-06-30 00:00:00 | 13 |
+| `sha256` | str | 9 | 280bfed071740cd2261356e9a39189f1dc83a96750b33a0f234bbb6626b1aa47 | 29 |
+| `bytes` | float64 | 9 | 12217.0 | 29 |
+| `producido_por` | str | 9 | python -X utf8 preparar_gold_bancos.py base | 12 |
+| `universo` | str | 91 | Panel | 3 |
+| `ultimo_corte` | str | 91 | 2026-06-30 | 3 |
+| `nota` | str | 91 | IF.Data prudencial, trimestral | 3 |
 
 ### `bk_metrica`
 
@@ -522,6 +522,27 @@ Carpeta `datos/gold/`.
 | `dventana` | float64 | 0 | 0.09769985870984277 | 19 |
 | `corte` | str | 0 | sep-26 | 2 |
 | `share` | float64 | 47 | 1.0 | 5 |
+
+### `bk_publicado`
+
+1,421 filas · 14 columnas · periodo: 202312 → 202609 · 0.03 MB
+
+| Columna | Tipo | % nulos | Ejemplo | Valores distintos |
+|---|---|---|---|---|
+| `cod_inst` | str | 0 | C0080075 | 16 |
+| `periodo` | str | 0 | 202312 | 9 |
+| `linea` | str | 0 | ativo_total | 11 |
+| `valor` | float64 | 0 | 1927523249000.0 | 1227 |
+| `base` | str | 0 | CPC | 1 |
+| `fecha_entrega` | str | 0 | 2024-02-07 | 91 |
+| `cd_cvm` | str | 0 | 000906 | 16 |
+| `versao` | int64 | 0 | 1 | 4 |
+| `documento` | str | 0 | DFP | 3 |
+| `medida` | str | 0 | saldo | 3 |
+| `consolidacion` | str | 0 | con | 2 |
+| `cd_conta` | str | 0 | 1 | 35 |
+| `ds_conta` | str | 0 | Ativo Total | 28 |
+| `nota` | str | 0 |  | 101 |
 
 ### `bk_puente`
 

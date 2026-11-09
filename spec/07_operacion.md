@@ -74,6 +74,7 @@ python -X utf8 pipeline\ifdata.py colectar --desde 201403 --hasta AAAAMM --escop
 | `node herramientas\contar_tarjetas.mjs` | Tarjetas declaradas por página contra el esqueleto. |
 | `python -X utf8 herramientas\verificar_gold.py` | Intermedio (`metricas_bancos`, `cre_panorama`, `cre_calidad`): estructura, períodos y validación contra los informes. `--comparar <parquet>` contrasta un candidato. |
 | `python -X utf8 herramientas\verificar_gold.py --gold` | Tablas gold `bk_*`: columnas y clave según `definiciones/contrato_gold.json`, fechas, licencias y las reglas de cada tabla (sumas de grupo, árbol ROE, cartera, SCR, manifiesto). |
+| `python -X utf8 herramientas\verificar_cvm.py` | Fuente CVM y `bk_publicado`: integridad del crudo, mapa de bancos contra el universo del panel, que ningún CNPJ fuera del mapa haya entrado, dominios y períodos, la escala rehecha desde el derivado (VL_CONTA × 1000), que el activo sume sus partes en cada entrega, cobertura y contraste contra IF.Data (`--sin-contraste` lo saltea; `--estricto` hace fallar los avisos). |
 | `python -m pytest -q` | Tests del verificador y del gold. Los marcados `integracion` leen `datos/` y se omiten si no está. |
 | `python -X utf8 herramientas\generar_spec.py` | Regenera `spec/generado/`. |
 

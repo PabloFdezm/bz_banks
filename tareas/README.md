@@ -11,6 +11,8 @@ Lista ordenada por prioridad. Cada frente tiene su archivo con el detalle, los d
 | 4 | Réplica de gráficos del REF (BCB, oct-26) | `04_replica_ref.md` | 1.2.2.15 y 1.2.2.16 en la página Mora; ROE/provisiones por segmento y Anexo pendientes |
 | 5 | Rediseño de gráficos (cambio grande anunciado por Pablo) | `05_rediseno_graficos.md` | por definir |
 | 6 | Operación: automatización, limpieza, deuda técnica | `06_operacion.md` | sitio en Cloudflare Pages desde el 6-nov; resto pendiente |
+| 7 | Fuente CVM (ITR/DFP) → `bk_publicado` | `07_fuente_cvm.md` | construido el 9-nov (`pipeline/cvm.py`, `bk_publicado`, verificador y tests); informe y decisiones pendientes en `borradores/cvm_informe.md`; la tarjeta B8-06-0 sigue sin conectar |
+| 8 | Capital: informe 5 de IF.Data → `bk_capital` (página B7) | `08_fuente_capital.md` | 9-nov: asignado a un worker; el crudo no trae el informe 5 |
 
 Orden sugerido: 1 → 2 → 4 (fuente `bcb_ref`) → 3 → 5 → 6. El 5 puede cambiar cómo se construyen 2–4: preguntar a
 Pablo antes de construir páginas nuevas.
@@ -26,6 +28,9 @@ Netlify borrados; Personas y Mora publicadas y verificadas en 3 anchos; fuente S
 - [ ] Coordinar las sesiones en paralelo: un frente por sesión.
 
 **Datos**
+- [ ] Frente 7 (CVM): decisiones de Pablo en `borradores/cvm_informe.md` — Cielo dentro o fuera de `bk_publicado`,
+      bajar o no el ITR 2024 (ROE de 1T25–3T25), explicar el −17 % sistemático del PL de Santander contra IF.Data,
+      y si `bk_puente` pasa a consumir `bk_publicado`. La tarjeta B8-06-0 se conecta cuando lo decida.
 - [ ] 1.6 Notas de lectura: confirmar con el release 2T26 de Nu la caída del vencido (y PagSeguro); nota de ROE
       ~51 % de Nubank, BRB sin 2T26 y 2024-T4 vacío.
 - [x] 1.7 Concesiones: rotuladas «totales» el 8-nov (validado contra la API). Falta publicar; filas de libres por aprobar.

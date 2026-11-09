@@ -36,6 +36,7 @@ PASOS = [
     ("pag_credito", "preparar_gold_bancos_pag_credito", [], False),
     ("scr_productos", "preparar_gold_bancos_scr_productos", ["--descargar"], True),
     ("scr", "preparar_gold_bancos_scr", [], False),                   # con caché por ZIP
+    ("cvm", "cvm", ["--descargar"], True),                           # ITR/DFP de la CVM → bk_publicado
     ("manifiesto", "manifiesto_gold", [], False),                     # después de todos los bk_*
     ("verificacion", None, [], False),                                # pytest + verificar_gold --gold
     ("exportar", "exportar_web_bancos", [], False),

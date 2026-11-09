@@ -1,0 +1,138 @@
+{
+ "fuente": "cvm",
+ "datasets": [
+  "bancos"
+ ],
+ "descripcion": "Columnas del derivado de la fuente CVM (datos/derivado/cvm/bancos/estados_<doc>_<año>.parquet) y de la tabla gold bk_publicado. Lo produce pipeline/cvm.py filtrando los ZIP oficiales de ITR y DFP a los bancos de definiciones/cvm__bancos.json. Sustituye a cvm__dfp_bancos.json (marcado obsoleto).",
+ "nota": "DERIVADO, no dato crudo: el ZIP oficial trae todas las compañías abiertas y todos los estados contables; acá quedan solo las filas de los 16 bancos del panel que entregan ITR/DFP, en los tres estados que se usan (BPA activo, BPP pasivo, DRE resultado) y en el tipo de estado que le toca a cada banco (con = consolidado, ind = solo la controladora). Los valores NO se tocan: vl_conta viene tal cual lo sirvió la CVM (texto, en la escala que diga la columna `escala`); la conversión a R$ y la elección de versión, ejercicio y medida ocurren al armar bk_publicado. TRAMPAS ANTES DE SUMAR NADA, todas verificadas sobre el dato el 9-nov-2026: (1) cada cuenta viene DOS veces por ordem_exerc («ÚLTIMO» es el cierre del documento, «PENÚLTIMO» el comparativo del año anterior): sumar sin filtrar duplica todo y mezcla dos años; (2) escala = «MIL»: hay que multiplicar por 1.000 para tener R$; (3) en la DRE del ITR, la misma cuenta viene dos veces, una para el trimestre y otra para el acumulado del año: se distinguen por dt_ini_exerc (1 de enero = acumulado; inicio del trimestre = trimestre); (4) los ZIP de estados traen UNA sola versión por entrega (la vigente), pero el índice de entregas (entregas.parquet) lista todas las reentregas: al cruzar por fecha de entrega hay que tomar la versión que se usó; (5) cd_conta es jerárquico y el detalle lo arma cada banco, así que las cuentas de un nivel suman las del nivel superior: sumar todas las filas cuenta cada real varias veces; (6) el esqueleto de la CVM cambió con el CPC 48 y cada banco migró en un momento distinto (Pine volvió del nuevo al viejo entre el DFP 2024 y el ITR 1T25), así que un mismo cd_conta puede ser cosas distintas en bancos o años distintos: por eso el mapeo de definiciones/cvm__bancos_lineas.json exige código Y texto de la descripción.",
+ "columnas_derivado": {
+  "cod_inst": {
+   "descripcion": "Código del banco en el panel IF.Data (C#######), asignado al filtrar por la raíz de CNPJ del mapa. Es la llave con el resto de la capa gold",
+   "unidad": "código",
+   "fuente_definicion": "definiciones/cvm__bancos.json (cnpj_raiz → cod_inst)"
+  },
+  "nombre_corto": {
+   "descripcion": "Nombre corto del banco en el panel, para leer los volcados sin otro cruce",
+   "unidad": "texto",
+   "fuente_definicion": "definiciones/bcb_ifdata__bancos_balances.json vía pipeline/bancos.py"
+  },
+  "documento": {
+   "descripcion": "Qué documento de la CVM es: «ITR» (Informe Trimestral, cortes de marzo, junio y setiembre) o «DFP» (Demonstrações Financeiras Padronizadas, cierre de diciembre)",
+   "unidad": "categoría (ITR | DFP)",
+   "fuente_definicion": "CVM, nombre del ZIP"
+  },
+  "anio_zip": {
+   "descripcion": "Año del ZIP del que salió la fila. La CVM agrupa por año de la fecha de referencia, no de la entrega: el DFP 2025 se publica a principios de 2026",
+   "unidad": "año (texto)",
+   "fuente_definicion": "CVM, nombre del ZIP"
+  },
+  "estado": {
+   "descripcion": "Qué estado contable es la fila: BPA (Balanço Patrimonial Activo), BPP (Balanço Patrimonial Passivo) o DRE (Demonstração do Resultado). Los demás estados del ZIP (DFC, DMPL, DRA, DVA, parecer) no se leen",
+   "unidad": "categoría (BPA | BPP | DRE)",
+   "fuente_definicion": "CVM, nombre del archivo interno del ZIP"
+  },
+  "tipo_estado": {
+   "descripcion": "«con» si la fila viene del estado consolidado del ZIP, «ind» si viene del individual (solo la controladora). Se lee el que diga tipo_estado en el mapa del banco; la excepción es un banco con usar_individual_si_falta en una referencia sin consolidado (Daycoval 3T26)",
+   "unidad": "categoría (con | ind)",
+   "fuente_definicion": "CVM, sufijo del archivo interno; regla en definiciones/cvm__bancos.json"
+  },
+  "cnpj": {
+   "descripcion": "CNPJ_CIA de la fuente: CNPJ completo y con formato de la compañía que entrega. Es la clave con que se decidió que la fila es de un banco del panel (por los 8 primeros dígitos)",
+   "unidad": "CNPJ con formato (texto)",
+   "fuente_definicion": "CVM, columna CNPJ_CIA"
+  },
+  "cd_cvm": {
+   "descripcion": "Código de la compañía en los sistemas de la CVM (CD_CVM), con los ceros a la izquierda con que lo sirve la fuente. Estable entre ITR, DFP, FRE y FCA",
+   "unidad": "código (texto, 6 dígitos)",
+   "fuente_definicion": "CVM, columna CD_CVM"
+  },
+  "denominacion": {
+   "descripcion": "Razón social tal como aparece en la entrega (DENOM_CIA). Suele estar abreviada y puede diferir del registro y del nombre del BCB: para cruzar, unir por CNPJ y no por nombre",
+   "unidad": "texto",
+   "fuente_definicion": "CVM, columna DENOM_CIA"
+  },
+  "dt_refer": {
+   "descripcion": "Fecha de referencia de la entrega (AAAA-MM-DD), siempre fin de trimestre. Es la que define el periodo de bk_publicado",
+   "unidad": "fecha",
+   "fuente_definicion": "CVM, columna DT_REFER"
+  },
+  "versao": {
+   "descripcion": "Número de versión de la entrega. En los ZIP de estados hay una sola versión por compañía y referencia (la vigente); en el índice de entregas están todas las reentregas",
+   "unidad": "número (texto)",
+   "fuente_definicion": "CVM, columna VERSAO; unicidad verificada sobre los ZIP de 2023-2026"
+  },
+  "ordem_exerc": {
+   "descripcion": "Cuál de los dos ejercicios comparativos es la fila: «ÚLTIMO» (el de dt_refer) o «PENÚLTIMO» (el comparativo del año anterior). bk_publicado usa solo «ÚLTIMO»; el derivado trae los dos porque el filtro es por compañía, no por contenido",
+   "unidad": "categoría (ÚLTIMO | PENÚLTIMO)",
+   "fuente_definicion": "CVM, columna ORDEM_EXERC"
+  },
+  "dt_ini_exerc": {
+   "descripcion": "Inicio del periodo que cubre la cifra. Solo existe en la DRE: en BPA y BPP viene vacío. 1 de enero del año = acumulado; primer día del trimestre = el trimestre solo. TRAMPA: BRB entrega en la DFP 2023 y 2024 una DRE que cubre solo diciembre (dt_ini 2023-12-01); esas filas no son ni el año ni el trimestre y se descartan con aviso",
+   "unidad": "fecha",
+   "fuente_definicion": "CVM, columna DT_INI_EXERC (solo archivos DRE); anomalía de BRB verificada sobre el dato"
+  },
+  "dt_fim_exerc": {
+   "descripcion": "Fin del periodo que cubre la cifra. En las filas «ÚLTIMO» coincide con dt_refer (verificado en las 20.100 filas ÚLTIMO del derivado)",
+   "unidad": "fecha",
+   "fuente_definicion": "CVM, columna DT_FIM_EXERC"
+  },
+  "grupo": {
+   "descripcion": "GRUPO_DFP de la fuente: el estado y si es consolidado, p. ej. «DF Consolidado - Balanço Patrimonial Ativo»",
+   "unidad": "categoría",
+   "fuente_definicion": "CVM, columna GRUPO_DFP"
+  },
+  "cd_conta": {
+   "descripcion": "Código de la cuenta en el plan de la CVM, jerárquico con puntos («1» es Ativo Total, «1.02» Ativos Financeiros, «1.02.03» su desglose). El detalle debajo del nivel 3 lo define cada banco, así que el mismo concepto vive en códigos distintos según el banco y el año",
+   "unidad": "código jerárquico (texto)",
+   "fuente_definicion": "CVM, columna CD_CONTA; variabilidad verificada banco por banco en 2023-2026"
+  },
+  "ds_conta": {
+   "descripcion": "Nombre de la cuenta tal como lo entrega la compañía. Es la mitad del criterio de mapeo (la otra es cd_conta), justamente porque los códigos se corren entre años",
+   "unidad": "texto",
+   "fuente_definicion": "CVM, columna DS_CONTA"
+  },
+  "vl_conta": {
+   "descripcion": "Saldo de la cuenta como texto, tal cual lo sirvió la CVM, en la escala que diga `escala` y con diez decimales de formato (ceros, no precisión). No se modifica en el derivado",
+   "unidad": "R$ mil (ver escala)",
+   "fuente_definicion": "CVM, columna VL_CONTA"
+  },
+  "escala": {
+   "descripcion": "ESCALA_MOEDA: en qué escala viene vl_conta. «MIL» en las 40.200 filas del derivado (R$ mil → ×1.000 para tener R$). La CVM también usa «UNIDADE», así que la escala se lee de la columna y no se asume: pipeline/cvm.py falla si aparece otra",
+   "unidad": "categoría (MIL | UNIDADE)",
+   "fuente_definicion": "CVM, columna ESCALA_MOEDA; dominio verificado sobre el dato"
+  },
+  "moeda": {
+   "descripcion": "MOEDA: «REAL» en las 40.200 filas del derivado. pipeline/cvm.py falla si aparece otra moneda",
+   "unidad": "categoría",
+   "fuente_definicion": "CVM, columna MOEDA; dominio verificado sobre el dato"
+  },
+  "st_conta_fixa": {
+   "descripcion": "«S» si la cuenta es de las fijas del plan de la CVM (comparables entre compañías), «N» si la agregó el banco (28.516 «S» y 11.684 «N» en el derivado). En los bancos el detalle de la cartera, las provisiones y los depósitos es «N»: por eso el mapeo es por banco",
+   "unidad": "categoría (S | N)",
+   "fuente_definicion": "CVM, columna ST_CONTA_FIXA"
+  }
+ },
+ "columnas_bk_publicado": {
+  "cod_inst": "Banco del panel (definiciones/bcb_ifdata__bancos_balances.json).",
+  "periodo": "AAAAMM de fin de trimestre, el formato de pipeline/periodos.py.",
+  "linea": "Línea mínima: ativo_total, credito_bruto, credito_liquido, provisão_perda (provisao_perda), depositos, patrimonio_liquido, patrimonio_liquido_controlador, resultado_intermediacion, lucro_liquido, lucro_liquido_controlador, roe_anualizado. Definición y unidad de cada una en definiciones/cvm__bancos_lineas.json.",
+  "valor": "En R$ (VL_CONTA × 1000 cuando escala = MIL), salvo roe_anualizado que es una fracción (0,225 = 22,5 %). Nunca es 0 ni nulo: lo que la fuente no divulga no se publica, va a datos/derivado/cvm/bancos/huecos.csv con su motivo.",
+  "base": "Marco contable: «CPC», los pronunciamientos del CPC que exige la CVM (BR GAAP convergido con IFRS). No es COSIF (IF.Data) ni IFRS tal como lo emite el IASB.",
+  "fecha_entrega": "DT_RECEB de la CVM: cuándo recibió el documento del que salió la cifra.",
+  "cd_cvm": "Código de la compañía en la CVM.",
+  "versao": "Versión de la entrega usada (la mayor de esa referencia).",
+  "documento": "ITR | DFP | DFP−ITR. «DFP−ITR» marca las filas derivadas del cuarto trimestre: la DFP solo trae el año completo, así que el 4T se calcula restando el acumulado a setiembre (ITR 3T). La resta usa las dos entregas y puede arrastrar una reexpresión: la nota de la fila nombra las dos versiones.",
+  "medida": "saldo (BPA/BPP, stock al cierre) | trimestre (flujo de los tres meses) | acumulado (flujo desde el 1 de enero). En el 1T la CVM entrega una sola DRE porque el trimestre y el acumulado arrancan el mismo día: las dos medidas existen y valen lo mismo, y la fila lo dice en su nota.",
+  "consolidacion": "con (estado consolidado) | ind (solo la controladora). Mezclar las dos bases en una serie rompe la comparación; el mapa fija una por banco.",
+  "cd_conta": "Cuenta (o cuentas, separadas por « + » cuando la línea suma o resta) de la que salió el número. Vacío en roe_anualizado, que es derivado.",
+  "ds_conta": "Descripción de esas cuentas tal como la entregó el banco: la evidencia del mapeo.",
+  "nota": "Trampa o alcance de esa línea en ese banco (p. ej. que la provisión de Itaú cubre todos los activos al costo amortizado, no solo la cartera)."
+ },
+ "clave_bk_publicado": [
+  "cod_inst",
+  "periodo",
+  "linea",
+  "medida"
+ ],
+ "lineas_por_diseno_vacias": "Las líneas que un banco no puede tener (Cielo, que es institución de pagos y no tiene cartera ni depósitos) o que la fuente no divulga (la provisión de Banco do Brasil, Banestes, Pine y BTG en las cuentas estándar) están marcadas con «vacia» y su motivo en definiciones/cvm__bancos_lineas.json: no se buscan, no generan hueco y no se publican en 0."
+}

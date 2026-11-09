@@ -1,9 +1,14 @@
 # 08 · Estado, pendientes y riesgos
 
-Estado al 4-nov-2026.
+Estado al 9-nov-2026.
 
 ## Hecho
 
+- **Fuente CVM (ITR/DFP) construida el 9-nov** (frente 7): `pipeline/cvm.py` baja los ZIP oficiales a
+  `datos/crudo/cvm/`, filtra a los 16 bancos del panel que entregan, resuelve el plan de cuentas de cada banco
+  y publica `bk_publicado` (1.421 filas, 202312–202609, 11 líneas). Verificador en `herramientas/verificar_cvm.py`,
+  paso `cvm` en `actualizar.py`, pruebas en `tests/test_cvm.py`. El informe y las decisiones pendientes están en
+  `tareas/borradores/cvm_informe.md`. La tarjeta B8-06-0 todavía no la consume.
 - Repo separado de `Dashboard` y funcionando solo (gold idéntico al del repo original, 115 tests OK).
 - Portada y Crédito en v3. Tabla estándar única con Share. Presentar con láminas de posiciones idénticas.
 - Arreglos de visualización con fuentes reales: etiquetas de gráficos (fuente fija en ECharts), tablas que
@@ -35,6 +40,10 @@ Estado al 4-nov-2026.
    Quedan el CI de tests en GitHub y `.venv` con `requirements.lock`.
 8. Opcional ofrecido: filas extra en la tabla de ROE de la Portada (ROA, margen, costo del riesgo).
 9. Opcional: en Crédito → Líneas, partir mostrando solo Total y las modalidades grandes.
+10. Fuente CVM (frente 7), decisiones de Pablo abiertas el 9-nov: si Cielo (institución de pagos) entra a
+    `bk_publicado` con las tres líneas que sí tiene; si se baja también el ITR 2024 para que el ROE anualizado
+    exista en 1T25–3T25; si la tarjeta B8-06-0 se conecta ya a `bk_publicado`; y si `bk_puente` pasa de
+    `validacion_bancos.json` (cargado a mano) a `bk_publicado`. Detalle en `tareas/borradores/cvm_informe.md`.
 
 ## Trampas de los datos (leer antes de tocar cálculos)
 
@@ -54,6 +63,43 @@ Estado al 4-nov-2026.
 - **API del SGS:** una serie inexistente no da 404; devuelve HTML con 200 o 502 (ver `bcb_api.py`).
 - **SCR.data:** CSV en UTF-8 con BOM (no cp1252); `carteira_inadimplencia` está en R$, no en %.
 - **Red corporativa:** proxy HTTPS; ver `pipeline/certificados.py`.
+
+### Fuente CVM (ITR/DFP) — trampas nuevas, todas verificadas sobre el dato el 9-nov-2026
+
+- **El plan de cuentas de la CVM cambió con el CPC 48 y cada banco migró cuando quiso.** Itaú, BMG y BTG usan
+  el esqueleto nuevo (PL en 2.08, lucro en 3.09) desde 2023; BB, Bradesco, Banrisul y los demás siguen en el
+  viejo (PL en 2.07, lucro en 3.11); **Pine volvió del nuevo al viejo entre el DFP 2024 y el ITR 1T25**. Un mismo
+  `CD_CONTA` significa cosas distintas según banco y año (en Pine 2.07 fue «Patrimônio Líquido Consolidado» y hoy
+  es «Passivos sobre Ativos Não Correntes a Venda»). Por eso el mapeo exige código **y** texto de la descripción
+  (`definiciones/cvm__bancos_lineas.json`): si el código se corrió, la regla lo encuentra; si cambió de
+  significado, no casa y la línea queda vacía en vez de publicar un número equivocado.
+- **Tres bancos del panel no entregan estados consolidados**: ABC Brasil (desde el DFP 2024), Banco da Amazônia y
+  Banco do Nordeste solo tienen `ind`. BRB dejó de entregar el consolidado en el 2T25 y no volvió a entregar nada.
+  `bk_publicado` lleva la base en la columna `consolidacion`; mezclar con e ind en una serie rompe la comparación.
+- **Hay bancos que no llenan el archivo estructurado.** Santander entrega el impuesto (3.06) en 0 en varios ITR,
+  con lo que su 3.09 «Lucro consolidado» queda ANTES de impuestos: el total se reconstruye sumando 3.09.01 +
+  3.09.02. Además solo detalla la cartera en el DFP 2024 y los depósitos en el ITR 1T25. BTG no publica la
+  provisión de crédito; BB, Banestes y Pine dejan la provisión en 0 y entregan la cartera neta.
+- **Una cuenta en 0 no es un dato.** BB, Banestes, Pine, ABC y Mercantil (estos dos hasta el DFP 2024) dejan
+  1.02.04.05 «Provisão para Perdas Esperadas» en 0: significa «no la divulgo» en el archivo estructurado, no
+  «no tengo provisión». Las líneas de saldo llevan `cero_es_vacio` y el 0 va a `huecos.csv`, nunca a gold.
+- **Cuentas duplicadas en 0.** En el ITR 3T25 BB llenó además las cuentas del esqueleto nuevo (3.09.01/3.09.02)
+  con 0 junto a las suyas (3.11.01/3.11.02). Regla: si de las cuentas que casan solo una trae número, vale esa;
+  si hay dos con número, es ambigüedad y la línea queda vacía con aviso.
+- **En el 1T el trimestre y el acumulado son la misma cifra** (los dos arrancan el 1 de enero) y la CVM entrega
+  una sola fila: se duplica como `medida=trimestre` para que el 1T no quede sin flujo ni sin ROE.
+- **El 4T no lo publica nadie.** La DFP trae solo el año completo; el cuarto trimestre se deriva restando el
+  acumulado a setiembre (ITR 3T) y esas filas van marcadas `documento=DFP−ITR`. Si el banco reexpresó cifras
+  entre las dos entregas, la resta lo arrastra.
+- **BRB entrega en la DFP una DRE que cubre solo diciembre** (`DT_INI_EXERC` = 2023-12-01 y 2024-12-01). No es ni
+  el año ni el trimestre: se descarta con aviso y BRB queda sin flujos anuales.
+- **Los ZIP de estados traen una sola versión por entrega** (la vigente), pero el índice (`<doc>_cia_aberta_<año>.csv`)
+  lista todas las reentregas con su `DT_RECEB`: al cruzar la fecha de entrega hay que tomar la versión que se usó.
+- **CVM ≠ IF.Data, siempre.** La CVM es el consolidado societario bajo CPC; el IF.Data es el conglomerado
+  prudencial bajo COSIF. En 2T26 el activo difiere −18,4 % en Bradesco (seguros y previdência, el mismo número que
+  anota `definiciones/validacion_bancos.json`), −11,1 % en Itaú y −7,7 % en BTG; el PL de Santander difiere −17,3 %
+  de forma sistemática. La «Operações de Crédito» de la CVM se parece al `credito_total` del COSIF, no a su
+  `credito_bruto`. Se mide y se informa (`pipeline/cvm.py contrastar`), no se corrige.
 
 ## Riesgos técnicos conocidos
 

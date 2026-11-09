@@ -2,7 +2,7 @@
 
 Detalle exhaustivo de cada script (docstring completo, subcomandos y argumentos): `generado/scripts.md`.
 
-## Fuentes del BCB
+## Fuentes (BCB y otras)
 
 | Fuente | Qué trae | Frecuencia y rezago | Acceso | Dónde queda |
 |---|---|---|---|---|
@@ -10,11 +10,17 @@ Detalle exhaustivo de cada script (docstring completo, subcomandos y argumentos)
 | **SGS** | Series de sistema: saldos y concesiones de crédito por modalidad, mora, tasas, CDI, IPCA, crédito/PIB… | Mensual (algunas diarias o trimestrales), ~1–2 meses | `api.bcb.gov.br/dados/serie/bcdata.sgs.{codigo}/dados` | `datos/crudo/bcb_sgs/bancos_sistema/actual/serie_<codigo>.json` (todo el pipeline lee solo este dataset, vía `sgs.py`; los demás datasets de `bcb_sgs/` son copias congeladas del proyecto macro) |
 | **SCR.data** | Cartera y morosidad del sistema por segmento, porte, UF | Mensual; ZIP anuales | descarga de ZIP | `datos/crudo/bcb_scr/scrdata/actual/*.zip` |
 | **Focus** | Mediana del IPCA esperado a 12 meses (suavizada, `baseCalculo = 0`) | Diaria (días hábiles), ~1 semana | API OLinda `olinda.bcb.gov.br/olinda/servico/Expectativas/versao/v1/odata/ExpectativasMercadoInflacao12Meses` | `datos/crudo/bcb_focus/expectativas/actual/ipca_12m.json`, vía `focus.py` |
+| **CVM** (ITR y DFP) | Estados contables societarios de los bancos cotizados bajo CPC: activo (BPA), pasivo (BPP) y resultado (DRE). Llega semanas antes que el IF.Data, así que da el último trimestre publicado | Trimestral: ITR hasta 45 días después del cierre (mar/jun/set) y DFP a fin de febrero-marzo (dic). La CVM regenera el ZIP del año en curso casi todas las semanas | ZIP en `dados.cvm.gov.br/dados/CIA_ABERTA/DOC/{ITR,DFP}/DADOS/` y registro en `.../CAD/DADOS/cad_cia_aberta.csv`; CSV internos con `;` y latin1 | `datos/crudo/cvm/{itr,dfp}/<año>/*.zip` íntegros, `datos/crudo/cvm/cadastro/actual/`, filtrado a bancos en `datos/derivado/cvm/bancos/`, vía `cvm.py` |
 | BIS | Brecha crédito/PIB (referencia) | Trimestral | — | `datos/crudo/bis/` |
 
 IF.Data tiene **escopos**: 1 prudencial (conglomerado prudencial, el que usa el panel), 2 financiero, 3
 individual, 4 cambio. Desde 2025-03 el BCB renumeró las cuentas (frontera COSIF) y movió los informes de
 crédito del escopo 2 al 1: la cartera usa el financiero hasta 2024-T4 y el prudencial desde 2025-T1.
+
+La CVM es **otra contabilidad**, no un reemplazo del IF.Data: consolidado societario bajo CPC contra
+conglomerado prudencial bajo COSIF. Las dos cifras del mismo trimestre difieren (seguros, método de
+participación, reglas de consolidación) y esa diferencia se mide en `cvm.py contrastar`, no se corrige. De los
+34 bancos del panel solo 16 entregan ITR/DFP; el mapa y los motivos están en `definiciones/cvm__bancos.json`.
 
 ## Almacén (`pipeline/almacen.py`)
 
@@ -85,6 +91,7 @@ IF.Data se baja aparte y a mano (`ifdata.py colectar …`, trimestral).
 | pag_credito | `preparar_gold_bancos_pag_credito.py` | SGS (modalidades, concesiones, crédito/PIB) | `gold/bk_cred_*` | no |
 | scr_productos | `preparar_gold_bancos_scr_productos.py --descargar` | ZIP del SCR.data (baja el del año) | `intermedio/scr_productos/`, `gold/bk_scr_{tablas,series}` | sí |
 | scr | `preparar_gold_bancos_scr.py` | ZIP del SCR.data (caché por ZIP en `intermedio/scr/`) | `gold/bk_scr` | solo si falta un año |
+| cvm | `cvm.py --descargar` | ZIP de ITR/DFP y registro de la CVM, `cvm__bancos.json`, `cvm__bancos_lineas.json`, `gold/bk_panel` (para el contraste) | `crudo/cvm/`, `derivado/cvm/bancos/`, `gold/bk_publicado` | sí (sin `--descargar`, no) |
 | manifiesto | `manifiesto_gold.py` | `gold/bk_*`, `datos/derivado/` | `gold/bk_manifiesto` | no |
 | verificacion | `pytest -q` y `verificar_gold.py --gold` | todo | — | no |
 | exportar | `exportar_web_bancos.py` | `gold/bk_*` | `sitio/data/**.json` + `_manifiesto.json` | no |

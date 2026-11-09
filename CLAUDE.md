@@ -20,5 +20,5 @@ Dueño: Pablo (analista buy-side, bancos LatAm). Responder en español, directo 
 ## Comandos
 - Datos: `actualizar.bat` (pipeline completo). Publicar: `publicar.bat` (o `publicar.bat datos`).
 - Tests: `python -m pytest -q`. Verificadores: `python -X utf8 herramientas/verificar_gold.py` (intermedio) y `--gold` (tablas bk_*), `herramientas/verificar_f1.py`
-  (sitio publicado: `--url https://banks-bz.pages.dev --anchos 1920,1280,390`).
+  (sitio publicado: `--url https://banks-bz.pages.dev --anchos 1920,1280,390`), `herramientas/verificar_cvm.py` (fuente CVM y `bk_publicado`).
 - Spec autogenerada: `python -X utf8 herramientas/generar_spec.py`.

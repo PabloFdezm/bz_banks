@@ -1,82 +1,86 @@
 {
-  "fuente": "cvm",
-  "datasets": ["dfp_bancos"],
-  "nota": "DFP (Demonstrações Financeiras Padronizadas) de la CVM, ejercicio 2024, filtrado a bancos por `extraer_fuentes.py cvm-dfp`. DERIVADO, no dato crudo de la CVM: el ZIP oficial trae todas las compañías abiertas y todos los estados; acá quedan solo las 17 instituciones cuyo SETOR_ATIV es bancario, unidas por CNPJ contra el registro oficial. La versión anterior de este filtro buscaba substrings en la razón social ('PAN' dentro de 'COMPANHIA') y el 72% de las filas no eran bancos. COBERTURA POR DISEÑO: el extracto trae UN solo estado, GRUPO_DFP = 'DF Consolidado - Balanço Patrimonial Ativo' (1.380 filas, 100 cuentas). No están el pasivo (BPP), el resultado (DRE) ni el flujo de caja (DFC): quien los necesite tiene que ampliar el extractor, no buscarlos acá. DOS TRAMPAS ANTES DE SUMAR NADA, las dos verificadas sobre el dato: (1) cada cuenta viene DOS veces, una por ORDEM_EXERC ('ÚLTIMO' 2024 y 'PENÚLTIMO' 2023, 690 filas cada una) — sumar sin filtrar duplica todo y mezcla dos años; (2) los valores están en R$ MIL, no en reales (ESCALA_MOEDA='MIL'): el Ativo Total mayor del archivo es 2.854.475, que son R$ 2,85 billones, no R$ 2,85 millones.",
-  "columnas": {
-    "CNPJ_CIA": {
-      "descripcion": "CNPJ completo de la compañía, con formato. Es la clave con que este extracto se une contra el registro de la CVM (cvm/cadastro) para decidir qué es un banco. Ojo: las fuentes del BCB traen la raíz de 8 dígitos, no el CNPJ completo",
-      "unidad": "CNPJ con formato (texto)",
-      "fuente_definicion": "CVM, DFP cia_aberta 2024 (encabezado del archivo oficial); uso verificado en extraer_fuentes.py cvm-dfp"
-    },
-    "DT_REFER": {
-      "descripcion": "Fecha de referencia de la ENTREGA (el cierre del ejercicio informado). En este extracto es 2024-12-31 en las 1.380 filas: no sirve para distinguir el año de cada cifra — eso lo hace DT_FIM_EXERC junto con ORDEM_EXERC",
-      "unidad": "fecha (AAAA-MM-DD)",
-      "fuente_definicion": "CVM, DFP cia_aberta 2024; verificado sobre el dato (1 solo valor)"
-    },
-    "VERSAO": {
-      "descripcion": "Número de versión de la entrega. Una compañía puede reentregar sus estados y la CVM publica la versión vigente; en este extracto hay versiones 1, 2 y 3, pero UNA SOLA por compañía (verificado: 17 compañías, 17 versiones distintas, 0 claves CNPJ+ORDEM_EXERC+CD_CONTA repetidas). Si en otro año aparecieran dos versiones de la misma compañía, hay que quedarse con la mayor",
-      "unidad": "número de versión",
-      "fuente_definicion": "CVM, DFP cia_aberta 2024; unicidad verificada sobre el dato"
-    },
-    "DENOM_CIA": {
-      "descripcion": "Razón social de la compañía tal como aparece en el estado contable. Puede diferir del nombre en cvm/cadastro y del que usa el BCB en IF.data: para cruzar entre fuentes, unir por CNPJ y no por nombre",
-      "unidad": "texto",
-      "fuente_definicion": "CVM, DFP cia_aberta 2024"
-    },
-    "CD_CVM": {
-      "descripcion": "Código de la compañía en los sistemas de la CVM. Es la clave estable entre DFP, ITR, FRE, FCA e IPE, y no cambia aunque cambie la razón social",
-      "unidad": "código (numérico)",
-      "fuente_definicion": "CVM, DFP cia_aberta 2024; ICVM 480 Anexo 22 ítem 1.6"
-    },
-    "GRUPO_DFP": {
-      "descripcion": "Qué estado contable es la fila. En este extracto hay UN solo valor: 'DF Consolidado - Balanço Patrimonial Ativo' (el activo consolidado). 'Consolidado' significa el grupo económico completo, no la entidad individual: para un banco, incluye sus subsidiarias",
-      "unidad": "categoría",
-      "fuente_definicion": "CVM, DFP cia_aberta 2024; dominio verificado sobre el dato (1 valor)"
-    },
-    "MOEDA": {
-      "descripcion": "Moneda del estado. 'REAL' en las 1.380 filas",
-      "unidad": "categoría",
-      "fuente_definicion": "CVM, DFP cia_aberta 2024; verificado sobre el dato"
-    },
-    "ESCALA_MOEDA": {
-      "descripcion": "LA COLUMNA MÁS IMPORTANTE DEL ARCHIVO, y la más fácil de ignorar: dice en qué escala está VL_CONTA. Vale 'MIL' en las 1.380 filas, o sea que los valores están en R$ MIL y hay que multiplicarlos por 1.000 para tener reales. Comprobación: el mayor Ativo Total del extracto es 2.854.475 → R$ 2,85 billones (Itaú), no R$ 2,85 millones. La CVM también usa 'UNIDADE' en otros archivos, así que la escala se lee de esta columna y no se asume",
-      "unidad": "categoría (MIL | UNIDADE)",
-      "fuente_definicion": "CVM, DFP cia_aberta 2024; valor y magnitud verificados sobre el dato"
-    },
-    "ORDEM_EXERC": {
-      "descripcion": "Cuál de los dos ejercicios comparativos es la fila: 'ÚLTIMO' (el del cierre, 2024) o 'PENÚLTIMO' (el comparativo, 2023). CADA CUENTA APARECE DOS VECES, una por cada valor: 690 filas 'ÚLTIMO' y 690 'PENÚLTIMO' (verificado). Sumar sin filtrar duplica el balance y mezcla dos años. Para el año del cierre: ORDEM_EXERC = 'ÚLTIMO'",
-      "unidad": "categoría (ÚLTIMO | PENÚLTIMO)",
-      "fuente_definicion": "CVM, DFP cia_aberta 2024; dominio y conteo verificados sobre el dato"
-    },
-    "DT_FIM_EXERC": {
-      "descripcion": "Fecha de cierre del ejercicio al que pertenece la cifra de la fila: 2024-12-31 en las filas 'ÚLTIMO' y 2023-12-31 en las 'PENÚLTIMO' (verificado). Es la columna que dice de qué año es cada número",
-      "unidad": "fecha (AAAA-MM-DD)",
-      "fuente_definicion": "CVM, DFP cia_aberta 2024; correspondencia con ORDEM_EXERC verificada sobre el dato"
-    },
-    "CD_CONTA": {
-      "descripcion": "Código de la cuenta en el plan estandarizado de la CVM, JERÁRQUICO por niveles separados con punto: '1' es Ativo Total, '1.01' Caixa e Equivalentes, '1.01.01' su primer desglose. Las cuentas de un nivel suman su nivel superior, así que sumar todas las filas de una compañía cuenta cada real varias veces. Para totales, filtrar por el nivel que se quiere. No es el código COSIF del BCB",
-      "unidad": "código jerárquico (texto)",
-      "fuente_definicion": "CVM, DFP cia_aberta 2024; jerarquía verificada sobre el dato"
-    },
-    "DS_CONTA": {
-      "descripcion": "Nombre de la cuenta en portugués, tal como lo entrega la compañía ('Ativo Total', 'Caixa e Equivalentes de Caixa'). Las descripciones de un mismo CD_CONTA pueden variar de redacción entre compañías: para comparar entre bancos, agrupar por CD_CONTA y no por este texto",
-      "unidad": "texto",
-      "fuente_definicion": "CVM, DFP cia_aberta 2024"
-    },
-    "VL_CONTA": {
-      "descripcion": "Saldo de la cuenta, EN LA ESCALA QUE INDICA ESCALA_MOEDA (acá 'MIL': multiplicar por 1.000 para tener reales). Viene con diez decimales, que son ceros de formato y no precisión real",
-      "unidad": "R$ mil (ver ESCALA_MOEDA)",
-      "fuente_definicion": "CVM, DFP cia_aberta 2024; escala verificada contra el Ativo Total mayor del extracto"
-    },
-    "ST_CONTA_FIXA": {
-      "descripcion": "'S' si la cuenta es de las FIJAS del plan estandarizado de la CVM (comparables entre compañías), 'N' si la compañía la agregó por su cuenta. Observado: 1.156 'S' y 224 'N'. Para comparar bancos entre sí, quedarse con las 'S': las 'N' existen solo en el estado de quien las creó",
-      "unidad": "categoría (S | N)",
-      "fuente_definicion": "CVM, DFP cia_aberta 2024; dominio y frecuencias verificados sobre el dato"
-    },
-    "SETOR_ATIV": {
-      "descripcion": "Sector de actividad de la compañía, traído desde el registro de la CVM (cvm/cadastro) al hacer el filtro: es la columna por la que se decidió que estas 17 compañías son bancos. No viene en el archivo DFP original — es la marca de procedencia del filtro",
-      "unidad": "categoría",
-      "fuente_definicion": "CVM, cad_cia_aberta (columna SETOR_ATIV); agregada por extraer_fuentes.py cvm-dfp al unir por CNPJ"
-    }
+ "obsoleto": true,
+ "obsoleto_nota": "OBSOLETO desde el 9-nov-2026. Describe el extracto que producía el viejo extraer_fuentes.py cvm-dfp (un CSV filtrado con SETOR_ATIV, solo el activo consolidado del ejercicio 2024, y cuyo filtro anterior estaba mal: 72 % de las filas no eran bancos). Ese archivo ya no se genera. La fuente CVM viva es pipeline/cvm.py: el ZIP íntegro en datos/crudo/cvm/{itr,dfp,cadastro}/, el filtrado a bancos en datos/derivado/cvm/bancos/estados_<doc>_<año>.parquet (columnas en definiciones/cvm__estados_bancos.json), el mapa de bancos en definiciones/cvm__bancos.json, el mapeo de cuentas en definiciones/cvm__bancos_lineas.json y la tabla gold bk_publicado. Se conserva este archivo porque la descripción de las columnas de la CVM (ESCALA_MOEDA, ORDEM_EXERC, CD_CONTA jerárquico, ST_CONTA_FIXA) sigue siendo válida y está verificada sobre el dato.",
+ "fuente": "cvm",
+ "datasets": [
+  "dfp_bancos"
+ ],
+ "nota": "DFP (Demonstrações Financeiras Padronizadas) de la CVM, ejercicio 2024, filtrado a bancos por `extraer_fuentes.py cvm-dfp`. DERIVADO, no dato crudo de la CVM: el ZIP oficial trae todas las compañías abiertas y todos los estados; acá quedan solo las 17 instituciones cuyo SETOR_ATIV es bancario, unidas por CNPJ contra el registro oficial. La versión anterior de este filtro buscaba substrings en la razón social ('PAN' dentro de 'COMPANHIA') y el 72% de las filas no eran bancos. COBERTURA POR DISEÑO: el extracto trae UN solo estado, GRUPO_DFP = 'DF Consolidado - Balanço Patrimonial Ativo' (1.380 filas, 100 cuentas). No están el pasivo (BPP), el resultado (DRE) ni el flujo de caja (DFC): quien los necesite tiene que ampliar el extractor, no buscarlos acá. DOS TRAMPAS ANTES DE SUMAR NADA, las dos verificadas sobre el dato: (1) cada cuenta viene DOS veces, una por ORDEM_EXERC ('ÚLTIMO' 2024 y 'PENÚLTIMO' 2023, 690 filas cada una) — sumar sin filtrar duplica todo y mezcla dos años; (2) los valores están en R$ MIL, no en reales (ESCALA_MOEDA='MIL'): el Ativo Total mayor del archivo es 2.854.475, que son R$ 2,85 billones, no R$ 2,85 millones.",
+ "columnas": {
+  "CNPJ_CIA": {
+   "descripcion": "CNPJ completo de la compañía, con formato. Es la clave con que este extracto se une contra el registro de la CVM (cvm/cadastro) para decidir qué es un banco. Ojo: las fuentes del BCB traen la raíz de 8 dígitos, no el CNPJ completo",
+   "unidad": "CNPJ con formato (texto)",
+   "fuente_definicion": "CVM, DFP cia_aberta 2024 (encabezado del archivo oficial); uso verificado en extraer_fuentes.py cvm-dfp"
+  },
+  "DT_REFER": {
+   "descripcion": "Fecha de referencia de la ENTREGA (el cierre del ejercicio informado). En este extracto es 2024-12-31 en las 1.380 filas: no sirve para distinguir el año de cada cifra — eso lo hace DT_FIM_EXERC junto con ORDEM_EXERC",
+   "unidad": "fecha (AAAA-MM-DD)",
+   "fuente_definicion": "CVM, DFP cia_aberta 2024; verificado sobre el dato (1 solo valor)"
+  },
+  "VERSAO": {
+   "descripcion": "Número de versión de la entrega. Una compañía puede reentregar sus estados y la CVM publica la versión vigente; en este extracto hay versiones 1, 2 y 3, pero UNA SOLA por compañía (verificado: 17 compañías, 17 versiones distintas, 0 claves CNPJ+ORDEM_EXERC+CD_CONTA repetidas). Si en otro año aparecieran dos versiones de la misma compañía, hay que quedarse con la mayor",
+   "unidad": "número de versión",
+   "fuente_definicion": "CVM, DFP cia_aberta 2024; unicidad verificada sobre el dato"
+  },
+  "DENOM_CIA": {
+   "descripcion": "Razón social de la compañía tal como aparece en el estado contable. Puede diferir del nombre en cvm/cadastro y del que usa el BCB en IF.data: para cruzar entre fuentes, unir por CNPJ y no por nombre",
+   "unidad": "texto",
+   "fuente_definicion": "CVM, DFP cia_aberta 2024"
+  },
+  "CD_CVM": {
+   "descripcion": "Código de la compañía en los sistemas de la CVM. Es la clave estable entre DFP, ITR, FRE, FCA e IPE, y no cambia aunque cambie la razón social",
+   "unidad": "código (numérico)",
+   "fuente_definicion": "CVM, DFP cia_aberta 2024; ICVM 480 Anexo 22 ítem 1.6"
+  },
+  "GRUPO_DFP": {
+   "descripcion": "Qué estado contable es la fila. En este extracto hay UN solo valor: 'DF Consolidado - Balanço Patrimonial Ativo' (el activo consolidado). 'Consolidado' significa el grupo económico completo, no la entidad individual: para un banco, incluye sus subsidiarias",
+   "unidad": "categoría",
+   "fuente_definicion": "CVM, DFP cia_aberta 2024; dominio verificado sobre el dato (1 valor)"
+  },
+  "MOEDA": {
+   "descripcion": "Moneda del estado. 'REAL' en las 1.380 filas",
+   "unidad": "categoría",
+   "fuente_definicion": "CVM, DFP cia_aberta 2024; verificado sobre el dato"
+  },
+  "ESCALA_MOEDA": {
+   "descripcion": "LA COLUMNA MÁS IMPORTANTE DEL ARCHIVO, y la más fácil de ignorar: dice en qué escala está VL_CONTA. Vale 'MIL' en las 1.380 filas, o sea que los valores están en R$ MIL y hay que multiplicarlos por 1.000 para tener reales. Comprobación: el mayor Ativo Total del extracto es 2.854.475 → R$ 2,85 billones (Itaú), no R$ 2,85 millones. La CVM también usa 'UNIDADE' en otros archivos, así que la escala se lee de esta columna y no se asume",
+   "unidad": "categoría (MIL | UNIDADE)",
+   "fuente_definicion": "CVM, DFP cia_aberta 2024; valor y magnitud verificados sobre el dato"
+  },
+  "ORDEM_EXERC": {
+   "descripcion": "Cuál de los dos ejercicios comparativos es la fila: 'ÚLTIMO' (el del cierre, 2024) o 'PENÚLTIMO' (el comparativo, 2023). CADA CUENTA APARECE DOS VECES, una por cada valor: 690 filas 'ÚLTIMO' y 690 'PENÚLTIMO' (verificado). Sumar sin filtrar duplica el balance y mezcla dos años. Para el año del cierre: ORDEM_EXERC = 'ÚLTIMO'",
+   "unidad": "categoría (ÚLTIMO | PENÚLTIMO)",
+   "fuente_definicion": "CVM, DFP cia_aberta 2024; dominio y conteo verificados sobre el dato"
+  },
+  "DT_FIM_EXERC": {
+   "descripcion": "Fecha de cierre del ejercicio al que pertenece la cifra de la fila: 2024-12-31 en las filas 'ÚLTIMO' y 2023-12-31 en las 'PENÚLTIMO' (verificado). Es la columna que dice de qué año es cada número",
+   "unidad": "fecha (AAAA-MM-DD)",
+   "fuente_definicion": "CVM, DFP cia_aberta 2024; correspondencia con ORDEM_EXERC verificada sobre el dato"
+  },
+  "CD_CONTA": {
+   "descripcion": "Código de la cuenta en el plan estandarizado de la CVM, JERÁRQUICO por niveles separados con punto: '1' es Ativo Total, '1.01' Caixa e Equivalentes, '1.01.01' su primer desglose. Las cuentas de un nivel suman su nivel superior, así que sumar todas las filas de una compañía cuenta cada real varias veces. Para totales, filtrar por el nivel que se quiere. No es el código COSIF del BCB",
+   "unidad": "código jerárquico (texto)",
+   "fuente_definicion": "CVM, DFP cia_aberta 2024; jerarquía verificada sobre el dato"
+  },
+  "DS_CONTA": {
+   "descripcion": "Nombre de la cuenta en portugués, tal como lo entrega la compañía ('Ativo Total', 'Caixa e Equivalentes de Caixa'). Las descripciones de un mismo CD_CONTA pueden variar de redacción entre compañías: para comparar entre bancos, agrupar por CD_CONTA y no por este texto",
+   "unidad": "texto",
+   "fuente_definicion": "CVM, DFP cia_aberta 2024"
+  },
+  "VL_CONTA": {
+   "descripcion": "Saldo de la cuenta, EN LA ESCALA QUE INDICA ESCALA_MOEDA (acá 'MIL': multiplicar por 1.000 para tener reales). Viene con diez decimales, que son ceros de formato y no precisión real",
+   "unidad": "R$ mil (ver ESCALA_MOEDA)",
+   "fuente_definicion": "CVM, DFP cia_aberta 2024; escala verificada contra el Ativo Total mayor del extracto"
+  },
+  "ST_CONTA_FIXA": {
+   "descripcion": "'S' si la cuenta es de las FIJAS del plan estandarizado de la CVM (comparables entre compañías), 'N' si la compañía la agregó por su cuenta. Observado: 1.156 'S' y 224 'N'. Para comparar bancos entre sí, quedarse con las 'S': las 'N' existen solo en el estado de quien las creó",
+   "unidad": "categoría (S | N)",
+   "fuente_definicion": "CVM, DFP cia_aberta 2024; dominio y frecuencias verificados sobre el dato"
+  },
+  "SETOR_ATIV": {
+   "descripcion": "Sector de actividad de la compañía, traído desde el registro de la CVM (cvm/cadastro) al hacer el filtro: es la columna por la que se decidió que estas 17 compañías son bancos. No viene en el archivo DFP original — es la marca de procedencia del filtro",
+   "unidad": "categoría",
+   "fuente_definicion": "CVM, cad_cia_aberta (columna SETOR_ATIV); agregada por extraer_fuentes.py cvm-dfp al unir por CNPJ"
   }
+ }
 }
