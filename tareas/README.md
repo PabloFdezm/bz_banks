@@ -7,7 +7,7 @@ Lista ordenada por prioridad. Cada frente tiene su archivo con el detalle, los d
 |---|---|---|---|
 | 1 | Correcciones de datos detectadas en la auditoría del 6-nov | `01_correcciones_datos.md` | 1.1–1.5 cerradas el 6-nov (1.2: se deja el corte mixto); falta 1.6 (notas); 1.7 hecha y publicada el 8-nov |
 | 2 | Módulo Personas (SCR.data por renda) | `02_modulo_personas_scr.md` | páginas Personas (B11) y Mora (B12) publicadas el 6-nov; canvas sin revisar por Pablo |
-| 3 | Réplica del reporte sell-side de crédito por renda (detalle en `referencias/`, fuera de git) | `03_replica_sellside.md` | fuente S1–S5 encontrada el 6-nov (SCR.data v1, hasta sep-26); falta construirla |
+| 3 | Réplica del reporte sell-side de crédito por renda (detalle en `referencias/`, fuera de git) | `03_replica_sellside.md` | **en pausa** (Pablo, 9-nov): la fuente sirve (sondeo en `03_replica_sellside.md`), pero bajar 2017–2026 son ~3,5 GB y medio día de trabajo |
 | 4 | Réplica de gráficos del REF (BCB, oct-26) | `04_replica_ref.md` | fuente `bcb_ref` construida el 9-nov (`bk_ref`, 8 ediciones del Anexo; informe en `borradores/ref_informe.md`); faltan las tarjetas, con el rediseño |
 | 5 | Rediseño de gráficos (cambio grande anunciado por Pablo) | `05_rediseno_graficos.md` | por definir |
 | 6 | Operación: automatización, limpieza, deuda técnica | `06_operacion.md` | sitio en Cloudflare Pages desde el 6-nov; resto pendiente |
@@ -36,8 +36,8 @@ Netlify borrados; Personas y Mora publicadas y verificadas en 3 anchos; fuente S
 - [ ] 1.6 Notas de lectura: confirmar con el release 2T26 de Nu la caída del vencido (y PagSeguro); nota de ROE
       ~51 % de Nubank, BRB sin 2T26 y 2024-T4 vacío.
 - [x] 1.7 Concesiones: rotuladas «totales» el 8-nov (validado contra la API), publicadas y verificadas en vivo el 9-nov. Filas de libres por aprobar.
-- [ ] Frente 3: construir la fuente `bcb_scr_v1` (SCR.data v1 con `sr`, hasta sep-26); revisar desde qué año trae
-      `sr`, cuándo se vacía `tcb` y el quiebre de S2 en jul-25.
+- [ ] Frente 3 en pausa (decisión de Pablo, 9-nov: ~3,5 GB y medio día). Sondeo hecho: `sr` desde 2017-06,
+      `tcb` vacío desde 2025-07. Si se retoma, una alternativa más chica es bajar solo los últimos 2–3 años.
 - [ ] Frente 4: fuente `bk_ref` hecha el 9-nov. Decisiones en `borradores/ref_informe.md` §4 (Mora propio vs REF,
       ROE/provisiones por segmento desde el anexo, tarjeta de estrés, qué exportar). Faltan las tarjetas.
 - [ ] spec/08 punto 5: validar los nombres de las series SGS de modalidades.
