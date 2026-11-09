@@ -471,19 +471,19 @@ Carpeta `datos/gold/`.
 
 ### `bk_manifiesto`
 
-34 filas · 12 columnas · — · 0.01 MB
+35 filas · 12 columnas · — · 0.01 MB
 
 | Columna | Tipo | % nulos | Ejemplo | Valores distintos |
 |---|---|---|---|---|
 | `tipo` | str | 0 | tabla | 2 |
-| `tabla` | str | 9 | bk_banco | 31 |
-| `archivo` | str | 9 | bk_banco.parquet | 31 |
-| `filas` | float64 | 9 | 34.0 | 30 |
+| `tabla` | str | 9 | bk_banco | 32 |
+| `archivo` | str | 9 | bk_banco.parquet | 32 |
+| `filas` | float64 | 9 | 34.0 | 31 |
 | `columnas` | float64 | 9 | 17.0 | 16 |
-| `rango` | str | 26 | 2015-03-31–2026-06-30 | 14 |
-| `sha256` | str | 9 | 280bfed071740cd2261356e9a39189f1dc83a96750b33a0f234bbb6626b1aa47 | 31 |
-| `bytes` | float64 | 9 | 12217.0 | 31 |
-| `producido_por` | str | 9 | python -X utf8 preparar_gold_bancos.py base | 13 |
+| `rango` | str | 29 | 2015-03-31–2026-06-30 | 14 |
+| `sha256` | str | 9 | 280bfed071740cd2261356e9a39189f1dc83a96750b33a0f234bbb6626b1aa47 | 32 |
+| `bytes` | float64 | 9 | 12217.0 | 32 |
+| `producido_por` | str | 9 | python -X utf8 preparar_gold_bancos.py base | 14 |
 | `universo` | str | 91 | Panel | 3 |
 | `ultimo_corte` | str | 91 | 2026-06-30 | 3 |
 | `nota` | str | 91 | IF.Data prudencial, trimestral | 3 |
@@ -665,6 +665,24 @@ Carpeta `datos/gold/`.
 | `cuota_credito` | float64 | 1 | 0.00013711871001216252 | 33 |
 | `relevante` | bool | 0 | False | 2 |
 | `rango_relevantes` | Int64 | 47 | 1 | 102 |
+
+### `bk_ref`
+
+303,953 filas · 11 columnas · — · 1.73 MB
+
+| Columna | Tipo | % nulos | Ejemplo | Valores distintos |
+|---|---|---|---|---|
+| `edicion` | str | 0 | 202304 | 8 |
+| `hoja` | str | 0 | Graf 1.1.2 | 232 |
+| `grafico` | str | 0 | 1.1.2 | 228 |
+| `titulo` | str | 0 | Gráfico 1.1.2 – Taxas de política monetária em economias avançadas | 649 |
+| `unidad` | str | 0 |  | 25 |
+| `tipo` | str | 0 | serie | 2 |
+| `serie` | str | 0 | EUA | 1349 |
+| `orden` | int64 | 0 | 8 | 5653 |
+| `fecha_ref` | str | 9 | 2019-03 | 309 |
+| `categoria` | str | 0 |  | 1399 |
+| `valor` | float64 | 0 | 2.5 | 80223 |
 
 ### `bk_roe_arbol`
 

@@ -3,7 +3,7 @@
 > Generado por `herramientas/generar_spec.py`. No editar a mano: se sobrescribe.
 
 
-## `pipeline/actualizar.py` (89 líneas)
+## `pipeline/actualizar.py` (90 líneas)
 
 Importa del pipeline: `almacen`, `red`
 
@@ -269,7 +269,7 @@ Uso:
     python -X utf8 pipeline/diccionario_ifdata.py [-o ifdata_diccionario.html]
 ```
 
-## `pipeline/exportar_web_bancos.py` (187 líneas)
+## `pipeline/exportar_web_bancos.py` (189 líneas)
 
 Importa del pipeline: `almacen`, `bancos`, `reglas_gold`
 
@@ -929,6 +929,36 @@ Salidas:
 
 ```text
 Reintentos y descargas a disco: la única política de reintento del pipeline (bcb_api, ifdata, scr_zip).
+```
+
+## `pipeline/ref.py` (395 líneas)
+
+Importa del pipeline: `almacen`, `certificados`, `red`
+
+Argumentos: `--forzar` — vuelve a bajar las ediciones ya bajadas; `--descargar` — con «todo», baja antes las ediciones que falten; sin esta opción no toca la red; `--resumen` — con «gold», no publica
+
+```text
+REF del BCB: Anexo Estatístico (xlsx) de cada edición → bk_ref (edición × gráfico × serie × punto).
+
+Fuente: https://www.bcb.gov.br/publicacoes/ref. Cada edición semestral del Relatório de Estabilidade Financeira
+publica un xlsx con una hoja por gráfico o tabla («Graf 1.2.2.16», «Tab 1.2.4.1»). Es público, a diferencia del
+PDF guardado en referencias/: el xlsx se baja a datos/crudo/bcb_ref/anexo/<edicion>/ con su manifiesto.
+
+Trampas (verificadas el 9-nov-2026 sobre las ediciones 202304 a 202610):
+1. El mes de publicación varía (may-26 en vez de abr-26): las ediciones se listan en definiciones/bcb_ref.json y
+   «descargar» sondea los meses candidatos del semestre siguiente para avisar de una nueva.
+2. Cada hoja tiene su forma: título, «Fonte», notas, una fila de unidad («%», «R$ bilhões»), uno o dos niveles de
+   encabezado (el superior en celdas combinadas que openpyxl lee como vacías a la derecha) y después los datos.
+3. Las fechas vienen como datetime, como «2020-12», o como «Jun\n2023» seguido de «Jul», «Ago»… sin año.
+4. Hay hojas sin eje temporal (distribuciones, tablas por categoría, escenarios de estrés): se guardan con
+   ``categoria`` en vez de ``fecha_ref``.
+5. Algunas columnas vienen vacías a propósito (el contrafactual de 1.2.2.21 solo existe en la proyección):
+   no se rellena nada; una celda vacía no genera fila.
+
+Uso:  python -X utf8 pipeline/ref.py descargar   (baja las ediciones que falten y sondea la siguiente)
+      python -X utf8 pipeline/ref.py gold        (lee todas las ediciones bajadas → bk_ref)
+      python -X utf8 pipeline/ref.py --descargar (las dos cosas; así lo llama actualizar.py, que quita
+                                                   --descargar cuando corre sin red)
 ```
 
 ## `pipeline/registro_metricas.py` (73 líneas)

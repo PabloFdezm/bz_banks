@@ -53,10 +53,21 @@
 - `trimestres_anomalos`: objeto con 1 claves
 - `nota_duplicados`: El BCB sirvió 2025-09 (informes 11, 13 y 16) con cada fila tres veces; el preparador quita duplicados exactos y falla si queda una clave (banco, grupo, cuenta,…
 
+## `bcb_ref.json` (2 kB)
+
+- `fuente`: BCB, Relatório de Estabilidade Financeira (REF), Anexo Estatístico (xlsx, una hoja por gráfico o tabla). Público.
+- `url`: https://www.bcb.gov.br/content/publicacoes/ref/{edicion}/RELESTAB{edicion}-refAnexoEstatistico.xlsx
+- `pagina`: https://www.bcb.gov.br/publicacoes/ref
+- `descripcion`: Ediciones semestrales. El mes de publicación varía (abr-23, oct-23, abr-24, oct-24, abr-25, oct-25, may-26, oct-26): «ediciones» es la lista verificada; «desca…
+- `verificado`: 2026-11-09
+- `ediciones`: lista de 8
+- `meses_candidatos`: objeto con 2 claves
+- `usados`: objeto con 2 claves
+
 ## `contrato_gold.json` (7 kB)
 
 - `descripcion`: Contrato de la capa gold (datos/gold/bk_*.parquet): columnas mínimas y clave única de cada tabla. Lo lee herramientas/verificar_gold.py; una tabla bk_* que no …
-- `tablas`: objeto con 32 claves
+- `tablas`: objeto con 33 claves
 
 ## `cvm__bancos.json` (27 kB)
 

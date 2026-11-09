@@ -1,0 +1,24 @@
+{
+ "fuente": "BCB, Relatório de Estabilidade Financeira (REF), Anexo Estatístico (xlsx, una hoja por gráfico o tabla). Público.",
+ "url": "https://www.bcb.gov.br/content/publicacoes/ref/{edicion}/RELESTAB{edicion}-refAnexoEstatistico.xlsx",
+ "pagina": "https://www.bcb.gov.br/publicacoes/ref",
+ "descripcion": "Ediciones semestrales. El mes de publicación varía (abr-23, oct-23, abr-24, oct-24, abr-25, oct-25, may-26, oct-26): «ediciones» es la lista verificada; «descargar» además sondea los meses candidatos del semestre siguiente a la última y avisa si encuentra una edición nueva para agregarla aquí. Verificado el 9-nov-2026 (los meses 2023-05, 2023-11, 2026-04 dan 404).",
+ "verificado": "2026-11-09",
+ "ediciones": ["202304", "202310", "202404", "202410", "202504", "202510", "202605", "202610"],
+ "meses_candidatos": {"primer_semestre": ["03", "04", "05", "06"], "segundo_semestre": ["09", "10", "11", "12"]},
+ "usados": {
+  "descripcion": "Gráficos que el dashboard usa o va a usar, con las series que deben existir en la última edición. Si el BCB renombra una hoja o una serie, el test de integración falla antes de que una tarjeta quede vacía en silencio.",
+  "graficos": {
+   "1.2.2.15": ["Menor risco", "Maior risco", "Total"],
+   "1.2.2.16": ["Total", "Habitacional", "Consignado", "Veículos", "Não Consignado", "Rural e agroindustrial", "Cartão de crédito"],
+   "1.2.2.17": ["Público", "Privado | S1", "Privado | Demais", "SNCC", "Digital"],
+   "1.2.2.21.a": ["Observada", "Contrafactual"],
+   "1.2.2.21.b": ["Observada", "Contrafactual"],
+   "1.2.2.21.c": ["Observada", "Contrafactual"],
+   "1.2.3.1": [],
+   "1.2.3.5": ["SFN", "S1 Privados", "Públicos", "Demais IFs", "Digitais (esquerda)", "SNCC"],
+   "1.2.3.8": [],
+   "1.2.4.1": ["Sistema | ICP (1)", "Sistema | INI (2)", "Sistema | IB (3)", "Sistema | RA (4)"]
+  }
+ }
+}

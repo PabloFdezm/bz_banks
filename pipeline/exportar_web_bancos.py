@@ -46,7 +46,9 @@ ORIGEN = A.GOLD
 SALIDA = A.RAIZ / "sitio" / "data"
 
 # Auxiliar del verificador (decisión 59): no es parte del contrato del sitio.
-EXCLUIDAS = {"bk_cartera_totales"}
+# bk_ref: todas las ediciones del Anexo del REF pesan ~81 MB en JSON; cuando una página lo use, se exportan solo
+# los gráficos que use (frente 4, 9-nov-2026).
+EXCLUIDAS = {"bk_cartera_totales", "bk_ref"}
 # Columna que identifica al banco en cada tabla que se parte por banco.
 PARTIBLES = {"bk_panel": "cod_inst", "bk_cartera": "cod_inst", "bk_roe_arbol": "entidad"}
 # Slug de cada óptica de bk_grupo para nombrar su partición (encargo 75). Si aparece una óptica nueva sin

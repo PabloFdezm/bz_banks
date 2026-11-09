@@ -4,6 +4,9 @@ Estado al 9-nov-2026.
 
 ## Hecho
 
+- **Fuente REF construida el 9-nov** (frente 4): `pipeline/ref.py` → `bk_ref` (Anexo Estatístico, 8 ediciones).
+  Informe: `tareas/borradores/ref_informe.md`.
+
 - **Capital (IF.Data informe 5) construido el 9-nov** (frente 8): `pipeline/capital.py` publica `bk_capital`
   (34 bancos, 2015-03–2026-06) y `bk_capital_grupo`; requerimiento de CP desde el ACP que publica el BCB (desde
   2023-03) o desde `definiciones/minimos_regulatorios.json`. 2T26 calza con el Pilar 3 de Itaú, BB, Bradesco,
@@ -106,6 +109,16 @@ Estado al 9-nov-2026.
   anota `definiciones/validacion_bancos.json`), −11,1 % en Itaú y −7,7 % en BTG; el PL de Santander difiere −17,3 %
   de forma sistemática. La «Operações de Crédito» de la CVM se parece al `credito_total` del COSIF, no a su
   `credito_bruto`. Se mide y se informa (`pipeline/cvm.py contrastar`), no se corrige.
+
+### REF, Anexo Estatístico (bk_ref) — trampas verificadas el 9-nov-2026
+
+- **El mes de la edición varía** (may-26, no abr-26): ediciones listadas en `definiciones/bcb_ref.json`; la
+  descarga sondea el semestre siguiente y avisa.
+- **Una forma por hoja**: encabezados de 1–2 niveles con celdas combinadas, fechas «Jun
+2023» + «Jul» sin año,
+  meses en inglés en algunas hojas, hojas por categorías con la primera columna numérica.
+- **Proyecciones y escenarios con fechas futuras**: la columna es `fecha_ref` (texto), no `fecha`.
+- **No va al sitio entero** (81 MB en JSON): excluido en `exportar_web_bancos.py` hasta que una página lo use.
 
 ### Capital (IF.Data informe 5) — trampas verificadas sobre el dato el 9-nov-2026
 

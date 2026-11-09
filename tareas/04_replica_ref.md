@@ -72,6 +72,11 @@ boxes del capítulo 2.
    - PD y estrés → páginas Calidad y Capital.
 4. **Al presentarlo:** cada tarjeta que venga del REF lleva «Fuente: BCB, REF (edición)» y frecuencia semestral.
 
+## Avance 9-nov: fuente `bcb_ref` construida
+`pipeline/ref.py` baja el Anexo Estatístico de las 8 ediciones (202304–202610) y publica `bk_ref` (formato largo,
+todas las hojas). 1.2.2.16 propio calza con el anexo (≤0,08 pp de media desde 2025). Detalle, trampas y decisiones:
+`borradores/ref_informe.md`. El punto «Construir 1» queda hecho; los puntos 2–4 son tarjetas, con el rediseño.
+
 ## Avance 6-nov: canvas de réplicas con datos propios
 Canvas «Bancos Brasil · Réplicas del REF»: https://claude.ai/artifact/KBCNwmBbBfnsQ1NtwS5o48. Tiene cuatro láminas y
 espera la aprobación de Pablo.
