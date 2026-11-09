@@ -13,6 +13,9 @@ Lista ordenada por prioridad. Cada frente tiene su archivo con el detalle, los d
 | 6 | Operación: automatización, limpieza, deuda técnica | `06_operacion.md` | sitio en Cloudflare Pages desde el 6-nov; resto pendiente |
 | 7 | Fuente CVM (ITR/DFP) → `bk_publicado` | `07_fuente_cvm.md` | construido y commiteado el 9-nov; decisiones §7 cerradas el 9-nov (15 bancos, 202312–202609, ROE desde 1T24); la tarjeta B8-06-0 espera el rediseño |
 | 8 | Capital: informe 5 de IF.Data → `bk_capital` (página B7) | `08_fuente_capital.md` | construido el 9-nov (`pipeline/capital.py`, `bk_capital`, `bk_capital_grupo`, tests); 2T26 calza con el Pilar 3 de los 5 grandes; decisiones en `borradores/capital_informe.md` §6; B7 espera el rediseño |
+| 9 | Portada mensual (01 colocaciones, 02 precio, 03 NPL): series SGS por segmento y gold `bk_portada_m` | `09_portada_mensual_segmentos.md` | por hacer (spec del 9-nov; primero el barrido de códigos) |
+| 10 | Capital mensual: balancetes 4060 o estimación de la holgura (sección 04 de la Portada) | `10_capital_mensual.md` | cerrado el 9-nov: B descartada (no pasa 0,3 pp); A pasa al frente 11 |
+| 11 | Fuente nueva: balancetes mensuales COSIF → ROE, NIM, eficiencia, depósitos y capital mensuales | `11_fuente_balancetes.md` | en curso: sondeo aprobado el 9-nov (`borradores/balancetes_sondeo.md`); fase 2 |
 
 Orden sugerido: 1 → 2 → 4 (fuente `bcb_ref`) → 3 → 5 → 6. El 5 puede cambiar cómo se construyen 2–4: preguntar a
 Pablo antes de construir páginas nuevas.

@@ -42,8 +42,8 @@ Set-Location C:\dev\bz_banks
   `huecos_capital.csv`.
 - **Requerimiento de CP:**
   - desde el ACP del BCB: 451 filas (2023-03 en adelante);
-  - desde las normas: 200 filas (2015–2016);
-  - vacío: 739 filas (2017–2022, y las filas sin CP).
+  - desde las normas: 2015–2016;
+  - desde las normas con el colchón sistémico relevado banco por banco: 2017–2022 (§6.1, cerrado el 9-nov). Ninguna fila queda sin requerimiento.
 
 ## 3. Mapeo por época
 
