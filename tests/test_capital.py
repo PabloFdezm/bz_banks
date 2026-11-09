@@ -29,8 +29,11 @@ MINIMOS = {
     "conservacion": [{"desde": "2020-04-01", "hasta": "2021-03-31", "valor": 0.0125},
                      {"desde": "2022-04-01", "hasta": "", "valor": 0.025}],
     "contraciclico": [{"desde": "2016-01-01", "hasta": "", "valor": 0.0}],
-    "sistemico": {"cronograma": [{"desde": "2019-01-01", "hasta": "", "valor": 0.01}],
-                  "bancos": {"C0000001": {"desde": "2017-01-01"}}, "lista_completa": True},
+    "sistemico": {"cronograma": [{"desde": "2015-01-01", "hasta": "2016-12-31", "valor": 0.0},
+                                 {"desde": "2017-01-01", "hasta": "", "valor": None}],
+                  "bancos": {"C0000001": {"valores": [{"desde": "2019-01-01", "hasta": "2020-12-31", "valor": 0.01},
+                                                      {"desde": "2022-01-01", "hasta": "", "valor": 0.01}]}},
+                  "lista_completa": True},
 }
 
 
@@ -92,6 +95,8 @@ def test_vigencia_por_fecha():
 
 def test_sistemico_por_banco():
     assert C.sistemico(MINIMOS, "C0000001", date(2026, 6, 30)) == 0.01
+    assert C.sistemico(MINIMOS, "C0000001", date(2021, 6, 30)) is None      # año del banco sin fuente: vacío
+    assert C.sistemico(MINIMOS, "C0000001", date(2016, 6, 30)) == 0.0       # antes de 2017, 0 para todos
     assert C.sistemico(MINIMOS, "C0000009", date(2026, 6, 30)) == 0.0     # lista completa: no está → 0
     incompleta = {**MINIMOS, "sistemico": {**MINIMOS["sistemico"], "lista_completa": False}}
     assert C.sistemico(incompleta, "C0000009", date(2026, 6, 30)) is None

@@ -7,8 +7,8 @@ Frente 8 (`tareas/08_fuente_capital.md`). Construido hasta la capa gold, sin toc
 806 filas, con los índices calculados como Σ capital / Σ RWA. En 2T26 los cinco grandes calzan con su KM1 o su nota
 de capital dentro de 0,1 pp en CP, Nivel I y Basilea, y el capital principal en R$ coincide al millón. Desde 2023-03
 el requerimiento de CP de cada banco lo publica el propio BCB en el informe, como «Adicional de Capital Principal» en
-R$. Para 2015–2016 sale de las normas. Para 2017–2022 queda vacío: el colchón sistémico de cada banco en esos años
-no está verificado.
+R$. Antes, de las normas, con el colchón sistémico de cada banco relevado banco por banco (ver §6.1, cerrado el
+9-nov): todas las filas tienen requerimiento, y el empalme 2022-12 (normas) → 2023-03 (BCB) es exacto.
 
 ## 1. Qué se hizo
 
@@ -93,12 +93,16 @@ Todo está en `definiciones/minimos_regulatorios.json`, cada fila con su norma y
 
 ## 6. Decisiones que quedan para Pablo
 
-1. **Requerimiento 2017–2022.** Falta el ACP sistémico por banco en esos años. Hay tres opciones:
-   - (a) dejarlo vacío, como está ahora;
-   - (b) cargar a mano el FIS de los grandes desde sus Pilar 3 históricos, que es lo correcto pero lleva trabajo;
-   - (c) publicarlo «sin sistémico» como cota inferior, rotulado.
-   Recomiendo (b) solo para los cinco grandes y (a) para el resto, porque los medianos casi seguro tenían 0 %, pero
-   eso no está verificado.
+1. **Requerimiento 2017–2022 — CERRADO el 9-nov (opción b).** El ACP sistémico de Itaú, BB, Bradesco, Santander,
+   Caixa y BTG está en `minimos_regulatorios.json` → `sistemico.bancos`, año por año y con fuente (20-F, Pilar 3,
+   KM1 de datos abiertos): 0,25 % en 2017, 0,5 % en 2018 y 1 % desde 2019 para los cinco grandes; 0 % para BTG.
+   El resto del panel queda en 0 % por regla: su exposición total / PIB no pasó del 3,2 % (Safra), lejos del umbral
+   de 10 %. BNDES lo supera, pero como banco de desarrollo no está sujeto. **Queda una duda para Pablo:**
+   - Santander 2019 está cargado en 1,0 %, que es lo que dan los montos de sus Pilar 3 de 2019;
+   - en contra: el KM1 de 4T20 dice 0 % para dic/19, y la regla da 0, con exposición/PIB de 9,6 %;
+   - si fuera 0, su requerimiento de 2019 baja 1 pp.
+
+   Santander 2017 (0 %) y BTG 2017–2019 (0 %) salen de la regla, con nota.
 2. **Dividendos en el puente del CP (B7-02-0).** El informe 5 no los separa. Hoy `bk_capital` publica `var_cp_4t`,
    `lucro_ttm` y `otros_var_cp_4t` como residuo. El residuo mezcla dividendos y JCP, ajustes prudenciales, OCI y
    emisiones. Separar los dividendos exigiría la DRE o la DMPL de la CVM (`bk_publicado`), y solo para 15 bancos.

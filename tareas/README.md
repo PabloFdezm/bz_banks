@@ -28,8 +28,8 @@ Netlify borrados; Personas y Mora publicadas y verificadas en 3 anchos; fuente S
 - [ ] Coordinar las sesiones en paralelo: un frente por sesión.
 
 **Datos**
-- [ ] Frente 8 (capital): decisiones de `borradores/capital_informe.md` §6 — requerimiento 2017–2022 (ACP
-      sistémico por banco), dividendos en el puente del CP, definición de `holgura_crecimiento`, trimestres repetidos.
+- [ ] Frente 8 (capital): decisiones de `borradores/capital_informe.md` §6 — Santander 2019 (ACP
+      sistémico 1 % o 0), dividendos en el puente del CP, definición de `holgura_crecimiento`, trimestres repetidos.
 - [x] Frente 7 (CVM): decisiones cerradas el 9-nov (§7 de `borradores/cvm_informe.md`). Quedan: borrar los volcados
       de `borradores/` (lista mostrada a Pablo), BRB sin entregas desde 2T25, Daycoval 3T26 consolidado, y
       conectar B8-06-0 después del rediseño.

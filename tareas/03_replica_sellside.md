@@ -23,7 +23,12 @@ El detalle (mapa de figuras, cifras de contraste, tesis) está en la nota local
   - S2 salta de 686 a 840 entre jun-25 y jul-25. Probablemente es una reclasificación de segmentos: marcarla como
     quiebre.
 - **Peso:** cerca de 290–340 MB por mes sin comprimir (ZIP anual de ~300–400 MB).
-- **Falta revisar:** desde qué año trae `sr` (¿2017, con la Res. 4.553?) y cuándo se vacía `tcb`.
+- **Revisado el 9-nov** (lectura parcial de los ZIP por rango HTTP, sin bajarlos enteros):
+  - v1 existe desde 2012-06 (`planilha_2012.zip`) hasta 2026-09, siempre con las mismas 23 columnas. Los ZIP
+    pesan de 194 MB (2012) a 415 MB (2024).
+  - `sr` viene vacío hasta 2017-05 y lleno desde **2017-06**.
+  - `tcb` viene lleno hasta 2025-06 y en «-» desde **2025-07**, el mismo mes del salto de S2.
+  - Desde 2025-06 hay filas con `sr` vacío (algunas entidades sin segmento): medir su peso antes de construir.
 - **Paso 2 (siguiente):** fuente `bcb_scr_v1` agregando al bajar a fecha × sr × cliente × porte × modalidade, y en PJ
   también × cnae_secao. Muestras bajadas en el scratchpad de la sesión del 6-nov, fuera del repo.
 - Conseguir el segmento prudencial S1–S5 por tramo de renda:

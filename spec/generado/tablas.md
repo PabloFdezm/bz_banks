@@ -171,7 +171,7 @@ Carpeta `datos/gold/`.
 
 ### `bk_capital`
 
-1,390 filas · 41 columnas · periodo: 201503 → 202606 · 0.29 MB
+1,390 filas · 41 columnas · periodo: 201503 → 202606 · 0.32 MB
 
 | Columna | Tipo | % nulos | Ejemplo | Valores distintos |
 |---|---|---|---|---|
@@ -202,16 +202,16 @@ Carpeta `datos/gold/`.
 | `min_cp` | float64 | 0 | 0.045 | 1 |
 | `min_nivel1` | float64 | 0 | 0.06 | 1 |
 | `min_pr` | float64 | 0 | 0.11 | 5 |
-| `acp_pct` | float64 | 53 | 0.0 | 418 |
-| `fuente_acp` | str | 0 | normas (definiciones/minimos_regulatorios.json) | 3 |
-| `requerimiento_cp` | float64 | 53 | 0.045 | 415 |
-| `requerimiento_nivel1` | float64 | 53 | 0.06 | 411 |
-| `requerimiento_pr` | float64 | 53 | 0.11 | 415 |
-| `holgura_cp_pp` | float64 | 55 | 0.075562018634533 | 620 |
-| `holgura_nivel1_pp` | float64 | 55 | 0.060562018634533005 | 620 |
-| `holgura_basilea_pp` | float64 | 54 | 0.042312360913777006 | 639 |
-| `exceso_cp` | float64 | 55 | 46438642317.65745 | 621 |
-| `holgura_crecimiento` | float64 | 55 | 1.6791559696562892 | 620 |
+| `acp_pct` | float64 | 0 | 0.0 | 427 |
+| `fuente_acp` | str | 0 | normas (definiciones/minimos_regulatorios.json) | 2 |
+| `requerimiento_cp` | float64 | 0 | 0.045 | 424 |
+| `requerimiento_nivel1` | float64 | 0 | 0.06 | 420 |
+| `requerimiento_pr` | float64 | 0 | 0.11 | 422 |
+| `holgura_cp_pp` | float64 | 11 | 0.075562018634533 | 1235 |
+| `holgura_nivel1_pp` | float64 | 11 | 0.060562018634533005 | 1235 |
+| `holgura_basilea_pp` | float64 | 10 | 0.042312360913777006 | 1254 |
+| `exceso_cp` | float64 | 11 | 46438642317.65745 | 1236 |
+| `holgura_crecimiento` | float64 | 11 | 1.6791559696562892 | 1235 |
 | `var_cp_4t` | float64 | 20 | 2609741542.4400024 | 1106 |
 | `lucro_ttm` | float64 | 4 | 15902624880.74001 | 1329 |
 | `otros_var_cp_4t` | float64 | 21 | -14455212162.809998 | 1099 |
@@ -219,7 +219,7 @@ Carpeta `datos/gold/`.
 
 ### `bk_capital_grupo`
 
-806 filas · 26 columnas · periodo: 201503 → 202606 · 0.09 MB
+806 filas · 26 columnas · periodo: 201503 → 202606 · 0.10 MB
 
 | Columna | Tipo | % nulos | Ejemplo | Valores distintos |
 |---|---|---|---|---|
@@ -241,12 +241,12 @@ Carpeta `datos/gold/`.
 | `indice_nivel1` | float64 | 0 | 0.11569620919243342 | 542 |
 | `basilea` | float64 | 0 | 0.15306674870977557 | 542 |
 | `densidad_rwa` | float64 | 0 | 0.6336389303636772 | 542 |
-| `acp_brl` | float64 | 51 | 0.0 | 235 |
-| `acp_pct` | float64 | 51 | 0.0 | 195 |
+| `acp_brl` | float64 | 0 | 0.0 | 499 |
+| `acp_pct` | float64 | 0 | 0.0 | 347 |
 | `min_cp` | float64 | 0 | 0.045 | 1 |
-| `requerimiento_cp` | float64 | 51 | 0.045 | 192 |
-| `holgura_cp_pp` | float64 | 51 | 0.06348730863457139 | 278 |
-| `holgura_crecimiento` | float64 | 51 | 1.410829080768253 | 278 |
+| `requerimiento_cp` | float64 | 0 | 0.045 | 338 |
+| `holgura_cp_pp` | float64 | 0 | 0.06348730863457139 | 542 |
+| `holgura_crecimiento` | float64 | 0 | 1.410829080768253 | 542 |
 | `orden_optica` | int64 | 0 | 1 | 5 |
 | `orden_grupo` | int64 | 0 | 0 | 15 |
 
@@ -774,20 +774,20 @@ Carpeta `datos/gold/`.
 
 ### `bk_sistema_m`
 
-8,816 filas · 10 columnas · fecha: 2000-01-01 → 2026-10-01 · 0.24 MB
+8,819 filas · 10 columnas · fecha: 2000-01-01 → 2026-11-01 · 0.24 MB
 
 | Columna | Tipo | % nulos | Ejemplo | Valores distintos |
 |---|---|---|---|---|
-| `fecha` | datetime64[us] | 0 | 2000-01-01 00:00:00 | 322 |
+| `fecha` | datetime64[us] | 0 | 2000-01-01 00:00:00 | 323 |
 | `serie_id` | str | 0 | credito_pib | 44 |
 | `unidad` | str | 0 | fraccion | 2 |
-| `valor` | float64 | 3 | 0.2631 | 4762 |
-| `p10` | float64 | 32 | 0.24165000000000003 | 2608 |
-| `p50` | float64 | 32 | 0.2551 | 2635 |
-| `p90` | float64 | 32 | 0.27044 | 3052 |
+| `valor` | float64 | 3 | 0.2631 | 4764 |
+| `p10` | float64 | 32 | 0.24165000000000003 | 2610 |
+| `p50` | float64 | 32 | 0.2551 | 2636 |
+| `p90` | float64 | 32 | 0.27044 | 3054 |
 | `es_ultimo` | bool | 0 | False | 2 |
-| `d_1m` | float64 | 3 | -0.0040999999999999925 | 3847 |
-| `d_3m` | float64 | 4 | -0.0021999999999999797 | 4271 |
+| `d_1m` | float64 | 3 | -0.0040999999999999925 | 3849 |
+| `d_3m` | float64 | 4 | -0.0021999999999999797 | 4273 |
 
 ### `bk_sistema_q`
 

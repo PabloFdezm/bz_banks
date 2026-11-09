@@ -107,7 +107,7 @@ Ejemplos:
   python -X utf8 pipeline/bcb_api.py ultimos 432 -n 5                # ultimas 5 observaciones
 ```
 
-## `pipeline/capital.py` (397 líneas)
+## `pipeline/capital.py` (399 líneas)
 
 Importa del pipeline: `almacen`, `bancos`, `ifdata_texto`, `periodos`
 

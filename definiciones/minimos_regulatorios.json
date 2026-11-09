@@ -133,7 +133,7 @@
   }
  ],
  "sistemico": {
-  "descripcion": "ACP Sistêmico: FIS según Exposición Total / PIB del penúltimo año (Circ. BCB 3.768/2015 art. 3); 0 si la razón es < 10 %. Aplica a bancos múltiplos, comerciales, de inversión y cajas económicas (Res. 4.443 art. 8 §2) y desde el 3-ene-2022 al Segmento 1 (Res. 4.958 art. 8 §2). Antes de 2017 no existía (valor 0 para todos). De 2017 a 2022 no se verificó qué banco tuvo qué FIS: queda vacío. Al 2T26 lo informan en 1,0 % Itaú, BB, Bradesco y Santander, y en 0 % BTG (KM1 y notas de capital), pero desde 2023-03 el requerimiento ya sale del ACP del BCB.",
+  "descripcion": "ACP Sistêmico: FIS según Exposición Total / PIB del penúltimo año (Circ. BCB 3.768/2015 art. 3); 0 si la razón es < 10 %. Aplica a bancos múltiplos, comerciales, de inversión y cajas económicas (Res. 4.443 art. 8 §2) y desde el 3-ene-2022 al Segmento 1 (Res. 4.958 art. 8 §2). Antes de 2017 no existía (valor 0 para todos). De 2017 a 2022 el valor por banco está en «bancos», con su fuente (relevado el 9-nov-2026). Al 2T26 lo informan en 1,0 % Itaú, BB, Bradesco y Santander, y en 0 % BTG (KM1 y notas de capital), pero desde 2023-03 el requerimiento ya sale del ACP del BCB.",
   "cronograma": [
    {
     "desde": "2015-01-01",
@@ -176,7 +176,266 @@
     "url": "https://www.bcb.gov.br/estabilidadefinanceira/exibenormativo?tipo=Circular&numero=3768"
    }
   ],
-  "bancos": {},
-  "lista_completa": false
+  "bancos": {
+   "C0080099": {
+    "nombre": "Itaú Unibanco",
+    "valores": [
+     {
+      "desde": "2017-01-01",
+      "hasta": "2017-12-31",
+      "valor": 0.0025,
+      "fuente": "20-F 2016 y 2017, tabla Basel III schedule: https://www.sec.gov/Archives/edgar/data/1132597/000114420417021318/v463689_20f.htm ; https://www.sec.gov/Archives/edgar/data/1132597/000114420418021659/tv490734_20f.htm",
+      "nota": "Cronograma aplicable al banco en el 20-F, no monto realizado."
+     },
+     {
+      "desde": "2018-01-01",
+      "hasta": "2018-12-31",
+      "valor": 0.005,
+      "fuente": "20-F 2017 y 2018, tabla Basel III schedule: https://www.sec.gov/Archives/edgar/data/1132597/000114420418021659/tv490734_20f.htm ; https://www.sec.gov/Archives/edgar/data/1132597/000119312519129654/d646409d20f.htm",
+      "nota": "Cronograma aplicable al banco en el 20-F, no monto realizado."
+     },
+     {
+      "desde": "2019-01-01",
+      "hasta": "2019-12-31",
+      "valor": 0.01,
+      "fuente": "20-F 2018 y 2019 (Item 4, D-SIB 1 %): https://www.sec.gov/Archives/edgar/data/1132597/000119312519129654/d646409d20f.htm ; https://www.sec.gov/Archives/edgar/data/1132597/000119312520121170/d874032d20f.htm"
+     },
+     {
+      "desde": "2020-01-01",
+      "hasta": "2020-12-31",
+      "valor": 0.01,
+      "fuente": "20-F 2020: https://www.sec.gov/Archives/edgar/data/1132597/000119312521145469/d120933d20f.htm ; KM1 datos abiertos Itaú (km1_10 = 1,00): https://cda.cloud.itau.com.br/dadosabertos/pilar3/km1/2020-4"
+     },
+     {
+      "desde": "2021-01-01",
+      "hasta": "2021-12-31",
+      "valor": 0.01,
+      "fuente": "20-F 2021: https://www.sec.gov/Archives/edgar/data/1132597/000119312522127927/d311755d20f.htm ; KM1 datos abiertos Itaú (km1_10 = 1,00): https://cda.cloud.itau.com.br/dadosabertos/pilar3/km1/2021-4"
+     },
+     {
+      "desde": "2022-01-01",
+      "hasta": "2022-12-31",
+      "valor": 0.01,
+      "fuente": "20-F 2022: https://www.sec.gov/Archives/edgar/data/1132597/000129281423001950/itubform20f_2022.htm ; KM1 datos abiertos Itaú (km1_10 = 1,00): https://cda.cloud.itau.com.br/dadosabertos/pilar3/km1/2022-4"
+     }
+    ]
+   },
+   "C0080329": {
+    "nombre": "Banco do Brasil",
+    "valores": [
+     {
+      "desde": "2017-01-01",
+      "hasta": "2017-12-31",
+      "valor": 0.0025,
+      "fuente": "Relatório de Gerenciamento de Risco 4T17, Tabelas 9 y 11 (R$ 1.724.642 mil / RWA R$ 689.856.756 mil): https://www.bb.com.br/docs/pub/siteEsp/ri/pt/dce/dwn/RelRis4T17.pdf"
+     },
+     {
+      "desde": "2018-01-01",
+      "hasta": "2018-12-31",
+      "valor": 0.005,
+      "fuente": "Relatório 2T18, Tabelas 9 y 11: https://www.bb.com.br/docs/pub/siteEsp/ri/pt/dce/dwn/RelRis2T18.pdf ; Relatório 4T19, Tabela 10 (4T18)"
+     },
+     {
+      "desde": "2019-01-01",
+      "hasta": "2019-12-31",
+      "valor": 0.01,
+      "fuente": "Relatório 4T19, Tabela 10 (R$ 7.114.020 mil / R$ 711.401.975 mil): https://api.mziq.com/mzfilemanager/v2/d/5760dff3-15e1-4962-9e81-322a0b3d0bbd/d69c0e2e-e355-d97b-2856-b023ff26bed7?origin=2"
+     },
+     {
+      "desde": "2020-01-01",
+      "hasta": "2020-12-31",
+      "valor": 0.01,
+      "fuente": "KM1 datos abiertos BB (km1_10 = 1): https://api.externo.bb.com.br/dadosabertos/v1/relatorios/km1/2020-4"
+     },
+     {
+      "desde": "2021-01-01",
+      "hasta": "2021-12-31",
+      "valor": 0.01,
+      "fuente": "KM1 datos abiertos BB (km1_10 = 1): https://api.externo.bb.com.br/dadosabertos/v1/relatorios/km1/2021-4 ; Pilar 3 1T22, KM1 p. 6"
+     },
+     {
+      "desde": "2022-01-01",
+      "hasta": "2022-12-31",
+      "valor": 0.01,
+      "fuente": "KM1 datos abiertos BB (km1_10 = 1): https://api.externo.bb.com.br/dadosabertos/v1/relatorios/km1/2022-4 ; Pilar 3 1T23, KM1 p. 5"
+     }
+    ]
+   },
+   "C0080075": {
+    "nombre": "Bradesco",
+    "valores": [
+     {
+      "desde": "2017-01-01",
+      "hasta": "2017-12-31",
+      "valor": 0.0025,
+      "fuente": "20-F 2017, nota (2) de la tabla de RWA: https://www.sec.gov/Archives/edgar/data/1160330/000129281418001496/bbdform20f_2017.htm"
+     },
+     {
+      "desde": "2018-01-01",
+      "hasta": "2018-12-31",
+      "valor": 0.005,
+      "fuente": "20-F 2018, nota (3): https://www.sec.gov/Archives/edgar/data/1160330/000129281419001594/bbdform20f_2018.htm"
+     },
+     {
+      "desde": "2019-01-01",
+      "hasta": "2019-12-31",
+      "valor": 0.01,
+      "fuente": "20-F 2019, nota (5): https://www.sec.gov/Archives/edgar/data/1160330/000129281420001550/bbdform20f_2019.htm ; 20-F 2020 (dic/19)"
+     },
+     {
+      "desde": "2020-01-01",
+      "hasta": "2020-12-31",
+      "valor": 0.01,
+      "fuente": "20-F 2020: https://www.sec.gov/Archives/edgar/data/1160330/000129281421001938/bbdform20f_2020.htm"
+     },
+     {
+      "desde": "2021-01-01",
+      "hasta": "2021-12-31",
+      "valor": 0.01,
+      "fuente": "20-F 2021: https://www.sec.gov/Archives/edgar/data/1160330/000129281422001941/bbdform20f_2021.htm"
+     },
+     {
+      "desde": "2022-01-01",
+      "hasta": "2022-12-31",
+      "valor": 0.01,
+      "fuente": "20-F 2022: https://www.sec.gov/Archives/edgar/data/1160330/000129281423001924/bbdform20f_2022.htm"
+     }
+    ]
+   },
+   "C0080185": {
+    "nombre": "Santander Brasil",
+    "valores": [
+     {
+      "desde": "2017-01-01",
+      "hasta": "2017-12-31",
+      "valor": 0.0,
+      "fuente": "DF BR GAAP 4T17 y 4T18, Relatório da Administração (requerimiento 2017 = 9,25 % + 1,25 % de conservación, sin sistémico): https://cms.santander.com.br/sites/WRI/documentos/url-divres-4t18-url3/19-09-05_163921_demonstra%C3%A7%C3%B5es%20financeiras%20br%20gaap%204t18.pdf",
+      "nota": "Dato indirecto. Coincide con la regla: Exposição Total / PIB de 2015 = 9,4 % (< 10 %), con IF.Data informe 5 y SGS 1207."
+     },
+     {
+      "desde": "2018-01-01",
+      "hasta": "2018-12-31",
+      "valor": 0.005,
+      "fuente": "DF BR GAAP 4T18, p. 6, 2.7 («0,5% da parcela adicional sistêmica»): https://cms.santander.com.br/sites/WRI/documentos/url-divres-4t18-url3/19-09-05_163921_demonstra%C3%A7%C3%B5es%20financeiras%20br%20gaap%204t18.pdf"
+     },
+     {
+      "desde": "2019-01-01",
+      "hasta": "2019-12-31",
+      "valor": 0.01,
+      "fuente": "Pilar III 4T19, p. 35 (ACPSistêmico R$ 4.759.869 mil / RWA R$ 475.987 mi = 1,00 %): https://cms.santander.com.br/sites/WRI/documentos/url-pilarIII-4t19/20-02-14_222502_pilar%20iii_4t19.pdf ; Pilar III 2T19",
+      "nota": "DUDOSO: el KM1 del Pilar 3 4T20 dice 0,00 % para dic/19, la DF 4T19 y el 20-F 2019 no lo mencionan y la regla da 0 (Exposição/PIB de 2017 = 9,6 %). Se toma 1,0 % porque es el único dato calculado con montos del propio año. Decisión abierta para Pablo."
+     },
+     {
+      "desde": "2020-01-01",
+      "hasta": "2020-12-31",
+      "valor": 0.01,
+      "fuente": "KM1 Pilar 3 4T20, línea 10; 20-F 2020: https://cms.santander.com.br/sites/WRI/documentos/url-pilariii-4t20-v2/21-03-16_212836_pilariii_4t20.pdf"
+     },
+     {
+      "desde": "2021-01-01",
+      "hasta": "2021-12-31",
+      "valor": 0.01,
+      "fuente": "KM1 JSON 4T21 (DASFN): https://cms.santander.com.br/sites/WRI/documentos/km1/22-03-07_122544_20211231_km1.json ; 20-F 2021"
+     },
+     {
+      "desde": "2022-01-01",
+      "hasta": "2022-12-31",
+      "valor": 0.01,
+      "fuente": "KM1 JSON 4T22 (DASFN): https://cms.santander.com.br/sites/WRI/documentos/km1/23-03-22_115220_20221231_km1.json ; 20-F 2022"
+     }
+    ]
+   },
+   "C0080738": {
+    "nombre": "Caixa",
+    "valores": [
+     {
+      "desde": "2017-01-01",
+      "hasta": "2017-12-31",
+      "valor": 0.0025,
+      "fuente": "Pilar 3 dez/17, Tabela 37 (sistémico / conservación × 1,25 %): https://api.mziq.com/mzfilemanager/v2/d/fb86b0b8-b4e9-407b-a575-ba3668a566a9/b3476930-b0c0-41bc-9ff7-dea2b6fa85de?origin=2",
+      "nota": "Porcentaje derivado de montos."
+     },
+     {
+      "desde": "2018-01-01",
+      "hasta": "2018-12-31",
+      "valor": 0.005,
+      "fuente": "Pilar 3 dez/18, Tabela 38: https://api.mziq.com/mzfilemanager/d/fb86b0b8-b4e9-407b-a575-ba3668a566a9/2df24861-5250-4cf3-a680-8aa5b59f58a2?origin=2",
+      "nota": "Porcentaje derivado de montos."
+     },
+     {
+      "desde": "2019-01-01",
+      "hasta": "2019-12-31",
+      "valor": 0.01,
+      "fuente": "Pilar 3 dez/19, Tabela 39: https://api.mziq.com/mzfilemanager/d/fb86b0b8-b4e9-407b-a575-ba3668a566a9/348ee3fa-1673-d6b0-65da-df98d7354e35?origin=2",
+      "nota": "Porcentaje derivado de montos."
+     },
+     {
+      "desde": "2020-01-01",
+      "hasta": "2020-12-31",
+      "valor": 0.01,
+      "fuente": "KM1 datos abiertos Caixa (km1_10 = 1,00): https://api.caixa.gov.br:8443/dadosabertos/pilar3/1.2.0/km1/2020-4"
+     },
+     {
+      "desde": "2021-01-01",
+      "hasta": "2021-12-31",
+      "valor": 0.01,
+      "fuente": "KM1 datos abiertos Caixa (km1_10 = 1,00): https://api.caixa.gov.br:8443/dadosabertos/pilar3/1.2.0/km1/2021-4"
+     },
+     {
+      "desde": "2022-01-01",
+      "hasta": "2022-12-31",
+      "valor": 0.01,
+      "fuente": "KM1 datos abiertos Caixa (km1_10 = 1,00): https://api.caixa.gov.br:8443/dadosabertos/pilar3/1.2.0/km1/2022-1",
+      "nota": "Verificado en 1T22; el valor se fija el 1 de enero y rige el año."
+     }
+    ]
+   },
+   "C0080336": {
+    "nombre": "BTG Pactual",
+    "valores": [
+     {
+      "desde": "2017-01-01",
+      "hasta": "2017-12-31",
+      "valor": 0.0,
+      "fuente": "Regla de la Circ. 3.768 art. 3: Exposição Total / PIB de 2015 = 4,5 % (< 10 %), con IF.Data informe 5 y SGS 1207",
+      "nota": "Sin documento del banco para el año; por regla."
+     },
+     {
+      "desde": "2018-01-01",
+      "hasta": "2018-12-31",
+      "valor": 0.0,
+      "fuente": "Regla de la Circ. 3.768 art. 3: Exposição Total / PIB de 2016 = 1,9 %",
+      "nota": "Sin documento del banco para el año; por regla."
+     },
+     {
+      "desde": "2019-01-01",
+      "hasta": "2019-12-31",
+      "valor": 0.0,
+      "fuente": "Regla de la Circ. 3.768 art. 3: Exposição Total / PIB de 2017 = 1,9 %",
+      "nota": "Sin documento del banco para el año; por regla."
+     },
+     {
+      "desde": "2020-01-01",
+      "hasta": "2020-12-31",
+      "valor": 0.0,
+      "fuente": "Pilar III jun/2021, KM1: https://api.mziq.com/mzfilemanager/v2/d/0afe1b62-e299-4dec-a938-763ebc4e2c11/8f80c316-4f4d-47d8-ac54-b92a3185be7e?origin=1"
+     },
+     {
+      "desde": "2021-01-01",
+      "hasta": "2021-12-31",
+      "valor": 0.0,
+      "fuente": "Pilar III jun/2021 y dez/2022, KM1"
+     },
+     {
+      "desde": "2022-01-01",
+      "hasta": "2022-12-31",
+      "valor": 0.0,
+      "fuente": "Pilar III dez/2022, KM1: https://api.mziq.com/mzfilemanager/v2/d/0afe1b62-e299-4dec-a938-763ebc4e2c11/6f3ca196-ed4c-f99f-c91a-b3e90c83f4a6?origin=1"
+     }
+    ]
+   }
+  },
+  "lista_completa": true,
+  "lista_completa_nota": "Los bancos fuera de «bancos» tienen 0 % en 2017–2022: su Exposição Total / PIB del penúltimo año no pasó del 3,2 % (máximo, Safra) según IF.Data informe 5 y SGS 1207, lejos del umbral de 10 %. BNDES lo supera (14–17 %) pero es banco de desarrollo, fuera del alcance de la Res. 4.443 art. 8 §2 y de la 4.958 (el BCB le muestra 0 % desde 2023). Las instituciones de pago no estaban sujetas."
  }
 }

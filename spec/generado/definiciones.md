@@ -117,14 +117,14 @@
 - `ttm`: lista de 11
 - `metricas`: objeto con 96 claves
 
-## `minimos_regulatorios.json` (7 kB)
+## `minimos_regulatorios.json` (18 kB)
 
 - `descripcion`: Mínimos de capital y Adicional de Capital Principal (ACP) por fecha de vigencia, como fracción del RWA. Fuente: texto de las normas CMN/BCB, relevado el 9-nov-…
 - `relevado`: 2026-11-09
 - `minimos`: lista de 6 · campos: `desde`, `hasta`, `cp`, `nivel1`, `pr`, `norma`, `url`
 - `conservacion`: lista de 9 · campos: `desde`, `hasta`, `valor`, `norma`, `url`
 - `contraciclico`: lista de 1 · campos: `desde`, `hasta`, `valor`, `norma`, `url`, `nota`
-- `sistemico`: objeto con 4 claves
+- `sistemico`: objeto con 5 claves
 
 ## `scr_productos.json` (4 kB)
 

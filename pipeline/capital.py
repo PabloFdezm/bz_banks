@@ -110,17 +110,19 @@ def vigente(filas: list[dict], dia: date, clave: str = "valor"):
 
 
 def sistemico(minimos: dict, cod_inst: str, dia: date):
-    """ACP Sistêmico del banco en ``dia``: 0 si el banco no está en la lista; None si la norma no lo respalda."""
+    """ACP Sistêmico del banco en ``dia``.
+
+    - Si el cronograma lo fija en 0 para todos (antes de 2017), 0.
+    - Si el banco está en ``bancos``, el valor publicado de ese año (con su fuente); None si ese año falta.
+    - Si no está: 0 cuando ``lista_completa`` (verificado que nadie más supera el umbral), None si no.
+    """
     s = minimos.get("sistemico") or {}
     if vigente(s.get("cronograma") or [], dia) == 0:
-        return 0.0          # antes de 2017 no existía para nadie
+        return 0.0
     bancos = s.get("bancos") or {}
     if cod_inst not in bancos:
         return 0.0 if s.get("lista_completa") else None
-    b = bancos[cod_inst]
-    if _fecha(b["desde"]) > dia:
-        return 0.0
-    return vigente(s.get("cronograma") or [], dia)
+    return vigente(bancos[cod_inst].get("valores") or [], dia)
 
 
 # ---------------------------------------------------------------- lectura del crudo
