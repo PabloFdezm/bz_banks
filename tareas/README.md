@@ -55,9 +55,11 @@ Netlify borrados; Personas y Mora publicadas y verificadas en 3 anchos; fuente S
 
 **Operación**
 - [x] Actualización manual (Pablo, 8-nov; sin tarea programada). CI pytest + `.venv`/`requirements.lock`; repo fuera de OneDrive
-      (8-nov). SCR a parquet descartado (no achica). Falta que Pablo borre `datos/derivado/bcb_ifdata/valores/`
-      (149 MB, CSV sin uso) y la carpeta vieja en OneDrive.
-- [ ] Limpiar los archivos de bancos que quedaron en el repo `Dashboard` (mostrar la lista antes).
+      (8-nov). SCR a parquet descartado (no achica). `valores/` y la carpeta vieja en OneDrive, borradas (9-nov).
+- [x] Repo `Dashboard` limpio de bancos el 9-nov (commit fb680e6 allí: sitio_bancos, bancos_web, scripts gold y
+      métricas, definiciones bancos__*; ~474 MB). Se quedan porque el macro los usa: ifdata.py,
+      preparar_bancos_powerbi.py, diccionario_ifdata.py, bcb_ifdata__*/cvm__* y el crudo bcb_ifdata/bcb_scr (5 GB,
+      duplicado con bz_banks; liberarlo exige reapuntar el macro). Docs de bancos en `Dashboard/docs/` conservados.
 - [ ] Rehacer Calidad, Rentabilidad y Ficha en v3 (después del rediseño).
 
 ## Archivos de referencia (locales, fuera de git)
