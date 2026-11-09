@@ -424,7 +424,7 @@
    "tipo_estado": "con",
    "usar_individual_si_falta": false,
    "base": "CPC",
-   "entrega": true,
+   "entrega": false,
    "registro_cvm": "Intermediação Financeira, Categoria B, SIT=ATIVO",
    "primera_referencia": "2023-12-31",
    "ultima_referencia": "2026-06-30",
@@ -448,7 +448,7 @@
     "2026-03-31",
     "2026-06-30"
    ],
-   "nota": "Institución de pagos, no banco: entrega ITR/DFP consolidado (Categoria B) pero su plan de cuentas no tiene cartera de crédito, depósitos ni resultado de intermediación financiera. DECISIÓN PENDIENTE de Pablo: entra a bk_publicado con las líneas que sí tiene (activo, PL, lucro) o queda fuera del mapa."
+   "nota": "Fuera de bk_publicado por decisión de Pablo (9-nov-2026): entrega ITR/DFP con plan de cuentas de compañía no financiera (sin cartera, depósitos ni intermediación) y es la única «Pagos» del panel que entrega, así que no compara. Activo, PL y lucro existen en el crudo (activo 2T26 calza 0,0 % con IF.Data)."
   },
   {
    "cod_inst": "C0086581",

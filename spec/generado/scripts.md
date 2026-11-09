@@ -150,7 +150,7 @@ USO
 Va como primer import de cada modulo que salga a la red (bcb_api, ifdata, sgs, scr_zip), ANTES de requests.
 ```
 
-## `pipeline/cvm.py` (1090 líneas)
+## `pipeline/cvm.py` (1091 líneas)
 
 Importa del pipeline: `almacen`, `bancos`, `certificados`, `periodos`, `red`
 

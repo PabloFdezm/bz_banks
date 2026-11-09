@@ -103,7 +103,7 @@
    "medida": "trimestre",
    "unidad": "ratio",
    "orden": 11,
-   "definicion": "Lucro atribuible del trimestre × 4 / PL promedio de 12 meses del controlador ((PL_t + PL_t−4) / 2, la convención del repo para el ROE de IF.Data). Derivado: no sale de una cuenta de la CVM. Vacío si falta el PL de t−4."
+   "definicion": "Lucro atribuible del trimestre × 4 / PL promedio del trimestre del controlador ((PL_t + PL_t−1) / 2, la convención de los releases de los bancos; distinta del ROE TTM de IF.Data, no mezclar en una misma serie). Derivado: no sale de una cuenta de la CVM. Vacío si falta el PL de t−1."
   }
  },
  "plantillas": {
@@ -1126,7 +1126,7 @@
        ]
       }
      ],
-     "nota": "TRAMPA: en varios ITR Santander entrega 3.06 «Imposto de Renda» en 0, así que su 3.09 «Lucro/Prejuízo Consolidado do Período» queda ANTES de impuestos (1S26: 8,104 bn contra 6,244 bn de 3.09.01 + 3.09.02; también en el 3T25). El total se reconstruye sumando la atribución a controladores y a no controladores, que sí viene después de impuestos y que en las entregas correctas da el mismo número."
+     "nota": "TRAMPA: en varios ITR Santander entrega 3.06 «Imposto de Renda» en 0, así que su 3.09 «Lucro/Prejuízo Consolidado do Período» queda ANTES de impuestos (1S26: 8,104 bn contra 6,244 bn de 3.09.01 + 3.09.02; también en el 3T25). El total se reconstruye sumando la atribución a controladores y a no controladores, que sí viene después de impuestos y que en las entregas correctas da el mismo número. Además, el lucro trimestral de IF.Data queda ~23 % por encima del de la CVM de forma sistemática (2T26: 3,65 contra 2,96 mil millones), sin explicación cerrada (se rotula, no se corrige)."
     },
     "resultado_intermediacion": {
      "alternativas": [
@@ -1145,6 +1145,98 @@
       }
      ],
      "nota": "Santander deja en 3.01 solo «Receitas com Juros e Similares»; el cambio, los servicios y las pérdidas de crédito van en 3.04 (otras receitas/despesas operacionales). Su 3.03 no es comparable con el de Itaú ni con el del esqueleto viejo."
+    },
+    "patrimonio_liquido": {
+     "alternativas": [
+      {
+       "suma": [
+        {
+         "cd": [
+          "2.07",
+          "2.08",
+          "2.03"
+         ],
+         "ds": [
+          "patrimonio liquido",
+          "consolidado"
+         ]
+        }
+       ]
+      },
+      {
+       "suma": [
+        {
+         "cd": [
+          "2.07",
+          "2.08",
+          "2.03"
+         ],
+         "ds": [
+          "patrimonio liquido"
+         ]
+        }
+       ]
+      }
+     ],
+     "nota": "Santander: el PL de IF.Data queda ~17 % por debajo del de la CVM (2T26: 106,7 contra 129,1 mil millones) en todos los trimestres contrastados, de forma estable; no es error de extracción sino de perímetro o clasificación entre el consolidado societario (CPC) y el conglomerado prudencial (COSIF). Sin explicación cerrada (decisión 9-nov: se rotula, no se corrige)."
+    },
+    "patrimonio_liquido_controlador": {
+     "alternativas": [
+      {
+       "suma": [
+        {
+         "cd": [
+          "2.07.01"
+         ],
+         "ds": [
+          "patrimonio liquido",
+          "controlador"
+         ]
+        }
+       ]
+      },
+      {
+       "suma": [
+        {
+         "cd": [
+          "2.07",
+          "2.08",
+          "2.03"
+         ],
+         "ds": [
+          "patrimonio liquido"
+         ]
+        }
+       ],
+       "resta": [
+        {
+         "cd": [
+          "2.07.02",
+          "2.08.09",
+          "2.03.09"
+         ],
+         "ds": [
+          "nao controladores"
+         ]
+        }
+       ]
+      },
+      {
+       "suma": [
+        {
+         "cd": [
+          "2.07",
+          "2.08",
+          "2.03"
+         ],
+         "ds": [
+          "patrimonio liquido"
+         ]
+        }
+       ]
+      }
+     ],
+     "nota": "Santander: el PL de IF.Data queda ~17 % por debajo del de la CVM (2T26: 106,7 contra 129,1 mil millones) en todos los trimestres contrastados, de forma estable; no es error de extracción sino de perímetro o clasificación entre el consolidado societario (CPC) y el conglomerado prudencial (COSIF). Sin explicación cerrada (decisión 9-nov: se rotula, no se corrige)."
     }
    }
   }

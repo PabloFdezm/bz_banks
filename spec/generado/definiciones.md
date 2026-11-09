@@ -54,7 +54,7 @@
 - `convenciones`: objeto con 7 claves
 - `bancos`: lista de 34 · campos: `cod_inst`, `nombre_corto`, `cnpj_raiz`, `cnpj_ifdata`, `cd_cvm`, `denominacion_cvm`, `tipo_estado`, `usar_individual_si_falta`, `base`, `entrega`, `registro_cvm`, `primera_referencia`, `ultima_referencia`, `referencias`
 
-## `cvm__bancos_lineas.json` (28 kB)
+## `cvm__bancos_lineas.json` (30 kB)
 
 - `fuente`: cvm
 - `descripcion`: Mapeo de cuentas del ITR/DFP de la CVM a las líneas mínimas de bk_publicado. Una línea se busca por REGLA (código candidato + texto que debe contener la descri…

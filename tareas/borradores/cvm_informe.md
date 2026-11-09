@@ -288,6 +288,13 @@ Todas verificadas sobre el dato, todas con prueba en `tests/test_cvm.py`:
 
 ## 7. Decisiones que quedan para Pablo
 
+> **Resueltas el 9-nov-2026 (Pablo aprobó las recomendaciones):** 7.1 Cielo fuera (`entrega: false` con nota);
+> 7.2 ITR 2024 bajado y ROE anualizado con PL promedio del **trimestre** ((PL_t + PL_t−1)/2, convención de los
+> releases; no mezclar con el ROE TTM de IF.Data); 7.3 Santander rotulado en las notas de PL y lucro, sin
+> corregir (ojo con el signo: IF.Data queda −17 % *debajo* de la CVM en PL y +23 % *encima* en lucro);
+> 7.4 `bk_puente` no se toca; 7.5 base «CPC» se queda; 7.6 crédito sigue en dos líneas (bruto/neto).
+> Resultado: `bk_publicado` 2.019 filas, 15 bancos, 202312–202609, ROE desde 1T24. Pendiente 7.7 (borrar volcados).
+
 ### 7.1 Cielo dentro o fuera de `bk_publicado`
 Cielo está en el panel como institución de pagos (modelo «Pagos») y sí entrega ITR/DFP, pero con el plan de
 cuentas de una compañía no financiera: tiene ativo (R$ 115.147 millones, calca al 0,0 % con IF.Data), PL y lucro, y no

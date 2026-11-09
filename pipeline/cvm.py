@@ -80,7 +80,7 @@ INTENTOS, PAUSA_S = 3, 20
 CHUNK = 500_000
 
 # Años que baja el paso «descargar» (ITR: trimestres; DFP: cierres de ejercicio, que dan el T4).
-ANIOS_ITR = (2025, 2026)
+ANIOS_ITR = (2024, 2025, 2026)      # 2024 para que el ROE de 1T24 en adelante tenga PL de t−1
 ANIOS_DFP = (2023, 2024, 2025, 2026)
 
 # Qué estados del ZIP se leen. Los nombres internos son <doc>_cia_aberta_<estado>_con_<año>.csv
@@ -906,11 +906,12 @@ def _cuarto_trimestre(pub: pd.DataFrame, meta: dict) -> pd.DataFrame:
 
 
 def _roe_anualizado(pub: pd.DataFrame, meta: dict) -> pd.DataFrame:
-    """ROE anualizado = lucro atribuible del trimestre × 4 / PL promedio de 12 meses del controlador.
+    """ROE anualizado = lucro atribuible del trimestre × 4 / PL promedio del trimestre del controlador.
 
-    Sigue la convención del repo para el ROE de IF.Data (``pl_medio_ttm`` = (PL_t + PL_t−4) / 2 en
-    preparar_metricas_bancos.py). Sin PL de t−4 no hay promedio y la fila no se publica: no se aproxima con
-    el PL del trimestre, que daría un ROE distinto al del resto de la serie.
+    PL promedio = (PL_t + PL_t−1) / 2, la convención de los releases de los bancos (decisión de Pablo, 9-nov-2026),
+    para que el número se pueda comparar con lo que publica cada banco. Es distinta del ROE TTM de IF.Data
+    (``pl_medio_ttm`` = (PL_t + PL_t−4) / 2): no mezclar las dos en una serie. Sin PL de t−1 no hay promedio y la
+    fila no se publica: no se aproxima con el PL del cierre.
     """
     lucro = pub[(pub["linea"] == LINEA_LUCRO_TRIM) & (pub["medida"] == "trimestre")]
     pl = pub[(pub["linea"] == LINEA_PL_CONTROLADOR) & (pub["medida"] == "saldo")]
@@ -919,7 +920,7 @@ def _roe_anualizado(pub: pd.DataFrame, meta: dict) -> pd.DataFrame:
     pl_mapa = {(c, p): v for c, p, v in zip(pl["cod_inst"], pl["periodo"], pl["valor"])}
     filas = []
     for _, f in lucro.iterrows():
-        anterior = PER.previo(f["periodo"], 4)
+        anterior = PER.previo(f["periodo"], 1)
         pl_t, pl_t4 = pl_mapa.get((f["cod_inst"], f["periodo"])), pl_mapa.get((f["cod_inst"], anterior))
         if pl_t is None or pl_t4 is None:
             continue

@@ -40,7 +40,8 @@ Estado al 9-nov-2026.
    Quedan el CI de tests en GitHub y `.venv` con `requirements.lock`.
 8. Opcional ofrecido: filas extra en la tabla de ROE de la Portada (ROA, margen, costo del riesgo).
 9. Opcional: en Crédito → Líneas, partir mostrando solo Total y las modalidades grandes.
-10. Fuente CVM (frente 7), decisiones de Pablo abiertas el 9-nov: si Cielo (institución de pagos) entra a
+10. Fuente CVM (frente 7), decisiones **cerradas el 9-nov** (Cielo fuera, ITR 2024 bajado, ROE con PL promedio
+    del trimestre, Santander rotulado, `bk_puente` sin tocar; ver §7 del informe). Lo que sigue era la pregunta: si Cielo (institución de pagos) entra a
     `bk_publicado` con las tres líneas que sí tiene; si se baja también el ITR 2024 para que el ROE anualizado
     exista en 1T25–3T25; si la tarjeta B8-06-0 se conecta ya a `bk_publicado`; y si `bk_puente` pasa de
     `validacion_bancos.json` (cargado a mano) a `bk_publicado`. Detalle en `tareas/borradores/cvm_informe.md`.

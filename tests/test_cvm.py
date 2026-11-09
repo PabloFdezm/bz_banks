@@ -476,8 +476,8 @@ def test_verificador_cvm_sin_errores():
 
 
 @pytest.mark.integracion
-def test_roe_anualizado_sigue_la_convencion_del_repo():
-    """ROE = lucro del trimestre × 4 / ((PL_t + PL_t−4) / 2), con el PL del controlador."""
+def test_roe_anualizado_usa_pl_promedio_del_trimestre():
+    """ROE = lucro del trimestre × 4 / ((PL_t + PL_t−1) / 2), con el PL del controlador (convención de los releases)."""
     df = pd.read_parquet(GOLD / "bk_publicado.parquet")
     roe = df[df["linea"] == "roe_anualizado"]
     if roe.empty:
@@ -485,7 +485,7 @@ def test_roe_anualizado_sigue_la_convencion_del_repo():
     import periodos as PER
     for _, f in roe.sample(min(5, len(roe)), random_state=0).iterrows():
         t = df[(df["cod_inst"] == f["cod_inst"]) & (df["periodo"] == f["periodo"])]
-        anterior = df[(df["cod_inst"] == f["cod_inst"]) & (df["periodo"] == PER.previo(f["periodo"], 4))]
+        anterior = df[(df["cod_inst"] == f["cod_inst"]) & (df["periodo"] == PER.previo(f["periodo"], 1))]
         lucro = t[(t["linea"] == "lucro_liquido_controlador") & (t["medida"] == "trimestre")]["valor"]
         pl_t = t[(t["linea"] == "patrimonio_liquido_controlador")]["valor"]
         pl_t4 = anterior[(anterior["linea"] == "patrimonio_liquido_controlador")]["valor"]

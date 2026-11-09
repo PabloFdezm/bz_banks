@@ -525,24 +525,24 @@ Carpeta `datos/gold/`.
 
 ### `bk_publicado`
 
-1,421 filas · 14 columnas · periodo: 202312 → 202609 · 0.03 MB
+2,019 filas · 14 columnas · periodo: 202312 → 202609 · 0.04 MB
 
 | Columna | Tipo | % nulos | Ejemplo | Valores distintos |
 |---|---|---|---|---|
-| `cod_inst` | str | 0 | C0080075 | 16 |
-| `periodo` | str | 0 | 202312 | 9 |
+| `cod_inst` | str | 0 | C0080075 | 15 |
+| `periodo` | str | 0 | 202312 | 12 |
 | `linea` | str | 0 | ativo_total | 11 |
-| `valor` | float64 | 0 | 1927523249000.0 | 1227 |
+| `valor` | float64 | 0 | 1927523249000.0 | 1732 |
 | `base` | str | 0 | CPC | 1 |
-| `fecha_entrega` | str | 0 | 2024-02-07 | 91 |
-| `cd_cvm` | str | 0 | 000906 | 16 |
-| `versao` | int64 | 0 | 1 | 4 |
+| `fecha_entrega` | str | 0 | 2024-02-07 | 118 |
+| `cd_cvm` | str | 0 | 000906 | 15 |
+| `versao` | int64 | 0 | 1 | 5 |
 | `documento` | str | 0 | DFP | 3 |
 | `medida` | str | 0 | saldo | 3 |
 | `consolidacion` | str | 0 | con | 2 |
-| `cd_conta` | str | 0 | 1 | 35 |
-| `ds_conta` | str | 0 | Ativo Total | 28 |
-| `nota` | str | 0 |  | 101 |
+| `cd_conta` | str | 0 | 1 | 42 |
+| `ds_conta` | str | 0 | Ativo Total | 29 |
+| `nota` | str | 0 |  | 220 |
 
 ### `bk_puente`
 
