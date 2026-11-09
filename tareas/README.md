@@ -28,8 +28,8 @@ Netlify borrados; Personas y Mora publicadas y verificadas en 3 anchos; fuente S
 - [ ] Coordinar las sesiones en paralelo: un frente por sesión.
 
 **Datos**
-- [ ] Frente 8 (capital): decisiones de `borradores/capital_informe.md` §6 — Santander 2019 (ACP
-      sistémico 1 % o 0), dividendos en el puente del CP, definición de `holgura_crecimiento`, trimestres repetidos.
+- [x] Frente 8 (capital): decisiones cerradas el 9-nov (Pablo): Santander 2019 = 1 %, puente del CP con residuo
+      «otros», `holgura_crecimiento` sobre RWA, trimestres repetidos publicados con `alerta`. Queda conectar B7.
 - [x] Frente 7 (CVM): decisiones cerradas el 9-nov (§7 de `borradores/cvm_informe.md`). Quedan: borrar los volcados
       de `borradores/` (lista mostrada a Pablo), BRB sin entregas desde 2T25, Daycoval 3T26 consolidado, y
       conectar B8-06-0 después del rediseño.
@@ -41,11 +41,15 @@ Netlify borrados; Personas y Mora publicadas y verificadas en 3 anchos; fuente S
 - [x] 1.7 Concesiones: rotuladas «totales» el 8-nov (validado contra la API), publicadas y verificadas en vivo el 9-nov. Filas de libres por aprobar.
 - [ ] Frente 3 en pausa (decisión de Pablo, 9-nov: ~3,5 GB y medio día). Sondeo hecho: `sr` desde 2017-06,
       `tcb` vacío desde 2025-07. Si se retoma, una alternativa más chica es bajar solo los últimos 2–3 años.
-- [ ] Frente 4: fuente `bk_ref` hecha el 9-nov. Decisiones en `borradores/ref_informe.md` §4 (Mora propio vs REF,
-      ROE/provisiones por segmento desde el anexo, tarjeta de estrés, qué exportar). Faltan las tarjetas.
+- [ ] Frente 4: fuente `bk_ref` hecha el 9-nov. Decidido (Pablo, 9-nov): Mora sigue con SCR.data propio y el REF
+      como control; ROE y provisiones por segmento desde el REF. Faltan la tarjeta de estrés, qué exportar y las
+      tarjetas (con el rediseño).
 - [x] spec/08 punto 5: nombres SGS validados contra el catálogo oficial el 9-nov (`herramientas/validar_sgs.py`).
 - [x] spec/08 punto 6: crecimientos a/a de crédito, activo y depósitos vacíos en 2025 (8-nov; antes salían mal).
-      Opcional: medirlos con `bk_cartera`. Ojo: el a/a de 2024-T4 (trimestre anómalo) sigue publicado; ¿vaciarlo?
+      Opcional: medirlos con `bk_cartera`. El a/a de 2024-T4 se deja (revisado el 9-nov): el trimestre es anómalo
+      solo en los informes de cartera por modalidad (8, 11, 13), que ya están vacíos; el a/a de crédito, activo y
+      depósitos sale del balance (informes 2 y 3), que es válido. Pablo había elegido vaciarlo con una
+      recomendación mal fundada; queda a su confirmación.
 - [x] spec/08 punto 4: Focus (`focus.py`) y Selic real ex ante (SGS 432) se leen de la fuente desde el 8-nov.
       Ninguna tarjeta visible los usa (B1 está oculta). Tablas viejas de `datos/intermedio/` borradas.
 

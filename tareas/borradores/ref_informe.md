@@ -79,6 +79,9 @@ En la réplica del 6-nov, hecha con el panel de 34 bancos, los digitales daban R
 
 ## 4. Decisiones que quedan para Pablo
 
+> **Cerradas el 9-nov (Pablo):** 1) Mora sigue con SCR.data propio y el REF como control (test de 1.2.2.16).
+> 2) ROE y provisiones por segmento desde el REF. Quedan 3 (tarjeta de estrés) y 4 (qué exportar), con el rediseño.
+
 1. **1.2.2.15 y 1.2.2.16 en la página Mora.** Hoy salen del SCR.data propio, que es mensual y llega a sep-26. El REF
    llega a jun-26 y se actualiza cada seis meses. Recomiendo:
    - seguir con lo propio, porque calza y tiene tres meses más;

@@ -93,6 +93,9 @@ Todo está en `definiciones/minimos_regulatorios.json`, cada fila con su norma y
 
 ## 6. Decisiones que quedan para Pablo
 
+> **Cerradas el 9-nov (Pablo):** 1) Santander 2019 = 1 %. 2) Puente del CP con residuo «otros», rotulado.
+> 3) `holgura_crecimiento` sobre RWA. 4) Trimestres repetidos publicados con `alerta`. Quedan 5 y 6, que son de diseño.
+
 1. **Requerimiento 2017–2022 — CERRADO el 9-nov (opción b).** El ACP sistémico de Itaú, BB, Bradesco, Santander,
    Caixa y BTG está en `minimos_regulatorios.json` → `sistemico.bancos`, año por año y con fuente (20-F, Pilar 3,
    KM1 de datos abiertos): 0,25 % en 2017, 0,5 % en 2018 y 1 % desde 2019 para los cinco grandes; 0 % para BTG.

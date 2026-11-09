@@ -316,6 +316,7 @@ promedio de 12 meses. Si se prefiere el promedio del trimestre ((PL_t + PL_t−1
 bancos en sus releases) es un cambio de dos líneas en `_roe_anualizado`.
 
 ### 7.3 Santander: PL −17 % y lucro +23 % contra IF.Data
+**Decidido el 9-nov (Pablo): se rotula y se sigue**, sin investigar la causa. Las notas de PL y lucro en `bk_publicado` lo dicen.
 Son las dos diferencias sistemáticas sin explicación cerrada (§5). El PL es consistente en los 8 trimestres,
 así que no es un error de extracción sino de perímetro o de clasificación. Hace falta leer las notas de sus
 estados (fuera de mi alcance: `referencias/` no se toca) o aceptar la diferencia y rotularla.
