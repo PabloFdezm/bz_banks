@@ -36,6 +36,9 @@ CODIGOS = {
     "credito_pj_libre": 20543, "credito_pj_bndes": 20604, "credito_pj_rural": 20597, "credito_pj_inmobiliario": 20600,
     # concesiones (flujo mensual)
     "concesiones_total": 20631, "concesiones_pf": 20633, "concesiones_pj": 20632, "conc_pf_livre_sa": 24444,
+    "concesiones_libre": 20634, "concesiones_pj_libre": 20635, "concesiones_pf_libre": 20662,   # libres: 20634 = 20635 + 20662
+    # actividad (índice): IBC-Br desestacionalizado, base del índice de concesiones reales (pag_credito y concesiones)
+    "ibc_br": 24364,
     # mora > 90 días y atrasos 15-90 (en %)
     "mora90_total": 21082, "mora90_libre": 21085, "mora90_direccionado": 21132, "mora90_pf": 21084,
     "mora90_pj": 21083, "mora90_pf_livre": 21112, "mora90_pj_livre": 21086,

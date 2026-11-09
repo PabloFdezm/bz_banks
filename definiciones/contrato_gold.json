@@ -97,6 +97,14 @@
    "columnas": ["inst_key", "tipo_key", "apilar", "medida", "periodo", "trimestre", "orden_trim", "pos", "serie", "nivel", "participacion", "d_participacion", "n_bancos", "aa", "tt", "aa2", "aa4", "aporte_aa", "aporte_tt", "aporte_aa2", "aporte_aa4", "total_nivel", "total_aa", "total_tt", "total_aa2", "total_aa4"],
    "clave": ["inst_key", "tipo_key", "apilar", "medida", "periodo", "serie"]
   },
+  "bk_concesiones": {
+   "columnas": ["segmento", "fecha", "concesiones", "conc_12m", "conc_12m_aa", "conc_real_12m", "ibc_12m", "indice", "indice_aa", "indice_z120"],
+   "clave": ["segmento", "fecha"]
+  },
+  "bk_concesiones_tablas": {
+   "columnas": ["bloque", "orden", "fila", "grupo", "unidad_ultimo", "unidad_cambio", "trimestral", "ultimo", "d1", "d3", "d12", "dventana", "corte", "share", "z120"],
+   "clave": ["bloque", "orden"]
+  },
   "bk_cred_series": {
    "columnas": ["serie", "fecha", "valor"],
    "clave": ["serie", "fecha"]

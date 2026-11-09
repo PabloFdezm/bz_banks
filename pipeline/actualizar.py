@@ -34,6 +34,7 @@ PASOS = [
     ("qcambio", "preparar_gold_bancos_qcambio", [], False),           # usa bk_panel, bk_metrica, bk_banco
     ("portada", "preparar_gold_bancos_portada", [], False),           # usa bk_grupo, bk_sistema_m
     ("pag_credito", "preparar_gold_bancos_pag_credito", [], False),
+    ("concesiones", "preparar_gold_bancos_concesiones", [], False),   # usa sgs (20631–20662, 24364, 433) → bk_concesiones
     ("scr_productos", "preparar_gold_bancos_scr_productos", ["--descargar"], True),
     ("scr", "preparar_gold_bancos_scr", [], False),                   # con caché por ZIP
     ("cvm", "cvm", ["--descargar"], True),                           # ITR/DFP de la CVM → bk_publicado

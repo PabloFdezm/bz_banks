@@ -147,6 +147,30 @@
    "unidad": "R$ (milhões)",
    "periodicidad": "M"
   },
+  "concesiones_libre": {
+   "codigo": 20634,
+   "nombre": "Concessões de crédito com recursos livres - Total",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "concesiones_pj_libre": {
+   "codigo": 20635,
+   "nombre": "Concessões de crédito com recursos livres - Pessoas jurídicas - Total",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "concesiones_pf_libre": {
+   "codigo": 20662,
+   "nombre": "Concessões de crédito com recursos livres - Pessoas físicas - Total",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "ibc_br": {
+   "codigo": 24364,
+   "nombre": "Índice de Atividade Econômica do Banco Central (IBC-Br) - com ajuste sazonal",
+   "unidad": "Índice",
+   "periodicidad": "M"
+  },
   "mora90_total": {
    "codigo": 21082,
    "nombre": "Inadimplência da carteira de crédito - Total",
