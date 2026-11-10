@@ -16,7 +16,22 @@ referencias/
 # salidas de borradores (parquet intermedios)
 tareas/borradores/_salida/
 
-# Sitio v2: generado por herramientas/construir_v2.py desde diseno/canvas (se versionan dc.js y v2.css)
-sitio/v2/
+# Sitio: páginas generadas por herramientas/construir_v2.py desde diseno/canvas (se versionan dc.js, sitio.js, v2.css,
+# _headers y _redirects)
+sitio/index.html
+sitio/404.html
+sitio/portada/
+sitio/trimestral/
+sitio/credito/
+sitio/tarjeta/
+sitio/personal/
+sitio/planilla/
+sitio/vehiculos/
+sitio/inmobiliario/
+sitio/mpme/
+sitio/grandes/
+sitio/fondeo/
+sitio/agregados/
+sitio/pyb/
 sitio/assets/v2/paginas/
 sitio/assets/v2/componentes/

@@ -55,5 +55,5 @@ Pendiente:
    Portada, Trimestral y Crédito) a `pipeline/web_v2/`, que escriban `_salida/v2/<Hoja>.json` leyendo solo gold, y
    llamarlos desde `actualizar.py`. Los de Portada, Trimestral y Crédito hoy no existen en el repo: reconstruirlos
    desde la lógica de las hojas.
-2. Pasar la raíz del sitio a v2 cuando Pablo lo valide (redirigir `/` a `/v2/portada/` y retirar las páginas viejas).
+2. Hecho el 10-nov: el sitio anterior se borró de `sitio/` (queda en el historial de git); las páginas nuevas están en la raíz (`/portada/`, `/tarjeta/`…; `/` es la Portada) y `sitio/_redirects` lleva las rutas viejas y `/v2/*` a su equivalente. Quedan obsoletos para el sitio: `herramientas/verificar_f1.py` e `inventario_paginas.mjs` (leían el sitio anterior) y el paso `exportar` de `actualizar.py` (`sitio/data/*.json` ya no lo lee ninguna página): rehacer o retirar.
 3. Diseño para móvil: hoy es la página de escritorio escalada.

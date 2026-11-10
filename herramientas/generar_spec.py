@@ -98,6 +98,15 @@ def inventario_sitio() -> dict:
 
 
 def paginas_md() -> None:
+    if not (RAIZ / "sitio" / "assets" / "js" / "config.js").exists():
+        # Sitio actual (desde el 10-nov-2026): páginas definidas en diseno/canvas/paginas.json (herramientas/construir_v2.py).
+        cfg = json.loads((RAIZ / "diseno" / "canvas" / "paginas.json").read_text(encoding="utf-8"))
+        out = ["# Páginas del sitio\n", CAB, "Definidas en `diseno/canvas/paginas.json`; cada página monta hojas del canvas "
+               "(`diseno/canvas/<Hoja>.dc.html`) con `sitio/assets/v2/dc.js`. Datos: `sitio/data/v2/<Hoja>.json`.\n",
+               "| Grupo | Página | Ruta | Hojas |\n|---|---|---|---|"]
+        out += [f"| {p['grupo']} | {p['titulo']} | `/{p['ruta']}/` | {', '.join(p['hojas'])} |" for p in cfg["paginas"]]
+        (SAL / "paginas.md").write_text("\n".join(out) + "\n", encoding="utf-8")
+        return
     inv = inventario_sitio()
     out = ["# Páginas, secciones y tarjetas del sitio\n", CAB,
            f"Datos en `{inv['RUTA_DATOS']}` (relativo a `sitio/`). Páginas con `oculta: true` no salen en el menú pero se abren por URL.\n"]
@@ -128,6 +137,12 @@ def paginas_md() -> None:
 
 
 def componentes_md() -> None:
+    if not (RAIZ / "sitio" / "assets" / "js" / "config.js").exists():
+        out = ["# Componentes de dibujo\n", CAB, "Componentes del canvas (`diseno/canvas/Grafico.dc.html` y `Rango.dc.html`), "
+               "interpretados en el navegador por `sitio/assets/v2/dc.js`; el marco común (menú, Presentar, Excel) está en "
+               "`sitio/assets/v2/sitio.js`.\n"]
+        (SAL / "componentes.md").write_text("\n".join(out) + "\n", encoding="utf-8")
+        return
     inv = inventario_sitio()
     out = ["# Componentes de dibujo\n", CAB,
            "Registro único `COMPONENTES` (charts_bancos.js; los generales vienen de charts.js). Cada tarjeta declara "
