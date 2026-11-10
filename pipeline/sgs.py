@@ -74,6 +74,45 @@ CODIGOS = {
     "mora90_cheque_especial": 21113, "mora90_personal_renegociacion": 21115,
     "salario_minimo": 1619,               # R$ (u.m.c.), para el ticket en meses de renta (P8)
     "selic_efectiva_mes": 4189,           # Selic acumulada en el mes, anualizada (base 252): la referencia de las hojas
+    # empresas (frente 13, hojas MPME y Grandes; validado 10-nov). 27706/27707 están desactivadas (terminan en dic-24).
+    "tasa_pj_total": 20715, "tasa_pj_libre": 20718, "spread_pj": 20784, "icc_pj": 25352,
+    "riesgo_eh_mpme": 27706, "riesgo_eh_grande": 27707,
+    # sucesoras de 27705–27707 desde ene-25: % del saldo de mayor riesgo (Res. CMN 4.966); no empalman con E–H
+    "riesgo_4966_pj": 29581, "riesgo_4966_mpme": 29582, "riesgo_4966_grande": 29583,
+    # empresas por modalidad (frente 13, parte A; nombres validados contra el SGS el 10-nov). Libres: saldo,
+    # concesiones del mes, tasa (% a.a.) y mora > 90 (%). Direccionados: rural, inmobiliario y BNDES (saldos arriba).
+    "credito_pj_giro": 20550, "conc_pj_giro": 20642, "tasa_pj_giro": 20725, "mora90_pj_giro": 21093,
+    "credito_pj_duplicatas": 20544, "conc_pj_duplicatas": 20636, "tasa_pj_duplicatas": 20719,
+    "mora90_pj_duplicatas": 21087,        # «desconto de duplicatas e recebíveis»
+    "credito_pj_antecipacao_cartao": 20546, "conc_pj_antecipacao_cartao": 20638,
+    "tasa_pj_antecipacao_cartao": 20721, "mora90_pj_antecipacao_cartao": 21089,
+    "credito_pj_conta_garantida": 20551, "conc_pj_conta_garantida": 20643, "tasa_pj_conta_garantida": 20726,
+    "mora90_pj_conta_garantida": 21094,
+    "credito_pj_cheque_especial": 20552, "conc_pj_cheque_especial": 20644, "tasa_pj_cheque_especial": 20727,
+    "mora90_pj_cheque_especial": 21095,
+    "credito_pj_tarjeta": 20564, "conc_pj_tarjeta": 20656, "tasa_pj_tarjeta": 22021, "mora90_pj_tarjeta": 21106,
+    "credito_pj_acc": 20565, "conc_pj_acc": 20657, "tasa_pj_acc": 20736, "mora90_pj_acc": 21107,
+    "credito_pj_export": 20567, "conc_pj_export": 20659, "tasa_pj_export": 20738, "mora90_pj_export": 21109,
+    "credito_pj_import": 20566, "conc_pj_import": 20658, "tasa_pj_import": 20737, "mora90_pj_import": 21108,
+    "credito_pj_repasse_externo": 20568, "conc_pj_repasse_externo": 20660, "tasa_pj_repasse_externo": 20739,
+    "mora90_pj_repasse_externo": 21110,
+    "credito_pj_bienes": 20555, "conc_pj_bienes": 20647, "tasa_pj_bienes": 20730, "mora90_pj_bienes": 21098,
+    "credito_pj_otros_libres": 20569, "conc_pj_otros_libres": 20661, "mora90_pj_otros_libres": 21111,
+    "credito_pj_direccionado": 20594, "conc_pj_direccionado": 20686, "tasa_pj_direccionado": 20757,
+    "mora90_pj_direccionado": 21133,
+    "credito_pj_bndes_inversion": 20602, "conc_pj_bndes_inversion": 20694, "tasa_pj_bndes_inversion": 20765,
+    "mora90_pj_bndes_inversion": 21141,
+    "conc_pj_bndes": 20696, "tasa_pj_bndes": 20767, "mora90_pj_bndes": 21143,
+    "conc_pj_rural": 20689, "tasa_pj_rural": 20760, "mora90_pj_rural": 21136,
+    "conc_pj_inmobiliario": 20692, "tasa_pj_inmobiliario": 20763, "mora90_pj_inmobiliario": 21139,
+    "credito_pj_programas_mpme": 29966, "conc_pj_programas_mpme": 29969, "tasa_pj_programas_mpme": 29975,
+    "mora90_pj_programas_mpme": 29993,    # Pronampe, PEAC y similares (serie nueva)
+    # agregados monetarios, metodología nueva, saldo a fin de período en R$ mil (frente 14, hoja Fondeo; validado 10-nov)
+    "mp_moneda": 27789, "mp_depositos_vista": 27790, "mp_m1": 27791, "mp_depositos_plazo": 27805,
+    "mp_letras_financieras": 27806, "mp_letras_credito": 27807,           # 27807 = letras de crédito (LCI/LCA), no de cambio
+    "mp_otros_titulos_privados": 27808, "mp_titulos_privados": 27809, "mp_m2": 27810,
+    "mp_fondos_monetarios": 27811, "mp_compromisadas_privados": 27812, "mp_m3": 27813,
+    "mp_titulos_federales": 27814, "mp_m4": 27815, "mp_ahorro": 1835,
 }
 
 

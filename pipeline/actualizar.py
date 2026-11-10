@@ -38,8 +38,11 @@ PASOS = [
     ("scr_productos", "preparar_gold_bancos_scr_productos", ["--descargar"], True),
     ("scr", "preparar_gold_bancos_scr", [], False),                   # con caché por ZIP
     ("producto_pf", "preparar_gold_bancos_producto_pf", [], False),   # usa sgs y el cubo de scr_productos → bk_producto_pf_*
+    ("empresas", "preparar_gold_bancos_empresas", [], False),         # usa sgs y el cubo de scr_productos → bk_empresas_*
+    ("fondeo", "preparar_gold_bancos_fondeo", [], False),             # usa sgs (27789–27815, 1835) → bk_fondeo_m
     ("cvm", "cvm", ["--descargar"], True),                           # ITR/DFP de la CVM → bk_publicado
     ("capital", "capital", [], False),
+    ("pyb", "preparar_gold_bancos_pyb", [], False),                   # usa bank_hechos, bk_panel, bk_capital(_grupo), bk_producto_pf_m → bk_pyb, bk_pyb_grupo
     ("ref", "ref", ["--descargar"], True),                           # Anexo Estatístico del REF → bk_ref                                # informe 5 de IF.Data → bk_capital; usa bk_panel
     ("manifiesto", "manifiesto_gold", [], False),                     # después de todos los bk_*
     ("verificacion", None, [], False),                                # pytest + verificar_gold --gold

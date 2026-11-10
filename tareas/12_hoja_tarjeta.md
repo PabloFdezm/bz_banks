@@ -1,7 +1,9 @@
 # Frente 12 · Hojas por producto de personas (Tarjeta, Personal sin planilla, Descuento por planilla, Vehículos): datos, pipeline y verificaciones
 
-Estado al 10-nov-2026: **en curso**: Partes A, B y C hechas el 10-nov (C: `borradores/tarjeta_verificaciones.md`). Pendientes: decisiones de Pablo sobre
-las propuestas de C (tarjeta con interés, tratamiento de N.D., Selic) y las verificaciones propias de E y F. Encargo pensado para que lo ejecute otra sesión u otra LLM sin contexto previo.
+Estado al 10-nov-2026: **datos cerrados**: Partes A, B, C y G hechas el 10-nov (C: `borradores/tarjeta_verificaciones.md`);
+decisiones de Pablo sobre C aplicadas (tarjeta con interés aparte, «sin renta» aparte, Selic 4189); verificaciones de E
+(personal) y F (planilla) informadas; P9 de Vehículos lee de gold (operaciones y saldo medio por operación). El canvas
+lee `bandas` y `nota`. Queda solo la revisión visual de Pablo de las cuatro hojas.
 Leer antes `CLAUDE.md`, `tareas/README.md`, `tareas/05_rediseno_graficos.md` y `tareas/09_portada_mensual_segmentos.md`
 (anexo B: códigos SGS de personas por producto).
 
@@ -119,7 +121,7 @@ Aplicadas también el 10-nov (Pablo): ocupación «Otros / no informado (SCR)» 
 vez de «ticket»; IP de personal sumadas a «Otros» (`OTROS_INSTITUCION` en el gold); notas en P7 de personal y P9 de
 planilla (campo `nota` de la sección); P9 con tres grupos (hasta 3 SM, más de 3 SM y sin renta; en tarjeta, sep-26:
 14,1 %, 7,7 % y 26,2 %). Los JSON traen un campo `bandas` (sección, mes, texto) con jul-25, ene-26, jul-26, ene-25
-(Res. 4.966) y mar-25 (planilla): falta que el canvas lea `bandas` y `nota`.
+(Res. 4.966) y mar-25 (planilla): el canvas ya los lee (10-nov): bandas con rótulo corto en el gráfico y texto completo en «Filas y fuentes»; la nota va bajo la tabla y en Agrandar.
 
 ## Parte C · Verificaciones abiertas (informar antes de cerrar)
 1. **Instituciones de pago sin mora.** En tarjeta tienen ~R$ 117 mil millones y 0,4 % de activo problemático (sep-26);

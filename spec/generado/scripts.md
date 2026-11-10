@@ -3,7 +3,7 @@
 > Generado por `herramientas/generar_spec.py`. No editar a mano: se sobrescribe.
 
 
-## `pipeline/actualizar.py` (92 líneas)
+## `pipeline/actualizar.py` (95 líneas)
 
 Importa del pipeline: `almacen`, `red`
 
@@ -681,6 +681,56 @@ REGLAS
   Solo con los 120 meses completos; antes queda vacío.
 ```
 
+## `pipeline/preparar_gold_bancos_empresas.py` (292 líneas)
+
+Importa del pipeline: `almacen`, `preparar_gold_bancos_producto_pf`, `preparar_gold_bancos_scr_productos`, `sgs`, `tabla_estandar`
+
+```text
+Hojas de empresas «MPME» y «Grandes» (frente 13).
+
+Lleva a gold las cifras que el canvas de rediseño calculaba con el borrador `extraer_empresas.py`. Mismas fórmulas
+que las hojas por producto de personas (`preparar_gold_bancos_producto_pf.py`, frente 12), de donde se importan los
+cálculos de celdas y efectos.
+
+TABLAS (datos/gold/)
+--------------------
+- bk_empresas_m (SGS, mensual): segmento, sub, medida, fecha (último día del mes), valor.
+  Clave: segmento, sub, medida, fecha.
+  * Segmentos: ``empresas`` (sub ``total``, ``libres``, ``direccionados``), ``mpme`` y ``grandes`` (sub ``total``),
+    ``modalidad`` (sub = modalidad PJ del SGS: capital de giro, descuento de duplicatas, comercio exterior, BNDES…)
+    y ``referencia`` (sub ``selic``, medida ``tasa``: Selic efectiva del mes anualizada, SGS 4189).
+  * Niveles: ``saldo`` y ``concesiones`` (R$ millones; concesiones = flujo del mes); ``tasa``, ``mora90``,
+    ``atraso15_90``, ``spread``, ``icc``, ``riesgo_eh`` y ``riesgo_4966`` (fracción: el % del SGS / 100).
+  * Derivadas: ``saldo_aa`` (fracción) en todo lo que tiene saldo; ``peso`` de mpme y grandes en (mpme + grandes)
+    (suman 1) y de cada modalidad en el saldo de empresas total (no suman 1: faltan modalidades chicas).
+  * Descomposición de la tasa media de las modalidades libres con tasa (sub ``media`` y por modalidad, misma función
+    que el frente 12): ``tasa_media``, ``d_tasa_media``, ``efecto_mezcla``, ``peso_saldo``, ``efecto_tasa``.
+    Pondera por SALDO, no por concesiones: con concesiones el cheque especial (357 % a.a., concesiones del mes
+    ≈ saldo) lleva la media a 52,8 % contra 24,4 % de la 20718 (sep-26); con saldo queda a ~2 pp. No es la 20718
+    (faltan «outros créditos livres», sin tasa publicada).
+- bk_empresas_scr_m (SCR.data, mensual desde ene-18): hoja, dimension, segmento, medida, fecha, valor.
+  Clave: hoja, dimension, segmento, medida, fecha. Hojas: ``mpme`` (micro + pequeña + mediana) y ``grandes``.
+  * Dimensiones: ``total`` («Total»), ``porte`` (solo mpme), ``sector`` (10 secciones CNAE + «Otros sectores»),
+    ``institucion`` y la celda de la descomposición (``porte_sector`` en mpme, ``sector_institucion`` en grandes).
+  * Medidas de nivel: ``saldo``, ``mora90``, ``atraso15_90``, ``activo_problematico`` (R$), ``ops``, ``cart_ops``;
+    razones ``tasa_mora``, ``tasa_atraso``, ``tasa_apr``, ``peso``, ``saldo_aa``, ``ops_aa``, ``ticket``
+    (cart_ops / ops, R$) y ``ticket_real`` (R$ del último mes, IPCA).
+  * Aportes por dimensión (fracción; suman el total cada mes): ``aporte_crec``, ``aporte_mora``/``aporte_atraso``,
+    ``efecto_tasa_x``, ``efecto_mezcla_x`` (fórmulas en preparar_gold_bancos_producto_pf.py).
+  * Tres partes (dimensiones ``descomp_<a>_primero`` y ``descomp_<b>_primero``, medidas ``mora`` y ``atraso``):
+    ``efecto_tasa`` (en celdas a × b), ``mezcla_<a>``, ``mezcla_<b>`` y ``variacion_total``. MPME: a = porte,
+    b = sector. Grandes: a = sector, b = institución.
+
+REGLAS
+------
+- 27706/27707 (riesgo E–H por porte) están DESACTIVADAS y terminan en dic-24; desde ene-25 el SGS publica el % de
+  mayor riesgo de la Res. CMN 4.966 (29581–29583). No empalman: son definiciones distintas.
+- 27701 + 27702 no es exactamente 20540 (diferencia de hasta R$ 37 mil millones): el peso de cada porte se mide sobre
+  la suma de los dos, no sobre el total de empresas.
+- SCR: el porte «Indisponível» queda fuera de las dos hojas (R$ 124 mil millones en sep-26). Instituciones como el
+  canvas: Bancos, Desarrollo y fomento, Cooperativas, Financieras, Fintechs, Inst. de pago y Otros.
+```
+
 ## `pipeline/preparar_gold_bancos_exposicion.py` (92 líneas)
 
 Importa del pipeline: `almacen`, `mora_sistema`, `periodos`, `reglas_gold`
@@ -703,6 +753,42 @@ cartera entra en el cálculo; con cobertura < 50 % (bancos de desarrollo, carter
 Entradas: datos/gold/bk_cartera.parquet, datos/gold/bk_sistema_q.parquet.
 Salida:   datos/gold/bk_exposicion.parquet (banco × trimestre).
 Uso:      python -X utf8 pipeline/preparar_gold_bancos_exposicion.py
+```
+
+## `pipeline/preparar_gold_bancos_fondeo.py` (115 líneas)
+
+Importa del pipeline: `almacen`, `sgs`, `tabla_estandar`
+
+```text
+Hoja «Fondeo y liquidez» (frente 14): agregados monetarios de la metodología nueva del BCB (SGS).
+
+Lleva a gold la sección F1 (volumen) que el canvas calculaba con el borrador `extraer_fondeo.py`. Las secciones F3,
+F4, F6 y F7 leen `bk_ref` directo (REF, sección 1.2.1) y no pasan por esta tabla.
+
+TABLA (datos/gold/)
+-------------------
+- bk_fondeo_m (SGS, mensual, larga): serie, medida, fecha (último día del mes), valor. Clave: serie, medida, fecha.
+  * Series: los componentes y agregados de ``COMPONENTES`` (moneda, depósitos a la vista, M1, depósitos a plazo,
+    letras financieras, letras de crédito LCI/LCA, otros títulos privados, títulos privados, cuentas de ahorro, M2,
+    cuotas de fondos monetarios, compromisadas con títulos privados, M3 sin desglose, M3, títulos federales, M4) y,
+    si están en el crudo, las tasas de los depósitos a plazo por inversionista (``TASAS_INVERSIONISTA``).
+  * Medidas: ``saldo`` (R$ millones, fin de período), ``aa`` (saldo / saldo de 12 meses antes − 1, fracción),
+    ``share_m2`` (solo las 7 hojas de M2: saldo / Σ hojas de M2, fracción; suman 1) y ``share_m4`` (las 11 hojas de
+    M4, incluida «M3 sin desglose»; suman 1). Las tasas llevan ``tasa`` (el % del SGS / 100).
+
+REGLAS
+------
+- Unidad de la fuente: todos los códigos, incluida la poupança 1835, vienen en «u.m.c. (mil)» = R$ mil (catálogo SGS).
+  Se dividen por 1.000 para R$ millones, como el resto de las tablas gold de saldos SGS.
+- Identidades de la fuente (verificadas el 10-nov, ±2 R$ mil por redondeo): M1 = 27789 + 27790; títulos privados
+  27809 = 27805 + 27806 + 27807 + 27808; M2 = M1 + 27809 + 1835 (la poupança está DENTRO de M2 en la metodología
+  nueva); M4 = M3 + 27814.
+- M3 no cierra con sus partes publicadas: M3 − M2 − 27811 − 27812 deja un residuo de R$ 9–219 mil millones según el
+  mes (R$ 161 mil millones a sep-26). Va como serie ``m3_sin_desglose`` (resta de cifras publicadas, no una
+  estimación) para que las participaciones en M4 sumen 100 %; buscar en el SGS el código que lo explique.
+- 27807 es «Letras de crédito» (LCI/LCA), no letras de cambio; 27811 son «Quotas de fundos monetários».
+- Tasas por inversionista (28583, 28611, 28614, 28617): la API del SGS fallaba al bajarlas (10-nov). No están en
+  sgs.CODIGOS; se leen solo si el crudo existe, y si no la tabla no las trae (la hoja las marca «en preparación»).
 ```
 
 ## `pipeline/preparar_gold_bancos_pag_credito.py` (149 líneas)
@@ -830,6 +916,62 @@ REGLAS
   el valor «Outros» de la fuente) va a «Otros».
 - Quiebres del SCR (no se suavizan): jul-25 reclasificación de renta; ago-26 ~R$ 15 mil millones de tarjeta pasan
   de «más de 20 SM» a «Indisponível».
+```
+
+## `pipeline/preparar_gold_bancos_pyb.py` (422 líneas)
+
+Importa del pipeline: `almacen`
+
+```text
+Hoja «P&L y balance por banco» (frente 15): estado de resultados, balance y capital por banco y trimestre.
+
+Lleva a gold lo que el canvas calculaba con el borrador ``extraer_pyb.py``. El mapa de cuentas por época del plan
+contable (antes y desde 1T25, Res. CMN 4.966) está en ``definiciones/pyb_lineas.json``, no en el código.
+
+FUENTES
+-------
+- bank_hechos (IF.Data, conglomerado prudencial, informes 2 activo, 3 pasivo y 4 resultados). ``valor`` del informe 4
+  es el flujo del trimestre (ya desacumulado del semestre).
+- bk_panel: crédito bruto y pérdida esperada acumulada (balance), activo y patrimonio medio 12m (denominadores),
+  ROE y modelo de negocio (grupo de la mediana).
+- bk_capital y bk_capital_grupo (informe 5): sección P7 Capital.
+- bk_producto_pf_m (referencia/selic): Selic efectiva del mes, para el costo de fondeo relativo.
+
+TABLAS (datos/gold/)
+--------------------
+- bk_pyb: cod_inst, periodo (AAAAMM), trimestre («2T26»), seccion, linea, medida, valor.
+  Clave: cod_inst, periodo, linea, medida.
+  * seccion ``pyl``: medidas ``rs_trim`` (R$ del trimestre), ``rs_12m`` (R$, suma de cuatro trimestres
+    consecutivos; si falta uno, no hay fila) y ``pct_activo_medio_12m`` (rs_12m / ativo_medio_ttm de bk_panel,
+    en fracción).
+  * secciones ``activo`` y ``pasivo``: ``rs`` (saldo a fin de trimestre, R$) y ``pct_activo`` (rs / activo total,
+    fracción). El pasivo se divide por el activo total (= pasivo total).
+  * seccion ``indicador``: ``roe`` (roe_ttm de bk_panel), medida ``fraccion``.
+  * seccion ``capital``: índices del informe 5 (``fraccion``) y variaciones del capital principal (``rs``); ver
+    CAPITAL_FRACCION y CAPITAL_RS.
+  * seccion ``sensibilidad`` (``fraccion``): ``mfb_qa`` = margen financiero antes de pérdida esperada del trimestre
+    × 4 / activo medio del trimestre (promedio de dos cierres consecutivos); ``cf_qa`` = −gasto de captación × 4 /
+    fondeo medio (líneas ``fondeo`` de la definición); ``cf_pct`` = cf_qa / Selic efectiva media del trimestre.
+- bk_pyb_grupo: grupo, periodo, trimestre, seccion, linea, medida, valor, n_bancos.
+  Clave: grupo, periodo, linea, medida.
+  * ``grupo`` = modelo de negocio de bk_panel: mediana de los bancos del grupo con dato (n_bancos = cuántos).
+  * ``grupo`` = «Panel»: razón de sumas de los bancos con numerador y denominador (no promedio de razones):
+    Σ rs_12m / Σ ativo_medio_ttm, Σ rs / Σ activo total, ROE = Σ utilidad 12m / Σ pl_medio_ttm. Capital: los
+    índices cp, bas, dens, hol y req_cp se toman de bk_capital_grupo («Total panel», sus n_bancos) y apalancamiento
+    y crecimientos son razón de sumas de los bancos de bk_pyb (decisión pendiente: unificar en 31 o 34 bancos).
+    Sensibilidad: Σ(mfb × 4) / Σ activo medio, Σ(−captación × 4) / Σ fondeo medio y su cociente con la Selic.
+  * ``grupo`` = «Referencia»: linea ``selic`` (seccion sensibilidad), promedio de los meses del trimestre de la
+    Selic efectiva anualizada (bk_producto_pf_m, referencia/selic, SGS 4189), en fracción.
+
+REGLAS
+------
+- La época de cada banco-trimestre sale de la columna ``era`` de bank_hechos, no de si la cuenta existe.
+- Las cuentas se buscan por (informe, cuenta_base): 'ativo total' está en los informes 2 y 4 e 'instrumentos
+  derivativos' en el 2 y el 3. Una cuenta usada que aparezca dos veces en el mismo informe hace fallar el paso.
+- Los trimestres se ordenan por (año, trimestre); el 12m y los a/a se calculan sobre una grilla completa de
+  trimestres, así un hueco deja vacío el 12m en vez de sumar trimestres no consecutivos.
+- Las líneas residuales cierran contra la cuenta publicada (resultado de intermediación, resultado antes de
+  impuestos, utilidad, activo total y pasivo total): las sumas cuadran por construcción y los tests lo vigilan.
 ```
 
 ## `pipeline/preparar_gold_bancos_qcambio.py` (156 líneas)
@@ -1106,7 +1248,7 @@ ZIP anuales del SCR.data (``datos/crudo/bcb_scr/scrdata/actual/scrdata_<año>.zi
 - Valores con coma decimal y sin separador de miles.
 ```
 
-## `pipeline/sgs.py` (174 líneas)
+## `pipeline/sgs.py` (213 líneas)
 
 Importa del pipeline: `almacen`, `bcb_api`, `certificados`, `red`
 

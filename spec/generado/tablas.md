@@ -465,6 +465,31 @@ Carpeta `datos/gold/`.
 | `corte` | str | 0 | sep-26 | 2 |
 | `share` | float64 | 23 | 0.0996152982291736 | 12 |
 
+### `bk_empresas_m`
+
+31,375 filas · 5 columnas · fecha: 2000-01-31 → 2026-09-30 · 0.24 MB
+
+| Columna | Tipo | % nulos | Ejemplo | Valores distintos |
+|---|---|---|---|---|
+| `segmento` | str | 0 | empresas | 5 |
+| `sub` | str | 0 | total | 22 |
+| `medida` | str | 0 | saldo | 16 |
+| `fecha` | str | 0 | 2007-03-31 | 321 |
+| `valor` | float64 | 0 | 413952.0 | 24957 |
+
+### `bk_empresas_scr_m`
+
+218,334 filas · 6 columnas · fecha: 2018-01-31 → 2026-09-30 · 1.86 MB
+
+| Columna | Tipo | % nulos | Ejemplo | Valores distintos |
+|---|---|---|---|---|
+| `hoja` | str | 0 | mpme | 2 |
+| `dimension` | str | 0 | total | 9 |
+| `segmento` | str | 0 | Total | 135 |
+| `medida` | str | 0 | saldo | 23 |
+| `fecha` | str | 0 | 2018-01-31 | 105 |
+| `valor` | float64 | 0 | 553689254728.33 | 191389 |
+
 ### `bk_exposicion`
 
 1,429 filas · 12 columnas · periodo: 201406 → 202606 · 0.09 MB
@@ -483,6 +508,17 @@ Carpeta `datos/gold/`.
 | `efecto_mora_pp` | float64 | 23 | 0.16870595642516403 | 1104 |
 | `d_mora_implicita_aa_pp` | float64 | 23 | 0.08319729216503961 | 1104 |
 | `quiebre_2025` | bool | 0 | False | 2 |
+
+### `bk_fondeo_m`
+
+14,385 filas · 4 columnas · fecha: 2002-01-31 → 2026-09-30 · 0.15 MB
+
+| Columna | Tipo | % nulos | Ejemplo | Valores distintos |
+|---|---|---|---|---|
+| `serie` | str | 0 | moneda | 16 |
+| `medida` | str | 0 | saldo | 4 |
+| `fecha` | str | 0 | 2002-01-31 | 297 |
+| `valor` | float64 | 0 | 27239.411 | 13662 |
 
 ### `bk_grupo`
 
@@ -510,22 +546,22 @@ Carpeta `datos/gold/`.
 
 ### `bk_manifiesto`
 
-40 filas · 12 columnas · — · 0.01 MB
+45 filas · 12 columnas · — · 0.01 MB
 
 | Columna | Tipo | % nulos | Ejemplo | Valores distintos |
 |---|---|---|---|---|
 | `tipo` | str | 0 | tabla | 2 |
-| `tabla` | str | 8 | bk_banco | 37 |
-| `archivo` | str | 8 | bk_banco.parquet | 37 |
-| `filas` | float64 | 8 | 34.0 | 36 |
-| `columnas` | float64 | 8 | 17.0 | 17 |
-| `rango` | str | 30 | 2015-03-31–2026-06-30 | 17 |
-| `sha256` | str | 8 | 441f33bbe906e2c6783f06d37e8a6ae3e07a3b09b6d14c0e0b2d5d9be3b7aee2 | 37 |
-| `bytes` | float64 | 8 | 13544.0 | 37 |
-| `producido_por` | str | 8 | python -X utf8 preparar_gold_bancos.py base | 16 |
-| `universo` | str | 92 | Panel | 3 |
-| `ultimo_corte` | str | 92 | 2026-06-30 | 3 |
-| `nota` | str | 92 | IF.Data prudencial, trimestral | 3 |
+| `tabla` | str | 7 | bk_banco | 42 |
+| `archivo` | str | 7 | bk_banco.parquet | 42 |
+| `filas` | float64 | 7 | 34.0 | 41 |
+| `columnas` | float64 | 7 | 17.0 | 18 |
+| `rango` | str | 27 | 2015-03-31–2026-06-30 | 19 |
+| `sha256` | str | 7 | 441f33bbe906e2c6783f06d37e8a6ae3e07a3b09b6d14c0e0b2d5d9be3b7aee2 | 42 |
+| `bytes` | float64 | 7 | 13544.0 | 42 |
+| `producido_por` | str | 7 | python -X utf8 preparar_gold_bancos.py base | 19 |
+| `universo` | str | 93 | Panel | 3 |
+| `ultimo_corte` | str | 93 | 2026-06-30 | 3 |
+| `nota` | str | 93 | IF.Data prudencial, trimestral | 3 |
 
 ### `bk_metrica`
 
@@ -703,6 +739,35 @@ Carpeta `datos/gold/`.
 | `ifdata` | float64 | 0 | 2846.42 | 26 |
 | `dif_pct` | float64 | 0 | -0.11789242726630389 | 23 |
 | `nota` | str | 0 | Puente seguros +382,02 → +0,05% | 25 |
+
+### `bk_pyb`
+
+180,794 filas · 7 columnas · periodo: 201403 → 202606 · 1.54 MB
+
+| Columna | Tipo | % nulos | Ejemplo | Valores distintos |
+|---|---|---|---|---|
+| `cod_inst` | str | 0 | C0080075 | 34 |
+| `periodo` | str | 0 | 201403 | 50 |
+| `trimestre` | str | 0 | 1T14 | 50 |
+| `seccion` | str | 0 | activo | 6 |
+| `linea` | str | 0 | activo | 65 |
+| `medida` | str | 0 | pct_activo | 6 |
+| `valor` | float64 | 0 | 1.0 | 145449 |
+
+### `bk_pyb_grupo`
+
+15,573 filas · 8 columnas · periodo: 201403 → 202606 · 0.14 MB
+
+| Columna | Tipo | % nulos | Ejemplo | Valores distintos |
+|---|---|---|---|---|
+| `grupo` | str | 0 | Desarrollo | 7 |
+| `periodo` | str | 0 | 201403 | 50 |
+| `trimestre` | str | 0 | 1T14 | 50 |
+| `seccion` | str | 0 | activo | 6 |
+| `linea` | str | 0 | activo | 61 |
+| `medida` | str | 0 | pct_activo | 3 |
+| `valor` | float64 | 0 | 1.0 | 12907 |
+| `n_bancos` | int64 | 0 | 3 | 21 |
 
 ### `bk_qcambio`
 

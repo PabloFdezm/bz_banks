@@ -65,17 +65,17 @@
 - `usados`: objeto con 2 claves
 - `sitio`: objeto con 2 claves
 
-## `bcb_sgs__catalogo.json` (21 kB)
+## `bcb_sgs__catalogo.json` (41 kB)
 
 - `fuente`: Servicio web público del SGS (FachadaWSSGS.getUltimoValorXML)
 - `descripcion`: Nombre, unidad y periodicidad oficiales de cada serie de sgs.CODIGOS. Lo escribe herramientas/validar_sgs.py --escribir; la correspondencia clave ↔ nombre se r…
 - `validado`: 2026-11-10
-- `series`: objeto con 96 claves
+- `series`: objeto con 188 claves
 
-## `contrato_gold.json` (8 kB)
+## `contrato_gold.json` (9 kB)
 
 - `descripcion`: Contrato de la capa gold (datos/gold/bk_*.parquet): columnas mínimas y clave única de cada tabla. Lo lee herramientas/verificar_gold.py; una tabla bk_* que no …
-- `tablas`: objeto con 38 claves
+- `tablas`: objeto con 43 claves
 
 ## `cvm__bancos.json` (27 kB)
 
@@ -133,6 +133,15 @@
 - `conservacion`: lista de 9 · campos: `desde`, `hasta`, `valor`, `norma`, `url`
 - `contraciclico`: lista de 1 · campos: `desde`, `hasta`, `valor`, `norma`, `url`, `nota`
 - `sistemico`: objeto con 5 claves
+
+## `pyb_lineas.json` (19 kB)
+
+- `_descripcion`: Mapa de líneas de la hoja «P&L y balance por banco» (frente 15) para las dos épocas del plan contable del IF.Data (conglomerado prudencial). La época sale de l…
+- `_actualizado`: 2026-11-10
+- `epocas`: lista de 2
+- `fondeo`: lista de 12
+- `_fondeo`: Pasivos con costo explícito: denominador del costo de fondeo de la sección de sensibilidad a la Selic (sin patrimonio ni otros pasivos).
+- `lineas`: lista de 45 · campos: `linea`, `seccion`, `rotulo`, `nivel`, `tipo`, `epocas`
 
 ## `scr_productos.json` (4 kB)
 

@@ -1,0 +1,214 @@
+{
+  "_descripcion": "Mapa de líneas de la hoja «P&L y balance por banco» (frente 15) para las dos épocas del plan contable del IF.Data (conglomerado prudencial). La época sale de la columna 'era' de bank_hechos, nunca de si la cuenta existe. Cada cuenta se busca por (informe, cuenta_base): 'ativo total' está en los informes 2 y 4 e 'instrumentos derivativos' en el 2 (activo) y el 3 (pasivo). Los valores del IF.Data ya vienen con signo (gastos e impuestos negativos), por eso 'signo' es 1 salvo indicación. Tipos: 'cuentas' (suma de cuentas; una lista vacía vale 0 en esa época), 'total' (cuenta publicada que cierra un bloque; si falta, la línea queda vacía), 'panel' (métrica de bk_panel), 'subtotal' (suma con signo de otras líneas) y 'residual' (total menos la suma de las líneas listadas). Nombres verificados contra bank_hechos (1T14–2T26) el 10-nov-2026.",
+  "_actualizado": "2026-11-10",
+  "epocas": ["cosif_2025", "cosif_pre2025"],
+  "fondeo": ["dvis", "dpou", "dpra", "dint", "dotr", "lci", "lca", "lf", "oemi", "pact", "rep", "sub"],
+  "_fondeo": "Pasivos con costo explícito: denominador del costo de fondeo de la sección de sensibilidad a la Selic (sin patrimonio ni otros pasivos).",
+  "lineas": [
+    {"linea": "cred", "seccion": "pyl", "rotulo": "Ingresos de crédito", "nivel": 1, "tipo": "cuentas",
+     "epocas": {
+       "cosif_2025": {"informe": 4, "cuentas": [
+         {"cuenta": "rendas de operacoes de credito", "signo": 1},
+         {"cuenta": "rendas de arrendamento financeiro", "signo": 1},
+         {"cuenta": "rendas de outras operacoes com caracteristicas de concessao de credito", "signo": 1}]},
+       "cosif_pre2025": {"informe": 4, "cuentas": [
+         {"cuenta": "rendas de operacoes de credito", "signo": 1},
+         {"cuenta": "rendas de operacoes de arrendamento mercantil", "signo": 1}]}}},
+    {"linea": "tes", "seccion": "pyl", "rotulo": "Tesorería: títulos, derivativos e interfinancieros", "nivel": 1, "tipo": "cuentas",
+     "epocas": {
+       "cosif_2025": {"informe": 4, "cuentas": [
+         {"cuenta": "rendas de titulos e valores mobiliarios", "signo": 1},
+         {"cuenta": "resultado com derivativos", "signo": 1},
+         {"cuenta": "rendas de aplicacoes interfinanceiras de liquidez", "signo": 1}]},
+       "cosif_pre2025": {"informe": 4, "cuentas": [
+         {"cuenta": "rendas de operacoes com tvm", "signo": 1},
+         {"cuenta": "rendas de operacoes com instrumentos financeiros derivativos", "signo": 1},
+         {"cuenta": "rendas de aplicacoes compulsorias", "signo": 1}]}},
+     "_nota": "Antes de 1T25 las rendas de aplicaciones interfinancieras van dentro de 'rendas de operacoes com tvm' (COSIF 7.1.4)."},
+    {"linea": "capt", "seccion": "pyl", "rotulo": "Gasto de captación", "nivel": 1, "tipo": "cuentas",
+     "epocas": {
+       "cosif_2025": {"informe": 4, "cuentas": [
+         {"cuenta": "despesas de captacoes", "signo": 1},
+         {"cuenta": "despesas de instrumentos de divida elegiveis a capital", "signo": 1}]},
+       "cosif_pre2025": {"informe": 4, "cuentas": [
+         {"cuenta": "despesas de captacao", "signo": 1},
+         {"cuenta": "despesas de obrigacoes por emprestimos e repasses", "signo": 1},
+         {"cuenta": "despesas de operacoes de arrendamento mercantil", "signo": 1}]}}},
+    {"linea": "oif", "seccion": "pyl", "rotulo": "Otros de intermediación", "nivel": 1, "tipo": "residual",
+     "total": "rif", "resta": ["cred", "tes", "capt", "prov"],
+     "_nota": "Antes de 1T25 incluye el resultado de cambio; desde 1T25 la variación cambial va dentro de cada línea y aquí queda 'outros resultados de intermediacao financeira'."},
+    {"linea": "mfb", "seccion": "pyl", "rotulo": "Margen financiero antes de pérdida esperada", "nivel": 0, "tipo": "subtotal",
+     "suma": [{"linea": "rif", "signo": 1}, {"linea": "prov", "signo": -1}]},
+    {"linea": "prov", "seccion": "pyl", "rotulo": "Pérdida esperada", "nivel": 1, "tipo": "cuentas",
+     "epocas": {
+       "cosif_2025": {"informe": 4, "cuentas": [{"cuenta": "resultado com perda esperada", "signo": 1}]},
+       "cosif_pre2025": {"informe": 4, "cuentas": [{"cuenta": "resultado de provisao para creditos de dificil liquidacao", "signo": 1}]}}},
+    {"linea": "rif", "seccion": "pyl", "rotulo": "Resultado de intermediación", "nivel": 0, "tipo": "total",
+     "epocas": {
+       "cosif_2025": {"informe": 4, "cuentas": [{"cuenta": "resultado de intermediacao financeira", "signo": 1}]},
+       "cosif_pre2025": {"informe": 4, "cuentas": [{"cuenta": "resultado de intermediacao financeira", "signo": 1}]}}},
+    {"linea": "serv", "seccion": "pyl", "rotulo": "Servicios y tarifas", "nivel": 1, "tipo": "cuentas",
+     "epocas": {
+       "cosif_2025": {"informe": 4, "cuentas": [
+         {"cuenta": "rendas de tarifas bancarias", "signo": 1},
+         {"cuenta": "outras rendas de prestacao de servicos", "signo": 1}]},
+       "cosif_pre2025": {"informe": 4, "cuentas": [
+         {"cuenta": "rendas de prestacao de servicos", "signo": 1},
+         {"cuenta": "rendas de tarifas bancarias", "signo": 1}]}}},
+    {"linea": "pag", "seccion": "pyl", "rotulo": "Transacciones de pago", "nivel": 1, "tipo": "cuentas",
+     "epocas": {
+       "cosif_2025": {"informe": 4, "cuentas": [{"cuenta": "resultado com transacoes de pagamento", "signo": 1}]},
+       "cosif_pre2025": {"informe": 4, "cuentas": [], "_nota": "Va dentro de servicios (y una parte en otras receitas/despesas operacionais)."}}},
+    {"linea": "pers", "seccion": "pyl", "rotulo": "Gastos de personal", "nivel": 1, "tipo": "cuentas",
+     "epocas": {
+       "cosif_2025": {"informe": 4, "cuentas": [{"cuenta": "despesas de pessoal", "signo": 1}]},
+       "cosif_pre2025": {"informe": 4, "cuentas": [{"cuenta": "despesas de pessoal", "signo": 1}]}}},
+    {"linea": "adm", "seccion": "pyl", "rotulo": "Gastos administrativos", "nivel": 1, "tipo": "cuentas",
+     "epocas": {
+       "cosif_2025": {"informe": 4, "cuentas": [{"cuenta": "despesas administrativas", "signo": 1}]},
+       "cosif_pre2025": {"informe": 4, "cuentas": [{"cuenta": "despesas administrativas", "signo": 1}]}}},
+    {"linea": "trib", "seccion": "pyl", "rotulo": "Gastos tributarios", "nivel": 1, "tipo": "cuentas",
+     "epocas": {
+       "cosif_2025": {"informe": 4, "cuentas": [{"cuenta": "despesas tributarias", "signo": 1}]},
+       "cosif_pre2025": {"informe": 4, "cuentas": [{"cuenta": "despesas tributarias", "signo": 1}]}}},
+    {"linea": "part", "seccion": "pyl", "rotulo": "Resultado de participaciones", "nivel": 1, "tipo": "cuentas",
+     "epocas": {
+       "cosif_2025": {"informe": 4, "cuentas": [{"cuenta": "resultado de participacoes", "signo": 1}]},
+       "cosif_pre2025": {"informe": 4, "cuentas": [{"cuenta": "resultado de participacoes", "signo": 1}]}}},
+    {"linea": "oop", "seccion": "pyl", "rotulo": "Otros operacionales", "nivel": 1, "tipo": "residual",
+     "total": "antes", "resta": ["rif", "serv", "pag", "pers", "adm", "trib", "part"],
+     "_nota": "Antes de 1T25 incluye el resultado no operacional; desde 1T25 incluye 'resultado com perdas esperadas de outras operacoes'."},
+    {"linea": "antes", "seccion": "pyl", "rotulo": "Resultado antes de impuestos", "nivel": 0, "tipo": "total",
+     "epocas": {
+       "cosif_2025": {"informe": 4, "cuentas": [{"cuenta": "resultado antes da tributacao e participacoes", "signo": 1}]},
+       "cosif_pre2025": {"informe": 4, "cuentas": [{"cuenta": "resultado antes da tributacao, lucro e participacao", "signo": 1}]}}},
+    {"linea": "imp", "seccion": "pyl", "rotulo": "Impuestos", "nivel": 1, "tipo": "cuentas",
+     "epocas": {
+       "cosif_2025": {"informe": 4, "cuentas": [{"cuenta": "imposto de renda e contribuicao social", "signo": 1}]},
+       "cosif_pre2025": {"informe": 4, "cuentas": [{"cuenta": "imposto de renda e contribuicao social", "signo": 1}]}}},
+    {"linea": "plr", "seccion": "pyl", "rotulo": "Participación de empleados", "nivel": 1, "tipo": "cuentas",
+     "epocas": {
+       "cosif_2025": {"informe": 4, "cuentas": [{"cuenta": "participacoes no lucro", "signo": 1}]},
+       "cosif_pre2025": {"informe": 4, "cuentas": [{"cuenta": "participacao nos lucros", "signo": 1}]}}},
+    {"linea": "obl", "seccion": "pyl", "rotulo": "Otros bajo la línea", "nivel": 1, "tipo": "residual",
+     "total": "lucro", "resta": ["antes", "imp", "plr"],
+     "_nota": "Intereses sobre el capital de cooperativas (las demás líneas cierran: lucro = antes + impuestos + participaciones)."},
+    {"linea": "lucro", "seccion": "pyl", "rotulo": "Utilidad neta", "nivel": 0, "tipo": "total",
+     "epocas": {
+       "cosif_2025": {"informe": 4, "cuentas": [{"cuenta": "lucro liquido", "signo": 1}]},
+       "cosif_pre2025": {"informe": 4, "cuentas": [{"cuenta": "lucro liquido", "signo": 1}]}}},
+
+    {"linea": "caja", "seccion": "activo", "rotulo": "Caja", "tipo": "cuentas",
+     "epocas": {
+       "cosif_2025": {"informe": 2, "cuentas": [{"cuenta": "disponibilidades", "signo": 1}]},
+       "cosif_pre2025": {"informe": 2, "cuentas": [{"cuenta": "disponibilidades", "signo": 1}]}}},
+    {"linea": "interf", "seccion": "activo", "rotulo": "Interfinancieros", "tipo": "cuentas",
+     "epocas": {
+       "cosif_2025": {"informe": 2, "cuentas": [{"cuenta": "aplicacoes interfinanceiras de liquidez", "signo": 1}]},
+       "cosif_pre2025": {"informe": 2, "cuentas": [{"cuenta": "aplicacoes interfinanceiras de liquidez", "signo": 1}]}}},
+    {"linea": "tvm", "seccion": "activo", "rotulo": "Títulos y derivativos", "tipo": "cuentas",
+     "epocas": {
+       "cosif_2025": {"informe": 2, "cuentas": [
+         {"cuenta": "titulos e valores mobiliarios", "signo": 1},
+         {"cuenta": "instrumentos derivativos", "signo": 1}]},
+       "cosif_pre2025": {"informe": 2, "cuentas": [{"cuenta": "tvm e instrumentos financeiros derivativos", "signo": 1}]}}},
+    {"linea": "credb", "seccion": "activo", "rotulo": "Crédito bruto", "tipo": "panel", "metrica": "credito_bruto", "signo": 1,
+     "_nota": "bk_panel: 2025 'valor contabil bruto' de operaciones de crédito (e1); antes 'operacoes de credito' (d1)."},
+    {"linea": "ecl", "seccion": "activo", "rotulo": "Pérdida esperada acumulada", "tipo": "panel", "metrica": "ecl_saldo", "signo": 1,
+     "_nota": "bk_panel, ya negativa: 2025 'perda esperada' de operaciones de crédito (e2); antes 'provisao sobre operacoes de credito' (d2)."},
+    {"linea": "occ", "seccion": "activo", "rotulo": "Otras operaciones con características de crédito", "tipo": "cuentas",
+     "epocas": {
+       "cosif_2025": {"informe": 2, "cuentas": [{"cuenta": "outras operacoes com caracteristicas de concessao de credito", "signo": 1}]},
+       "cosif_pre2025": {"informe": 2, "cuentas": [], "_nota": "Antes de 1T25 va dentro de 'outros creditos - liquido de provisao' (en otros activos)."}}},
+    {"linea": "arr", "seccion": "activo", "rotulo": "Leasing", "tipo": "cuentas",
+     "epocas": {
+       "cosif_2025": {"informe": 2, "cuentas": [{"cuenta": "operacoes de arrendamento financeiro", "signo": 1}]},
+       "cosif_pre2025": {"informe": 2, "cuentas": [{"cuenta": "arrendamento mercantil liquido de provisao", "signo": 1}]}}},
+    {"linea": "vpag", "seccion": "activo", "rotulo": "Cuentas por cobrar de pagos", "tipo": "cuentas",
+     "epocas": {
+       "cosif_2025": {"informe": 2, "cuentas": [{"cuenta": "valores a receber de transacoes de pagamentos - usuarios finais", "signo": 1}]},
+       "cosif_pre2025": {"informe": 2, "cuentas": [], "_nota": "Antes de 1T25 va dentro de 'outros creditos - liquido de provisao' (en otros activos)."}}},
+    {"linea": "perm", "seccion": "activo", "rotulo": "Activo permanente", "tipo": "cuentas",
+     "epocas": {
+       "cosif_2025": {"informe": 2, "cuentas": [{"cuenta": "ativo permanente", "signo": 1}]},
+       "cosif_pre2025": {"informe": 2, "cuentas": [{"cuenta": "permanente ajustado", "signo": 1}]}}},
+    {"linea": "oact", "seccion": "activo", "rotulo": "Otros activos", "tipo": "residual",
+     "total": "activo", "resta": ["caja", "interf", "tvm", "credb", "ecl", "occ", "arr", "vpag", "perm"],
+     "_nota": "2025: 'outros ativos realizaveis' y los ajustes de hedge y valor justo del crédito; antes: 'outros creditos - liquido de provisao' + 'outros ativos realizaveis' − 'credores por antecipacao de valor residual'."},
+    {"linea": "activo", "seccion": "activo", "rotulo": "Activo total", "tipo": "total",
+     "epocas": {
+       "cosif_2025": {"informe": 2, "cuentas": [{"cuenta": "ativo total", "signo": 1}]},
+       "cosif_pre2025": {"informe": 2, "cuentas": [{"cuenta": "ativo total", "signo": 1}]}}},
+
+    {"linea": "dvis", "seccion": "pasivo", "rotulo": "Depósitos a la vista", "tipo": "cuentas",
+     "epocas": {
+       "cosif_2025": {"informe": 3, "cuentas": [{"cuenta": "depositos a vista", "signo": 1}]},
+       "cosif_pre2025": {"informe": 3, "cuentas": [{"cuenta": "depositos a vista", "signo": 1}]}}},
+    {"linea": "dpou", "seccion": "pasivo", "rotulo": "Depósitos de ahorro", "tipo": "cuentas",
+     "epocas": {
+       "cosif_2025": {"informe": 3, "cuentas": [{"cuenta": "depositos de poupanca", "signo": 1}]},
+       "cosif_pre2025": {"informe": 3, "cuentas": [{"cuenta": "depositos de poupanca", "signo": 1}]}}},
+    {"linea": "dpra", "seccion": "pasivo", "rotulo": "Depósitos a plazo", "tipo": "cuentas",
+     "epocas": {
+       "cosif_2025": {"informe": 3, "cuentas": [{"cuenta": "depositos a prazo", "signo": 1}]},
+       "cosif_pre2025": {"informe": 3, "cuentas": [{"cuenta": "depositos a prazo", "signo": 1}]}}},
+    {"linea": "dint", "seccion": "pasivo", "rotulo": "Depósitos interfinancieros", "tipo": "cuentas",
+     "epocas": {
+       "cosif_2025": {"informe": 3, "cuentas": [{"cuenta": "depositos interfinanceiros", "signo": 1}]},
+       "cosif_pre2025": {"informe": 3, "cuentas": [{"cuenta": "depositos interfinanceiros", "signo": 1}]}}},
+    {"linea": "dotr", "seccion": "pasivo", "rotulo": "Otros depósitos", "tipo": "cuentas",
+     "epocas": {
+       "cosif_2025": {"informe": 3, "cuentas": [
+         {"cuenta": "depositos outros", "signo": 1},
+         {"cuenta": "conta de pagamento pre-paga", "signo": 1}]},
+       "cosif_pre2025": {"informe": 3, "cuentas": [
+         {"cuenta": "outros depositos", "signo": 1},
+         {"cuenta": "depositos outros", "signo": 1},
+         {"cuenta": "conta de pagamento pre-paga", "signo": 1}]}},
+     "_nota": "Antes de 2T20 la cuenta se llama 'outros depositos' (sin cuenta de pago prepaga); desde 2T20 'depositos outros' excluye la prepaga, que se publica aparte. Nunca coinciden en un mismo trimestre."},
+    {"linea": "lci", "seccion": "pasivo", "rotulo": "LCI", "tipo": "cuentas",
+     "epocas": {
+       "cosif_2025": {"informe": 3, "cuentas": [{"cuenta": "letras de credito imobiliario", "signo": 1}]},
+       "cosif_pre2025": {"informe": 3, "cuentas": [{"cuenta": "letras de credito imobiliario", "signo": 1}]}}},
+    {"linea": "lca", "seccion": "pasivo", "rotulo": "LCA", "tipo": "cuentas",
+     "epocas": {
+       "cosif_2025": {"informe": 3, "cuentas": [{"cuenta": "letras de credito do agronegocio", "signo": 1}]},
+       "cosif_pre2025": {"informe": 3, "cuentas": [{"cuenta": "letras de credito do agronegocio", "signo": 1}]}}},
+    {"linea": "lf", "seccion": "pasivo", "rotulo": "Letras financieras", "tipo": "cuentas",
+     "epocas": {
+       "cosif_2025": {"informe": 3, "cuentas": [{"cuenta": "letras financeiras", "signo": 1}]},
+       "cosif_pre2025": {"informe": 3, "cuentas": [{"cuenta": "letras financeiras", "signo": 1}]}}},
+    {"linea": "oemi", "seccion": "pasivo", "rotulo": "Otras emisiones", "tipo": "cuentas",
+     "epocas": {
+       "cosif_2025": {"informe": 3, "cuentas": [
+         {"cuenta": "obrigacoes por titulos e valores mobiliarios no exterior", "signo": 1},
+         {"cuenta": "demais instrumentos de divida", "signo": 1}]},
+       "cosif_pre2025": {"informe": 3, "cuentas": [
+         {"cuenta": "obrigacoes por titulos e valores mobiliarios no exterior", "signo": 1},
+         {"cuenta": "outros recursos de aceites e emissao de titulos", "signo": 1}]}},
+     "_nota": "No usar 'outros instrumentos de divida' (2025) ni 'recursos de aceites e emissao de titulos' (antes): son subtotales que ya incluyen LCI, LCA y letras financieras."},
+    {"linea": "pact", "seccion": "pasivo", "rotulo": "Pactos de retrocompra", "tipo": "cuentas",
+     "epocas": {
+       "cosif_2025": {"informe": 3, "cuentas": [{"cuenta": "obrigacoes por operacoes compromissadas", "signo": 1}]},
+       "cosif_pre2025": {"informe": 3, "cuentas": [{"cuenta": "obrigacoes por operacoes compromissadas", "signo": 1}]}}},
+    {"linea": "rep", "seccion": "pasivo", "rotulo": "Préstamos y traspasos", "tipo": "cuentas",
+     "epocas": {
+       "cosif_2025": {"informe": 3, "cuentas": [{"cuenta": "obrigacoes por emprestimos e repasses", "signo": 1}]},
+       "cosif_pre2025": {"informe": 3, "cuentas": [{"cuenta": "obrigacoes por emprestimos e repasses", "signo": 1}]}}},
+    {"linea": "sub", "seccion": "pasivo", "rotulo": "Deuda elegible a capital", "tipo": "cuentas",
+     "epocas": {
+       "cosif_2025": {"informe": 3, "cuentas": [{"cuenta": "instrumentos de divida elegiveis a capital", "signo": 1}]},
+       "cosif_pre2025": {"informe": 3, "cuentas": [], "_nota": "Antes de 1T25 no se publica aparte: va dentro de 'outras obrigacoes' (en otros pasivos)."}}},
+    {"linea": "opas", "seccion": "pasivo", "rotulo": "Otros pasivos", "tipo": "residual",
+     "total": "pasivo", "resta": ["dvis", "dpou", "dpra", "dint", "dotr", "lci", "lca", "lf", "oemi", "pact", "rep", "sub", "pl"],
+     "_nota": "Derivativos del pasivo, 'outras obrigacoes' y (antes de 1T25) resultados de ejercicios futuros y la deuda subordinada."},
+    {"linea": "pl", "seccion": "pasivo", "rotulo": "Patrimonio", "tipo": "cuentas",
+     "epocas": {
+       "cosif_2025": {"informe": 3, "cuentas": [{"cuenta": "patrimonio liquido", "signo": 1}]},
+       "cosif_pre2025": {"informe": 3, "cuentas": [{"cuenta": "patrimonio liquido", "signo": 1}]}}},
+    {"linea": "pasivo", "seccion": "pasivo", "rotulo": "Pasivo total", "tipo": "total",
+     "epocas": {
+       "cosif_2025": {"informe": 3, "cuentas": [{"cuenta": "passivo total", "signo": 1}]},
+       "cosif_pre2025": {"informe": 3, "cuentas": [{"cuenta": "passivo total", "signo": 1}]}}}
+  ]
+}

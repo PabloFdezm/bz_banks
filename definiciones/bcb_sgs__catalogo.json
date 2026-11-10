@@ -578,6 +578,558 @@
    "nombre": "Taxa de juros - Selic acumulada no mês anualizada base 252",
    "unidad": "% a.a.",
    "periodicidad": "M"
+  },
+  "tasa_pj_total": {
+   "codigo": 20715,
+   "nombre": "Taxa média de juros das operações de crédito - Pessoas jurídicas - Total",
+   "unidad": "% a.a.",
+   "periodicidad": "M"
+  },
+  "tasa_pj_libre": {
+   "codigo": 20718,
+   "nombre": "Taxa média de juros das operações de crédito com recursos livres - Pessoas jurídicas - Total",
+   "unidad": "% a.a.",
+   "periodicidad": "M"
+  },
+  "spread_pj": {
+   "codigo": 20784,
+   "nombre": "Spread médio das operações de crédito - Pessoas jurídicas - Total",
+   "unidad": "p.p.",
+   "periodicidad": "M"
+  },
+  "icc_pj": {
+   "codigo": 25352,
+   "nombre": "Indicador de Custo do Crédito - ICC - Pessoas jurídicas - Total",
+   "unidad": "% a.a.",
+   "periodicidad": "M"
+  },
+  "riesgo_eh_mpme": {
+   "codigo": 27706,
+   "nombre": "Percentual do saldo de maior risco ( E, F, G e H) por porte da empresa - Micro, Pequena e Média (MPMe)´- Série desativada",
+   "unidad": "%",
+   "periodicidad": "M"
+  },
+  "riesgo_eh_grande": {
+   "codigo": 27707,
+   "nombre": "Percentual do saldo de maior risco ( E, F, G e H) por porte da empresa - Grande - Série desativada",
+   "unidad": "%",
+   "periodicidad": "M"
+  },
+  "riesgo_4966_pj": {
+   "codigo": 29581,
+   "nombre": "Percentual do saldo de maior risco da carteira de crédito – Res. CMN 4.966 – Pessoas jurídicas – Total",
+   "unidad": "%",
+   "periodicidad": "M"
+  },
+  "riesgo_4966_mpme": {
+   "codigo": 29582,
+   "nombre": "Percentual do saldo de maior risco – Res. CMN 4.966 – Micro, Pequena e Média (MPMe)",
+   "unidad": "%",
+   "periodicidad": "M"
+  },
+  "riesgo_4966_grande": {
+   "codigo": 29583,
+   "nombre": "Percentual do saldo de maior risco – Res. CMN 4.966 – Grande",
+   "unidad": "%",
+   "periodicidad": "M"
+  },
+  "credito_pj_giro": {
+   "codigo": 20550,
+   "nombre": "Saldo da carteira de crédito com recursos livres - Pessoas jurídicas - Capital de giro total",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "conc_pj_giro": {
+   "codigo": 20642,
+   "nombre": "Concessões de crédito com recursos livres - Pessoas jurídicas - Capital de giro total",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "tasa_pj_giro": {
+   "codigo": 20725,
+   "nombre": "Taxa média de juros das operações de crédito com recursos livres - Pessoas jurídicas - Capital de giro total",
+   "unidad": "% a.a.",
+   "periodicidad": "M"
+  },
+  "mora90_pj_giro": {
+   "codigo": 21093,
+   "nombre": "Inadimplência da carteira de crédito com recursos livres - Pessoas jurídicas - Capital de giro total",
+   "unidad": "%",
+   "periodicidad": "M"
+  },
+  "credito_pj_duplicatas": {
+   "codigo": 20544,
+   "nombre": "Saldo da carteira de crédito com recursos livres - Pessoas jurídicas - Desconto de duplicatas e recebíveis",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "conc_pj_duplicatas": {
+   "codigo": 20636,
+   "nombre": "Concessões de crédito com recursos livres - Pessoas jurídicas - Desconto de duplicatas e recebíveis",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "tasa_pj_duplicatas": {
+   "codigo": 20719,
+   "nombre": "Taxa média de juros das operações de crédito com recursos livres - Pessoas jurídicas - Desconto de duplicatas e recebíveis",
+   "unidad": "% a.a.",
+   "periodicidad": "M"
+  },
+  "mora90_pj_duplicatas": {
+   "codigo": 21087,
+   "nombre": "Inadimplência da carteira de crédito com recursos livres - Pessoas jurídicas - Desconto de duplicatas e recebíveis",
+   "unidad": "%",
+   "periodicidad": "M"
+  },
+  "credito_pj_antecipacao_cartao": {
+   "codigo": 20546,
+   "nombre": "Saldo da carteira de crédito com recursos livres - Pessoas jurídicas - Antecipação de faturas de cartão de crédito",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "conc_pj_antecipacao_cartao": {
+   "codigo": 20638,
+   "nombre": "Concessões de crédito com recursos livres - Pessoas jurídicas - Antecipação de faturas de cartão de crédito",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "tasa_pj_antecipacao_cartao": {
+   "codigo": 20721,
+   "nombre": "Taxa média de juros das operações de crédito com recursos livres - Pessoas jurídicas - Antecipação de faturas de cartão de crédito",
+   "unidad": "% a.a.",
+   "periodicidad": "M"
+  },
+  "mora90_pj_antecipacao_cartao": {
+   "codigo": 21089,
+   "nombre": "Inadimplência da carteira de crédito com recursos livres - Pessoas jurídicas - Antecipação de faturas de cartão de crédito",
+   "unidad": "%",
+   "periodicidad": "M"
+  },
+  "credito_pj_conta_garantida": {
+   "codigo": 20551,
+   "nombre": "Saldo da carteira de crédito com recursos livres - Pessoas jurídicas - Conta garantida",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "conc_pj_conta_garantida": {
+   "codigo": 20643,
+   "nombre": "Concessões de crédito com recursos livres - Pessoas jurídicas - Conta garantida",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "tasa_pj_conta_garantida": {
+   "codigo": 20726,
+   "nombre": "Taxa média de juros das operações de crédito com recursos livres - Pessoas jurídicas - Conta garantida",
+   "unidad": "% a.a.",
+   "periodicidad": "M"
+  },
+  "mora90_pj_conta_garantida": {
+   "codigo": 21094,
+   "nombre": "Inadimplência da carteira de crédito com recursos livres - Pessoas jurídicas - Conta garantida",
+   "unidad": "%",
+   "periodicidad": "M"
+  },
+  "credito_pj_cheque_especial": {
+   "codigo": 20552,
+   "nombre": "Saldo da carteira de crédito com recursos livres - Pessoas jurídicas - Cheque especial",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "conc_pj_cheque_especial": {
+   "codigo": 20644,
+   "nombre": "Concessões de crédito com recursos livres - Pessoas jurídicas - Cheque especial",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "tasa_pj_cheque_especial": {
+   "codigo": 20727,
+   "nombre": "Taxa média de juros das operações de crédito com recursos livres - Pessoas jurídicas - Cheque especial",
+   "unidad": "% a.a.",
+   "periodicidad": "M"
+  },
+  "mora90_pj_cheque_especial": {
+   "codigo": 21095,
+   "nombre": "Inadimplência da carteira de crédito com recursos livres - Pessoas jurídicas - Cheque especial",
+   "unidad": "%",
+   "periodicidad": "M"
+  },
+  "credito_pj_tarjeta": {
+   "codigo": 20564,
+   "nombre": "Saldo da carteira de crédito com recursos livres - Pessoas jurídicas - Cartão de crédito total",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "conc_pj_tarjeta": {
+   "codigo": 20656,
+   "nombre": "Concessões de crédito com recursos livres - Pessoas jurídicas - Cartão de crédito total",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "tasa_pj_tarjeta": {
+   "codigo": 22021,
+   "nombre": "Taxa média de juros das operações de crédito com recursos livres - Pessoas jurídicas - Cartão de crédito total",
+   "unidad": "% a.a.",
+   "periodicidad": "M"
+  },
+  "mora90_pj_tarjeta": {
+   "codigo": 21106,
+   "nombre": "Inadimplência da carteira de crédito com recursos livres - Pessoas jurídicas - Cartão de crédito total",
+   "unidad": "%",
+   "periodicidad": "M"
+  },
+  "credito_pj_acc": {
+   "codigo": 20565,
+   "nombre": "Saldo da carteira de crédito com recursos livres - Pessoas jurídicas - Adiantamento sobre contratos de câmbio (ACC)",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "conc_pj_acc": {
+   "codigo": 20657,
+   "nombre": "Concessões de crédito com recursos livres - Pessoas jurídicas - Adiantamento sobre contratos de câmbio (ACC)",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "tasa_pj_acc": {
+   "codigo": 20736,
+   "nombre": "Taxa média de juros das operações de crédito com recursos livres - Pessoas jurídicas - Adiantamento sobre contratos de câmbio (ACC)",
+   "unidad": "% a.a.",
+   "periodicidad": "M"
+  },
+  "mora90_pj_acc": {
+   "codigo": 21107,
+   "nombre": "Inadimplência da carteira de crédito com recursos livres - Pessoas jurídicas - Adiantamento sobre contratos de câmbio (ACC)",
+   "unidad": "%",
+   "periodicidad": "M"
+  },
+  "credito_pj_export": {
+   "codigo": 20567,
+   "nombre": "Saldo da carteira de crédito com recursos livres - Pessoas jurídicas - Financiamento a exportações",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "conc_pj_export": {
+   "codigo": 20659,
+   "nombre": "Concessões de crédito com recursos livres - Pessoas jurídicas - Financiamento a exportações",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "tasa_pj_export": {
+   "codigo": 20738,
+   "nombre": "Taxa média de juros das operações de crédito com recursos livres - Pessoas jurídicas - Financiamento a exportações",
+   "unidad": "% a.a.",
+   "periodicidad": "M"
+  },
+  "mora90_pj_export": {
+   "codigo": 21109,
+   "nombre": "Inadimplência da carteira de crédito com recursos livres - Pessoas jurídicas - Financiamento a exportações",
+   "unidad": "%",
+   "periodicidad": "M"
+  },
+  "credito_pj_import": {
+   "codigo": 20566,
+   "nombre": "Saldo da carteira de crédito com recursos livres - Pessoas jurídicas - Financiamento a importações",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "conc_pj_import": {
+   "codigo": 20658,
+   "nombre": "Concessões de crédito com recursos livres - Pessoas jurídicas - Financiamento a importações",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "tasa_pj_import": {
+   "codigo": 20737,
+   "nombre": "Taxa média de juros das operações de crédito com recursos livres - Pessoas jurídicas - Financiamento a importações",
+   "unidad": "% a.a.",
+   "periodicidad": "M"
+  },
+  "mora90_pj_import": {
+   "codigo": 21108,
+   "nombre": "Inadimplência da carteira de crédito com recursos livres - Pessoas jurídicas - Financiamento a importações",
+   "unidad": "%",
+   "periodicidad": "M"
+  },
+  "credito_pj_repasse_externo": {
+   "codigo": 20568,
+   "nombre": "Saldo da carteira de crédito com recursos livres - Pessoas jurídicas - Repasse externo",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "conc_pj_repasse_externo": {
+   "codigo": 20660,
+   "nombre": "Concessões de crédito com recursos livres - Pessoas jurídicas - Repasse externo",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "tasa_pj_repasse_externo": {
+   "codigo": 20739,
+   "nombre": "Taxa média de juros das operações de crédito com recursos livres - Pessoas jurídicas - Repasse externo",
+   "unidad": "% a.a.",
+   "periodicidad": "M"
+  },
+  "mora90_pj_repasse_externo": {
+   "codigo": 21110,
+   "nombre": "Inadimplência da carteira de crédito com recursos livres - Pessoas jurídicas - Repasse externo",
+   "unidad": "%",
+   "periodicidad": "M"
+  },
+  "credito_pj_bienes": {
+   "codigo": 20555,
+   "nombre": "Saldo da carteira de crédito com recursos livres - Pessoas jurídicas - Aquisição de bens total",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "conc_pj_bienes": {
+   "codigo": 20647,
+   "nombre": "Concessões de crédito com recursos livres - Pessoas jurídicas - Aquisição de bens total",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "tasa_pj_bienes": {
+   "codigo": 20730,
+   "nombre": "Taxa média de juros das operações de crédito com recursos livres - Pessoas jurídicas - Aquisição de bens total",
+   "unidad": "% a.a.",
+   "periodicidad": "M"
+  },
+  "mora90_pj_bienes": {
+   "codigo": 21098,
+   "nombre": "Inadimplência da carteira de crédito com recursos livres - Pessoas jurídicas - Aquisição de bens total",
+   "unidad": "%",
+   "periodicidad": "M"
+  },
+  "credito_pj_otros_libres": {
+   "codigo": 20569,
+   "nombre": "Saldo da carteira de crédito com recursos livres - Pessoas jurídicas - Outros créditos livres",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "conc_pj_otros_libres": {
+   "codigo": 20661,
+   "nombre": "Concessões de crédito com recursos livres - Pessoas jurídicas - Outros créditos livres",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "mora90_pj_otros_libres": {
+   "codigo": 21111,
+   "nombre": "Inadimplência da carteira de crédito com recursos livres - Pessoas jurídicas - Outros créditos livres",
+   "unidad": "%",
+   "periodicidad": "M"
+  },
+  "credito_pj_direccionado": {
+   "codigo": 20594,
+   "nombre": "Saldo da carteira de crédito com recursos direcionados - Pessoas jurídicas - Total",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "conc_pj_direccionado": {
+   "codigo": 20686,
+   "nombre": "Concessões de crédito com recursos direcionados - Pessoas jurídicas - Total",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "tasa_pj_direccionado": {
+   "codigo": 20757,
+   "nombre": "Taxa média de juros das operações de crédito com recursos direcionados - Pessoas jurídicas - Total",
+   "unidad": "% a.a.",
+   "periodicidad": "M"
+  },
+  "mora90_pj_direccionado": {
+   "codigo": 21133,
+   "nombre": "Inadimplência da carteira de crédito com recursos direcionados - Pessoas jurídicas - Total",
+   "unidad": "%",
+   "periodicidad": "M"
+  },
+  "credito_pj_bndes_inversion": {
+   "codigo": 20602,
+   "nombre": "Saldo da carteira de crédito com recursos direcionados - Pessoas jurídicas - Financiamento de investimentos com recursos do BNDES",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "conc_pj_bndes_inversion": {
+   "codigo": 20694,
+   "nombre": "Concessões de crédito com recursos direcionados - Pessoas jurídicas - Financiamento de investimentos com recursos do BNDES",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "tasa_pj_bndes_inversion": {
+   "codigo": 20765,
+   "nombre": "Taxa média de juros das operações de crédito com recursos direcionados - Pessoas jurídicas - Financiamento de investimentos com recursos do BNDES",
+   "unidad": "% a.a.",
+   "periodicidad": "M"
+  },
+  "mora90_pj_bndes_inversion": {
+   "codigo": 21141,
+   "nombre": "Inadimplência da carteira de crédito com recursos direcionados - Pessoas jurídicas - Financiamento de investimentos com recursos do BNDES",
+   "unidad": "%",
+   "periodicidad": "M"
+  },
+  "conc_pj_bndes": {
+   "codigo": 20696,
+   "nombre": "Concessões de crédito com recursos direcionados - Pessoas jurídicas - Financiamento com recursos do BNDES total",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "tasa_pj_bndes": {
+   "codigo": 20767,
+   "nombre": "Taxa média de juros das operações de crédito com recursos direcionados - Pessoas jurídicas - Financiamento com recursos do BNDES total",
+   "unidad": "% a.a.",
+   "periodicidad": "M"
+  },
+  "mora90_pj_bndes": {
+   "codigo": 21143,
+   "nombre": "Inadimplência da carteira de crédito com recursos direcionados - Pessoas jurídicas - Financiamento com recursos do BNDES total",
+   "unidad": "%",
+   "periodicidad": "M"
+  },
+  "conc_pj_rural": {
+   "codigo": 20689,
+   "nombre": "Concessões de crédito com recursos direcionados - Pessoas jurídicas - Crédito rural total",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "tasa_pj_rural": {
+   "codigo": 20760,
+   "nombre": "Taxa média de juros das operações de crédito com recursos direcionados - Pessoas jurídicas - Crédito rural total",
+   "unidad": "% a.a.",
+   "periodicidad": "M"
+  },
+  "mora90_pj_rural": {
+   "codigo": 21136,
+   "nombre": "Inadimplência da carteira de crédito com recursos direcionados - Pessoas jurídicas - Crédito rural total",
+   "unidad": "%",
+   "periodicidad": "M"
+  },
+  "conc_pj_inmobiliario": {
+   "codigo": 20692,
+   "nombre": "Concessões de crédito com recursos direcionados - Pessoas jurídicas - Financiamento imobiliário total",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "tasa_pj_inmobiliario": {
+   "codigo": 20763,
+   "nombre": "Taxa média de juros das operações de crédito com recursos direcionados - Pessoas jurídicas - Financiamento imobiliário total",
+   "unidad": "% a.a.",
+   "periodicidad": "M"
+  },
+  "mora90_pj_inmobiliario": {
+   "codigo": 21139,
+   "nombre": "Inadimplência da carteira de crédito com recursos direcionados - Pessoas jurídicas - Financiamento imobiliário total",
+   "unidad": "%",
+   "periodicidad": "M"
+  },
+  "credito_pj_programas_mpme": {
+   "codigo": 29966,
+   "nombre": "Saldo da carteira de crédito com recursos direcionados - Pessoas jurídicas - Crédito de programas destinados ao fomento de micro pequenas e médias empresas",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "conc_pj_programas_mpme": {
+   "codigo": 29969,
+   "nombre": "Concessões de crédito com recursos direcionados - Pessoas jurídicas - Crédito de programas destinados ao fomento de micro pequenas e médias empresas",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "tasa_pj_programas_mpme": {
+   "codigo": 29975,
+   "nombre": "Taxa média de juros das operações de crédito com recursos direcionados - Pessoas jurídicas - Crédito de programas destinados ao fomento de micro pequenas e médias empresas",
+   "unidad": "% a.a.",
+   "periodicidad": "M"
+  },
+  "mora90_pj_programas_mpme": {
+   "codigo": 29993,
+   "nombre": "Inadimplência da carteira de crédito com recursos direcionados - Pessoas jurídicas - Crédito de programas destinados ao fomento de micro pequenas e médias empresas",
+   "unidad": "%",
+   "periodicidad": "M"
+  },
+  "mp_moneda": {
+   "codigo": 27789,
+   "nombre": "Meios de pagamento - Papel moeda em poder do público (saldo em final de período) - Novo",
+   "unidad": "u.m.c. (mil)",
+   "periodicidad": "M"
+  },
+  "mp_depositos_vista": {
+   "codigo": 27790,
+   "nombre": "Meios de pagamento - Depósitos à vista (saldo em final de período) - Novo",
+   "unidad": "u.m.c. (mil)",
+   "periodicidad": "M"
+  },
+  "mp_m1": {
+   "codigo": 27791,
+   "nombre": "Meios de pagamento - M1 (saldo em final de período) - Novo",
+   "unidad": "u.m.c. (mil)",
+   "periodicidad": "M"
+  },
+  "mp_depositos_plazo": {
+   "codigo": 27805,
+   "nombre": "Meios de pagamento amplos - Depósitos a prazo (saldo em final de período) - Novo",
+   "unidad": "u.m.c. (mil)",
+   "periodicidad": "M"
+  },
+  "mp_letras_financieras": {
+   "codigo": 27806,
+   "nombre": "Meios de pagamento amplos - Letras financeiras (saldo em final de período) - Novo",
+   "unidad": "u.m.c. (mil)",
+   "periodicidad": "M"
+  },
+  "mp_letras_credito": {
+   "codigo": 27807,
+   "nombre": "Meios de pagamento amplos - Letras de crédito (saldo em final de período) - Novo",
+   "unidad": "u.m.c. (mil)",
+   "periodicidad": "M"
+  },
+  "mp_otros_titulos_privados": {
+   "codigo": 27808,
+   "nombre": "Meios de pagamento amplos - Outros títulos privados - (saldo em final de período) - Novo",
+   "unidad": "u.m.c. (mil)",
+   "periodicidad": "M"
+  },
+  "mp_titulos_privados": {
+   "codigo": 27809,
+   "nombre": "Meios de pagamento amplos - Títulos privados em poder do público (saldo em final de período) - Novo",
+   "unidad": "u.m.c. (mil)",
+   "periodicidad": "M"
+  },
+  "mp_m2": {
+   "codigo": 27810,
+   "nombre": "Meios de pagamento amplos - M2 (saldo em final de período) - Novo",
+   "unidad": "u.m.c. (mil)",
+   "periodicidad": "M"
+  },
+  "mp_fondos_monetarios": {
+   "codigo": 27811,
+   "nombre": "Meios de pagamento amplos - Quotas de fundos monetários (saldo em final de período) - Novo",
+   "unidad": "u.m.c. (mil)",
+   "periodicidad": "M"
+  },
+  "mp_compromisadas_privados": {
+   "codigo": 27812,
+   "nombre": "Meios de pagamento amplos - Operações compromissadas com títulos privados (saldo em final de período) - Novo",
+   "unidad": "u.m.c. (mil)",
+   "periodicidad": "M"
+  },
+  "mp_m3": {
+   "codigo": 27813,
+   "nombre": "Meios de pagamento amplos - M3 (saldo em final de período) - Novo",
+   "unidad": "u.m.c. (mil)",
+   "periodicidad": "M"
+  },
+  "mp_titulos_federales": {
+   "codigo": 27814,
+   "nombre": "Meios de pagamento amplos - Títulos federais em poder do público/Selic (saldo em final de período) - Novo",
+   "unidad": "u.m.c. (mil)",
+   "periodicidad": "M"
+  },
+  "mp_m4": {
+   "codigo": 27815,
+   "nombre": "Meios de pagamento amplos - M4 (saldo em final de periodo) - Novo",
+   "unidad": "u.m.c. (mil)",
+   "periodicidad": "M"
+  },
+  "mp_ahorro": {
+   "codigo": 1835,
+   "nombre": "Meios de pagamento amplos - Depósito de Poupança (saldo em final de período)",
+   "unidad": "u.m.c. (mil)",
+   "periodicidad": "M"
   }
  }
 }

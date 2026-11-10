@@ -113,6 +113,26 @@
    "columnas": ["producto", "dimension", "segmento", "medida", "fecha", "valor"],
    "clave": ["producto", "dimension", "segmento", "medida", "fecha"]
   },
+  "bk_empresas_m": {
+   "columnas": ["segmento", "sub", "medida", "fecha", "valor"],
+   "clave": ["segmento", "sub", "medida", "fecha"]
+  },
+  "bk_empresas_scr_m": {
+   "columnas": ["hoja", "dimension", "segmento", "medida", "fecha", "valor"],
+   "clave": ["hoja", "dimension", "segmento", "medida", "fecha"]
+  },
+  "bk_pyb": {
+   "columnas": ["cod_inst", "periodo", "trimestre", "seccion", "linea", "medida", "valor"],
+   "clave": ["cod_inst", "periodo", "linea", "medida"]
+  },
+  "bk_pyb_grupo": {
+   "columnas": ["grupo", "periodo", "trimestre", "seccion", "linea", "medida", "valor", "n_bancos"],
+   "clave": ["grupo", "periodo", "linea", "medida"]
+  },
+  "bk_fondeo_m": {
+   "columnas": ["serie", "medida", "fecha", "valor"],
+   "clave": ["serie", "medida", "fecha"]
+  },
   "bk_cred_series": {
    "columnas": ["serie", "fecha", "valor"],
    "clave": ["serie", "fecha"]
