@@ -1,6 +1,7 @@
 # Frente 12 · Hojas por producto de personas (Tarjeta, Personal sin planilla, Descuento por planilla, Vehículos): datos, pipeline y verificaciones
 
-Estado al 10-nov-2026: **en curso**: Partes A y B hechas el 10-nov (ver sus «Resultado»); falta C (verificaciones). Encargo pensado para que lo ejecute otra sesión u otra LLM sin contexto previo.
+Estado al 10-nov-2026: **en curso**: Partes A, B y C hechas el 10-nov (C: `borradores/tarjeta_verificaciones.md`). Pendientes: decisiones de Pablo sobre
+las propuestas de C (tarjeta con interés, tratamiento de N.D., Selic) y las verificaciones propias de E y F. Encargo pensado para que lo ejecute otra sesión u otra LLM sin contexto previo.
 Leer antes `CLAUDE.md`, `tareas/README.md`, `tareas/05_rediseno_graficos.md` y `tareas/09_portada_mensual_segmentos.md`
 (anexo B: códigos SGS de personas por producto).
 
@@ -101,6 +102,21 @@ los pesos por dimensión suman 100 %; el ticket total coincide con `cart_ops / o
   mejoras: P4 sin dato en 2018 (antes mostraba 0 por sumar vacíos) y P2 con dato en 2014 (antes vacío porque el a/a se
   calculaba sobre la serie recortada).
 - Agrupación de instituciones: se mantiene la del canvas (Fintechs aparte), distinta de `scr_productos.json`.
+
+### Resultado de la Parte C y decisiones (10-nov)
+Informe: `borradores/tarjeta_verificaciones.md` (puntos 1–7, con personal y planilla). Decisiones de Pablo, aplicadas:
+- **Tarjeta con interés aparte.** `definiciones/scr_productos.json` abre la tarjeta en «Tarjeta · contado» y
+  «Tarjeta · con interés» (`partes`); el cubo SCR se reprocesó (versión 45fa235300) y Personas/Mora las vuelven a
+  juntar: `bk_scr_tablas` y `bk_scr_series` iguales a las anteriores (diferencias < 1e-12). `bk_producto_pf_scr_m` suma
+  los productos `tarjeta_interes` y `tarjeta_contado`. En la hoja, P4 y P7 de tarjeta van sobre la tarjeta con interés
+  (sep-26: mora 40,0 %, Δ a/a +5,73 pp, bancos +6,05 pp) y P3 suma la mora con interés / contado / total.
+- **«Sin renta / N.D.» aparte de los tramos:** gris y punteado; en los aportes, línea «Tramos con renta»; mix sobre los
+  7 tramos con renta y el peso de N.D. en un bloque propio. Falta: bandas en jul-25, ene–feb-26 y jul-26 (el JSON de la
+  hoja no tiene campo de bandas; se dibujan en el canvas). P9 sigue con «Más de 3 SM y sin dato».
+- **Selic:** la referencia pasa a la Selic efectiva del mes (SGS 4189, `selic_efectiva_mes`), en vez de la meta a fin de mes.
+- Corregida la nota de quiebres de `preparar_gold_bancos_scr_productos.py` (no hubo traspaso a N.D. en ago-26).
+Propuestas sin decidir: rótulo «Otros / no informado (SCR)» en ocupación, ticket «por operación», IP de personal a
+«Otros», notas de P7 (personal) y P9 (planilla).
 
 ## Parte C · Verificaciones abiertas (informar antes de cerrar)
 1. **Instituciones de pago sin mora.** En tarjeta tienen ~R$ 117 mil millones y 0,4 % de activo problemático (sep-26);

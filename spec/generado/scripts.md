@@ -770,7 +770,7 @@ REGLAS
   activos y crédito total desde bk_panel (share_ativo, share_credito). Solo conglomerados del panel.
 ```
 
-## `pipeline/preparar_gold_bancos_producto_pf.py` (356 líneas)
+## `pipeline/preparar_gold_bancos_producto_pf.py` (361 líneas)
 
 Importa del pipeline: `almacen`, `preparar_gold_bancos_scr_productos`, `sgs`, `tabla_estandar`
 
@@ -791,10 +791,12 @@ TABLAS (datos/gold/)
     ``d_tasa_media`` (a/a, fracción), ``efecto_mezcla``; y por submodalidad ``peso_conc`` y ``efecto_tasa``.
     efecto_tasa_i = w̄_i·Δr_i; efecto_mezcla = Σ (r̄_i − r̄)·Δw_i, con promedios de t y t−12. Suman d_tasa_media.
   * Productos de referencia: ``personas`` (total personas: saldo, concesiones, tasa, mora) y ``referencia``
-    (sub ``selic_meta``, medida ``tasa``: meta Selic, último dato del mes; sub ``salario_minimo``, medida ``nivel``:
+    (sub ``selic``, medida ``tasa``: Selic efectiva del mes anualizada, SGS 4189; sub ``salario_minimo``, medida ``nivel``:
     R$, último dato del mes y arrastrado a los meses sin cambio).
 - bk_producto_pf_scr_m (SCR.data, mensual desde ene-18): producto, dimension, segmento, medida, fecha, valor.
-  Clave: producto, dimension, segmento, medida, fecha.
+  Clave: producto, dimension, segmento, medida, fecha. Productos: tarjeta, tarjeta_interes, tarjeta_contado,
+  personal, planilla y vehiculos. Las instituciones de pago tienen solo tarjeta al contado: la mora por institución
+  de la tarjeta se lee en tarjeta_interes (verificaciones del 10-nov).
   * Dimensiones: ``total`` (segmento «Total»), ``renta`` (7 tramos + «Sin renta / N.D.»), ``institucion``,
     ``ocupacion``, ``renta_institucion`` y ``renta_ocupacion`` (celdas «tramo · institución» y «tramo · ocupación») y ``tope_3sm`` («Hasta 3 SM» y
     «Más de 3 SM y sin dato»).
@@ -905,7 +907,7 @@ Receta::
     python -X utf8 pipeline/preparar_gold_bancos_scr.py --solo-descargar
 ```
 
-## `pipeline/preparar_gold_bancos_scr_productos.py` (318 líneas)
+## `pipeline/preparar_gold_bancos_scr_productos.py` (338 líneas)
 
 Importa del pipeline: `almacen`, `reglas_gold`, `scr_zip`, `tabla_estandar`
 
@@ -927,7 +929,8 @@ FLUJO
 1. (opcional, --descargar) baja de nuevo el ZIP del año en curso (y del anterior en enero-febrero): el BCB
    lo reescribe cada mes con el mes nuevo.
 2. Agregado mensual incremental en `datos/intermedio/scr_productos/<version>/scr_AAAAMM.parquet`
-   (dims: fecha, cliente, segmento, porte, cnae_ocupacao, producto). Un mes se recalcula si falta o si su
+   (dims: fecha, cliente, segmento, porte, cnae_ocupacao, producto; un producto con «partes» se guarda
+   abierto, p. ej. la tarjeta en contado y con interés, y se junta antes de construir). Un mes se recalcula si falta o si su
    ZIP es más nuevo que el agregado. <version> = sha corto de las reglas de producto de definiciones/scr_productos.json:
    cambiar el mapa de productos invalida el caché entero; cambiar traducciones no.
 3. Gold:
@@ -945,7 +948,8 @@ REGLAS
 - Mix por renta: sobre los 7 tramos con renta declarada (sin «N.D.» ni «Sin renta»).
 - Cambios de saldo y ticket en % (m/m, 3m/3m con promedios, a/a, 12m/12m con promedios); de tasas en pp.
 - Quiebres conocidos de la fuente (no se suavizan; van en las notas del sitio): jul-25 reclasificación de renta
-  (salto del mix); ago-26 ~R$ 15 mil millones de tarjeta pasan de «más de 20 SM» a «Indisponível».
+  (salto del mix); jul-26 pico de un mes en «más de 20 SM» de tarjeta (+R$ 14 mil millones, se revierte en
+  ago-26); ene–feb-26 la mora de «Indisponível» en tarjeta salta de ~9 % a ~28 % (revisado el 10-nov).
 
 Uso (desde pipeline/, Windows con -X utf8):
     python -X utf8 pipeline/preparar_gold_bancos_scr_productos.py [--descargar] [--desde AAAA]
@@ -1102,7 +1106,7 @@ ZIP anuales del SCR.data (``datos/crudo/bcb_scr/scrdata/actual/scrdata_<año>.zi
 - Valores con coma decimal y sin separador de miles.
 ```
 
-## `pipeline/sgs.py` (173 líneas)
+## `pipeline/sgs.py` (174 líneas)
 
 Importa del pipeline: `almacen`, `bcb_api`, `certificados`, `red`
 

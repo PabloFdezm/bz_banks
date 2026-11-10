@@ -195,3 +195,15 @@ def test_gold_sgs_totales_cuadran(gold_sgs):
         for m in ("saldo", "concesiones"):
             d = sum(s(p, x, m) for x in partes) - s(p, "total", m)
             assert d.dropna().abs().max() <= 1, (p, m)
+
+
+@pytest.mark.integracion
+def test_gold_scr_tarjeta_es_con_interes_mas_contado(gold_scr):
+    x = gold_scr[(gold_scr.dimension == "total") & gold_scr.medida.isin(["saldo", "mora90", "ops"])]
+    piv = x.pivot_table(index=["medida", "fecha"], columns="producto", values="valor")
+    d = piv["tarjeta"] - piv["tarjeta_interes"] - piv["tarjeta_contado"].fillna(0)
+    assert d.abs().max() < 1
+    # las instituciones de pago no tienen tarjeta con interés relevante (verificación del 10-nov)
+    ip = gold_scr[(gold_scr.producto == "tarjeta_interes") & (gold_scr.dimension == "institucion")
+                  & (gold_scr.segmento == "Inst. de pago") & (gold_scr.medida == "peso")]
+    assert ip.empty or ip["valor"].max() < 0.01

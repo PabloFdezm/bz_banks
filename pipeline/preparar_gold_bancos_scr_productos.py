@@ -14,7 +14,8 @@ FLUJO
 1. (opcional, --descargar) baja de nuevo el ZIP del año en curso (y del anterior en enero-febrero): el BCB
    lo reescribe cada mes con el mes nuevo.
 2. Agregado mensual incremental en `datos/intermedio/scr_productos/<version>/scr_AAAAMM.parquet`
-   (dims: fecha, cliente, segmento, porte, cnae_ocupacao, producto). Un mes se recalcula si falta o si su
+   (dims: fecha, cliente, segmento, porte, cnae_ocupacao, producto; un producto con «partes» se guarda
+   abierto, p. ej. la tarjeta en contado y con interés, y se junta antes de construir). Un mes se recalcula si falta o si su
    ZIP es más nuevo que el agregado. <version> = sha corto de las reglas de producto de definiciones/scr_productos.json:
    cambiar el mapa de productos invalida el caché entero; cambiar traducciones no.
 3. Gold:
@@ -32,7 +33,8 @@ REGLAS
 - Mix por renta: sobre los 7 tramos con renta declarada (sin «N.D.» ni «Sin renta»).
 - Cambios de saldo y ticket en % (m/m, 3m/3m con promedios, a/a, 12m/12m con promedios); de tasas en pp.
 - Quiebres conocidos de la fuente (no se suavizan; van en las notas del sitio): jul-25 reclasificación de renta
-  (salto del mix); ago-26 ~R$ 15 mil millones de tarjeta pasan de «más de 20 SM» a «Indisponível».
+  (salto del mix); jul-26 pico de un mes en «más de 20 SM» de tarjeta (+R$ 14 mil millones, se revierte en
+  ago-26); ene–feb-26 la mora de «Indisponível» en tarjeta salta de ~9 % a ~28 % (revisado el 10-nov).
 
 Uso (desde pipeline/, Windows con -X utf8):
     python -X utf8 pipeline/preparar_gold_bancos_scr_productos.py [--descargar] [--desde AAAA]
@@ -94,9 +96,27 @@ def mapa_producto(defs: dict, pares: pd.DataFrame) -> dict:
         for r in defs["productos"]:
             if any(k in sl for k in r.get("submodalidade", [])) or any(k in ml for k in r.get("modalidade", [])):
                 prod = r["producto"]
+                for parte in r.get("partes", []):          # la primera parte que calza; la última es el resto
+                    if not parte.get("submodalidade") or any(k in sl for k in parte["submodalidade"]):
+                        prod = parte["producto"]
+                        break
                 break
         out[(m, s)] = prod
     return out
+
+
+def padres(defs: dict) -> dict:
+    """Parte del cubo -> producto de las páginas (p. ej. «Tarjeta · contado» -> «Tarjeta»)."""
+    return {parte["producto"]: r["producto"] for r in defs["productos"] for parte in r.get("partes", [])}
+
+
+def juntar_partes(c: pd.DataFrame, defs: dict) -> pd.DataFrame:
+    """El cubo con las partes de un producto sumadas en su producto (lo que usan Personas y Mora)."""
+    mapa = padres(defs)
+    if not mapa:
+        return c
+    c = c.assign(producto=c["producto"].replace(mapa))
+    return c.groupby(DIMS, as_index=False)[MEDIDAS].sum()
 
 
 def descargar_vigentes() -> None:
@@ -302,7 +322,7 @@ def main(argv=None) -> int:
     if a.descargar:
         descargar_vigentes()
     defs, version = definiciones()
-    c = cubo(defs, version, a.desde)
+    c = juntar_partes(cubo(defs, version, a.desde), defs)
     t, s = construir(c, defs)
     verificar(t, s, c)
     for nombre, df in (("bk_scr_tablas", t), ("bk_scr_series", s)):

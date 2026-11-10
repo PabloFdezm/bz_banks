@@ -73,6 +73,7 @@ CODIGOS = {
     "tasa_pf_tarjeta_total": 22024,
     "mora90_cheque_especial": 21113, "mora90_personal_renegociacion": 21115,
     "salario_minimo": 1619,               # R$ (u.m.c.), para el ticket en meses de renta (P8)
+    "selic_efectiva_mes": 4189,           # Selic acumulada en el mes, anualizada (base 252): la referencia de las hojas
 }
 
 

@@ -572,6 +572,12 @@
    "nombre": "Salário mínimo",
    "unidad": "u.m.c.",
    "periodicidad": "M"
+  },
+  "selic_efectiva_mes": {
+   "codigo": 4189,
+   "nombre": "Taxa de juros - Selic acumulada no mês anualizada base 252",
+   "unidad": "% a.a.",
+   "periodicidad": "M"
   }
  }
 }

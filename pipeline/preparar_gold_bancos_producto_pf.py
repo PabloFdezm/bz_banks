@@ -15,10 +15,12 @@ TABLAS (datos/gold/)
     ``d_tasa_media`` (a/a, fracción), ``efecto_mezcla``; y por submodalidad ``peso_conc`` y ``efecto_tasa``.
     efecto_tasa_i = w̄_i·Δr_i; efecto_mezcla = Σ (r̄_i − r̄)·Δw_i, con promedios de t y t−12. Suman d_tasa_media.
   * Productos de referencia: ``personas`` (total personas: saldo, concesiones, tasa, mora) y ``referencia``
-    (sub ``selic_meta``, medida ``tasa``: meta Selic, último dato del mes; sub ``salario_minimo``, medida ``nivel``:
+    (sub ``selic``, medida ``tasa``: Selic efectiva del mes anualizada, SGS 4189; sub ``salario_minimo``, medida ``nivel``:
     R$, último dato del mes y arrastrado a los meses sin cambio).
 - bk_producto_pf_scr_m (SCR.data, mensual desde ene-18): producto, dimension, segmento, medida, fecha, valor.
-  Clave: producto, dimension, segmento, medida, fecha.
+  Clave: producto, dimension, segmento, medida, fecha. Productos: tarjeta, tarjeta_interes, tarjeta_contado,
+  personal, planilla y vehiculos. Las instituciones de pago tienen solo tarjeta al contado: la mora por institución
+  de la tarjeta se lee en tarjeta_interes (verificaciones del 10-nov).
   * Dimensiones: ``total`` (segmento «Total»), ``renta`` (7 tramos + «Sin renta / N.D.»), ``institucion``,
     ``ocupacion``, ``renta_institucion`` y ``renta_ocupacion`` (celdas «tramo · institución» y «tramo · ocupación») y ``tope_3sm`` («Hasta 3 SM» y
     «Más de 3 SM y sin dato»).
@@ -115,8 +117,11 @@ DESCOMPONER = {"tarjeta": ["rotativo", "cuotas"], "personal": ["personal", "sobr
 EN_PORCENTAJE = {"tasa", "mora90"}
 
 # --- SCR -----------------------------------------------------------------------------------------------------------
-PRODUCTOS_SCR = {"tarjeta": "Tarjeta", "personal": "Personal no consignado", "planilla": "Consignado",
-                 "vehiculos": "Vehículos"}
+# producto → productos del cubo que se suman. La tarjeta llega en dos partes (definiciones/scr_productos.json):
+# con interés (rotativo, cuotas o saque financiado, «não migrado») y contado (sin interés; casi sin mora).
+PRODUCTOS_SCR = {"tarjeta": ["Tarjeta · con interés", "Tarjeta · contado"],
+                 "tarjeta_interes": ["Tarjeta · con interés"], "tarjeta_contado": ["Tarjeta · contado"],
+                 "personal": ["Personal no consignado"], "planilla": ["Consignado"], "vehiculos": ["Vehículos"]}
 TRAMOS = {"Até 1 salário mínimo": "Hasta 1 SM", "Mais de 1 a 2 salários mínimos": "1–2 SM",
           "Mais de 2 a 3 salários mínimos": "2–3 SM", "Mais de 3 a 5 salários mínimos": "3–5 SM",
           "Mais de 5 a 10 salários mínimos": "5–10 SM", "Mais de 10 a 20 salários mínimos": "10–20 SM",
@@ -196,9 +201,9 @@ def construir_sgs(leer=SG.serie_mensual) -> pd.DataFrame:
             conc = {s: _serie(subs[s]["concesiones"], leer) for s in ss}
             for (sub, medida), serie in descomponer_tasa(tasas, conc).items():
                 agregar(producto, sub, medida, serie)
-    selic = SG.serie(SG.CODIGOS["selic_meta"])
-    selic = selic.groupby(selic.index.to_period("M")).last() / 100
-    agregar("referencia", "selic_meta", "tasa", selic)
+    # Selic efectiva del mes (promedio, anualizada): comparable con las tasas del SGS, que son promedios del mes
+    # de las concesiones (decisión de Pablo, 10-nov; antes se usaba la meta a fin de mes).
+    agregar("referencia", "selic", "tasa", leer(SG.CODIGOS["selic_efectiva_mes"]) / 100)
     agregar("referencia", "salario_minimo", "nivel", salario_minimo_mensual())
     df = pd.concat(filas, ignore_index=True)
     # las referencias (Selic diaria, salario mínimo anunciado) no pasan del último mes de los productos
@@ -319,10 +324,10 @@ def construir_scr(cubo: pd.DataFrame, salario_minimo: pd.Series, deflactor: pd.S
     """bk_producto_pf_scr_m. ``salario_minimo`` y ``deflactor`` mensuales con PeriodIndex."""
     c = preparar_cubo(cubo)
     out = []
-    for producto, nombre in PRODUCTOS_SCR.items():
-        x = c[c["producto"] == nombre]
-        if x.empty:
-            raise ValueError(f"el cubo SCR no tiene el producto {nombre}")
+    for producto, nombres in PRODUCTOS_SCR.items():
+        x = c[c["producto"].isin(nombres)]
+        if set(nombres) - set(x["producto"]):
+            raise ValueError(f"el cubo SCR no tiene {sorted(set(nombres) - set(x['producto']))}")
         for df in construir_producto_scr(x, salario_minimo, deflactor):
             out.append(df.assign(producto=producto))
     df = pd.concat(out, ignore_index=True)

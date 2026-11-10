@@ -5,6 +5,8 @@
     {
       "producto": "Tarjeta",
       "slug": "tarjeta",
+   "partes": [{"producto": "Tarjeta · contado", "submodalidade": ["à vista", "a vista"]}, {"producto": "Tarjeta · con interés"}],
+   "_partes": "El cubo guarda la tarjeta en dos partes (10-nov, frente 12): contado = «compra à vista e parcelado lojista» (sin interés); con interés = rotativo, cuotas o saque financiado, «não migrado» y antecipación de factura. Las páginas Personas y Mora las vuelven a juntar en «Tarjeta».",
       "submodalidade": [
         "cartão de crédito",
         "cartao de credito"
