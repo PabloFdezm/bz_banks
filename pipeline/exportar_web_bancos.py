@@ -48,7 +48,12 @@ SALIDA = A.RAIZ / "sitio" / "data"
 # Auxiliar del verificador (decisión 59): no es parte del contrato del sitio.
 # bk_ref: todas las ediciones del Anexo del REF pesan ~81 MB en JSON; el sitio usa bk_ref_sitio (ref.py), con solo
 # los gráficos que use (frente 4, 9-nov-2026).
-EXCLUIDAS = {"bk_cartera_totales", "bk_ref"}
+# Gold de las hojas del rediseño (frentes 12–16): hoy los lee solo el canvas, no el sitio, y bk_producto_pf_scr_m pasa
+# el límite de 25 MiB por archivo de Cloudflare Pages (85 MiB en JSON). Se exportan cuando el sitio los use (frente 5),
+# partidos por producto u hoja.
+REDISENO = {"bk_producto_pf_m", "bk_producto_pf_scr_m", "bk_empresas_m", "bk_empresas_scr_m", "bk_fondeo_m",
+            "bk_pyb", "bk_pyb_grupo"}
+EXCLUIDAS = {"bk_cartera_totales", "bk_ref"} | REDISENO
 # Columna que identifica al banco en cada tabla que se parte por banco.
 PARTIBLES = {"bk_panel": "cod_inst", "bk_cartera": "cod_inst", "bk_roe_arbol": "entidad"}
 # Slug de cada óptica de bk_grupo para nombrar su partición (encargo 75). Si aparece una óptica nueva sin
