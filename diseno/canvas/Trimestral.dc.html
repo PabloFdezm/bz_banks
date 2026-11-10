@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Bancos por grupo · trimestral</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&amp;family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;display=swap">
+<style>
+body{margin:0}
+button:focus-visible,select:focus-visible{outline:2px solid #2E5C8A;outline-offset:2px}
+.btn{font-family:'IBM Plex Sans',sans-serif;font-size:14px;height:44px;padding:0 16px;border:1px solid #C9D2DC;border-radius:4px;background:#FFFFFF;color:#24324A;cursor:pointer;display:inline-flex;align-items:center;gap:8px;flex-shrink:0;box-sizing:border-box}
+.btn:hover{border-color:#2E5C8A;color:#2E5C8A}
+.btn:disabled{color:#6B7684;border-color:#C9D2DC;background:#FFFFFF;cursor:default}
+.btn:disabled:hover{color:#6B7684;border-color:#C9D2DC}
+.agr{width:36px;height:36px;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;padding:0;border:1px solid transparent;border-radius:4px;background:transparent;color:#5B6573;cursor:pointer}
+.agr:hover{background:#EEF1F5;color:#2E5C8A}
+.sel{font-family:'IBM Plex Sans',sans-serif;font-size:14px;height:44px;padding:0 10px;border:1px solid #C9D2DC;border-radius:4px;background:#FFFFFF;color:#24324A;box-sizing:border-box}
+.ley{font-family:'IBM Plex Sans',sans-serif;font-size:13px;height:36px;padding:0 10px;border:1px solid transparent;border-radius:4px;background:transparent;color:#24324A;cursor:pointer;display:inline-flex;align-items:center;gap:6px;box-sizing:border-box}
+.ley:hover{border-color:#C9D2DC}
+.aj{border:1px solid #C9D2DC;margin-left:auto}
+.aj:disabled{color:#8A93A0;border-color:#E1E6EC;cursor:default}
+.card{background:#FFFFFF;border:1px solid #E1E6EC;border-radius:4px;padding:16px 24px 12px;display:flex;flex-direction:column;gap:6px;box-sizing:border-box;min-width:0}
+.ct{font-size:18px;line-height:24px;font-weight:600;color:#24324A}
+.cs{font-size:13px;line-height:18px;color:#5B6573}
+.tb{width:100%;border-collapse:collapse;font-size:13px}
+.tb th,.tb td{padding:9px 8px;border-bottom:1px solid #E6EAEF;text-align:right;font-family:'IBM Plex Mono',monospace;font-weight:400;color:#24324A;white-space:nowrap}
+.tb thead th{font-family:'IBM Plex Sans',sans-serif;font-weight:600;font-size:12px;border-bottom:1px solid #24324A}
+.tb .ind{text-align:left;font-family:'IBM Plex Sans',sans-serif;white-space:normal}
+.tb tr.tot th,.tb tr.tot td{font-weight:600;border-top:2px solid #8A93A0}
+.tb tr.g1 th,.tb tr.g1 td{border-top:2px solid #8A93A0}
+.tb tbody tr{cursor:pointer}
+.tb tbody tr:hover{background:#F6F7F8}
+.fb{font-family:'IBM Plex Sans',sans-serif;font-size:13px;border:0;background:transparent;color:inherit;padding:0;cursor:pointer;display:inline-flex;align-items:center;gap:8px;text-align:left;font-weight:inherit;min-height:24px}
+.m{font-family:'IBM Plex Mono',monospace;font-weight:500}
+.md{font-size:12px;line-height:18px;color:#5B6573;margin:0}
+.fu{font-size:12px;color:#5B6573;margin-top:auto}
+.sh{display:flex;align-items:center;gap:12px;height:44px}
+.bl{border:1px solid #E1E6EC;border-radius:4px;padding:12px 16px;box-sizing:border-box;min-width:0;display:flex;flex-direction:column;gap:2px}
+.bt{font-size:14px;line-height:20px;font-weight:600;color:#24324A}
+.bs{font-size:12px;line-height:16px;color:#5B6573}
+.g12{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:16px;row-gap:12px}
+.c3{grid-column:span 3}.c6{grid-column:span 6}.c9{grid-column:span 9}.c12{grid-column:span 12}
+.dlg{position:absolute;left:24px;width:1552px;box-sizing:border-box;background:#FFFFFF;border-radius:4px;padding:20px 28px 24px;display:flex;flex-direction:column;gap:12px}
+</style>
+</helmet>
+<div style="{{raizEst}}">
+  <div style="display: flex; justify-content: space-between; align-items: center; height: 46px;">
+    <span style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 32px; color: #24324A;">Bancos por grupo</span>
+    <div style="display: flex; gap: 10px; align-items: center;"><label style="font-size: 13px; color: #5B6573;">Agrupar por</label><select class="sel" aria-label="Agrupar por" value="{{corte}}" onChange="{{elegirCorte}}"><option value="seg">Segmento regulatorio</option><option value="prop">Propiedad</option><option value="mod">Modelo de negocio</option><option value="fin">Tradicionales / fintechs</option></select></div>
+  </div>
+  <sc-for list="{{pares}}" as="s" hint-placeholder-count="2">
+    <sc-if value="{{s.cab}}" hint-placeholder-val="{{true}}"><div class="sh" style="border-top: 2px solid #24324A; padding-top: 10px; margin-top: 24px;"><span style="font-family: 'IBM Plex Mono', monospace; font-size: 15px; color: #5B6573;">{{s.cabNum}}</span><span style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 26px; color: #2E5C8A;">{{s.cabNombre}}</span></div></sc-if>
+    <div style="display: grid; grid-template-columns: 960px minmax(0, 1fr); gap: 24px; height: 560px; margin-bottom: 2px;">
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px;">
+          <div><div class="ct">{{s.titulo}}</div><div class="cs">{{s.sub}}</div></div>
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <sc-if value="{{s.control}}" hint-placeholder-val="{{false}}"><select class="sel" aria-label="Corte" value="{{corte}}" onChange="{{elegirCorte}}"><option value="seg">Segmento regulatorio</option><option value="prop">Propiedad</option><option value="mod">Modelo de negocio</option><option value="fin">Tradicionales / fintechs</option></select></sc-if>
+            <button class="btn" type="button" style="{{s.ajusteEst}}" aria-pressed="{{s.ajustePres}}" disabled="{{s.sinSel}}" onClick="{{s.ajustar}}">{{s.ajusteTxt}}</button>
+            <button class="btn" type="button" onClick="{{s.abrir}}" aria-haspopup="dialog"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M9.5 2.5h4v4M6.5 13.5h-4v-4M13.5 2.5l-5 5M2.5 13.5l5-5"></path></svg>Agrandar</button>
+          </div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 4px;">
+          <sc-for list="{{s.leyenda}}" as="l" hint-placeholder-count="3">
+            <button class="ley" type="button" style="{{l.est}}" aria-pressed="{{l.pres}}" onClick="{{l.click}}"><span style="{{l.sw}}"></span>{{l.nombre}}</button>
+          </sc-for>
+        </div>
+        <dc-import name="Grafico" cfg="{{s.cfg}}" hint-size="910px,390px"></dc-import>
+        <div class="fu">{{s.fuente}}</div>
+      </div>
+      <div class="card">
+        <div class="ct">{{s.tTitulo}}</div><div class="cs">{{s.tSub}}</div>
+        <table class="tb" style="margin-top: 8px;">
+          <thead><tr><th class="ind">Indicador</th><th>Corte</th><sc-for list="{{s.cols}}" as="c" hint-placeholder-count="3"><th>{{c}}</th></sc-for></tr></thead>
+          <tbody>
+            <sc-for list="{{s.filas}}" as="r" hint-placeholder-count="3">
+              <tr class="{{r.cls}}" style="{{r.est}}" onClick="{{r.click}}"><th class="ind"><button class="fb" type="button" aria-pressed="{{r.pres}}" onClick="{{r.click}}"><span style="{{r.sw}}"></span>{{r.nombre}}</button></th><td>{{r.corte}}</td><sc-for list="{{r.v}}" as="x" hint-placeholder-count="3"><td>{{x}}</td></sc-for></tr>
+            </sc-for>
+          </tbody>
+        </table>
+        <div class="fu">{{s.tFuente}}</div>
+      </div>
+    </div>
+  </sc-for>
+  <sc-if value="{{abierto}}" hint-placeholder-val="{{false}}">
+    <div style="{{overEst}}">
+      <div class="dlg" role="dialog" aria-modal="true" aria-label="{{d.titulo}}" onKeyDown="{{onKey}}" style="{{dlgEst}}">
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 16px; height: 48px;">
+          <div><div style="font-size: 20px; line-height: 26px; font-weight: 600;">{{d.titulo}}</div><div class="cs">{{d.sub}}</div></div>
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <sc-if value="{{d.control}}" hint-placeholder-val="{{false}}"><select class="sel" aria-label="Corte" value="{{corte}}" onChange="{{elegirCorte}}"><option value="seg">Segmento regulatorio</option><option value="prop">Propiedad</option><option value="mod">Modelo de negocio</option><option value="fin">Tradicionales / fintechs</option></select></sc-if>
+            <select class="sel" aria-label="Período" onChange="{{elegirAtajo}}" value="{{atajo}}"><option value="def">{{d.atajoTxt}}</option><option value="pers" disabled="{{true}}">Personalizado</option></select>
+            <button class="btn" type="button" onClick="{{cerrar}}">Cerrar</button>
+          </div>
+        </div>
+        <sc-for list="{{d.ops}}" as="o" hint-placeholder-count="4">
+          <div style="display: grid; grid-template-columns: 720px minmax(0, 1fr); gap: 24px; border-top: 1px solid #E6EAEF; padding-top: 10px;">
+            <div style="display: flex; flex-direction: column; gap: 2px;"><div style="display: flex; justify-content: space-between; align-items: center; gap: 12px;"><div><div class="bt">{{o.nombre}}</div><div class="bs">{{o.sub}}</div></div><button class="btn" type="button" style="{{o.ajEst}}" aria-pressed="{{o.ajPres}}" disabled="{{o.sinSel}}" onClick="{{o.ajustar}}">{{o.ajTxt}}</button></div><dc-import name="Grafico" cfg="{{o.cfg}}" hint-size="700px,220px"></dc-import><div style="padding-left: 40px;"><dc-import name="Rango" cfg="{{o.cfgR}}" hint-size="640px,64px"></dc-import></div></div>
+            <div style="align-self: start;"><table class="tb">
+              <thead><tr><th class="ind">Indicador</th><th>Corte</th><sc-for list="{{o.cols}}" as="c" hint-placeholder-count="5"><th>{{c}}</th></sc-for><th>Historia</th></tr></thead>
+              <tbody>
+                <sc-for list="{{o.filas}}" as="r" hint-placeholder-count="4">
+                  <tr class="{{r.cls}}" style="{{r.est}}" onClick="{{r.click}}"><th class="ind"><button class="fb" type="button" aria-pressed="{{r.pres}}" onClick="{{r.click}}"><span style="{{r.sw}}"></span>{{r.nombre}}</button></th><td>{{r.corte}}</td><sc-for list="{{r.v}}" as="x" hint-placeholder-count="5"><td>{{x}}</td></sc-for><td style="width: 96px;"><div style="position: relative; width: 80px; height: 12px; margin-left: auto;"><div style="{{r.b0}}"></div><div style="{{r.bw}}"></div><div style="{{r.bb}}"></div><div style="{{r.bm}}"></div><div style="{{r.bp}}"></div></div></td></tr>
+                </sc-for>
+              </tbody>
+            </table><div class="bs" style="margin-top: 6px; color: #5B6573;">{{o.nota}}</div></div>
+          </div>
+        </sc-for>
+        <div class="g12" style="{{d.estPaneles}}">
+          <sc-for list="{{d.paneles}}" as="p" hint-placeholder-count="2">
+            <div class="bl c6" style="height: 262px;">
+              <div class="bt">{{p.titulo}}</div><div class="bs">{{p.sub}}</div>
+              <sc-if value="{{p.esGrafico}}" hint-placeholder-val="{{true}}"><dc-import name="Grafico" cfg="{{p.cfg}}" hint-size="706px,200px"></dc-import></sc-if>
+              <sc-if value="{{p.esBarras}}" hint-placeholder-val="{{false}}">
+                <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 12px;">
+                  <sc-for list="{{p.barras}}" as="b" hint-placeholder-count="5">
+                    <div style="display: grid; grid-template-columns: 170px minmax(0, 1fr) 150px; align-items: center; gap: 12px; font-size: 13px;">
+                      <span style="{{b.nest}}">{{b.n}}</span><div style="height: 16px; background: #F1F3F6;"><div style="{{b.est}}"></div></div><span class="m" style="text-align: right; font-weight: 400;">{{b.txt}}</span>
+                    </div>
+                  </sc-for>
+                  <div class="bs" style="margin-top: 4px; color: #A85E24;">{{p.nota}}</div>
+                </div>
+              </sc-if>
+            </div>
+          </sc-for>
+        </div>
+        <sc-if value="{{d.ciclo}}" hint-placeholder-val="{{false}}">
+          <div style="{{d.bGrid}}">
+            <div style="display: flex; flex-direction: column; gap: 2px;">
+              <div class="bt">{{d.bTit}}</div><div class="bs">{{d.bSub}}</div>
+              <dc-import name="Grafico" cfg="{{d.cicloCfg}}" hint-size="900px,250px"></dc-import>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 2px;">
+              <div class="bt">{{d.bTTit}}</div><div class="bs">{{d.bTSub}}</div>
+              <table class="tb" style="margin-top: 6px;">
+                <thead><tr><th class="ind">Indicador</th><th>Corte</th><sc-for list="{{d.bCols}}" as="c" hint-placeholder-count="5"><th>{{c}}</th></sc-for><sc-if value="{{d.bBox}}" hint-placeholder-val="{{false}}"><th>Historia</th></sc-if></tr></thead>
+                <tbody><sc-for list="{{d.cicloFilas}}" as="r" hint-placeholder-count="5"><tr class="{{r.cls}}"><th class="ind"><span style="display: inline-flex; align-items: center; gap: 8px;"><span style="{{r.sw}}"></span>{{r.nombre}}</span></th><td>{{r.corte}}</td><sc-for list="{{r.v}}" as="x" hint-placeholder-count="5"><td>{{x}}</td></sc-for><sc-if value="{{d.bBox}}" hint-placeholder-val="{{false}}"><td><div style="position: relative; width: 150px; height: 16px; margin-left: auto;"><div style="{{r.b0}}"></div><div style="{{r.bw}}"></div><div style="{{r.bb}}"></div><div style="{{r.bm}}"></div><div style="{{r.bp}}"></div></div></td></sc-if></tr></sc-for></tbody>
+              </table>
+            </div>
+          </div>
+        </sc-if>
+        <div class="g12" style="border-top: 1px solid #E6EAEF; padding-top: 10px;">
+          <p class="md c6"><b style="color: #24324A;">Columnas.</b> {{d.glosario}}</p>
+          <p class="md c6"><b style="color: #24324A;">Filas y fuentes.</b> {{d.meta}}</p>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"abiertoInicial":{"editor":"text","default":""},"$preview":{"width":1600,"height":8780}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); const a = (p && p.abiertoInicial) || null; this.state = { corte: 'seg', sel: {}, aj: {}, vista: a, fijo: null, hover: null, desde: null, hasta: null, rng: {}, selO: {}, ajO: {} }; }
+  renderVals() {
+    const X = {};  // datos: sitio/data/v2/Trimestral.json (construir_v2.py)
+    const Q = X.q, NQ = Q.length;
+    const REF = '#8A8F96', COBRE = '#A85E24', PAL = ['#2E5C8A', '#6C819B', '#2F7A86', '#8FB0D0', '#4F5B6B', '#9AA5B4', '#C9D2DC'];
+    const st = this.state;
+    const OPT = { seg: 'Segmento regulatorio', prop: 'Propiedad', mod: 'Modelo de negocio', fin: 'Tradicional vs Fintech' };
+    const grupos = (o) => Object.keys(X.op[o]).filter((g) => g !== 'Todos los grupos');
+    const TOT = X.op['Total panel']['Todos los grupos'];
+    const op = OPT[st.corte];
+    const multi = (e) => !!(e && (e.ctrlKey || e.metaKey));
+    const linea = (s) => 'width:' + (s.dash ? 20 : 22) + 'px;height:0;flex-shrink:0;border-top:' + (s.dash ? '2px dashed ' : '3px solid ') + s.color;
+    const pp = (v) => v == null ? '—' : (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v).toFixed(2).replace('.', ',');
+    const pc = (v, dd) => v == null ? '—' : (v < 0 ? '−' : '') + Math.abs(v).toFixed(dd == null ? 1 : dd).replace('.', ',') + ' %';
+    const nx = (v) => v == null ? '—' : v.toFixed(1).replace('.', ',') + 'x';
+    const mm = (v) => v == null ? '—' : Math.round(v).toLocaleString('de-DE');
+    const FMT = { pct: (v) => pc(v, 1), pp, x: nx, mm };
+    const avg = (a, i, k) => { let s = 0; for (let j = i - k + 1; j <= i; j++) s += a[j]; return s / k; };
+    const ultI = (a) => { let k = a.length - 1; while (k >= 0 && a[k] == null) k--; return k; };
+    const zz = (a, n) => { const w = a.filter((x) => x != null).slice(-n); if (w.length < 12) return null; const m = w.reduce((x, y) => x + y, 0) / w.length, s = Math.sqrt(w.reduce((x, y) => x + (y - m) ** 2, 0) / (w.length - 1)); return (w[w.length - 1] - m) / s; };
+    const camb = (a) => { const i = ultI(a); const ok = (k) => k >= 0 && a[k] != null; return [ok(i - 1) ? pp(a[i] - a[i - 1]) : '—', ok(i - 4) ? pp(a[i] - a[i - 4]) : '—', ok(i - 7) && a.slice(i - 7, i + 1).every((x) => x != null) ? pp(avg(a, i, 4) - avg(a, i - 4, 4)) : '—', pp(zz(a, 40))]; };
+    const ticksQ = (lab, d, h) => { const r = [], n = h - d + 1, mens = lab[0].length > 4; for (let i = d; i <= h; i++) { const e = lab[i]; if (mens ? (e.startsWith('ene') && (n <= 60 || +e.slice(4) % 2 === 0)) : (e.startsWith('1T') && (n <= 24 || +e.slice(2) % 2 === 0))) r.push(i - d); } return r; };
+    const escala = (series, d, h, cero, solo) => {
+      const conSel = !!(solo && solo.length);
+      const rango = (ss) => { let a = Infinity, b = -Infinity; ss.forEach((s) => { for (let i = d; i <= h; i++) { const x = s.datos[i]; if (x != null) { a = Math.min(a, x); b = Math.max(b, x); } } }); return [a, b]; };
+      let usar = (conSel ? series.filter((s) => solo.includes(s.id)) : series).filter((s) => { for (let i = d; i <= h; i++) if (s.datos[i] != null) return true; return false; });
+      if (!conSel) {
+        for (let it = 0; it < 3 && usar.length >= 4; it++) {
+          const [a, b] = rango(usar); let mej = null, spm = b - a;
+          usar.forEach((s) => { const [c1, c2] = rango(usar.filter((q) => q !== s)); if (c2 - c1 < spm) { spm = c2 - c1; mej = s; } });
+          if (mej && spm * 3 < b - a) usar = usar.filter((q) => q !== mej); else break;
+        }
+      }
+      let [lo, hi] = rango(usar);
+      if (!conSel) { const vals = []; usar.forEach((s) => { for (let i = d; i <= h; i++) if (s.datos[i] != null) vals.push(s.datos[i]); });
+        if (vals.length >= 8) { const so = vals.sort((x, y) => x - y), q = (p) => so[Math.floor((so.length - 1) * p)], sp = q(0.9) - q(0.1); if (sp > 0) { const l2 = q(0.1) - 1.5 * sp, h2 = q(0.9) + 1.5 * sp; if (so.filter((x) => x < l2 || x > h2).length <= so.length * 0.05) { lo = Math.max(lo, l2); hi = Math.min(hi, h2); } } } }
+      if (!isFinite(lo)) { lo = 0; hi = 1; }
+      if (cero && !conSel) { lo = Math.min(lo, 0); hi = Math.max(hi, 0); }
+      const paso = [0.25, 0.5, 1, 2, 4, 5, 10, 20, 25, 50, 100, 200, 500, 1000, 2000].find((p) => (hi - lo) / p <= 5) || 5000;
+      const min = Math.floor(lo / paso) * paso, max = Math.ceil(hi / paso) * paso, t = [];
+      for (let v = min; v <= max + 1e-9; v += paso) t.push(Math.round(v * 100) / 100);
+      return { min, max: max === min ? min + paso : max, ticksY: t };
+    };
+    const apil = (series, d, h, sel, aj) => {
+      const usar = series.filter((s) => !sel.length || sel.includes(s.id)), N0 = (series[0] && series[0].datos.length) || 0, base = new Array(N0).fill(0);
+      const out = usar.map((s) => { const b = base.slice(); s.datos.forEach((x, i) => { if (x != null) base[i] += x; }); return { id: s.id, color: s.color, ancho: 0, tipo: 'barras', base: b.slice(d, h + 1), valores: s.datos.slice(d, h + 1) }; });
+      let top = 0; for (let i = d; i <= h; i++) top = Math.max(top, base[i]);
+      const esc = (sel.length && aj) || top > 101 ? escala([{ id: 't', datos: base }], d, h, true) : { min: 0, max: 100, ticksY: [0, 20, 40, 60, 80, 100] };
+      return { series: out, esc };
+    };
+    const recorte = (series) => series;
+    const SECS = [
+ { num: 'T1', nombre: 'Saldos de crédito', banda: '1T25',
+   va: { titulo: 'Crecimiento de la cartera de crédito, a/a', sub: 'Eje vertical: %. Eje horizontal: trimestre. Banda: Res. 4.966.', fuente: 'Fuente: BCB, IF.Data.', k: 'cred_aa', fmt: 'pct', cero: true, tTitulo: 'Cartera de crédito', tSub: 'a/a en % · Δ a/a en pp', tFuente: 'Fuente: BCB, IF.Data.', cols: ['a/a', 'Δ a/a'] },
+   vb: { titulo: 'Participación en la cartera del panel', sub: 'Eje vertical: %. Eje horizontal: trimestre.', fuente: 'Fuente: BCB, IF.Data.', k: 'share', apilar: true, fmt: 'pct', tTitulo: 'Participación de mercado', tSub: '% de la cartera del panel · Δ a/a en pp', tFuente: 'Fuente: BCB, IF.Data.', cols: ['Último', 'Δ a/a'] },
+   bva: { tit: 'Cartera de crédito del panel', sub: 'Eje vertical: R$ mil millones. Eje horizontal: trimestre.', tTit: 'Saldo', tSub: 'R$ mil millones · Historia desde 1T15', filas: [['Cartera de crédito', COBRE, false, TOT.cred_mm, 'mm', true]] },
+   bvb: { apilar: true, tit: 'Participación por propiedad', sub: 'Eje vertical: % de la cartera del panel. Eje horizontal: trimestre.', tTit: 'Público, privado nacional y extranjero', tSub: 'Historia desde 1T15', filas: [['Público', '#2E5C8A', false, X.op['Propiedad']['Público'].share, 'pct'], ['Privado nacional', '#6C819B', false, X.op['Propiedad']['Privado nacional'].share, 'pct'], ['Privado extranjero', '#2F7A86', false, X.op['Propiedad']['Privado extranjero'].share, 'pct']] },
+   glosario: { va: 'Último: crecimiento a/a de la cartera de crédito, en %. ' + 'Cambios en pp: t/t contra el trimestre anterior; a/a contra el mismo trimestre del año previo; 4T/4T, promedio de 4 trimestres contra los 4 anteriores. Z 10 años: (último − promedio de 40 trimestres) / desvío. Historia: caja p25–p75 desde 1T15, raya mediana, línea mín–máx, punto último. Cada bloque es una forma de agrupar el mismo panel.', vb: 'Último: participación en la cartera de crédito del panel, en %. ' + 'Cambios en pp: t/t contra el trimestre anterior; a/a contra el mismo trimestre del año previo; 4T/4T, promedio de 4 trimestres contra los 4 anteriores. Z 10 años: (último − promedio de 40 trimestres) / desvío. Historia: caja p25–p75 desde 1T15, raya mediana, línea mín–máx, punto último. Cada bloque es una forma de agrupar el mismo panel.' },
+   meta: { va: 'Cartera = operaciones de crédito del IF.Data (informe 2). ' + 'Panel de bancos de IF.Data (24 a 33 bancos según el trimestre); índices por grupo = Σ numerador / Σ denominador. Desde ene-25 rige la Res. CMN 4.966 (IFRS 9 y nuevo plan COSIF): provisiones, resultado de intermediación, captaciones y saldos cambian de definición; la banda marca ese quiebre.', vb: 'Participación sobre la cartera del panel, no del sistema (el panel tiene cerca del 85 % del crédito). ' + 'Panel de bancos de IF.Data (24 a 33 bancos según el trimestre); índices por grupo = Σ numerador / Σ denominador. Desde ene-25 rige la Res. CMN 4.966 (IFRS 9 y nuevo plan COSIF): provisiones, resultado de intermediación, captaciones y saldos cambian de definición; la banda marca ese quiebre.' } },
+ { num: 'T2', nombre: 'Depósitos por tipo', banda: '1T25',
+   va: { titulo: 'Depósitos a la vista y de ahorro sobre el total', sub: 'Eje vertical: % de los depósitos. Eje horizontal: trimestre. Banda: cambio de plan de cuentas.', fuente: 'Fuente: BCB, IF.Data informe 3.', k: 'barato', fmt: 'pct', tTitulo: 'Depósitos de bajo costo', tSub: '% de los depósitos · Δ a/a en pp', tFuente: 'Fuente: BCB, IF.Data.', cols: ['Último', 'Δ a/a'] },
+   vb: { titulo: 'Crédito sobre depósitos', sub: 'Eje vertical: %. Eje horizontal: trimestre. Banda: cambio de plan de cuentas.', fuente: 'Fuente: BCB, IF.Data.', k: 'cdep', fmt: 'pct', tTitulo: 'Crédito / depósitos', tSub: '% · Δ a/a en pp', tFuente: 'Fuente: BCB, IF.Data.', cols: ['Último', 'Δ a/a'] },
+   bva: { apilar: true, tit: 'Depósitos por tipo, Total panel', sub: 'Eje vertical: % de los depósitos. Eje horizontal: trimestre.', tTit: 'Mix de depósitos', tSub: 'Historia desde 1T15', filas: [['A plazo', COBRE, false, TOT.d_prazo, 'pct', true], ['Cuentas de ahorro', '#2E5C8A', false, TOT.d_poup, 'pct'], ['A la vista', '#6C819B', false, TOT.d_vista, 'pct'], ['Interfinancieros', '#2F7A86', false, TOT.d_interf, 'pct'], ['Otros y cuenta de pago', '#8FB0D0', true, TOT.d_otros, 'pct']] },
+   bvb: { apilar: true, tit: 'Mix de fondeo, Total panel', sub: 'Eje vertical: % del fondeo total. Eje horizontal: trimestre.', tTit: 'Fuentes de fondeo', tSub: 'Historia desde 1T15', filas: [['Depósitos', COBRE, false, TOT.f_depositos, 'pct', true], ['Pactos de retrocompra', '#2E5C8A', false, TOT.f_oblig_compromissadas, 'pct'], ['Letras y otros instrumentos', '#6C819B', false, TOT.f_outros_instrumentos_divida, 'pct'], ['Otras obligaciones', '#2F7A86', false, TOT.f_outras_obrigacoes, 'pct'], ['Patrimonio', '#8FB0D0', false, TOT.f_patrimonio_liquido, 'pct'], ['Préstamos y traspasos', '#4F5B6B', false, TOT.f_emprestimos_repasses, 'pct']] },
+   glosario: { va: 'Último: depósitos a la vista + ahorro sobre el total de depósitos, en %. ' + 'Cambios en pp: t/t contra el trimestre anterior; a/a contra el mismo trimestre del año previo; 4T/4T, promedio de 4 trimestres contra los 4 anteriores. Z 10 años: (último − promedio de 40 trimestres) / desvío. Historia: caja p25–p75 desde 1T15, raya mediana, línea mín–máx, punto último. Cada bloque es una forma de agrupar el mismo panel.', vb: 'Último: cartera de crédito sobre depósitos, en %. ' + 'Cambios en pp: t/t contra el trimestre anterior; a/a contra el mismo trimestre del año previo; 4T/4T, promedio de 4 trimestres contra los 4 anteriores. Z 10 años: (último − promedio de 40 trimestres) / desvío. Historia: caja p25–p75 desde 1T15, raya mediana, línea mín–máx, punto último. Cada bloque es una forma de agrupar el mismo panel.' },
+   meta: { va: 'Tipos del IF.Data informe 3: a la vista, ahorro, interfinancieros, a plazo, otros y cuenta de pago prepagada (desde 2025). Calculado desde el crudo de IF.Data para este canvas; falta llevarlo a gold. ' + 'Panel de bancos de IF.Data (24 a 33 bancos según el trimestre); índices por grupo = Σ numerador / Σ denominador. Desde ene-25 rige la Res. CMN 4.966 (IFRS 9 y nuevo plan COSIF): provisiones, resultado de intermediación, captaciones y saldos cambian de definición; la banda marca ese quiebre.', vb: 'Crédito = cartera total; depósitos = saldo total de depósitos. ' + 'Panel de bancos de IF.Data (24 a 33 bancos según el trimestre); índices por grupo = Σ numerador / Σ denominador. Desde ene-25 rige la Res. CMN 4.966 (IFRS 9 y nuevo plan COSIF): provisiones, resultado de intermediación, captaciones y saldos cambian de definición; la banda marca ese quiebre.' } },
+ { num: 'T3', nombre: 'Rendimientos: crédito y captación', banda: '1T25',
+   va: { titulo: 'Rendimiento de la cartera de crédito, 12 meses', sub: 'Eje vertical: % de la cartera media. Eje horizontal: trimestre. Banda: Res. 4.966.', fuente: 'Fuente: BCB, IF.Data; rentas de operaciones de crédito / cartera media.', k: 'ycred', fmt: 'pct', tTitulo: 'Yield del crédito', tSub: '% · Δ a/a en pp', tFuente: 'Fuente: BCB, IF.Data.', cols: ['Último', 'Δ a/a'] },
+   vb: { titulo: 'Costo de captación, 12 meses', sub: 'Eje vertical: % de las captaciones medias. Eje horizontal: trimestre. Banda: Res. 4.966.', fuente: 'Fuente: BCB, IF.Data; gastos de captación / captaciones medias.', k: 'ccap', fmt: 'pct', tTitulo: 'Costo del fondeo', tSub: '% · Δ a/a en pp', tFuente: 'Fuente: BCB, IF.Data.', cols: ['Último', 'Δ a/a'] },
+   bva: { tit: 'Yield del crédito, costo de captación y CDI, Total panel', sub: 'Eje vertical: %. Eje horizontal: trimestre.', tTit: 'Rendimiento contra costo', tSub: 'Historia desde 1T15, escala propia de cada fila', porFila: true, filas: [['Yield del crédito', COBRE, false, TOT.ycred, 'pct', true], ['Costo de captación', '#2E5C8A', false, TOT.ccap, 'pct'], ['CDI, promedio 12 meses', REF, true, TOT.cdi, 'pct'], ['Diferencia yield − costo (pp)', '#6C819B', false, TOT.ycred.map((x, k) => x == null || TOT.ccap[k] == null ? null : Math.round((x - TOT.ccap[k]) * 100) / 100), 'pp']] },
+   bvb: { tit: 'Spread de las operaciones con recursos libres, mensual', sub: 'Eje vertical: pp a.a. Eje horizontal: mes.', tTit: 'Spread del crédito nuevo (SGS)', tSub: 'Mensual, desde ene-15 · Z contra 120 meses', lab: X.spread.lab, zn: 120, filas: [['Spread recursos libres (SGS 20786)', COBRE, false, X.spread.v, 'pct', true]] },
+   glosario: { va: 'Último: rentas de operaciones de crédito de 12 meses sobre la cartera media (5 cierres de trimestre), en %. ' + 'Cambios en pp: t/t contra el trimestre anterior; a/a contra el mismo trimestre del año previo; 4T/4T, promedio de 4 trimestres contra los 4 anteriores. Z 10 años: (último − promedio de 40 trimestres) / desvío. Historia: caja p25–p75 desde 1T15, raya mediana, línea mín–máx, punto último. Cada bloque es una forma de agrupar el mismo panel.', vb: 'Último: gastos de captación de 12 meses sobre las captaciones medias (depósitos, pactos de retrocompra, letras y préstamos), en %. ' + 'Cambios en pp: t/t contra el trimestre anterior; a/a contra el mismo trimestre del año previo; 4T/4T, promedio de 4 trimestres contra los 4 anteriores. Z 10 años: (último − promedio de 40 trimestres) / desvío. Historia: caja p25–p75 desde 1T15, raya mediana, línea mín–máx, punto último. Cada bloque es una forma de agrupar el mismo panel.' },
+   meta: { va: 'IF.Data no separa el costo de los depósitos del resto de las captaciones: el costo es sobre todo el fondeo con costo. Calculado desde el crudo de IF.Data para este canvas; falta llevarlo a gold. Desde 2025 las rentas y gastos incluyen ajustes cambiarios y de valor justo. ' + 'Panel de bancos de IF.Data (24 a 33 bancos según el trimestre); índices por grupo = Σ numerador / Σ denominador. Desde ene-25 rige la Res. CMN 4.966 (IFRS 9 y nuevo plan COSIF): provisiones, resultado de intermediación, captaciones y saldos cambian de definición; la banda marca ese quiebre.', vb: 'Gastos de captación del informe 4 (desde 2025, gastos de captación con ajustes de cambio y hedge). ' + 'Panel de bancos de IF.Data (24 a 33 bancos según el trimestre); índices por grupo = Σ numerador / Σ denominador. Desde ene-25 rige la Res. CMN 4.966 (IFRS 9 y nuevo plan COSIF): provisiones, resultado de intermediación, captaciones y saldos cambian de definición; la banda marca ese quiebre.' } },
+ { num: 'T4', nombre: 'Margen y riesgo', banda: '1T25',
+   va: { titulo: 'Margen financiero (NIM) antes de provisiones, 12 meses', sub: 'Eje vertical: % del activo medio. Eje horizontal: trimestre. Banda: Res. 4.966.', fuente: 'Fuente: BCB, IF.Data; cálculo propio.', k: 'nim', fmt: 'pct', tTitulo: 'NIM antes de provisiones', tSub: '% del activo medio · Δ a/a en pp', tFuente: 'Fuente: BCB, IF.Data.', cols: ['Último', 'Δ a/a'] },
+   vb: { titulo: 'Margen después de riesgo, 12 meses', sub: 'Eje vertical: % del activo medio. Eje horizontal: trimestre. Banda: Res. 4.966.', fuente: 'Fuente: BCB, IF.Data.', k: 'mpr', fmt: 'pct', tTitulo: 'Margen después de riesgo', tSub: '% del activo medio · Δ a/a en pp', tFuente: 'Fuente: BCB, IF.Data.', cols: ['Último', 'Δ a/a'] },
+   bva: { tit: 'Del NIM al margen después de riesgo, Total panel', sub: 'Eje vertical: %. Eje horizontal: trimestre.', tTit: 'NIM, costo del riesgo y margen', tSub: 'Historia desde 1T15', filas: [['NIM antes de provisiones', COBRE, false, TOT.nim, 'pct', true], ['Costo del riesgo (% del crédito)', '#2E5C8A', true, TOT.cor, 'pct'], ['Margen después de riesgo', '#6C819B', false, TOT.mpr, 'pct']] },
+   bvb: { tit: 'Provisiones de crédito, 12 meses, Total panel', sub: 'Eje vertical: R$ mil millones. Eje horizontal: trimestre.', tTit: 'Gasto en provisiones', tSub: 'R$ mil millones · Historia desde 1T15', filas: [['Provisiones de crédito 12 meses', COBRE, false, TOT.prov12, 'mm', true]] },
+   glosario: { va: 'Último: NIM de 12 meses antes de provisiones, en % del activo medio. ' + 'Cambios en pp: t/t contra el trimestre anterior; a/a contra el mismo trimestre del año previo; 4T/4T, promedio de 4 trimestres contra los 4 anteriores. Z 10 años: (último − promedio de 40 trimestres) / desvío. Historia: caja p25–p75 desde 1T15, raya mediana, línea mín–máx, punto último. Cada bloque es una forma de agrupar el mismo panel.', vb: 'Último: margen de 12 meses después de provisiones, en % del activo medio. ' + 'Cambios en pp: t/t contra el trimestre anterior; a/a contra el mismo trimestre del año previo; 4T/4T, promedio de 4 trimestres contra los 4 anteriores. Z 10 años: (último − promedio de 40 trimestres) / desvío. Historia: caja p25–p75 desde 1T15, raya mediana, línea mín–máx, punto último. Cada bloque es una forma de agrupar el mismo panel.' },
+   meta: { va: 'NIM antes de provisiones = (resultado de intermediación + transacciones de pago + provisiones, 12 meses) / activo medio; el COSIF publica el resultado ya neto de provisiones. Costo del riesgo = provisiones 12 meses / cartera. ' + 'Panel de bancos de IF.Data (24 a 33 bancos según el trimestre); índices por grupo = Σ numerador / Σ denominador. Desde ene-25 rige la Res. CMN 4.966 (IFRS 9 y nuevo plan COSIF): provisiones, resultado de intermediación, captaciones y saldos cambian de definición; la banda marca ese quiebre.', vb: 'Margen después de riesgo = (resultado de intermediación + transacciones de pago, 12 meses) / activo medio. ' + 'Panel de bancos de IF.Data (24 a 33 bancos según el trimestre); índices por grupo = Σ numerador / Σ denominador. Desde ene-25 rige la Res. CMN 4.966 (IFRS 9 y nuevo plan COSIF): provisiones, resultado de intermediación, captaciones y saldos cambian de definición; la banda marca ese quiebre.' } },
+ { num: 'T5', nombre: 'Resultado y ROE', banda: '1T25',
+   va: { titulo: 'ROE 12 meses', sub: 'Eje vertical: % del patrimonio medio. Eje horizontal: trimestre. Banda: Res. 4.966.', fuente: 'Fuente: BCB, IF.Data; utilidad neta de 12 meses / patrimonio medio.', k: 'roe', fmt: 'pct', tTitulo: 'ROE 12 meses', tSub: '% · Δ a/a en pp', tFuente: 'Fuente: BCB, IF.Data.', cols: ['Último', 'Δ a/a'] },
+   vb: { titulo: 'ROE 12 meses: Δ a/a', sub: 'Eje vertical: pp. Eje horizontal: trimestre. Banda: Res. 4.966.', fuente: 'Fuente: BCB, IF.Data.', derivar: (d) => d.roe.map((x, k, a) => k < 4 || x == null || a[k - 4] == null ? null : Math.round((x - a[k - 4]) * 100) / 100), fmt: 'pp', cero: true, tTitulo: 'Cambio del ROE', tSub: 'Δ a/a en pp · ROE en %', tFuente: 'Fuente: BCB, IF.Data.', cols: ['Δ a/a', 'ROE'],
+     corto: (d, i, F) => i < 0 ? ['—', '—'] : [i >= 4 && d.roe[i - 4] != null ? pp(d.roe[i] - d.roe[i - 4]) : '—', F.pct(d.roe[i])] },
+   bva: { tit: 'ROE contra CDI, Total panel', sub: 'Eje vertical: %. Eje horizontal: trimestre.', tTit: 'Rentabilidad sobre el costo del dinero', tSub: 'Historia desde 1T15', filas: [['ROE 12 meses', COBRE, false, TOT.roe, 'pct', true], ['CDI, promedio 12 meses', '#2E5C8A', true, TOT.cdi, 'pct'], ['ROE − CDI (pp)', '#6C819B', false, TOT.roe.map((x, k) => x == null || TOT.cdi[k] == null ? null : Math.round((x - TOT.cdi[k]) * 100) / 100), 'pp']] },
+   bvb: { tit: 'Utilidad neta y provisiones, 12 meses, Total panel', sub: 'Eje vertical: R$ mil millones. Eje horizontal: trimestre.', tTit: 'Resultado del panel', tSub: 'R$ mil millones · Historia desde 1T15', filas: [['Utilidad neta 12 meses', COBRE, false, TOT.lucro12, 'mm', true], ['Provisiones 12 meses', '#2E5C8A', true, TOT.prov12, 'mm']] },
+   glosario: { va: 'Último: ROE de 12 meses, en %. ' + 'Cambios en pp: t/t contra el trimestre anterior; a/a contra el mismo trimestre del año previo; 4T/4T, promedio de 4 trimestres contra los 4 anteriores. Z 10 años: (último − promedio de 40 trimestres) / desvío. Historia: caja p25–p75 desde 1T15, raya mediana, línea mín–máx, punto último. Cada bloque es una forma de agrupar el mismo panel.', vb: 'Último: cambio del ROE de 12 meses contra el mismo trimestre del año previo, en pp. ' + 'Cambios en pp: t/t contra el trimestre anterior; a/a contra el mismo trimestre del año previo; 4T/4T, promedio de 4 trimestres contra los 4 anteriores. Z 10 años: (último − promedio de 40 trimestres) / desvío. Historia: caja p25–p75 desde 1T15, raya mediana, línea mín–máx, punto último. Cada bloque es una forma de agrupar el mismo panel.' },
+   meta: { va: 'ROE = utilidad neta de 12 meses / patrimonio medio. CDI: promedio de 12 meses de la tasa anualizada (SGS 4389). ' + 'Panel de bancos de IF.Data (24 a 33 bancos según el trimestre); índices por grupo = Σ numerador / Σ denominador. Desde ene-25 rige la Res. CMN 4.966 (IFRS 9 y nuevo plan COSIF): provisiones, resultado de intermediación, captaciones y saldos cambian de definición; la banda marca ese quiebre.', vb: 'Utilidad neta = lucro líquido del IF.Data, suma de 4 trimestres. ' + 'Panel de bancos de IF.Data (24 a 33 bancos según el trimestre); índices por grupo = Σ numerador / Σ denominador. Desde ene-25 rige la Res. CMN 4.966 (IFRS 9 y nuevo plan COSIF): provisiones, resultado de intermediación, captaciones y saldos cambian de definición; la banda marca ese quiebre.' } },
+ { num: 'T6', nombre: 'Eficiencia', banda: '1T25',
+   va: { titulo: 'Eficiencia: gasto sobre ingreso, 12 meses', sub: 'Eje vertical: %. Eje horizontal: trimestre. Banda: Res. 4.966.', fuente: 'Fuente: BCB, IF.Data.', k: 'efi', fmt: 'pct', tTitulo: 'Índice de eficiencia', tSub: '% · Δ a/a en pp (más alto es peor)', tFuente: 'Fuente: BCB, IF.Data.', cols: ['Último', 'Δ a/a'] },
+   vb: { titulo: 'Jaws: ingreso a/a menos gasto a/a', sub: 'Eje vertical: pp. Eje horizontal: trimestre. Banda: Res. 4.966.', fuente: 'Fuente: BCB, IF.Data.', k: 'jaws', fmt: 'pp', cero: true, tTitulo: 'Jaws', tSub: 'pp · Δ a/a en pp', tFuente: 'Fuente: BCB, IF.Data.', cols: ['Último', 'Δ a/a'] },
+   bva: { tit: 'Composición del gasto, Total panel', sub: 'Eje vertical: % del ingreso. Eje horizontal: trimestre.', tTit: 'Gasto por tipo, sobre ingreso', tSub: 'Historia desde 1T15', filas: [['Gasto total / ingreso', COBRE, false, TOT.efi, 'pct', true], ['Personal / ingreso', '#2E5C8A', false, TOT.pers, 'pct'], ['Administrativo / ingreso', '#6C819B', false, TOT.adm, 'pct']] },
+   bvb: { tit: 'Ingreso contra gasto, a/a, Total panel', sub: 'Eje vertical: %. Eje horizontal: trimestre.', tTit: 'Crecimiento de ingresos y gastos', tSub: 'Flujos de 12 meses · Historia desde 1T16', cero: true, filas: [['Ingreso 12 meses, a/a', COBRE, false, TOT.ing_aa, 'pct', true], ['Gasto 12 meses, a/a', '#2E5C8A', false, TOT.gas_aa, 'pct']] },
+   glosario: { va: 'Último: gasto de personal y administrativo sobre ingresos, 12 meses, en %. ' + 'Cambios en pp: t/t contra el trimestre anterior; a/a contra el mismo trimestre del año previo; 4T/4T, promedio de 4 trimestres contra los 4 anteriores. Z 10 años: (último − promedio de 40 trimestres) / desvío. Historia: caja p25–p75 desde 1T15, raya mediana, línea mín–máx, punto último. Cada bloque es una forma de agrupar el mismo panel.', vb: 'Último: crecimiento a/a del ingreso de 12 meses menos el del gasto, en pp. ' + 'Cambios en pp: t/t contra el trimestre anterior; a/a contra el mismo trimestre del año previo; 4T/4T, promedio de 4 trimestres contra los 4 anteriores. Z 10 años: (último − promedio de 40 trimestres) / desvío. Historia: caja p25–p75 desde 1T15, raya mediana, línea mín–máx, punto último. Cada bloque es una forma de agrupar el mismo panel.' },
+   meta: { va: 'Ingreso = resultado de intermediación (neto de provisiones) + tarifas + servicios + transacciones de pago: el índice sube cuando suben las provisiones. ' + 'Panel de bancos de IF.Data (24 a 33 bancos según el trimestre); índices por grupo = Σ numerador / Σ denominador. Desde ene-25 rige la Res. CMN 4.966 (IFRS 9 y nuevo plan COSIF): provisiones, resultado de intermediación, captaciones y saldos cambian de definición; la banda marca ese quiebre.', vb: 'Entre 1T25 y 4T25 el a/a del ingreso compara definiciones distintas. ' + 'Panel de bancos de IF.Data (24 a 33 bancos según el trimestre); índices por grupo = Σ numerador / Σ denominador. Desde ene-25 rige la Res. CMN 4.966 (IFRS 9 y nuevo plan COSIF): provisiones, resultado de intermediación, captaciones y saldos cambian de definición; la banda marca ese quiebre.' } },
+ { num: 'T7', nombre: 'Capital', 
+   va: { titulo: 'Índice de capital principal', sub: 'Eje vertical: % del RWA. Eje horizontal: trimestre. Banda: entran pagos y digitales.', fuente: 'Fuente: BCB, IF.Data informe 5.', k: 'cp', fmt: 'pct', panel: '3T23', tTitulo: 'Capital principal', tSub: '% del RWA · Δ a/a en pp', tFuente: 'Fuente: BCB, IF.Data.', cols: ['Último', 'Δ a/a'] },
+   vb: { titulo: 'Holgura de capital principal sobre el requerimiento', sub: 'Eje vertical: pp del RWA. Eje horizontal: trimestre. Banda: entran pagos y digitales.', fuente: 'Fuente: BCB, IF.Data informe 5.', k: 'hol', fmt: 'pp', panel: '3T23', cero: true, tTitulo: 'Holgura y espacio para crecer', tSub: 'Holgura en pp · cuánto puede crecer el RWA', tFuente: 'Fuente: BCB, IF.Data.', cols: ['Holgura', 'Crec. RWA'],
+     corto: (d, i) => !d.hol || i < 0 ? ['—', '—'] : [pp(d.hol[i]), d.hc[i] == null ? '—' : '+' + Math.round(d.hc[i]) + ' %'] },
+   bva: { tit: 'Escalera de capital, Total panel', sub: 'Eje vertical: % del RWA. Eje horizontal: trimestre.', tTit: 'Capital por nivel', tSub: 'Historia desde 1T15', filas: [['Capital principal (CET1)', COBRE, false, TOT.cp, 'pct', true], ['Nivel I', '#2E5C8A', false, TOT.n1, 'pct'], ['Basilea', '#6C819B', false, TOT.bas, 'pct'], ['Requerimiento de CP', REF, true, TOT.req, 'pct']] },
+   bvb: { tit: 'Generación contra consumo de capital, a/a', sub: 'Eje vertical: %. Eje horizontal: trimestre. Muestra constante de bancos.', tTit: 'Capital principal y RWA, a/a', tSub: 'Historia desde 1T16', cero: true, filas: [['Capital principal, a/a', COBRE, false, TOT.gcp, 'pct', true], ['RWA, a/a', '#2E5C8A', false, TOT.grw, 'pct'], ['Diferencia (pp)', '#6C819B', true, TOT.gcp.map((v, k) => v == null || TOT.grw[k] == null ? null : Math.round((v - TOT.grw[k]) * 100) / 100), 'pp']] },
+   glosario: { va: 'Último: capital principal sobre RWA, en %. ' + 'Cambios en pp: t/t contra el trimestre anterior; a/a contra el mismo trimestre del año previo; 4T/4T, promedio de 4 trimestres contra los 4 anteriores. Z 10 años: (último − promedio de 40 trimestres) / desvío. Historia: caja p25–p75 desde 1T15, raya mediana, línea mín–máx, punto último. Cada bloque es una forma de agrupar el mismo panel.', vb: 'Holgura: CET1 menos el requerimiento de CP (mínimo + ACP), en pp. Crec. RWA: cuánto puede crecer el RWA antes de tocar el requerimiento. ' + 'Cambios en pp: t/t contra el trimestre anterior; a/a contra el mismo trimestre del año previo; 4T/4T, promedio de 4 trimestres contra los 4 anteriores. Z 10 años: (último − promedio de 40 trimestres) / desvío. Historia: caja p25–p75 desde 1T15, raya mediana, línea mín–máx, punto último. Cada bloque es una forma de agrupar el mismo panel.' },
+   meta: { va: 'Panel con capital (85 % del RWA del sistema; el REF da 14,2 % de CET1 para el sistema a jun-26). En 3T23 entran pagos y digitales (de 26 a 31 bancos): la banda gris marca ese cambio. Fuente: BCB, IF.Data informe 5.', vb: 'Requerimiento: BCB (ACP) desde 1T23; antes, normas con colchón sistémico por banco. Generación contra consumo sobre los bancos presentes en ambos trimestres. Fuente: BCB, IF.Data.' } },
+];
+    const DEF = Math.max(0, NQ - 16);
+    const K = {}; SECS.forEach((sc, i) => ['va', 'vb'].forEach((p) => { K[i + p] = { ...sc[p], sec: i, p, banda: sc.banda, bloque: sc['b' + p], glos: sc.glosario[p], meta: sc.meta[p] }; }));
+    const serieG = (key, o, g) => { const d = o === 'Total panel' ? TOT : X.op[o][g]; return (K[key].derivar ? K[key].derivar(d) : d[K[key].k]) || new Array(NQ).fill(null); };
+    const mkSeries = (key) => grupos(op).map((g, j) => ({ id: g, nombre: g, color: PAL[j % PAL.length], ancho: 2.5, datos: serieG(key, op, g) })).concat([{ id: 'tot', nombre: 'Total panel', color: COBRE, ancho: 2.5, datos: serieG(key, 'Total panel') }]);
+    const PARES = {}; Object.keys(K).forEach((key) => { PARES[key] = { ...K[key], series: mkSeries(key) }; });
+    const armar = (key) => {
+      const P = PARES[key], sel = st.sel[key] || [], aj = !!st.aj[key];
+      const on = (id) => !sel.length || sel.includes(id);
+      const toggle = (id, m) => { const nuevo = m ? (sel.includes(id) ? sel.filter((k) => k !== id) : sel.concat(id)) : (sel.length === 1 && sel[0] === id ? [] : [id]); this.setState({ sel: { ...this.state.sel, [key]: nuevo }, aj: { ...this.state.aj, [key]: nuevo.length ? aj : false } }); };
+      const fijoG = st.fijo == null ? NQ - 1 : st.fijo;
+      const cfg = (d, h, w, alto) => { const SR = P.apilar ? P.series.filter((s) => s.id !== 'tot') : P.series, AP = P.apilar ? apil(SR, d, h, sel, aj) : null; return {
+        w, h: alto, reservaDer: 64, n: h - d + 1, categorico: true, etiquetas: Q.slice(d, h + 1), ticksX: ticksQ(Q, d, h), ...(AP ? AP.esc : escala(SR, d, h, !!P.cero, aj ? sel : null)), sufijo: P.fmt === 'pct' ? ' %' : '', decimales: 1,
+        series: AP ? AP.series : SR.map((s) => ({ id: s.id, color: s.color, ancho: s.ancho, dash: s.dash, valores: s.datos.slice(d, h + 1) })), fills: [], sel,
+        bandas: (() => { const r = []; const iB = P.banda ? Q.indexOf(P.banda) : -1; if (iB >= d && iB <= h) r.push({ desde: Math.max(d, iB - 1) - d, hasta: iB - d, texto: 'Res. 4.966' }); const iP = P.panel ? Q.indexOf(P.panel) : -1; if (iP >= d && iP <= h) r.push({ desde: iP - d, hasta: iP - d, texto: '' }); return r; })(),
+        fijo: Math.min(h, Math.max(d, fijoG)) - d, hover: st.hover != null && st.hover >= d && st.hover <= h ? st.hover - d : null,
+        onFijar: (i) => this.setState({ fijo: Math.max(d, Math.min(h, i + d)), hover: null }), onHover: (i) => this.setState({ hover: i == null ? null : i + d }), onSerie: toggle }; };
+      const leyenda = P.series.map((s) => ({ nombre: s.nombre, pres: sel.includes(s.id) ? 'true' : 'false', sw: linea(s), est: (sel.includes(s.id) ? 'border-color:#2E5C8A;background:#E8EEF5;' : '') + (on(s.id) ? '' : 'opacity:0.45;'), click: (e) => toggle(s.id, multi(e)) }));
+      const fila = (o, g, largo, g1, color) => {
+        const a = serieG(key, o, g), i = ultI(a), id = o === 'Total panel' ? 'tot' : g, enG = P.series.some((q) => q.id === id) && (o === op || id === 'tot');
+        const f = FMT[P.fmt], corto = P.corto ? P.corto(o === 'Total panel' ? TOT : X.op[o][g], i, FMT) : [f(a[i]), i >= 4 && a[i - 4] != null ? pp(a[i] - a[i - 4]) : '—'];
+        return { _a: a, nombre: id === 'tot' ? 'Total panel' : g, corte: i >= 0 ? Q[i] : '—', v: largo ? [f(a[i])].concat(camb(a)) : corto, cls: id === 'tot' ? 'tot' : g1 ? 'g1' : '', pres: sel.includes(id) && enG ? 'true' : 'false',
+          sw: linea({ color: id === 'tot' ? COBRE : (enG ? P.series.find((q) => q.id === id).color : (color || '#C9D2DC')) }),
+          est: enG && sel.includes(id) ? 'background:#E8EEF5' : !enG || on(id) ? '' : 'opacity:0.4', click: (e) => { if (e) e.stopPropagation(); if (enG) toggle(id, multi(e)); } };
+      };
+      const ajuste = { sinSel: sel.length === 0, ajustar: () => this.setState({ aj: { ...this.state.aj, [key]: !aj } }), ajusteTxt: aj ? 'Eje completo' : 'Ajustar eje', ajustePres: aj ? 'true' : 'false', ajusteEst: aj ? 'background:#E8EEF5;border-color:#2E5C8A;color:#1F3F60;font-weight:600' : '' };
+      return { P, cfg, leyenda, fila, ajuste };
+    };
+    const AR = {}; Object.keys(K).forEach((key) => { AR[key] = armar(key); });
+    const abrir = (key) => () => this.setState({ vista: key, desde: DEF, hasta: NQ - 1 });
+    const corto = (Xp) => grupos(op).map((g) => Xp.fila(op, g, false)).concat([Xp.fila('Total panel', null, false)]);
+    const TOPS = {}; let yy = 48 + 46 + 14;
+    const pares = Object.keys(K).map((key) => { const Xp = AR[key], cab = K[key].p === 'va'; if (cab) yy += 82; TOPS[key] = yy; yy += 576;
+      return { ...Xp.P, ...Xp.ajuste, control: false, cab, cabNum: SECS[K[key].sec].num, cabNombre: SECS[K[key].sec].nombre, leyenda: Xp.leyenda, cfg: Xp.cfg(DEF, NQ - 1, 910, 390), filas: corto(Xp), abrir: abrir(key) }; });
+    const ALTO = yy - 14 + 48;
+    const cajaEst = (todos, W) => { const lo = Math.min(...todos), hi = Math.max(...todos); return (x) => ((x - lo) / (hi - lo || 1) * W).toFixed(1); };
+    const qn = (a, p) => { const s = a.slice().sort((x, y) => x - y), k = (s.length - 1) * p, f = Math.floor(k); return s[f] + (s[Math.min(f + 1, s.length - 1)] - s[f]) * (k - f); };
+    const estilos = (a, X0, chico, color, lo0) => { const u = a[a.length - 1], mn = Math.min(...a), mx = Math.max(...a), h = chico ? [12, 6, 2, 8, 3, 6] : [16, 8, 3, 10, 4, 8];
+      return { b0: lo0 != null ? 'position:absolute;top:0;height:' + h[0] + 'px;width:1px;background:#C9D2DC;left:' + lo0 + 'px' : 'display:none',
+        bw: 'position:absolute;top:' + h[1] + 'px;height:1px;background:#8A93A0;left:' + X0(mn) + 'px;width:' + (X0(mx) - X0(mn)).toFixed(1) + 'px',
+        bb: 'position:absolute;top:' + h[2] + 'px;height:' + h[3] + 'px;box-sizing:border-box;border:1px solid #8A93A0;background:#EEF1F5;left:' + X0(qn(a, 0.25)) + 'px;width:' + (X0(qn(a, 0.75)) - X0(qn(a, 0.25))).toFixed(1) + 'px',
+        bm: 'position:absolute;top:' + h[2] + 'px;height:' + h[3] + 'px;width:1px;background:#24324A;left:' + X0(qn(a, 0.5)) + 'px',
+        bp: 'position:absolute;top:' + h[4] + 'px;width:' + h[5] + 'px;height:' + h[5] + 'px;border-radius:50%;margin-left:-' + h[5] / 2 + 'px;background:' + color + ';left:' + X0(u) + 'px' }; };
+    const atip = (arrs, sinNivel, protege) => { const A = arrs.map((a) => (a || []).filter((x) => x != null)), out = new Set(), q = (s, p) => s[Math.floor((s.length - 1) * p)];
+      A.forEach((a, i) => { if (a.length < 8) return; const s = a.slice().sort((x, y) => x - y), sp = q(s, 0.9) - q(s, 0.1); const md = q(s, 0.5), umbral = Math.max(4 * sp, 0.5 * Math.abs(md)); if (sp > 0 && (s[0] < q(s, 0.1) - umbral || s[s.length - 1] > q(s, 0.9) + umbral)) out.add(i); });
+      let vivos = A.map((a, i) => i).filter((i) => A[i].length >= 8 && !out.has(i));
+      const span = (ix) => { let lo = Infinity, hi = -Infinity; ix.forEach((i) => A[i].forEach((x) => { lo = Math.min(lo, x); hi = Math.max(hi, x); })); return hi - lo; };
+      for (let it = 0; it < 2 && !sinNivel && vivos.length >= 4; it++) { const sp = span(vivos); let mej = -1, spm = sp; vivos.forEach((i) => { const s2 = span(vivos.filter((j) => j !== i)); if (s2 < spm) { spm = s2; mej = i; } }); if (mej >= 0 && spm * 3 < sp) { out.add(mej); vivos = vivos.filter((j) => j !== mej); } else break; }
+      (protege || []).forEach((i) => out.delete(i)); return out; };
+    const NOTA_AT = '* Serie con valores extremos: queda fuera de la escala común y no se dibuja su caja de historia, para no deformar las demás.';
+    const marcarAt = (filas, sinNivel) => { const ix = atip(filas.map((r) => r._a), sinNivel, filas.map((r, i) => r.cls === 'tot' ? i : -1).filter((i) => i >= 0)); return filas.map((r, i) => ix.has(i) ? { ...r, nombre: r.nombre + ' *', _a: [], _at: true } : r); };
+    const conCaja = (filas0, sinNivel) => { const filas = marcarAt(filas0, sinNivel); const todos = filas.flatMap((r) => (r._a || []).filter((x) => x != null)); if (!todos.length) return filas; const X0 = cajaEst(todos, 80), lo = Math.min(...todos), hi = Math.max(...todos);
+      return filas.map((r) => { const a = (r._a || []).filter((x) => x != null); if (a.length < 8) return { ...r, b0: 'display:none', bw: 'display:none', bb: 'display:none', bm: 'display:none', bp: 'display:none' }; return { ...r, ...estilos(a, X0, true, r.cls === 'tot' ? COBRE : '#2E5C8A', lo < 0 && hi > 0 ? X0(0) : null) }; }); };
+    const caja = (Bq, lab) => { const OUT = atip(Bq.filas.map((r) => r[3]), !!Bq.apilar, Bq.filas.map((r, i) => r[5] ? i : -1).filter((i) => i >= 0)), todos = Bq.filas.filter((r, i) => !OUT.has(i)).flatMap((r) => r[3].filter((x) => x != null)), X0g = cajaEst(todos, 80), lo = Math.min(...todos), hi = Math.max(...todos);
+      return Bq.filas.map((r, i) => { const a = r[3].filter((x) => x != null), X0 = Bq.porFila ? cajaEst(a, 80) : X0g, at = OUT.has(i) && !Bq.porFila; return { _at: at, nombre: r[0] + (at ? ' *' : ''), corte: lab[ultI(r[3])], v: [FMT[r[4]](a[a.length - 1]), pp(zz(r[3], Bq.zn || 40))], cls: r[5] ? 'tot' : '', sw: linea({ color: r[1], dash: r[2] }), ...(at ? { b0: 'display:none', bw: 'display:none', bb: 'display:none', bm: 'display:none', bp: 'display:none' } : estilos(a, X0, true, r[1], !Bq.porFila && lo < 0 && hi > 0 ? X0(0) : null)) }; }); };
+    let d = {};
+    const v = st.vista;
+    if (v) {
+      const Xp = AR[v], P = Xp.P, Bq = K[v].bloque;
+      const dd = st.desde == null ? DEF : st.desde, hh = st.hasta == null ? NQ - 1 : st.hasta;
+      const filas = [];
+      const ETQ = { seg: 'Segmento regulatorio', prop: 'Propiedad', mod: 'Modelo de negocio', fin: 'Tradicionales / fintechs' };
+      const totLleno = serieG(v, 'Total panel').map((x, k, a) => x == null ? (a.slice(k).find((y) => y != null) ?? 0) : x);
+      const bloqueOp = (k) => {
+        const o = OPT[k], key = v + '|' + k, r = st.rng[key] || { d: DEF, h: NQ - 1 }, d0 = r.d, h0 = r.h, sel = st.selO[key] || [], aj = !!st.ajO[key] && sel.length > 0;
+        const on = (id) => !sel.length || sel.includes(id);
+        const toggle = (id, m) => { const nuevo = m ? (sel.includes(id) ? sel.filter((x) => x !== id) : sel.concat(id)) : (sel.length === 1 && sel[0] === id ? [] : [id]); this.setState({ selO: { ...this.state.selO, [key]: nuevo }, ajO: { ...this.state.ajO, [key]: nuevo.length ? this.state.ajO[key] : false } }); };
+        const ser = recorte(grupos(o).map((g, j) => ({ id: g, color: PAL[j % PAL.length], ancho: 2, datos: serieG(v, o, g) })).concat([{ id: 'tot', color: COBRE, ancho: 2.5, datos: serieG(v, 'Total panel') }]), d0, h0), APo = P.apilar ? apil(ser.filter((s) => s.id !== 'tot'), d0, h0, sel, aj) : null;
+        const cfg = { w: 700, h: 220, reservaDer: 56, n: h0 - d0 + 1, categorico: true, etiquetas: Q.slice(d0, h0 + 1), ticksX: ticksQ(Q, d0, h0), ...(APo ? APo.esc : escala(ser, d0, h0, !!P.cero, aj ? sel : null)), sufijo: P.fmt === 'pct' ? ' %' : '', decimales: 1,
+          series: APo ? APo.series : ser.map((s) => ({ id: s.id, color: s.color, ancho: s.ancho, valores: s.datos.slice(d0, h0 + 1) })), fills: [], sel, fijo: h0 - d0, hover: null, onFijar: () => {}, onHover: () => {}, onSerie: (id, m) => toggle(id, m),
+          bandas: Xp.cfg(d0, h0, 10, 10).bandas };
+        const cfgR = { w: 640, n: NQ, etiquetas: Q, serie: totLleno, desde: d0, hasta: h0, minimo: 4, unidad: 'trimestres', onRango: (x, z) => this.setState({ rng: { ...this.state.rng, [key]: { d: x, h: z } } }) };
+        const ids = grupos(o).concat(['tot']);
+        const filas = conCaja(grupos(o).map((g, j) => Xp.fila(o, g, true, false, PAL[j % PAL.length])).concat([Xp.fila('Total panel', null, true)]), !!P.apilar).map((row, n) => { const id = ids[n];
+          return { ...row, pres: sel.includes(id) ? 'true' : 'false', est: sel.includes(id) ? 'background:#E8EEF5' : on(id) ? '' : 'opacity:0.4', click: (e) => { if (e) e.stopPropagation(); toggle(id, multi(e)); } }; });
+        return { nombre: ETQ[k], sub: '', nota: filas.some((r) => r._at) ? NOTA_AT : '', cols: ['Último', 't/t', 'a/a', '4T/4T', 'Z 10 años'], cfg, cfgR, filas, sinSel: sel.length === 0, ajTxt: aj ? 'Eje completo' : 'Ajustar eje', ajPres: aj ? 'true' : 'false', ajEst: aj ? 'background:#E8EEF5;border-color:#2E5C8A;color:#1F3F60;font-weight:600' : '', ajustar: () => this.setState({ ajO: { ...this.state.ajO, [key]: !this.state.ajO[key] } }) };
+      };
+      const ops = Object.keys(OPT).map(bloqueOp);
+      const bloqueInf = () => {
+        const key = v + '|inf', labI = Bq.lab || Q, nI = labI.length, defI = Bq.lab ? Math.max(0, nI - 60) : DEF, r = st.rng[key] || { d: defI, h: nI - 1 }, d0 = r.d, h0 = r.h, sel = st.selO[key] || [], aj = !!st.ajO[key] && sel.length > 0;
+        const on = (id) => !sel.length || sel.includes(id);
+        const toggle = (id, m) => { const nuevo = m ? (sel.includes(id) ? sel.filter((x) => x !== id) : sel.concat(id)) : (sel.length === 1 && sel[0] === id ? [] : [id]); this.setState({ selO: { ...this.state.selO, [key]: nuevo }, ajO: { ...this.state.ajO, [key]: nuevo.length ? this.state.ajO[key] : false } }); };
+        const ser = Bq.filas.map((rw, n) => ({ id: 'b' + n, color: rw[1], ancho: rw[5] ? 2.5 : 2, dash: rw[2] ? '6 4' : undefined, datos: rw[6] ? new Array(nI).fill(null) : rw[3] })), APi = Bq.apilar ? apil(ser, d0, h0, sel, aj) : null;
+        const iBq = Bq.lab ? labI.indexOf('ene-25') : (K[v].banda ? Q.indexOf(K[v].banda) : -1);
+        const cfg = { w: 700, h: 220, reservaDer: 56, n: h0 - d0 + 1, categorico: true, etiquetas: labI.slice(d0, h0 + 1), ticksX: ticksQ(labI, d0, h0), ...(APi ? APi.esc : escala(ser, d0, h0, !!Bq.cero, aj ? sel : null)), sufijo: '', decimales: 1,
+          series: APi ? APi.series : ser.slice().reverse().map((s) => ({ id: s.id, color: s.color, ancho: s.ancho, dash: s.dash, valores: s.datos.slice(d0, h0 + 1) })), fills: [], sel, fijo: h0 - d0, hover: null, onFijar: () => {}, onHover: () => {}, onSerie: (id, m) => toggle(id, m),
+          bandas: iBq >= d0 && iBq <= h0 ? [{ desde: Math.max(d0, iBq - 1) - d0, hasta: iBq - d0, texto: Bq.lab ? '' : 'Res. 4.966' }] : [] };
+        const totI = (Bq.filas.find((rw) => rw[5]) || Bq.filas[0])[3].map((x, k2, a) => x == null ? (a.slice(k2).find((y) => y != null) ?? 0) : x);
+        const cfgR = { w: 640, n: nI, etiquetas: labI, serie: totI, desde: d0, hasta: h0, minimo: 4, unidad: Bq.lab ? 'meses' : 'trimestres', onRango: (x, z) => this.setState({ rng: { ...this.state.rng, [key]: { d: x, h: z } } }) };
+        const filas = caja(Bq, labI).map((row, n) => { const id = 'b' + n; return { ...row, pres: sel.includes(id) ? 'true' : 'false', est: sel.includes(id) ? 'background:#E8EEF5' : on(id) ? '' : 'opacity:0.4', click: (e) => { if (e) e.stopPropagation(); toggle(id, multi(e)); } }; });
+        return { nombre: Bq.tit, sub: Bq.sub, nota: filas.some((r) => r._at) ? NOTA_AT : '', cols: ['Último', 'Z 10 años'], cfg, cfgR, filas, sinSel: sel.length === 0, ajTxt: aj ? 'Eje completo' : 'Ajustar eje', ajPres: aj ? 'true' : 'false', ajEst: aj ? 'background:#E8EEF5;border-color:#2E5C8A;color:#1F3F60;font-weight:600' : '', ajustar: () => this.setState({ ajO: { ...this.state.ajO, [key]: !this.state.ajO[key] } }) };
+      };
+      const lab = Bq.lab || Q, nB = lab.length, iBb = Bq.lab ? lab.indexOf('ene-25') : (K[v].banda ? Q.indexOf(K[v].banda) : -1);
+      const bs = Bq.filas.filter((r) => !r[6]).map((r, k) => ({ id: 'b' + k, color: r[1], ancho: r[5] ? 2.5 : 2, dash: r[2] ? '6 4' : undefined, datos: r[3] }));
+      d = { titulo: P.titulo, sub: P.sub, control: true, estPaneles: 'display: none;', paneles: [], leyenda: Xp.leyenda, ...Xp.ajuste, cfg: Xp.cfg(dd, hh, 1490, 300), filas, ops: ops.concat([bloqueInf()]),
+        cols: ['Último', 't/t', 'a/a', '4T/4T', 'Z 10 años'], atajoTxt: 'Últimos 16 trimestres',
+        cfgR: { w: 1380, n: NQ, etiquetas: Q, serie: serieG(v, 'Total panel').map((x, k, a) => x == null ? (a.slice(k).find((y) => y != null) ?? 0) : x), desde: dd, hasta: hh, minimo: 4, unidad: 'trimestres', onRango: (x, z) => this.setState({ desde: x, hasta: z }) },
+        ciclo: false, bTit: Bq.tit, bSub: Bq.sub, bTTit: Bq.tTit, bTSub: Bq.tSub, bCols: ['Último', 'Z 10 años'], bBox: true,
+        bGrid: 'display: grid; grid-template-columns: 1000px minmax(0, 1fr); gap: 24px; border-top: 1px solid #E6EAEF; padding-top: 12px;',
+        cicloCfg: { w: 980, h: 250, reservaDer: 64, n: nB, categorico: true, etiquetas: lab, ticksX: ticksQ(lab, 0, nB - 1), ...escala(bs, 0, nB - 1, !!Bq.cero), sufijo: '', decimales: 1, series: bs.slice().reverse().map((s) => ({ id: s.id, color: s.color, ancho: s.ancho, dash: s.dash, valores: s.datos })), fills: [], sel: [], fijo: nB - 1, hover: null, onFijar: () => {}, onHover: () => {}, onSerie: () => {},
+          bandas: iBb >= 0 ? [{ desde: Math.max(0, iBb - 1), hasta: iBb, texto: Bq.lab ? '' : 'Res. 4.966' }] : [] },
+        cicloFilas: caja(Bq, lab),
+        glosario: K[v].glos, meta: K[v].meta };
+      d.atajoOk = Object.keys(st.rng).every((x) => !x.startsWith(v + '|'));
+    }
+    return {
+      pares, d, corte: st.corte, abierto: !!v,
+      raizEst: 'position: relative; width: 1600px; height: ' + ALTO + 'px; box-sizing: border-box; padding: 48px; background: #F6F7F8; color: #24324A; font-family: \'IBM Plex Sans\', system-ui, sans-serif; display: flex; flex-direction: column; gap: 14px;',
+      overEst: 'position: absolute; left: 0; top: 0; width: 1600px; height: ' + ALTO + 'px; background: rgba(27,36,51,0.45); z-index: 20;',
+      dlgEst: 'top: ' + (v ? Math.max(24, Math.min(TOPS[v] - 40, ALTO - 2200)) : 24) + 'px;',
+      elegirCorte: (e) => this.setState({ corte: e.target.value, sel: {}, aj: {} }),
+      atajo: v && d.atajoOk ? 'def' : 'pers',
+      elegirAtajo: (e) => { if (e.target.value === 'def' && v) { const r = { ...this.state.rng }; Object.keys(r).forEach((x) => { if (x.startsWith(v + '|')) delete r[x]; }); this.setState({ rng: r }); } },
+      cerrar: () => this.setState({ vista: null, desde: null, hasta: null }),
+      onKey: (e) => { if (e.key === 'Escape') { e.preventDefault(); this.setState({ vista: null }); } },
+    };
+  }
+}
+</script>
+</body>
+</html>

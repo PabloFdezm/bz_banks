@@ -7,6 +7,8 @@ setlocal
 cd /d "%~dp0"
 set "PROYECTO=banks-bz"
 if /i "%~1"=="datos" (call actualizar.bat || goto error)
+echo [0/3] Construyendo el sitio v2 (hojas del canvas)...
+python -X utf8 herramientas\construir_v2.py || goto error
 echo [1/3] Copiando el sitio...
 robocopy "sitio" "deploy_web" /MIR /XJ /XD data /NFL /NDL /NJH /NJS /NP
 if %ERRORLEVEL% GEQ 8 goto error

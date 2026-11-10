@@ -1,6 +1,6 @@
 # Frente 16 · Hoja «Inmobiliario»: códigos SGS que faltan y paso a gold
 
-Estado al 10-nov-2026: **A hecha; B y C por hacer**. Encargo pensado para que lo ejecute otra sesión u otra LLM sin contexto previo.
+Estado al 10-nov-2026: **A y B hechas; C por hacer**. Encargo pensado para que lo ejecute otra sesión u otra LLM sin contexto previo.
 Leer antes `CLAUDE.md`, `tareas/README.md` y `tareas/12_hoja_tarjeta.md` (mismo patrón de gold por producto).
 
 ## Contexto
@@ -25,19 +25,26 @@ Leer antes `CLAUDE.md`, `tareas/README.md` y `tareas/12_hoja_tarjeta.md` (mismo 
   433 = IPCA. Propuesta: IVG-R a la sección Calidad (valor de la garantía) y 240 a Fondeo (flujo de poupança); los
   demás quedan de contexto. Decide Pablo.
 
-## Parte B · Paso a gold
-- Agregar `inmobiliario` a `PRODUCTOS_SGS` y `PRODUCTOS_SCR` de `preparar_gold_bancos_producto_pf.py` (submodalidades:
-  total, mercado y regulada con saldo, concesiones, tasa y mora90; SCR: «Inmobiliario»; instituciones de pago y
-  fintechs a «Otros», como hace el borrador).
-- Agregar `"inmobiliario": ["mercado", "regulada"]` a `DESCOMPONER` (efecto tasa / mezcla de la tasa media). Ojo con
-  los pesos: la tasa de mercado es ~12 % del saldo (sep-26), así que sus movimientos mueven poco el total.
-- El borrador pasa a leer solo de gold, igual que `extraer_producto.py`.
-- Tests: los de la parte B del frente 12 con el producto nuevo.
+## Parte B · Paso a gold · hecha el 10-nov
+- `preparar_gold_bancos_producto_pf.py`: producto `inmobiliario` en `PRODUCTOS_SGS` (subs total, mercado y regulada,
+  con saldo, concesiones, tasa y mora90), en `DESCOMPONER` (mercado / regulada, peso = concesiones del mes) y en
+  `PRODUCTOS_SCR` («Inmobiliario»). En el SCR los bancos son el 99,3 % del saldo (sep-26): fintechs (0,03 %, mora
+  ~37 %), financieras (0,002 %) e instituciones de pago (no hay) van a «Otros» (`OTROS_INSTITUCION`). Con eso la
+  dimensión «institución» casi no informa: Bancos, Cooperativas y Otros.
+- Gold reconstruido: `bk_producto_pf_m` 19.181 filas, `bk_producto_pf_scr_m` 1.106.404. SCR contra SGS a sep-26:
+  R$ 1.471 mil millones contra 1.443 (+2 %).
+- Tests: el cuadre de partes (mercado + regulada = total, ±1) entra en `test_gold_sgs_totales_cuadran`, y
+  `test_gold_inmobiliario_scr_calza_con_sgs` es nuevo (suite: 262 pasan; verificador de gold OK).
+- El borrador `extraer_inmobiliario.py` lee solo gold (copia del anterior en el scratchpad de la sesión). Cambios
+  contra el JSON previo: P1 mercado / regulada ya con datos (antes «en preparación»), concesiones y tasas con sep-26
+  (el crudo viejo llegaba a ago-26) y «Financieras» sumada a «Otros» en las vistas por institución.
 
 ## Parte C · Verificaciones
 1. Activo problemático 5,1 % contra mora 1,5 % (sep-26): confirmar que la diferencia son reestructuraciones y no un
    cambio de definición de la Res. 4.966; medir desde cuándo.
-2. Concesiones con tasa de mercado −39 % a/a y regulada +26 % (sep-26): confirmar con las notas del BCB o de la Abecip
+2. Concesiones con tasa de mercado contra regulada. Las cifras del spec original (−39 % / +26 %) no se reproducen; a
+   sep-26: 12 meses a/a −1,2 % y +28,1 %; mes contra mismo mes del año anterior −34 % y +7 % (peso de mercado en las
+   concesiones del mes: 17,6 %): confirmar con las notas del BCB o de la Abecip
    si es traslado de originación de SBPE-mercado a SFH/MCMV.
 3. Cobertura poupança / crédito inmobiliario: 71 % a sep-26 (80 % un año antes) es una sobreestimación con dos
    sesgos. Denominador: el SBPE financia también a constructoras, así que corresponde PF + PJ (20612 + 20600), no

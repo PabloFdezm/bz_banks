@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Sección 03 · NPL: mora y atraso temprano</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&amp;family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;display=swap">
+<style>
+body{margin:0}
+button:focus-visible,select:focus-visible{outline:2px solid #2E5C8A;outline-offset:2px}
+.btn{font-family:'IBM Plex Sans',sans-serif;font-size:14px;height:44px;padding:0 16px;border:1px solid #C9D2DC;border-radius:4px;background:#FFFFFF;color:#24324A;cursor:pointer;display:inline-flex;align-items:center;gap:8px;flex-shrink:0;box-sizing:border-box}
+.btn:hover{border-color:#2E5C8A;color:#2E5C8A}
+.btn:disabled{color:#6B7684;border-color:#C9D2DC;background:#FFFFFF;cursor:default}
+.btn:disabled:hover{color:#6B7684;border-color:#C9D2DC}
+.agr{width:36px;height:36px;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;padding:0;border:1px solid transparent;border-radius:4px;background:transparent;color:#5B6573;cursor:pointer}
+.agr:hover{background:#EEF1F5;color:#2E5C8A}
+.sel{font-family:'IBM Plex Sans',sans-serif;font-size:14px;height:44px;padding:0 10px;border:1px solid #C9D2DC;border-radius:4px;background:#FFFFFF;color:#24324A;box-sizing:border-box}
+.ley{font-family:'IBM Plex Sans',sans-serif;font-size:13px;height:36px;padding:0 10px;border:1px solid transparent;border-radius:4px;background:transparent;color:#24324A;cursor:pointer;display:inline-flex;align-items:center;gap:6px;box-sizing:border-box}
+.ley:hover{border-color:#C9D2DC}
+.aj{border:1px solid #C9D2DC;margin-left:auto}
+.aj:disabled{color:#8A93A0;border-color:#E1E6EC;cursor:default}
+.card{background:#FFFFFF;border:1px solid #E1E6EC;border-radius:4px;padding:16px 24px 12px;display:flex;flex-direction:column;gap:6px;box-sizing:border-box;min-width:0}
+.ct{font-size:18px;line-height:24px;font-weight:600;color:#24324A}
+.cs{font-size:13px;line-height:18px;color:#5B6573}
+.tb{width:100%;border-collapse:collapse;font-size:13px}
+.tb th,.tb td{padding:9px 8px;border-bottom:1px solid #E6EAEF;text-align:right;font-family:'IBM Plex Mono',monospace;font-weight:400;color:#24324A;white-space:nowrap}
+.tb thead th{font-family:'IBM Plex Sans',sans-serif;font-weight:600;font-size:12px;border-bottom:1px solid #24324A}
+.tb .ind{text-align:left;font-family:'IBM Plex Sans',sans-serif;white-space:normal}
+.tb tr.tot th,.tb tr.tot td{font-weight:600;border-top:2px solid #8A93A0}
+.tb tr.g1 th,.tb tr.g1 td{border-top:2px solid #8A93A0}
+.tb tbody tr{cursor:pointer}
+.tb tbody tr:hover{background:#F6F7F8}
+.fb{font-family:'IBM Plex Sans',sans-serif;font-size:13px;border:0;background:transparent;color:inherit;padding:0;cursor:pointer;display:inline-flex;align-items:center;gap:8px;text-align:left;font-weight:inherit;min-height:24px}
+.m{font-family:'IBM Plex Mono',monospace;font-weight:500}
+.md{font-size:12px;line-height:18px;color:#5B6573;margin:0}
+.fu{font-size:12px;color:#5B6573;margin-top:auto}
+.sh{display:flex;align-items:center;gap:12px;height:44px}
+.bl{border:1px solid #E1E6EC;border-radius:4px;padding:12px 16px;box-sizing:border-box;min-width:0;display:flex;flex-direction:column;gap:2px}
+.bt{font-size:14px;line-height:20px;font-weight:600;color:#24324A}
+.bs{font-size:12px;line-height:16px;color:#5B6573}
+.g12{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:16px;row-gap:12px}
+.c3{grid-column:span 3}.c6{grid-column:span 6}.c9{grid-column:span 9}.c12{grid-column:span 12}
+.dlg{position:absolute;left:24px;width:1552px;box-sizing:border-box;background:#FFFFFF;border-radius:4px;padding:20px 28px 24px;display:flex;flex-direction:column;gap:12px}
+</style>
+</helmet>
+<div style="position: relative; width: 1600px; height: 1440px; box-sizing: border-box; padding: 48px; background: #F6F7F8; color: #24324A; font-family: 'IBM Plex Sans', system-ui, sans-serif; display: flex; flex-direction: column; gap: 14px;">
+  <div class="sh" style="border-top: 2px solid #24324A; padding-top: 10px;">
+    <span style="font-family: 'IBM Plex Mono', monospace; font-size: 15px; color: #5B6573;">03</span>
+    <span style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 26px; color: #2E5C8A;">NPL: mora y atraso temprano</span>
+  </div>
+  <sc-for list="{{pares}}" as="s" hint-placeholder-count="2">
+    <div style="display: grid; grid-template-columns: 960px minmax(0, 1fr); gap: 24px; height: 560px; margin-bottom: 2px;">
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px;">
+          <div><div class="ct">{{s.titulo}}</div><div class="cs">{{s.sub}}</div></div>
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <sc-if value="{{s.control}}" hint-placeholder-val="{{false}}"><select class="sel" aria-label="Corte" value="{{corte}}" onChange="{{elegirCorte}}"><option value="pfpj">Personas / Empresas</option><option value="lidi">Libre / Dirigido</option><option value="pfld">Personas: libre / dirigido</option><option value="todos">Todos</option></select></sc-if>
+            <button class="btn" type="button" style="{{s.ajusteEst}}" aria-pressed="{{s.ajustePres}}" disabled="{{s.sinSel}}" onClick="{{s.ajustar}}">{{s.ajusteTxt}}</button>
+            <button class="btn" type="button" onClick="{{s.abrir}}" aria-haspopup="dialog"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M9.5 2.5h4v4M6.5 13.5h-4v-4M13.5 2.5l-5 5M2.5 13.5l5-5"></path></svg>Agrandar</button>
+          </div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 4px;">
+          <sc-for list="{{s.leyenda}}" as="l" hint-placeholder-count="3">
+            <button class="ley" type="button" style="{{l.est}}" aria-pressed="{{l.pres}}" onClick="{{l.click}}"><span style="{{l.sw}}"></span>{{l.nombre}}</button>
+          </sc-for>
+        </div>
+        <dc-import name="Grafico" cfg="{{s.cfg}}" hint-size="910px,390px"></dc-import>
+        <div class="fu">{{s.fuente}}</div>
+      </div>
+      <div class="card">
+        <div class="ct">{{s.tTitulo}}</div><div class="cs">{{s.tSub}}</div>
+        <table class="tb" style="margin-top: 8px;">
+          <thead><tr><th class="ind">Indicador</th><th>Corte</th><sc-for list="{{s.cols}}" as="c" hint-placeholder-count="3"><th>{{c}}</th></sc-for></tr></thead>
+          <tbody>
+            <sc-for list="{{s.filas}}" as="r" hint-placeholder-count="3">
+              <tr class="{{r.cls}}" style="{{r.est}}" onClick="{{r.click}}"><th class="ind"><button class="fb" type="button" aria-pressed="{{r.pres}}" onClick="{{r.click}}"><span style="{{r.sw}}"></span>{{r.nombre}}</button></th><td>{{r.corte}}</td><sc-for list="{{r.v}}" as="x" hint-placeholder-count="3"><td>{{x}}</td></sc-for></tr>
+            </sc-for>
+          </tbody>
+        </table>
+        <div class="fu">{{s.tFuente}}</div>
+      </div>
+    </div>
+  </sc-for>
+  <sc-if value="{{abierto}}" hint-placeholder-val="{{false}}">
+    <div style="position: absolute; left: 0; top: 0; width: 1600px; height: 1440px; background: rgba(27,36,51,0.45); z-index: 20;">
+      <div class="dlg" role="dialog" aria-modal="true" aria-label="{{d.titulo}}" onKeyDown="{{onKey}}" style="top: 24px; max-height: 1392px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 16px; height: 48px;">
+          <div><div style="font-size: 20px; line-height: 26px; font-weight: 600;">{{d.titulo}}</div><div class="cs">{{d.sub}}</div></div>
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <sc-if value="{{d.control}}" hint-placeholder-val="{{false}}"><select class="sel" aria-label="Corte" value="{{corte}}" onChange="{{elegirCorte}}"><option value="pfpj">Personas / Empresas</option><option value="lidi">Libre / Dirigido</option><option value="pfld">Personas: libre / dirigido</option><option value="todos">Todos</option></select></sc-if>
+            <select class="sel" aria-label="Período" onChange="{{elegirAtajo}}" value="{{atajo}}"><option value="def">{{d.atajoTxt}}</option><option value="pers" disabled="{{true}}">Personalizado</option></select>
+            <button class="btn" type="button" style="{{d.ajusteEst}}" aria-pressed="{{d.ajustePres}}" disabled="{{d.sinSel}}" onClick="{{d.ajustar}}">{{d.ajusteTxt}}</button>
+            <button class="btn" type="button" onClick="{{cerrar}}">Cerrar</button>
+          </div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 4px;">
+          <sc-for list="{{d.leyenda}}" as="l" hint-placeholder-count="3">
+            <button class="ley" type="button" style="{{l.est}}" aria-pressed="{{l.pres}}" onClick="{{l.click}}"><span style="{{l.sw}}"></span>{{l.nombre}}</button>
+          </sc-for>
+        </div>
+        <dc-import name="Grafico" cfg="{{d.cfg}}" hint-size="1490px,300px"></dc-import>
+        <div style="padding-left: 44px;"><dc-import name="Rango" cfg="{{d.cfgR}}" hint-size="1380px,64px"></dc-import></div>
+        <table class="tb" style="margin-top: 4px;">
+          <thead><tr><th class="ind">Indicador</th><th>Corte</th><sc-for list="{{d.cols}}" as="c" hint-placeholder-count="6"><th>{{c}}</th></sc-for><th>Historia</th></tr></thead>
+          <tbody>
+            <sc-for list="{{d.filas}}" as="r" hint-placeholder-count="5">
+              <tr class="{{r.cls}}" style="{{r.est}}" onClick="{{r.click}}"><th class="ind"><button class="fb" type="button" aria-pressed="{{r.pres}}" onClick="{{r.click}}"><span style="{{r.sw}}"></span>{{r.nombre}}</button></th><td>{{r.corte}}</td><sc-for list="{{r.v}}" as="x" hint-placeholder-count="6"><td>{{x}}</td></sc-for><td style="width: 96px;"><div style="position: relative; width: 80px; height: 12px; margin-left: auto;"><div style="{{r.b0}}"></div><div style="{{r.bw}}"></div><div style="{{r.bb}}"></div><div style="{{r.bm}}"></div><div style="{{r.bp}}"></div></div></td></tr>
+            </sc-for>
+          </tbody>
+        </table>
+        <div class="bs" style="margin-top: 6px; color: #5B6573;">{{d.nota}}</div>
+        <div class="g12" style="{{d.estPaneles}}">
+          <sc-for list="{{d.paneles}}" as="p" hint-placeholder-count="2">
+            <div class="bl c6" style="height: 262px;">
+              <div class="bt">{{p.titulo}}</div><div class="bs">{{p.sub}}</div>
+              <sc-if value="{{p.esGrafico}}" hint-placeholder-val="{{true}}"><dc-import name="Grafico" cfg="{{p.cfg}}" hint-size="706px,200px"></dc-import></sc-if>
+              <sc-if value="{{p.esBarras}}" hint-placeholder-val="{{false}}">
+                <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 12px;">
+                  <sc-for list="{{p.barras}}" as="b" hint-placeholder-count="5">
+                    <div style="display: grid; grid-template-columns: 170px minmax(0, 1fr) 150px; align-items: center; gap: 12px; font-size: 13px;">
+                      <span style="{{b.nest}}">{{b.n}}</span><div style="height: 16px; background: #F1F3F6;"><div style="{{b.est}}"></div></div><span class="m" style="text-align: right; font-weight: 400;">{{b.txt}}</span>
+                    </div>
+                  </sc-for>
+                  <div class="bs" style="margin-top: 4px; color: #A85E24;">{{p.nota}}</div>
+                </div>
+              </sc-if>
+            </div>
+          </sc-for>
+        </div>
+        <sc-if value="{{d.ciclo}}" hint-placeholder-val="{{false}}">
+          <div style="{{d.bGrid}}">
+            <div style="display: flex; flex-direction: column; gap: 2px;">
+              <div class="bt">{{d.bTit}}</div><div class="bs">{{d.bSub}}</div>
+              <dc-import name="Grafico" cfg="{{d.cicloCfg}}" hint-size="900px,250px"></dc-import>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 2px;">
+              <div class="bt">{{d.bTTit}}</div><div class="bs">{{d.bTSub}}</div>
+              <table class="tb" style="margin-top: 6px;">
+                <thead><tr><th class="ind">Indicador</th><th>Corte</th><sc-for list="{{d.bCols}}" as="c" hint-placeholder-count="5"><th>{{c}}</th></sc-for><sc-if value="{{d.bBox}}" hint-placeholder-val="{{false}}"><th>Historia</th></sc-if></tr></thead>
+                <tbody><sc-for list="{{d.cicloFilas}}" as="r" hint-placeholder-count="5"><tr class="{{r.cls}}"><th class="ind"><span style="display: inline-flex; align-items: center; gap: 8px;"><span style="{{r.sw}}"></span>{{r.nombre}}</span></th><td>{{r.corte}}</td><sc-for list="{{r.v}}" as="x" hint-placeholder-count="5"><td>{{x}}</td></sc-for><sc-if value="{{d.bBox}}" hint-placeholder-val="{{false}}"><td><div style="position: relative; width: 150px; height: 16px; margin-left: auto;"><div style="{{r.b0}}"></div><div style="{{r.bw}}"></div><div style="{{r.bb}}"></div><div style="{{r.bm}}"></div><div style="{{r.bp}}"></div></div></td></sc-if></tr></sc-for></tbody>
+              </table>
+            </div>
+          </div>
+        </sc-if>
+        <div class="g12" style="border-top: 1px solid #E6EAEF; padding-top: 10px;">
+          <p class="md c6"><b style="color: #24324A;">Columnas.</b> {{d.glosario}}</p>
+          <p class="md c6"><b style="color: #24324A;">Filas y fuentes.</b> {{d.meta}}</p>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"abiertoInicial":{"editor":"text","default":""},"$preview":{"width":1600,"height":1440}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); const a = (p && p.abiertoInicial) || null; this.state = { corte: 'pfpj', sel: { va: [], vb: [] }, aj: {}, vista: a, fijo: null, hover: null, desde: null, hasta: null }; }
+  renderVals() {
+    const D = {"mo":{"tot":[2.86,2.88,2.91,2.95,3.02,2.93,2.98,3.01,2.94,2.99,2.88,2.76,2.85,2.89,2.85,2.99,3.06,2.96,3.07,3.16,3.16,3.28,3.42,3.42,3.52,3.55,3.58,3.71,3.79,3.57,3.61,3.69,3.74,3.9,3.86,3.75,3.79,3.82,3.91,4.0,4.11,3.8,3.75,3.76,3.66,3.69,3.6,3.29,3.48,3.49,3.35,3.38,3.37,3.11,3.08,3.1,3.11,3.11,3.02,2.93,3.01,2.96,3.04,3.07,3.1,2.99,3.1,3.1,3.11,3.09,3.06,2.99,3.06,3.1,3.24,3.36,3.31,2.95,2.82,2.7,2.47,2.4,2.27,2.16,2.19,2.28,2.18,2.24,2.39,2.32,2.36,2.37,2.34,2.33,2.36,2.35,2.51,2.57,2.66,2.72,2.79,2.73,2.84,2.9,2.92,3.04,3.07,3.07,3.24,3.36,3.35,3.54,3.65,3.61,3.63,3.61,3.54,3.56,3.53,3.29,3.38,3.38,3.33,3.37,3.43,3.29,3.3,3.33,3.34,3.3,3.27,3.08,3.34,3.41,3.44,3.67,3.72,3.75,3.96,4.14,4.09,4.18,4.24,4.2,4.44,4.64,4.52,4.64,4.75,4.59,4.88,5.05,4.98],"pj":[1.83,1.88,1.88,1.92,2.0,1.97,2.01,2.06,2.03,2.08,2.0,1.92,2.02,2.03,2.1,2.28,2.31,2.3,2.41,2.48,2.43,2.53,2.68,2.66,2.77,2.83,2.9,3.1,3.24,3.06,3.09,3.23,3.25,3.58,3.56,3.5,3.53,3.57,3.76,3.89,4.06,3.68,3.47,3.52,3.36,3.42,3.34,2.97,3.13,3.17,2.94,3.03,3.04,2.61,2.51,2.56,2.66,2.72,2.61,2.47,2.53,2.46,2.55,2.63,2.63,2.45,2.57,2.51,2.45,2.41,2.33,2.21,2.26,2.23,2.22,2.35,2.36,2.02,1.92,1.87,1.58,1.51,1.33,1.24,1.25,1.4,1.25,1.33,1.57,1.54,1.58,1.56,1.43,1.43,1.46,1.4,1.46,1.44,1.55,1.57,1.57,1.52,1.6,1.62,1.65,1.77,1.81,1.8,1.94,2.17,2.2,2.45,2.58,2.63,2.73,2.82,2.82,2.92,2.99,2.59,2.77,2.76,2.71,2.76,2.8,2.64,2.52,2.55,2.56,2.52,2.5,2.21,2.43,2.52,2.49,2.72,2.67,2.67,2.79,2.85,2.77,2.82,2.75,2.7,2.87,3.07,3.06,3.15,3.25,3.18,3.32,3.36,3.28],"pf":[4.05,4.03,4.08,4.13,4.19,4.01,4.08,4.07,3.97,4.01,3.87,3.7,3.78,3.85,3.71,3.79,3.89,3.7,3.81,3.92,3.99,4.12,4.24,4.27,4.34,4.35,4.3,4.35,4.37,4.1,4.15,4.17,4.23,4.23,4.15,4.0,4.04,4.06,4.06,4.09,4.16,3.91,4.01,3.99,3.93,3.93,3.83,3.58,3.78,3.76,3.7,3.68,3.64,3.52,3.56,3.55,3.47,3.43,3.35,3.3,3.39,3.35,3.41,3.41,3.46,3.4,3.49,3.53,3.6,3.58,3.59,3.56,3.63,3.72,4.0,4.13,4.04,3.67,3.52,3.35,3.19,3.11,3.02,2.89,2.93,2.97,2.92,2.95,3.01,2.91,2.94,2.96,3.01,2.99,3.01,3.05,3.26,3.38,3.45,3.54,3.65,3.57,3.71,3.78,3.8,3.89,3.92,3.94,4.11,4.16,4.11,4.26,4.35,4.25,4.22,4.12,4.0,3.97,3.88,3.75,3.76,3.76,3.71,3.75,3.82,3.71,3.78,3.82,3.83,3.79,3.75,3.63,3.89,3.96,4.03,4.25,4.36,4.41,4.66,4.92,4.89,4.99,5.12,5.12,5.38,5.56,5.39,5.51,5.63,5.43,5.8,6.04,5.99],"li":[4.42,4.42,4.43,4.47,4.62,4.5,4.61,4.65,4.63,4.66,4.5,4.36,4.46,4.47,4.44,4.63,4.74,4.65,4.83,4.98,4.98,5.08,5.29,5.35,5.52,5.55,5.59,5.74,5.88,5.71,5.79,5.85,5.87,5.89,5.83,5.71,5.76,5.67,5.81,5.83,6.04,5.64,5.71,5.7,5.51,5.48,5.35,4.99,5.15,5.08,4.88,4.75,4.7,4.5,4.38,4.32,4.2,4.18,4.05,3.94,4.06,3.96,3.96,3.94,3.96,3.92,4.06,3.98,3.99,3.99,3.95,3.81,3.89,3.94,3.97,4.13,4.16,3.8,3.65,3.43,3.27,3.18,3.07,2.96,3.02,2.98,2.97,3.01,3.07,2.99,3.05,3.07,3.09,3.11,3.15,3.15,3.35,3.35,3.5,3.61,3.75,3.72,3.9,4.03,4.09,4.25,4.28,4.3,4.53,4.59,4.59,4.84,5.01,4.99,5.03,5.04,4.96,5.03,4.99,4.68,4.8,4.77,4.67,4.75,4.8,4.64,4.62,4.63,4.63,4.56,4.47,4.28,4.66,4.75,4.79,5.09,5.18,5.27,5.51,5.69,5.59,5.61,5.61,5.63,5.84,6.09,5.96,6.08,6.23,6.06,6.41,6.63,6.58],"di":[0.96,1.02,1.09,1.15,1.15,1.09,1.11,1.14,1.04,1.14,1.1,1.01,1.12,1.19,1.17,1.26,1.28,1.17,1.23,1.27,1.28,1.43,1.49,1.42,1.48,1.53,1.53,1.66,1.67,1.42,1.45,1.56,1.62,1.93,1.89,1.78,1.83,1.97,2.03,2.19,2.21,1.97,1.8,1.83,1.81,1.88,1.81,1.51,1.73,1.82,1.73,1.91,1.93,1.57,1.66,1.74,1.88,1.9,1.83,1.74,1.77,1.78,1.93,2.02,2.05,1.81,1.88,1.96,1.96,1.92,1.89,1.87,1.93,1.95,2.2,2.27,2.1,1.76,1.66,1.7,1.4,1.35,1.19,1.07,1.07,1.34,1.1,1.18,1.43,1.38,1.4,1.38,1.27,1.22,1.21,1.17,1.28,1.42,1.4,1.37,1.32,1.2,1.23,1.19,1.17,1.23,1.26,1.23,1.34,1.57,1.53,1.64,1.66,1.58,1.62,1.58,1.52,1.51,1.5,1.33,1.41,1.45,1.45,1.45,1.51,1.41,1.45,1.53,1.53,1.56,1.6,1.4,1.51,1.58,1.59,1.72,1.7,1.67,1.85,2.05,2.07,2.25,2.39,2.28,2.6,2.73,2.64,2.75,2.8,2.68,2.91,3.04,2.93],"pfli":[5.68,5.6,5.63,5.66,5.8,5.67,5.75,5.75,5.73,5.67,5.51,5.36,5.38,5.4,5.22,5.33,5.5,5.36,5.51,5.67,5.81,5.84,6.03,6.24,6.32,6.27,6.24,6.33,6.4,6.23,6.28,6.29,6.31,6.24,6.16,6.13,6.09,6.0,5.97,5.94,6.02,5.84,5.81,5.81,5.7,5.64,5.48,5.31,5.34,5.23,5.17,5.16,5.12,5.04,5.1,5.07,5.05,5.01,4.85,4.88,4.89,4.78,4.81,4.81,4.89,4.87,4.92,4.95,5.07,5.07,5.06,5.1,5.05,5.17,5.29,5.6,5.69,5.39,5.2,4.95,4.73,4.59,4.36,4.23,4.2,4.13,4.09,4.1,4.17,4.1,4.16,4.2,4.29,4.31,4.34,4.45,4.72,4.81,4.94,5.13,5.35,5.34,5.56,5.72,5.8,5.91,5.92,6.02,6.22,6.25,6.19,6.35,6.47,6.42,6.31,6.2,6.07,6.05,5.91,5.73,5.7,5.66,5.58,5.63,5.72,5.59,5.65,5.65,5.69,5.59,5.47,5.4,5.74,5.81,5.91,6.21,6.38,6.5,6.73,6.97,6.89,6.86,6.94,7.06,7.17,7.42,7.25,7.37,7.56,7.38,7.78,8.03,8.09],"pjli":[3.15,3.24,3.24,3.29,3.45,3.36,3.46,3.55,3.55,3.65,3.5,3.37,3.54,3.55,3.66,3.93,3.99,3.95,4.17,4.29,4.18,4.33,4.56,4.49,4.72,4.83,4.94,5.14,5.35,5.17,5.27,5.38,5.4,5.51,5.48,5.26,5.4,5.3,5.63,5.71,6.06,5.42,5.6,5.57,5.27,5.3,5.19,4.62,4.92,4.89,4.54,4.26,4.19,3.88,3.52,3.43,3.21,3.19,3.08,2.83,3.04,2.95,2.93,2.85,2.79,2.76,2.96,2.74,2.65,2.6,2.53,2.22,2.41,2.38,2.44,2.48,2.49,2.06,1.94,1.74,1.66,1.59,1.6,1.52,1.67,1.65,1.72,1.78,1.81,1.71,1.74,1.72,1.68,1.68,1.73,1.63,1.69,1.61,1.77,1.78,1.79,1.76,1.86,1.94,2.0,2.17,2.21,2.18,2.38,2.46,2.54,2.9,3.1,3.15,3.34,3.5,3.52,3.67,3.75,3.31,3.57,3.56,3.45,3.54,3.54,3.36,3.2,3.22,3.19,3.14,3.09,2.77,3.12,3.26,3.2,3.48,3.48,3.51,3.71,3.78,3.65,3.72,3.57,3.49,3.76,4.01,3.92,4.01,4.11,3.99,4.21,4.34,4.16],"pfdi":[1.69,1.81,1.91,2.03,2.01,1.81,1.89,1.9,1.72,1.91,1.83,1.66,1.83,1.98,1.9,1.97,2.0,1.76,1.82,1.9,1.9,2.16,2.2,2.04,2.12,2.21,2.16,2.18,2.14,1.78,1.84,1.87,1.99,2.05,1.97,1.72,1.86,2.02,2.05,2.16,2.21,1.89,2.11,2.07,2.07,2.12,2.07,1.74,2.11,2.2,2.13,2.09,2.04,1.87,1.88,1.88,1.75,1.69,1.67,1.52,1.68,1.73,1.81,1.79,1.78,1.67,1.78,1.82,1.83,1.77,1.8,1.67,1.87,1.93,2.41,2.37,2.08,1.63,1.53,1.45,1.36,1.34,1.39,1.26,1.39,1.57,1.51,1.56,1.6,1.46,1.45,1.44,1.43,1.35,1.34,1.28,1.42,1.58,1.56,1.49,1.44,1.27,1.31,1.3,1.26,1.33,1.39,1.33,1.46,1.56,1.53,1.66,1.69,1.56,1.64,1.58,1.5,1.46,1.42,1.37,1.42,1.48,1.47,1.49,1.53,1.45,1.51,1.61,1.6,1.63,1.67,1.5,1.65,1.74,1.76,1.87,1.9,1.86,2.12,2.41,2.44,2.68,2.86,2.71,3.16,3.27,3.09,3.21,3.24,3.04,3.37,3.6,3.41],"pjdi":[0.45,0.45,0.45,0.5,0.49,0.51,0.52,0.54,0.51,0.53,0.51,0.49,0.55,0.56,0.6,0.69,0.7,0.7,0.73,0.76,0.77,0.84,0.9,0.91,0.95,0.97,0.99,1.2,1.28,1.09,1.1,1.28,1.29,1.82,1.81,1.84,1.79,1.95,2.0,2.19,2.21,2.05,1.49,1.58,1.53,1.61,1.52,1.26,1.3,1.39,1.23,1.71,1.79,1.19,1.39,1.58,2.02,2.17,2.05,2.02,1.91,1.85,2.07,2.35,2.42,2.02,2.03,2.19,2.16,2.13,2.03,2.19,2.02,1.99,1.83,2.12,2.13,1.95,1.89,2.08,1.45,1.39,0.91,0.8,0.59,1.0,0.49,0.59,1.17,1.25,1.31,1.29,1.0,0.99,0.98,0.97,1.04,1.12,1.13,1.16,1.14,1.05,1.09,1.0,0.97,1.01,1.05,1.06,1.1,1.62,1.55,1.59,1.6,1.64,1.6,1.59,1.54,1.59,1.66,1.28,1.37,1.36,1.37,1.37,1.5,1.35,1.32,1.36,1.42,1.43,1.46,1.21,1.24,1.25,1.27,1.45,1.3,1.28,1.31,1.36,1.38,1.43,1.49,1.48,1.55,1.69,1.8,1.91,2.02,2.02,2.09,2.02,2.06]},"at":{"pf":[5.52,5.5,5.83,5.96,5.87,5.82,5.46,5.27,5.18,5.15,5.2,5.05,5.32,5.41,5.55,5.58,5.55,5.69,5.7,5.69,5.9,6.55,6.05,5.73,6.06,5.9,6.3,6.2,6.33,6.05,6.25,6.26,6.77,6.77,6.41,5.91,6.38,6.15,6.51,6.64,6.57,6.35,6.44,6.31,6.24,6.56,6.61,6.37,6.41,6.33,6.66,6.72,6.64,6.54,6.62,6.4,6.38,6.66,6.64,6.19,6.21,6.01,6.67,6.49,6.38,6.64,6.62,6.58,6.38,6.37,6.36,6.2,6.08,6.03,6.08,5.03,4.24,3.69,3.83,3.83,3.8,4.32,4.4,4.13,4.35,4.5,4.79,4.74,4.67,4.51,4.43,4.32,4.34,4.53,4.65,4.39,4.89,4.98,5.29,5.31,5.37,5.34,5.45,5.39,5.29,5.42,5.48,5.24,5.44,5.37,5.56,5.53,5.55,5.39,5.35,5.3,5.2,5.54,5.43,5.18,5.32,5.29,5.56,5.47,5.56,5.25,5.12,5.21,5.18,5.26,5.32,5.14,5.32,4.97,5.48,5.53,5.64,5.53,5.57,5.55,5.6,5.71,5.74,5.59,5.75,5.69,5.98,6.07,6.16,6.23,6.16,6.11,6.45],"pj":[1.74,1.51,1.72,1.97,1.84,1.58,1.79,1.61,1.95,1.67,1.47,1.92,2.14,2.02,2.6,2.44,2.14,2.3,2.33,2.12,2.37,2.48,2.1,2.62,2.76,2.6,3.28,2.95,3.31,3.13,3.16,3.4,3.16,2.67,2.63,3.17,3.97,3.25,3.61,2.62,3.4,2.28,2.44,2.52,3.13,3.32,2.48,2.27,2.84,2.26,2.31,2.03,2.68,2.64,2.9,2.83,2.09,2.5,2.3,1.82,1.85,1.79,1.86,2.18,2.64,1.75,1.75,1.8,1.53,1.78,1.7,1.75,1.73,1.81,1.91,3.16,2.5,1.94,1.87,1.4,1.11,1.37,1.34,1.39,1.41,1.32,1.34,1.5,1.28,1.21,1.22,1.23,1.1,1.1,1.14,1.15,1.28,1.26,1.5,1.47,1.63,1.51,1.71,1.83,1.51,1.54,1.77,1.75,2.13,1.99,1.99,1.94,1.93,1.81,1.8,1.79,1.68,2.01,1.81,1.75,1.94,1.92,1.91,1.99,2.12,1.8,1.99,1.86,1.65,1.78,1.63,1.73,1.86,1.86,1.99,1.98,1.94,1.77,1.87,1.82,1.85,1.83,1.87,1.96,2.21,2.11,2.22,2.25,2.16,2.18,2.3,2.16,2.15],"tot":[3.5,3.37,3.63,3.83,3.73,3.57,3.52,3.34,3.47,3.31,3.22,3.39,3.64,3.62,3.99,3.92,3.75,3.9,3.92,3.81,4.03,4.4,3.97,4.08,4.32,4.17,4.73,4.52,4.78,4.56,4.68,4.81,4.95,4.71,4.52,4.55,5.2,4.73,5.1,4.69,5.04,4.39,4.54,4.52,4.78,5.05,4.69,4.46,4.77,4.47,4.67,4.58,4.84,4.76,4.93,4.78,4.43,4.8,4.71,4.23,4.29,4.16,4.56,4.62,4.76,4.54,4.55,4.55,4.32,4.45,4.4,4.33,4.28,4.28,4.29,4.22,3.48,2.93,2.97,2.76,2.6,3.01,3.04,2.92,3.06,3.1,3.27,3.32,3.2,3.09,3.05,3.0,2.96,3.08,3.17,3.02,3.39,3.43,3.71,3.72,3.83,3.76,3.92,3.94,3.75,3.85,3.98,3.82,4.11,4.03,4.14,4.11,4.13,3.97,3.96,3.93,3.81,4.16,4.02,3.83,4.02,3.99,4.15,4.14,4.24,3.92,3.92,3.93,3.83,3.93,3.91,3.82,4.01,3.79,4.15,4.18,4.23,4.1,4.17,4.15,4.18,4.25,4.29,4.22,4.43,4.36,4.58,4.66,4.68,4.72,4.73,4.65,4.86]},"pr":{"tar":[6.29,6.34,6.3,6.49,6.66,6.65,6.93,6.96,7.22,7.19,6.9,6.57,6.67,6.94,6.7,7.04,7.29,7.18,7.46,7.62,7.97,8.19,8.13,8.04,8.36,7.95,8.02,8.25,8.31,8.26,8.31,8.14,8.14,8.07,7.77,7.65,7.64,7.67,7.43,7.58,7.65,7.45,7.34,7.1,7.01,6.77,6.41,6.16,6.01,6.09,6.02,6.04,6.04,5.99,6.06,6.02,6.15,6.01,5.64,5.54,5.59,5.66,5.68,5.73,5.74,5.65,5.67,6.0,6.18,6.17,6.16,6.04,5.73,6.33,6.63,7.57,7.81,7.53,7.35,6.8,6.29,5.86,4.83,4.48,4.37,4.15,3.89,3.79,3.86,3.97,4.04,4.13,4.67,4.83,4.78,5.0,5.49,5.79,5.86,6.33,6.58,6.64,7.1,7.33,7.61,7.87,7.84,7.94,8.29,8.63,8.61,8.92,8.94,8.73,8.6,8.51,8.39,8.25,7.63,7.49,7.34,7.4,7.28,7.46,7.56,7.47,7.38,7.51,7.51,7.3,7.03,6.84,7.14,7.43,7.79,8.24,8.47,8.51,8.73,8.96,9.09,8.66,9.02,8.89,9.19,9.37,9.05,9.21,9.44,9.11,9.5,9.93,10.04],"con":[2.64,2.6,2.63,2.61,2.68,2.52,2.55,2.58,2.59,2.49,2.42,2.37,2.37,2.42,2.31,2.28,2.32,2.26,2.27,2.28,2.28,2.27,2.28,2.3,2.3,2.3,2.28,2.27,2.35,2.23,2.26,2.29,2.28,2.28,2.35,2.33,2.34,2.31,2.33,2.36,2.41,2.34,2.4,2.41,2.39,2.43,2.42,2.4,2.48,2.42,2.43,2.42,2.4,2.37,2.39,2.36,2.34,2.36,2.31,2.37,2.35,2.25,2.25,2.22,2.27,2.25,2.26,2.22,2.28,2.27,2.26,2.29,2.3,2.28,2.29,2.35,2.42,2.38,2.45,2.6,2.85,3.01,2.95,2.86,2.78,2.74,2.68,2.62,2.68,2.64,2.69,2.75,2.7,2.57,2.61,2.66,2.7,2.68,2.63,2.57,2.59,2.48,2.48,2.4,2.26,2.22,2.2,2.24,2.29,2.23,2.16,2.19,2.25,2.32,2.28,2.26,2.3,2.36,2.39,2.36,2.35,2.32,2.3,2.26,2.34,2.26,2.32,2.3,2.37,2.4,2.36,2.3,2.43,2.37,2.36,2.4,2.41,2.47,2.57,2.61,2.57,2.61,2.62,2.81,2.75,2.94,2.94,3.02,3.1,3.23,3.59,3.76,3.84],"per":[7.05,6.86,6.98,7.09,7.35,7.19,7.46,7.51,7.41,7.55,7.5,7.65,7.88,7.79,7.39,7.51,7.78,7.17,7.51,7.96,8.15,8.06,8.97,9.79,9.88,10.09,10.09,10.6,10.22,9.64,9.76,9.83,9.97,9.29,9.14,9.22,9.03,8.73,8.75,8.58,8.59,8.17,8.14,8.47,8.29,8.4,8.28,7.91,8.06,7.85,7.81,7.91,7.77,7.63,7.61,7.57,7.47,7.47,7.49,7.42,7.39,7.25,7.4,7.38,7.61,7.76,7.88,7.64,7.86,7.9,7.91,8.13,8.17,8.08,8.39,8.62,8.57,7.91,7.52,7.03,6.11,5.94,5.93,5.36,5.33,5.28,5.34,5.41,5.28,5.2,5.08,5.17,5.13,5.16,5.01,5.21,5.51,5.57,6.0,6.19,6.61,6.86,7.2,7.59,7.75,7.89,8.06,8.14,8.27,8.15,8.14,8.15,8.11,8.08,7.89,7.55,7.29,7.11,6.83,6.75,6.63,6.49,6.44,6.48,6.53,6.48,6.59,6.5,6.49,6.41,6.37,6.46,7.09,7.37,7.32,7.67,7.91,8.25,8.66,9.13,8.78,8.92,8.91,9.16,9.49,10.11,9.73,10.09,10.44,9.89,10.65,11.07,11.06],"veh":[5.17,5.09,5.06,4.99,5.01,4.91,4.8,4.64,4.45,4.27,4.09,3.95,3.97,3.93,3.91,3.91,3.95,3.99,3.93,3.97,4.16,4.06,4.14,4.28,4.37,4.46,4.47,4.56,4.72,4.66,4.68,4.63,4.69,4.71,4.77,4.66,4.7,4.65,4.58,4.52,4.53,4.39,4.26,4.09,3.98,3.87,3.88,3.81,3.82,3.75,3.66,3.64,3.69,3.68,3.67,3.55,3.5,3.42,3.39,3.37,3.37,3.27,3.3,3.28,3.35,3.37,3.4,3.38,3.41,3.37,3.42,3.49,3.56,3.64,3.82,4.26,4.59,4.33,4.0,3.69,3.51,3.29,3.16,3.08,3.09,3.04,3.1,3.2,3.37,3.39,3.42,3.43,3.46,3.54,3.7,3.79,4.01,4.08,4.29,4.51,4.81,4.84,4.99,5.14,5.23,5.4,5.55,5.46,5.59,5.67,5.53,5.58,5.74,5.59,5.54,5.48,5.4,5.39,5.47,5.29,5.25,5.11,4.97,4.89,4.92,4.63,4.72,4.65,4.61,4.53,4.43,4.27,4.46,4.54,4.83,4.99,5.27,5.27,5.41,5.5,5.52,5.52,5.5,5.69,5.69,5.99,6.11,6.24,6.47,6.57,6.63,6.57,6.76],"inm":[1.74,1.86,1.87,2.03,2.12,1.89,1.92,1.94,1.84,2.08,2.0,1.75,1.96,2.1,1.96,2.07,2.12,1.84,1.91,1.94,1.91,2.2,2.27,2.07,2.12,2.19,2.11,2.17,2.15,1.73,1.78,1.77,1.91,1.99,1.88,1.58,1.69,1.86,1.86,2.0,2.03,1.65,1.9,1.77,1.75,1.78,1.76,1.41,1.84,1.95,1.86,1.86,1.84,1.68,1.68,1.65,1.47,1.4,1.4,1.24,1.42,1.46,1.59,1.57,1.61,1.5,1.64,1.65,1.62,1.56,1.62,1.43,1.68,1.72,2.42,2.39,2.05,1.51,1.34,1.22,1.15,1.17,1.29,1.14,1.32,1.57,1.52,1.63,1.71,1.58,1.56,1.53,1.55,1.46,1.46,1.38,1.6,1.86,1.8,1.71,1.63,1.45,1.49,1.45,1.39,1.46,1.5,1.42,1.58,1.71,1.67,1.86,1.89,1.75,1.85,1.8,1.71,1.62,1.55,1.44,1.49,1.56,1.52,1.5,1.51,1.38,1.33,1.32,1.27,1.25,1.28,1.09,1.16,1.18,1.23,1.26,1.26,1.13,1.14,1.18,1.15,1.18,1.22,1.06,1.34,1.37,1.36,1.41,1.44,1.25,1.27,1.24,1.43]},"em":{"mpme":[3.51,3.49,3.65,3.56,3.69,3.65,3.68,3.77,3.7,3.79,3.65,3.6,3.79,3.7,3.8,4.1,4.2,4.2,4.5,4.6,4.8,5.0,5.2,5.1,5.3,5.4,5.5,5.97,6.11,5.7,5.9,6.36,6.16,6.4,6.41,6.32,6.35,6.49,6.39,6.59,6.72,6.19,6.82,6.81,6.51,6.46,6.22,5.9,6.2,6.25,5.65,5.97,5.88,5.41,5.43,5.4,5.19,5.17,5.01,4.96,4.82,4.57,4.71,4.6,4.75,4.21,4.5,4.42,4.27,4.14,3.92,3.76,3.84,3.82,3.86,4.15,4.25,3.15,2.72,2.32,1.95,1.95,1.88,1.89,2.06,2.1,2.25,2.39,2.82,2.65,2.67,2.34,2.31,2.33,2.38,2.36,2.44,2.41,2.46,2.57,2.62,2.56,2.67,2.74,2.78,2.96,3.0,3.15,3.37,3.5,3.51,3.7,3.85,3.82,3.87,3.91,3.88,3.97,4.0,4.0,4.19,4.2,4.26,4.3,4.44,4.26,4.31,4.31,4.35,4.31,4.22,3.98,4.32,4.5,4.49,4.84,4.98,5.0,5.18,5.35,5.11,5.08,5.01,4.92,5.24,5.53,5.5,5.82,5.87,5.71,5.78,6.02,6.07],"gr":[0.33,0.46,0.42,0.4,0.44,0.42,0.45,0.46,0.47,0.51,0.46,0.42,0.44,0.46,0.53,0.77,0.73,0.73,0.7,0.79,0.58,0.58,0.68,0.62,0.65,0.7,0.73,0.82,0.91,0.92,0.9,0.81,1.0,1.38,1.28,1.3,1.3,1.24,1.71,1.79,2.01,1.89,1.43,1.5,1.45,1.61,1.61,1.22,1.42,1.46,1.44,1.45,1.53,1.14,0.96,1.02,1.31,1.36,1.28,1.1,1.23,1.25,1.32,1.48,1.41,1.4,1.33,1.31,1.37,1.36,1.35,1.26,1.29,1.25,1.29,1.34,1.31,1.09,1.01,1.25,0.98,0.94,0.65,0.55,0.46,0.7,0.36,0.4,0.39,0.38,0.44,0.4,0.49,0.49,0.46,0.37,0.37,0.37,0.32,0.27,0.26,0.14,0.18,0.19,0.18,0.18,0.14,0.13,0.17,0.47,0.52,0.79,0.9,0.98,1.09,1.19,1.22,1.29,1.01,0.6,0.66,0.68,0.54,0.54,0.49,0.42,0.24,0.24,0.27,0.24,0.28,0.28,0.31,0.33,0.34,0.52,0.42,0.4,0.39,0.38,0.42,0.54,0.5,0.45,0.53,0.62,0.55,0.73,0.63,0.66,0.68,0.72,0.71]}};
+    const T = {"mo_tot":[4.98,-0.07,0.31,0.89,1.0,2.6],"mo_pj":[3.28,-0.08,0.13,0.51,0.47,1.16],"mo_pf":[5.99,-0.05,0.42,1.1,1.28,3.08],"mo_li":[6.58,-0.05,0.42,0.99,1.07,2.14],"mo_di":[2.93,-0.11,0.22,0.86,0.97,2.82],"mo_pfli":[8.09,0.06,0.53,1.2,1.28,2.78],"mo_pjli":[4.16,-0.18,0.2,0.51,0.59,0.81],"mo_pfdi":[3.41,-0.19,0.3,0.97,1.26,3.02],"mo_pjdi":[2.06,0.04,0.07,0.68,0.47,1.23],"at_pf":[6.45,0.34,0.09,0.85,0.56,1.08],"at_pj":[2.15,-0.01,0.01,0.3,0.28,0.3],"at_tot":[4.86,0.2,0.06,0.67,0.48,1.3],"pr_tar":[10.04,0.11,0.57,0.95,1.32,2.07],"pr_con":[3.84,0.08,0.61,1.27,0.66,4.61],"pr_per":[11.06,-0.01,0.79,2.28,2.34,2.59],"pr_veh":[6.76,0.19,0.23,1.24,1.23,2.38],"pr_inm":[1.43,0.19,-0.05,0.28,0.1,-0.42],"em_mpme":[6.07,0.05,0.16,0.96,0.86,1.26],"em_gr":[0.71,-0.01,0.03,0.29,0.25,-0.28]};
+    const NM = 153, MES = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+    const meses = []; for (let i = 0; i < NM; i++) meses.push(MES[i % 12] + '-' + (14 + Math.floor(i / 12)));
+    const REF = '#8A8F96', COBRE = '#A85E24';
+    const st = this.state;
+    const NOM = { tot: 'Total', pf: 'Personas', pj: 'Empresas', li: 'Libre', di: 'Dirigido', pfli: 'Personas libre', pfdi: 'Personas dirigido', pjli: 'Empresas libre', pjdi: 'Empresas dirigido' };
+    const COL = { pf: '#2E5C8A', pj: '#6C819B', li: '#2E5C8A', di: '#6C819B', pfli: '#2E5C8A', pfdi: '#8FB0D0', pjli: '#6C819B', pjdi: '#2F7A86' };
+    const CORTE = st.corte === 'lidi' ? ['li', 'di'] : st.corte === 'pfld' ? ['pfli', 'pfdi'] : st.corte === 'todos' ? ['pfli', 'pfdi', 'pjli', 'pjdi'] : ['pf', 'pj'];
+    const VACIO = new Array(NM).fill(null);
+    const RAYA = ['—', '—', '—', '—', '—', '—'];
+    const multi = (e) => !!(e && (e.ctrlKey || e.metaKey));
+    const linea = (s) => 'width:' + (s.dash ? 20 : 22) + 'px;height:0;flex-shrink:0;border-top:' + (s.dash ? '2px dashed ' : '3px solid ') + s.color;
+    const pp = (v) => (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v).toFixed(2).replace('.', ',');
+    const pc = (v) => v.toFixed(2).replace('.', ',') + ' %';
+    const fmt = (r) => [pc(r[0]), pp(r[1]), pp(r[2]), pp(r[3]), pp(r[4]), pp(r[5])];
+    const ticksM = (d, h) => { const k = h - d + 1, r = []; for (let i = d; i <= h; i++) { const m = i % 12; if (k <= 30 ? m % 3 === 0 : k <= 60 ? m === 0 || m === 6 : k <= 120 ? m === 0 : m === 0 && i % 24 === 0) r.push(i - d); } return r; };
+    const escala = (series, d, h, cero, solo) => {
+      const usar = solo && solo.length ? series.filter((s) => solo.includes(s.id)) : series;
+      let lo = Infinity, hi = -Infinity;
+      for (let i = d; i <= h; i++) usar.forEach((s) => { const v = s.datos[i]; if (v != null) { lo = Math.min(lo, v); hi = Math.max(hi, v); } });
+      if (!isFinite(lo)) { lo = 0; hi = 1; }
+      if (cero && !(solo && solo.length)) { lo = Math.min(lo, 0); hi = Math.max(hi, 0); }
+      const paso = [0.25, 0.5, 1, 2, 4, 5, 10, 20].find((p) => (hi - lo) / p <= 4) || 20;
+      const min = Math.floor(lo / paso) * paso, max = Math.ceil(hi / paso) * paso, t = [];
+      for (let v = min; v <= max + 1e-9; v += paso) t.push(Math.round(v * 100) / 100);
+      return { min, max: max === min ? min + paso : max, ticksY: t };
+    };
+    const FALTA = { va: [], vb: ['li', 'di', 'pfli', 'pfdi', 'pjli', 'pjdi'] };
+    const PREF = { va: 'mo', vb: 'at' };
+    const nomS = (key, id) => NOM[id] + (FALTA[key].includes(id) ? ' · en preparación' : '');
+    const serieDe = (key, id) => D[PREF[key]][id] || VACIO;
+    const mkSeries = (key) => CORTE.map((id) => ({ id, nombre: nomS(key, id), color: COL[id], ancho: 2.5, datos: serieDe(key, id) })).concat([{ id: 'tot', nombre: 'Total', color: COBRE, ancho: 2.5, datos: serieDe(key, 'tot') }]);
+    const PARES = {
+      va: { titulo: 'Mora mayor a 90 días', quiebre: meses.indexOf('ene-25'), sub: 'Eje vertical: % de la cartera. Eje horizontal: mes. Banda: cambio metodológico.', fuente: 'Fuente: BCB, SGS 21082–21086, 21112 y 21132.', control: true, cero: false, n: NM, def: 24, series: mkSeries('va'),
+        tTitulo: 'Mora mayor a 90 días', tSub: '% de la cartera · Δ a/a en pp', tFuente: 'Fuente: BCB, SGS.', cols: ['Último', 'Δ a/a'] },
+      vb: { titulo: 'Atraso de 15 a 90 días', sub: 'Eje vertical: % de la cartera. Eje horizontal: mes.', fuente: 'Fuente: BCB, SGS 21004 y 21005.', control: true, cero: false, n: NM, def: 24, series: mkSeries('vb'),
+        tTitulo: 'Atraso de 15 a 90 días', tSub: '% de la cartera · Δ a/a en pp', tFuente: 'Fuente: BCB, SGS.', cols: ['Último', 'Δ a/a'] },
+    };
+    const armar = (key) => {
+      const P = PARES[key], sel = st.sel[key] || [], aj = !!st.aj[key];
+      const on = (id) => !sel.length || sel.includes(id);
+      const toggle = (id, m) => { const nuevo = m ? (sel.includes(id) ? sel.filter((k) => k !== id) : sel.concat(id)) : (sel.length === 1 && sel[0] === id ? [] : [id]); this.setState({ sel: { ...this.state.sel, [key]: nuevo }, aj: { ...this.state.aj, [key]: nuevo.length ? aj : false } }); };
+      const fijoG = st.fijo == null ? P.n - 1 : st.fijo;
+      const cfg = (d, h, w, alto) => ({
+        w, h: alto, reservaDer: 64, n: h - d + 1, etiquetas: meses.slice(d, h + 1), ticksX: ticksM(d, h), ...escala(P.series, d, h, P.cero, aj ? sel : null), sufijo: ' %', decimales: 2,
+        series: P.series.map((s) => ({ id: s.id, color: s.color, ancho: s.ancho, dash: s.dash, valores: s.datos.slice(d, h + 1) })), fills: [], sel,
+        bandas: (P.quiebre != null && P.quiebre - 1 >= d && P.quiebre <= h) ? [{ desde: P.quiebre - 1 - d, hasta: P.quiebre - d, texto: 'Res. 4.966' }] : [],
+        fijo: Math.min(h, Math.max(d, fijoG)) - d, hover: st.hover != null && st.hover >= d && st.hover <= h ? st.hover - d : null,
+        onFijar: (i) => this.setState({ fijo: Math.max(d, Math.min(h, i + d)), hover: null }), onHover: (i) => this.setState({ hover: i == null ? null : i + d }), onSerie: toggle });
+      const leyenda = P.series.map((s) => ({ nombre: s.nombre, pres: sel.includes(s.id) ? 'true' : 'false', sw: linea(s), est: (sel.includes(s.id) ? 'border-color:#2E5C8A;background:#E8EEF5;' : '') + (on(s.id) ? '' : 'opacity:0.45;'), click: (e) => toggle(s.id, multi(e)) }));
+      const fila = (id, largo, g1) => {
+        const s = P.series.find((q) => q.id === id) || { color: '#C9D2DC' }, falta = FALTA[key].includes(id), r = T[PREF[key] + '_' + id];
+        const f = falta || !r ? RAYA : fmt(r);
+        return { _a: falta ? null : serieDe(key, id), nombre: nomS(key, id), corte: falta ? '—' : 'sep-26', v: largo ? f : [f[0], f[3]], cls: id === 'tot' ? 'tot' : g1 ? 'g1' : '', pres: sel.includes(id) ? 'true' : 'false', sw: s.ancho ? linea(s) : 'width:12px;height:12px;flex-shrink:0;background:' + s.color,
+          est: sel.includes(id) ? 'background:#E8EEF5' : on(id) || !P.series.some((q) => q.id === id) ? '' : 'opacity:0.4', click: (e) => { if (e) e.stopPropagation(); if (P.series.some((q) => q.id === id)) toggle(id, multi(e)); } };
+      };
+      const ajuste = { sinSel: sel.length === 0, ajustar: () => this.setState({ aj: { ...this.state.aj, [key]: !aj } }), ajusteTxt: aj ? 'Eje completo' : 'Ajustar eje', ajustePres: aj ? 'true' : 'false', ajusteEst: aj ? 'background:#E8EEF5;border-color:#2E5C8A;color:#1F3F60;font-weight:600' : '' };
+      return { P, cfg, leyenda, fila, ajuste };
+    };
+    const A = armar('va'), B = armar('vb');
+    const abrir = (key) => () => { const P = PARES[key]; this.setState({ vista: key, desde: P.n - P.def, hasta: P.n - 1 }); };
+    const corto = (X) => CORTE.concat('tot').map((id) => X.fila(id, false));
+    const pares = [
+      { ...A.P, ...A.ajuste, leyenda: A.leyenda, cfg: A.cfg(NM - 24, NM - 1, 910, 390), filas: corto(A), abrir: abrir('va') },
+      { ...B.P, ...B.ajuste, leyenda: B.leyenda, cfg: B.cfg(NM - 24, NM - 1, 910, 390), filas: corto(B), abrir: abrir('vb') },
+    ];
+    const BLOQUE = {
+      va: { tit: 'Mora mayor a 90 días: Δ a/a', sub: 'Eje vertical: pp. Eje horizontal: mes. Banda: año en que el a/a compara metodologías distintas.', tTit: 'Δ a/a de la mora > 90 días', tSub: 'pp · Historia desde mar-12: caja p25–p75, raya mediana, línea mín–máx, punto último', custom: true,
+        lab: (() => { const r = []; for (let i = 0; i < 175; i++) { const k = 2 + i; r.push(MES[k % 12] + '-' + (12 + Math.floor(k / 12))); } return r; })(),
+        datos: { tot: [0.5,0.52,0.39,0.39,0.3,0.3,0.26,0.18,0.09,0.01,-0.11,-0.18,-0.21,-0.28,-0.28,-0.45,-0.5,-0.61,-0.57,-0.69,-0.69,-0.68,-0.69,-0.65,-0.55,-0.53,-0.46,-0.33,-0.24,-0.13,-0.21,-0.08,-0.1,-0.11,-0.01,0.01,-0.06,0.04,0.04,0.03,0.09,0.15,0.22,0.29,0.54,0.66,0.67,0.66,0.73,0.72,0.73,0.61,0.54,0.53,0.58,0.62,0.44,0.33,0.27,0.27,0.33,0.29,0.32,0.23,0.14,0.07,-0.08,-0.21,-0.26,-0.46,-0.31,-0.33,-0.56,-0.62,-0.74,-0.69,-0.67,-0.66,-0.55,-0.58,-0.58,-0.36,-0.47,-0.53,-0.31,-0.31,-0.27,-0.12,0.02,0.0,0.0,-0.02,0.04,0.06,0.05,0.14,0.2,0.29,0.21,-0.04,-0.28,-0.4,-0.64,-0.69,-0.79,-0.83,-0.87,-0.82,-1.06,-1.12,-0.92,-0.63,-0.46,-0.33,-0.13,-0.07,0.09,0.19,0.32,0.29,0.48,0.48,0.4,0.41,0.48,0.53,0.58,0.71,0.71,0.72,0.73,0.79,0.69,0.82,0.86,0.88,0.79,0.71,0.62,0.52,0.46,0.22,0.14,0.02,-0.02,-0.17,-0.22,-0.32,-0.33,-0.28,-0.2,-0.26,-0.26,-0.21,-0.04,0.03,0.11,0.3,0.29,0.46,0.66,0.81,0.75,0.88,0.97,1.12,1.1,1.23,1.08,0.97,1.03,0.84,0.92,0.91,0.89], pf: [0.74,0.74,0.69,0.64,0.52,0.43,0.38,0.17,-0.01,-0.12,-0.32,-0.4,-0.41,-0.55,-0.61,-0.81,-0.85,-0.94,-0.96,-1.08,-1.05,-1.01,-0.99,-0.97,-0.87,-0.73,-0.71,-0.61,-0.49,-0.39,-0.48,-0.25,-0.29,-0.39,-0.27,-0.18,-0.37,-0.34,-0.3,-0.31,-0.27,-0.15,0.02,0.11,0.37,0.57,0.56,0.5,0.59,0.56,0.48,0.4,0.34,0.25,0.24,0.11,-0.09,-0.27,-0.3,-0.29,-0.24,-0.26,-0.21,-0.19,-0.14,-0.18,-0.3,-0.3,-0.32,-0.42,-0.26,-0.3,-0.36,-0.41,-0.52,-0.39,-0.45,-0.44,-0.46,-0.5,-0.48,-0.28,-0.39,-0.41,-0.29,-0.27,-0.18,-0.12,-0.07,-0.02,0.13,0.15,0.24,0.26,0.24,0.37,0.59,0.72,0.58,0.27,0.03,-0.18,-0.41,-0.47,-0.57,-0.67,-0.7,-0.75,-1.08,-1.18,-1.03,-0.76,-0.58,-0.39,-0.18,-0.12,-0.01,0.16,0.33,0.41,0.53,0.59,0.64,0.66,0.77,0.82,0.79,0.9,0.91,0.89,0.85,0.78,0.66,0.72,0.7,0.68,0.51,0.34,0.2,0.08,-0.04,-0.19,-0.35,-0.4,-0.4,-0.51,-0.53,-0.54,-0.44,-0.3,-0.17,-0.18,-0.13,-0.12,0.13,0.2,0.32,0.5,0.54,0.7,0.88,1.1,1.06,1.2,1.37,1.49,1.49,1.6,1.36,1.26,1.27,1.02,1.14,1.12,1.1], pj: [0.28,0.33,0.14,0.18,0.1,0.2,0.17,0.2,0.18,0.11,0.06,0.01,-0.03,-0.06,-0.01,-0.16,-0.21,-0.34,-0.29,-0.4,-0.43,-0.42,-0.45,-0.4,-0.33,-0.39,-0.28,-0.14,-0.06,0.05,0.01,0.05,0.05,0.08,0.19,0.15,0.22,0.36,0.31,0.33,0.4,0.42,0.4,0.45,0.68,0.74,0.75,0.8,0.8,0.82,0.93,0.76,0.68,0.75,0.82,1.05,0.88,0.84,0.76,0.74,0.86,0.79,0.82,0.62,0.38,0.29,0.11,-0.16,-0.22,-0.53,-0.4,-0.4,-0.82,-0.86,-1.02,-1.07,-0.96,-0.96,-0.7,-0.7,-0.73,-0.5,-0.6,-0.71,-0.39,-0.4,-0.41,-0.16,0.06,-0.05,-0.21,-0.31,-0.28,-0.26,-0.27,-0.23,-0.33,-0.28,-0.27,-0.43,-0.65,-0.64,-0.87,-0.9,-1.0,-0.97,-1.01,-0.83,-0.97,-1.02,-0.79,-0.48,-0.34,-0.31,-0.15,-0.08,0.13,0.16,0.21,0.04,0.3,0.24,0.0,-0.02,0.02,0.06,0.22,0.34,0.35,0.4,0.48,0.73,0.65,0.88,1.01,1.11,1.13,1.2,1.17,1.15,1.18,0.79,0.83,0.59,0.51,0.31,0.22,0.01,-0.21,-0.27,-0.26,-0.4,-0.49,-0.38,-0.34,-0.24,-0.22,-0.04,-0.13,0.03,0.27,0.3,0.21,0.3,0.25,0.49,0.44,0.55,0.57,0.43,0.58,0.51,0.53,0.51,0.51] },
+        bCols: ['Último', 'Z 10 años'], box: true,
+        filas: [['tot', 'Total', COBRE, 2.5], ['pf', 'Personas', '#2E5C8A', 2], ['pj', 'Empresas', '#6C819B', 2]] },
+      vb: { tit: 'Atraso de 15 a 90 días: Δ a/a', sub: 'Eje vertical: pp. Eje horizontal: mes. Banda: año en que el a/a compara metodologías distintas.', tTit: 'Δ a/a del atraso de 15 a 90 días', tSub: 'pp · Historia desde mar-12: caja p25–p75, raya mediana, línea mín–máx, punto último', custom: true,
+        lab: (() => { const r = []; for (let i = 0; i < 175; i++) { const k = 2 + i; r.push(MES[k % 12] + '-' + (12 + Math.floor(k / 12))); } return r; })(),
+        datos: {"tot":[0.13,0.13,0.07,-0.05,0.18,-0.09,-0.01,-0.14,-0.15,-0.13,-0.13,-0.17,-0.17,-0.03,-0.21,-0.26,-0.21,-0.32,-0.34,-0.23,-0.36,-0.03,-0.23,-0.41,-0.21,-0.03,0.09,0.14,-0.1,-0.05,0.12,-0.17,0.02,0.05,0.14,0.25,0.35,0.09,0.02,0.33,0.41,0.47,0.56,1.09,0.75,0.69,0.68,0.55,0.75,0.6,1.02,0.66,0.76,1.01,0.92,0.31,0.55,0.47,0.87,0.56,0.36,0.16,0.27,-0.17,-0.14,-0.29,-0.17,0.33,0.17,-0.09,-0.42,-0.26,-0.43,-0.11,-0.21,0.37,0.39,0.26,-0.34,-0.25,0.02,-0.23,-0.48,-0.31,-0.11,0.04,-0.07,-0.22,-0.38,-0.23,-0.11,-0.36,-0.31,0.1,-0.01,0.12,-0.26,-0.4,-1.28,-1.61,-1.58,-1.8,-1.72,-1.44,-1.36,-1.42,-1.22,-1.18,-1.02,-0.9,-0.29,0.16,0.08,0.25,0.35,0.07,0.13,0.11,0.33,0.32,0.45,0.4,0.63,0.67,0.87,0.94,0.79,0.78,0.81,0.8,0.73,0.6,0.43,0.39,0.3,0.22,0.04,-0.01,0.07,0.31,0.04,0.01,-0.1,-0.03,0.0,0.02,0.12,-0.06,-0.03,0.0,0.01,-0.23,-0.11,-0.01,-0.01,-0.21,0.01,0.05,-0.01,0.19,0.25,0.22,0.36,0.32,0.39,0.39,0.42,0.57,0.43,0.47,0.44,0.61,0.56,0.51,0.67],"pf":[0.11,0.19,0.06,-0.01,0.03,-0.27,-0.15,-0.58,-0.46,-0.21,-0.32,-0.34,-0.23,-0.46,-0.46,-0.31,-0.32,-0.32,-0.45,-0.41,-0.48,-0.22,-0.27,-0.51,-0.33,-0.06,0.15,0.05,-0.28,-0.16,-0.36,-0.42,-0.13,-0.25,-0.2,-0.09,-0.28,-0.38,-0.32,-0.13,0.24,0.42,0.72,1.4,0.85,0.68,0.74,0.49,0.75,0.62,0.78,0.36,0.55,0.57,0.87,0.22,0.36,0.18,0.32,0.25,0.21,0.44,0.24,0.3,0.19,0.05,-0.53,-0.21,0.2,0.46,0.03,0.18,0.15,0.08,0.07,0.19,0.18,0.09,0.14,0.1,0.03,-0.18,-0.2,-0.32,0.01,-0.23,-0.26,0.1,0.0,0.18,0.0,-0.29,-0.28,0.01,-0.13,0.02,-0.59,-1.46,-2.14,-2.95,-2.79,-2.75,-2.58,-2.05,-1.96,-2.07,-1.73,-1.53,-1.29,-0.29,0.43,0.82,0.6,0.49,0.54,0.21,0.25,0.26,0.54,0.48,0.5,0.57,0.7,0.83,1.02,1.07,0.95,0.89,0.83,0.85,0.55,0.39,0.27,0.22,0.18,0.05,-0.1,-0.09,-0.09,0.12,-0.05,-0.06,-0.12,-0.08,0.0,-0.06,0.01,-0.14,-0.23,-0.09,-0.02,-0.28,-0.11,-0.04,0.0,-0.32,-0.08,0.06,0.08,0.28,0.45,0.34,0.42,0.45,0.42,0.45,0.43,0.72,0.5,0.54,0.52,0.7,0.59,0.56,0.85],"pj":[0.12,0.05,0.06,-0.1,0.29,0.05,0.09,0.24,0.11,-0.07,0.03,-0.02,-0.1,0.31,-0.02,-0.24,-0.15,-0.34,-0.3,-0.15,-0.31,0.09,-0.24,-0.37,-0.18,-0.06,-0.01,0.14,-0.01,-0.01,0.5,0.01,0.12,0.26,0.4,0.51,0.88,0.47,0.3,0.72,0.54,0.51,0.42,0.81,0.63,0.7,0.62,0.58,0.68,0.51,1.17,0.83,0.83,1.28,0.79,0.19,0.53,0.55,1.21,0.65,0.33,-0.33,0.09,-0.85,-0.72,-0.88,-0.03,0.65,-0.15,-0.9,-1.13,-0.99,-1.3,-0.59,-0.72,0.36,0.46,0.31,-1.04,-0.82,-0.18,-0.45,-0.99,-0.47,-0.45,0.15,-0.04,-0.89,-1.15,-1.03,-0.56,-0.72,-0.6,-0.07,-0.12,0.02,0.05,0.98,-0.14,0.19,0.12,-0.4,-0.42,-0.41,-0.36,-0.36,-0.32,-0.49,-0.57,-1.66,-1.22,-0.73,-0.65,-0.17,-0.01,-0.27,-0.2,-0.24,-0.13,-0.06,0.16,-0.03,0.35,0.3,0.49,0.6,0.41,0.44,0.63,0.6,0.85,0.73,0.49,0.47,0.3,0.3,0.09,-0.04,0.17,0.47,0.04,0.0,-0.19,-0.07,-0.08,0.05,0.19,-0.01,0.19,0.07,-0.03,-0.23,-0.18,-0.02,-0.08,-0.06,0.08,-0.01,-0.18,-0.03,-0.12,-0.04,0.2,0.05,0.24,0.23,0.35,0.25,0.23,0.27,0.22,0.41,0.43,0.34,0.3]},
+        bCols: ['Último', 'Z 10 años'], box: true,
+        filas: [['tot', 'Total', COBRE, 2.5], ['pf', 'Personas', '#2E5C8A', 2], ['pj', 'Empresas', '#6C819B', 2]] },
+    };
+    const atip = (arrs, sinNivel, protege) => { const A = arrs.map((a) => (a || []).filter((x) => x != null)), out = new Set(), q = (s, p) => s[Math.floor((s.length - 1) * p)];
+      A.forEach((a, i) => { if (a.length < 8) return; const s = a.slice().sort((x, y) => x - y), sp = q(s, 0.9) - q(s, 0.1); const md = q(s, 0.5), umbral = Math.max(4 * sp, 0.5 * Math.abs(md)); if (sp > 0 && (s[0] < q(s, 0.1) - umbral || s[s.length - 1] > q(s, 0.9) + umbral)) out.add(i); });
+      let vivos = A.map((a, i) => i).filter((i) => A[i].length >= 8 && !out.has(i));
+      const span = (ix) => { let lo = Infinity, hi = -Infinity; ix.forEach((i) => A[i].forEach((x) => { lo = Math.min(lo, x); hi = Math.max(hi, x); })); return hi - lo; };
+      for (let it = 0; it < 2 && !sinNivel && vivos.length >= 4; it++) { const sp = span(vivos); let mej = -1, spm = sp; vivos.forEach((i) => { const s2 = span(vivos.filter((j) => j !== i)); if (s2 < spm) { spm = s2; mej = i; } }); if (mej >= 0 && spm * 3 < sp) { out.add(mej); vivos = vivos.filter((j) => j !== mej); } else break; }
+      (protege || []).forEach((i) => out.delete(i)); return out; };
+    const NOTA_AT = '* Serie con valores extremos: queda fuera de la escala común y no se dibuja su caja de historia, para no deformar las demás.';
+    const marcarAt = (filas, sinNivel) => { const ix = atip(filas.map((r) => r._a), sinNivel, filas.map((r, i) => r.cls === 'tot' ? i : -1).filter((i) => i >= 0)); return filas.map((r, i) => ix.has(i) ? { ...r, nombre: r.nombre + ' *', _a: [], _at: true } : r); };
+    const conCaja = (filas0) => { const filas = marcarAt(filas0);
+      const todos = filas.flatMap((r) => (r._a || []).filter((x) => x != null)); if (!todos.length) return filas;
+      const lo = Math.min(...todos), hi = Math.max(...todos), W = 80, X0 = (x) => ((x - lo) / (hi - lo) * W).toFixed(1);
+      const qn = (a, p) => { const s = a.slice().sort((x, y) => x - y), k = (s.length - 1) * p, f = Math.floor(k); return s[f] + (s[Math.min(f + 1, s.length - 1)] - s[f]) * (k - f); };
+      const no = 'display:none';
+      return filas.map((r) => { const a = (r._a || []).filter((x) => x != null); if (a.length < 8) return { ...r, b0: no, bw: no, bb: no, bm: no, bp: no };
+        const u = a[a.length - 1], mn = Math.min(...a), mx = Math.max(...a), p25 = qn(a, 0.25), p50 = qn(a, 0.5), p75 = qn(a, 0.75);
+        return { ...r, b0: lo < 0 && hi > 0 ? 'position:absolute;top:0;height:12px;width:1px;background:#C9D2DC;left:' + X0(0) + 'px' : no,
+          bw: 'position:absolute;top:6px;height:1px;background:#8A93A0;left:' + X0(mn) + 'px;width:' + (X0(mx) - X0(mn)).toFixed(1) + 'px',
+          bb: 'position:absolute;top:2px;height:8px;box-sizing:border-box;border:1px solid #8A93A0;background:#EEF1F5;left:' + X0(p25) + 'px;width:' + (X0(p75) - X0(p25)).toFixed(1) + 'px',
+          bm: 'position:absolute;top:2px;height:8px;width:1px;background:#24324A;left:' + X0(p50) + 'px',
+          bp: 'position:absolute;top:3px;width:6px;height:6px;border-radius:50%;margin-left:-3px;background:' + (r.cls === 'tot' ? '#A85E24' : '#2E5C8A') + ';left:' + X0(u) + 'px' }; });
+    };
+    let d = {};
+    const v = st.vista;
+    if (v) {
+      const X = v === 'va' ? A : B, P = X.P, Q = BLOQUE[v];
+      const dd = st.desde == null ? P.n - P.def : st.desde, hh = st.hasta == null ? P.n - 1 : st.hasta;
+      const filas = [['pf', 'pj'], ['li', 'di'], ['pfli', 'pfdi', 'pjli', 'pjdi']].flatMap((g, gi) => g.map((id, j) => X.fila(id, true, gi > 0 && j === 0))).concat([X.fila('tot', true)]);
+      const bs = Q.custom ? Q.filas.slice().reverse().map((r) => ({ id: r[0], color: r[2], ancho: r[3], datos: Q.datos[r[0]] })) : Q.items.map((it) => ({ id: it[0], color: it[2], ancho: 2, datos: D[Q.pref][it[0]] }));
+      const nB = Q.custom ? Q.lab.length : NM, labB = Q.custom ? Q.lab : meses;
+      const tickB = Q.custom ? labB.map((x, k) => x.startsWith('ene') && +x.slice(4) % 2 === 0 ? k : -1).filter((k) => k >= 0) : ticksM(0, NM - 1);
+      const i25 = labB.indexOf('ene-25');
+      d = { titulo: P.titulo, sub: P.sub, control: P.control, estPaneles: 'display: none;', paneles: [], leyenda: X.leyenda, ...X.ajuste, cfg: X.cfg(dd, hh, 1490, 300), filas: conCaja(filas), nota: conCaja(filas).some((r) => r._at) ? NOTA_AT : '',
+        cols: ['Último', 'm/m', '3m/3m', 'a/a', '12m/12m', 'Z 10 años'], atajoTxt: 'Últimos 24 meses',
+        cfgR: { w: 1380, n: P.n, etiquetas: meses, serie: P.series.find((s) => s.id === 'tot').datos, desde: dd, hasta: hh, minimo: 6, unidad: 'meses', onRango: (x, z) => this.setState({ desde: x, hasta: z }) },
+        ciclo: true, bTit: Q.tit, bSub: Q.sub, bTTit: Q.tTit, bTSub: Q.tSub, bCols: Q.bCols || ['Último', 'Δ a/a', 'Z 10 años'], bBox: !!Q.box, bGrid: 'display: grid; grid-template-columns: ' + (Q.custom ? 1000 : 940) + 'px minmax(0, 1fr); gap: 24px; border-top: 1px solid #E6EAEF; padding-top: 12px;',
+        cicloCfg: { w: Q.custom ? 980 : 900, h: 250, reservaDer: 64, n: nB, etiquetas: labB, ticksX: tickB, ...escala(bs, 0, nB - 1, !!Q.custom), sufijo: Q.custom ? '' : ' %', decimales: 2, series: bs.map((s) => ({ id: s.id, color: s.color, ancho: s.ancho, valores: s.datos })), fills: [], sel: [], fijo: nB - 1, bandas: Q.custom && i25 >= 0 ? [{ desde: i25, hasta: i25 + 11, texto: 'Res. 4.966' }] : [], hover: null, onFijar: () => {}, onHover: () => {}, onSerie: () => {} },
+        cicloFilas: Q.custom ? (() => {
+          const todos = Q.filas.flatMap((r) => Q.datos[r[0]]), lo = Math.floor(Math.min(...todos) * 4) / 4, hi = Math.ceil(Math.max(...todos) * 4) / 4, W = 150, X0 = (x) => ((x - lo) / (hi - lo) * W).toFixed(1);
+          const q = (a, p) => { const s = a.slice().sort((x, y) => x - y), k = (s.length - 1) * p, f = Math.floor(k); return s[f] + (s[Math.min(f + 1, s.length - 1)] - s[f]) * (k - f); };
+          const zz = (a) => { const w = a.slice(-120), m = w.reduce((x, y) => x + y, 0) / w.length, s = Math.sqrt(w.reduce((x, y) => x + (y - m) ** 2, 0) / (w.length - 1)); return (a[a.length - 1] - m) / s; };
+          return Q.filas.map((r) => { const a = Q.datos[r[0]], u = a[a.length - 1], p25 = q(a, 0.25), p50 = q(a, 0.5), p75 = q(a, 0.75), mn = Math.min(...a), mx = Math.max(...a);
+            return { nombre: r[1], corte: 'sep-26', v: [pp(u), pp(zz(a))], cls: r[0] === 'tot' ? 'tot' : '', sw: linea({ color: r[2] }),
+              bw: 'position:absolute;top:8px;height:1px;background:#8A93A0;left:' + X0(mn) + 'px;width:' + (X0(mx) - X0(mn)).toFixed(1) + 'px',
+              bb: 'position:absolute;top:3px;height:10px;box-sizing:border-box;border:1px solid #8A93A0;background:#EEF1F5;left:' + X0(p25) + 'px;width:' + (X0(p75) - X0(p25)).toFixed(1) + 'px',
+              bm: 'position:absolute;top:3px;height:10px;width:1px;background:#24324A;left:' + X0(p50) + 'px',
+              b0: 'position:absolute;top:0;height:16px;width:1px;background:#C9D2DC;left:' + X0(0) + 'px',
+              bp: 'position:absolute;top:4px;width:8px;height:8px;border-radius:50%;margin-left:-4px;background:' + r[2] + ';left:' + X0(u) + 'px' }; });
+        })() : Q.items.map((it) => { const r = fmt(T[Q.pref + '_' + it[0]]); return { nombre: it[1], corte: 'sep-26', v: [r[0], r[3], r[5]], cls: '', sw: linea({ color: it[2] }) }; }),
+        glosario: 'Último: % de la cartera con atraso en el rango indicado. Historia: caja p25–p75 desde ene-14, raya mediana, línea mín–máx, punto último; escala común a todas las filas. Cambios en pp: m/m y a/a punta contra punta; 3m/3m y 12m/12m, promedio de la ventana contra la anterior. Z 10 años: (último − promedio de 120 meses) / desvío de esos 120 meses.',
+        meta: v === 'va'
+          ? 'Mora > 90 días: total 21082, personas 21084, empresas 21083, libre 21085, dirigido 21132, personas libre 21112, empresas libre 21086. Personas dirigido y empresas dirigido se despejan con los saldos: (mora del segmento × saldo − mora libre × saldo libre) / saldo dirigido; las identidades cuadran a menos de 0,03 pp. Cambio metodológico: desde ene-25 rige la Res. CMN 4.966 (IFRS 9); la mora total sube 0,26 pp entre dic-24 y ene-25 (3,08 % → 3,34 %), así que entre ene-25 y dic-25 el a/a compara dos metodologías y queda inflado en torno a ese monto; desde ene-26 vuelve a ser homogéneo. No comparable con el NPL ≥ 15 días de IF.Data. Fuente: BCB, SGS · datos del 8-nov-26.'
+          : 'Atraso de 15 a 90 días: personas 21005, empresas 21004; el total se pondera por saldo (20541 y 20540). Libre / Dirigido y sus cruces, en preparación: el SGS no los publica en el pipeline actual. Desde ene-25 rige la Res. CMN 4.966; a diferencia de la mora > 90 días, el atraso no muestra un salto visible entre dic-24 y ene-25, pero la banda marca el año en que el a/a compara metodologías. El atraso temprano adelanta a la mora > 90 días en unos 3 meses. Fuente: BCB, SGS · datos del 8-nov-26.' };
+      d.atajoOk = dd === P.n - P.def && hh === P.n - 1;
+    }
+    return {
+      pares, d, corte: st.corte, abierto: !!v,
+      elegirCorte: (e) => this.setState({ corte: e.target.value, sel: { va: [], vb: [] }, aj: {} }),
+      atajo: v && d.atajoOk ? 'def' : 'pers',
+      elegirAtajo: (e) => { if (e.target.value === 'def' && v) { const P = PARES[v]; this.setState({ desde: P.n - P.def, hasta: P.n - 1 }); } },
+      cerrar: () => this.setState({ vista: null, desde: null, hasta: null }),
+      onKey: (e) => { if (e.key === 'Escape') { e.preventDefault(); this.setState({ vista: null }); } },
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Slicer de período</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="{{raiz}}">
+  <div style="{{pista}}">
+    <svg width="{{w}}" height="40" style="position: absolute; left: 0; top: 0; pointer-events: none;" aria-hidden="true">
+      <path d="{{fondo}}" fill="none" stroke="#A9B8CB" stroke-width="1.5"></path>
+    </svg>
+    <div style="{{sombraIzq}}"></div>
+    <div style="{{sombraDer}}"></div>
+    <div style="{{ventana}}" onPointerDown="{{bajarMedio}}" onPointerMove="{{mover}}" onPointerUp="{{soltar}}" title="Arrastra para mover el período"></div>
+    <button type="button" style="{{asaIzq}}" aria-label="{{ariaIzq}}" onPointerDown="{{bajarIzq}}" onPointerMove="{{mover}}" onPointerUp="{{soltar}}" onKeyDown="{{teclaIzq}}"><span style="width: 2px; height: 16px; background: #FFFFFF; border-radius: 1px;"></span></button>
+    <button type="button" style="{{asaDer}}" aria-label="{{ariaDer}}" onPointerDown="{{bajarDer}}" onPointerMove="{{mover}}" onPointerUp="{{soltar}}" onKeyDown="{{teclaDer}}"><span style="width: 2px; height: 16px; background: #FFFFFF; border-radius: 1px;"></span></button>
+  </div>
+  <div style="display: flex; justify-content: space-between; font-size: 12px; color: #5B6573; font-family: 'IBM Plex Mono', monospace; margin-top: 6px;">
+    <span>{{primero}}</span>
+    <span style="color: #24324A; font-family: 'IBM Plex Sans', sans-serif;">Viendo <b style="font-family: 'IBM Plex Mono', monospace; font-weight: 500;">{{desdeTxt}} – {{hastaTxt}}</b> · {{largo}}</span>
+    <span>{{ultimo}}</span>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"cfg":{"editor":null},"$preview":{"width":980,"height":64}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { desde: 100, hasta: 163 }; this.arrastre = null; }
+  renderVals() {
+    const demoSerie = []; for (let i = 0; i < 164; i++) demoSerie.push(Math.sin(i / 9) * 8 + i / 12);
+    const c = this.props.cfg || { w: 980, n: 164, etiquetas: demoSerie.map((_, i) => 'p' + i), serie: demoSerie, desde: this.state.desde, hasta: this.state.hasta, minimo: 6, unidad: 'meses', onRango: (d, h) => this.setState({ desde: d, hasta: h }) };
+    const w = c.w, n = c.n, min = c.minimo ?? 4;
+    const X = (i) => (n <= 1 ? 0 : i / (n - 1) * w);
+    const ok = (d, h) => { d = Math.round(d); h = Math.round(h); if (d < 0) { h -= d; d = 0; } if (h > n - 1) { d -= h - (n - 1); h = n - 1; } d = Math.max(0, d); return [d, h]; };
+    const idx = (e) => { const r = this.arrastre.rect; return (e.clientX - r.left) / r.width * (n - 1); };
+    const bajar = (tipo) => (e) => {
+      const pista = e.currentTarget.parentElement;
+      this.arrastre = { tipo, rect: pista.getBoundingClientRect(), x0: e.clientX, d0: c.desde, h0: c.hasta };
+      try { e.currentTarget.setPointerCapture(e.pointerId); } catch (err) {}
+      e.preventDefault();
+    };
+    const mover = (e) => {
+      const a = this.arrastre; if (!a) return;
+      if (a.tipo === 'd') c.onRango(Math.max(0, Math.min(Math.round(idx(e)), c.hasta - min)), c.hasta);
+      else if (a.tipo === 'h') c.onRango(c.desde, Math.min(n - 1, Math.max(Math.round(idx(e)), c.desde + min)));
+      else { const dx = (e.clientX - a.x0) / a.rect.width * (n - 1); const [d, h] = ok(a.d0 + dx, a.h0 + dx); c.onRango(d, h); }
+    };
+    const soltar = () => { this.arrastre = null; };
+    const tecla = (lado) => (e) => {
+      const paso = e.key === 'PageUp' || e.key === 'PageDown' ? 12 : 1;
+      let d = c.desde, h = c.hasta;
+      const sube = e.key === 'ArrowRight' || e.key === 'ArrowUp' || e.key === 'PageUp';
+      const baja = e.key === 'ArrowLeft' || e.key === 'ArrowDown' || e.key === 'PageDown';
+      if (!sube && !baja) return;
+      e.preventDefault();
+      if (lado === 'd') d = Math.max(0, Math.min(h - min, d + (sube ? paso : -paso)));
+      else h = Math.min(n - 1, Math.max(d + min, h + (sube ? paso : -paso)));
+      c.onRango(d, h);
+    };
+    const vals = c.serie.filter((v) => v != null);
+    const lo = Math.min(...vals), hi = Math.max(...vals);
+    let fondo = '', pluma = false;
+    c.serie.forEach((v, i) => { if (v == null) { pluma = false; return; } fondo += (pluma ? 'L' : 'M') + X(i).toFixed(1) + ' ' + (34 - (v - lo) / (hi - lo || 1) * 28).toFixed(1) + ' '; pluma = true; });
+    const xd = X(c.desde), xh = X(c.hasta);
+    const asa = (x) => 'position:absolute;top:-2px;width:20px;height:44px;margin-left:-10px;left:' + x.toFixed(1) + 'px;border:0;border-radius:4px;background:#2E5C8A;cursor:ew-resize;display:flex;align-items:center;justify-content:center;padding:0;touch-action:none;z-index:2';
+    const k = c.hasta - c.desde + 1;
+    return {
+      w, fondo,
+      raiz: 'width:' + w + 'px;font-family:IBM Plex Sans,sans-serif;user-select:none',
+      pista: 'position:relative;width:' + w + 'px;height:40px;background:#F6F7F8;border:1px solid #E1E6EC;border-radius:4px;box-sizing:border-box',
+      sombraIzq: 'position:absolute;top:0;bottom:0;left:0;background:rgba(36,50,74,0.08);width:' + xd.toFixed(1) + 'px',
+      sombraDer: 'position:absolute;top:0;bottom:0;right:0;background:rgba(36,50,74,0.08);left:' + xh.toFixed(1) + 'px',
+      ventana: 'position:absolute;top:0;bottom:0;border-top:2px solid #2E5C8A;border-bottom:2px solid #2E5C8A;background:rgba(46,92,138,0.08);cursor:grab;touch-action:none;left:' + xd.toFixed(1) + 'px;width:' + Math.max(2, xh - xd).toFixed(1) + 'px',
+      asaIzq: asa(xd), asaDer: asa(xh),
+      ariaIzq: 'Inicio del período: ' + c.etiquetas[c.desde] + '. Flechas mueven un paso; Re Pág y Av Pág, doce.',
+      ariaDer: 'Fin del período: ' + c.etiquetas[c.hasta],
+      bajarIzq: bajar('d'), bajarDer: bajar('h'), bajarMedio: bajar('m'), mover, soltar,
+      teclaIzq: tecla('d'), teclaDer: tecla('h'),
+      primero: c.etiquetas[0], ultimo: c.etiquetas[n - 1], desdeTxt: c.etiquetas[c.desde], hastaTxt: c.etiquetas[c.hasta],
+      largo: k + ' ' + (c.unidad || 'puntos'),
+    };
+  }
+}
+</script>
+</body>
+</html>

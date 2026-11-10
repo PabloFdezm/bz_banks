@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Tarjeta · Personas</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&amp;family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;display=swap">
+<style>
+body{margin:0}
+button:focus-visible,select:focus-visible{outline:2px solid #2E5C8A;outline-offset:2px}
+.btn{font-family:'IBM Plex Sans',sans-serif;font-size:14px;height:44px;padding:0 16px;border:1px solid #C9D2DC;border-radius:4px;background:#FFFFFF;color:#24324A;cursor:pointer;display:inline-flex;align-items:center;gap:8px;flex-shrink:0;box-sizing:border-box}
+.btn:hover{border-color:#2E5C8A;color:#2E5C8A}
+.btn:disabled{color:#6B7684;border-color:#C9D2DC;background:#FFFFFF;cursor:default}
+.btn:disabled:hover{color:#6B7684;border-color:#C9D2DC}
+.agr{width:36px;height:36px;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;padding:0;border:1px solid transparent;border-radius:4px;background:transparent;color:#5B6573;cursor:pointer}
+.agr:hover{background:#EEF1F5;color:#2E5C8A}
+.sel{font-family:'IBM Plex Sans',sans-serif;font-size:14px;height:44px;padding:0 10px;border:1px solid #C9D2DC;border-radius:4px;background:#FFFFFF;color:#24324A;box-sizing:border-box}
+.ley{font-family:'IBM Plex Sans',sans-serif;font-size:13px;height:36px;padding:0 10px;border:1px solid transparent;border-radius:4px;background:transparent;color:#24324A;cursor:pointer;display:inline-flex;align-items:center;gap:6px;box-sizing:border-box}
+.ley:hover{border-color:#C9D2DC}
+.aj{border:1px solid #C9D2DC;margin-left:auto}
+.aj:disabled{color:#8A93A0;border-color:#E1E6EC;cursor:default}
+.card{background:#FFFFFF;border:1px solid #E1E6EC;border-radius:4px;padding:16px 24px 12px;display:flex;flex-direction:column;gap:6px;box-sizing:border-box;min-width:0}
+.ct{font-size:18px;line-height:24px;font-weight:600;color:#24324A}
+.cs{font-size:13px;line-height:18px;color:#5B6573}
+.tb{width:100%;border-collapse:collapse;font-size:13px}
+.tb th,.tb td{padding:9px 8px;border-bottom:1px solid #E6EAEF;text-align:right;font-family:'IBM Plex Mono',monospace;font-weight:400;color:#24324A;white-space:nowrap}
+.tb thead th{font-family:'IBM Plex Sans',sans-serif;font-weight:600;font-size:12px;border-bottom:1px solid #24324A}
+.tb .ind{text-align:left;font-family:'IBM Plex Sans',sans-serif;white-space:normal}
+.tb tr.tot th,.tb tr.tot td{font-weight:600;border-top:2px solid #8A93A0}
+.tb tr.g1 th,.tb tr.g1 td{border-top:2px solid #8A93A0}
+.tb tbody tr{cursor:pointer}
+.tb tbody tr:hover{background:#F6F7F8}
+.fb{font-family:'IBM Plex Sans',sans-serif;font-size:13px;border:0;background:transparent;color:inherit;padding:0;cursor:pointer;display:inline-flex;align-items:center;gap:8px;text-align:left;font-weight:inherit;min-height:24px}
+.m{font-family:'IBM Plex Mono',monospace;font-weight:500}
+.md{font-size:12px;line-height:18px;color:#5B6573;margin:0}
+.fu{font-size:12px;color:#5B6573;margin-top:auto}
+.sh{display:flex;align-items:center;gap:12px;height:44px}
+.bl{border:1px solid #E1E6EC;border-radius:4px;padding:12px 16px;box-sizing:border-box;min-width:0;display:flex;flex-direction:column;gap:2px}
+.bt{font-size:14px;line-height:20px;font-weight:600;color:#24324A}
+.bs{font-size:12px;line-height:16px;color:#5B6573}
+.g12{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:16px;row-gap:12px}
+.c3{grid-column:span 3}.c6{grid-column:span 6}.c9{grid-column:span 9}.c12{grid-column:span 12}
+.dlg{position:absolute;left:24px;width:1552px;box-sizing:border-box;background:#FFFFFF;border-radius:4px;padding:20px 28px 24px;display:flex;flex-direction:column;gap:12px}
+</style>
+</helmet>
+<div style="{{raizEst}}">
+  <div style="display: flex; justify-content: space-between; align-items: center; height: 46px;">
+    <span style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 32px; color: #24324A;">Tarjeta · Personas</span>
+  </div>
+  <sc-for list="{{pares}}" as="s" hint-placeholder-count="2">
+    <sc-if value="{{s.cab}}" hint-placeholder-val="{{true}}"><div class="sh" style="border-top: 2px solid #24324A; padding-top: 10px; margin-top: 24px;"><span style="font-family: 'IBM Plex Mono', monospace; font-size: 15px; color: #5B6573;">{{s.cabNum}}</span><span style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 26px; color: #2E5C8A;">{{s.cabNombre}}</span></div></sc-if>
+    <div style="display: grid; grid-template-columns: 960px minmax(0, 1fr); gap: 24px; height: 600px; margin-bottom: 24px;">
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px;">
+          <div><div class="ct">{{s.titulo}}</div><div class="cs">{{s.sub}}</div></div>
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <button class="btn" type="button" style="{{s.ajusteEst}}" aria-pressed="{{s.ajustePres}}" disabled="{{s.sinSel}}" onClick="{{s.ajustar}}">{{s.ajusteTxt}}</button>
+            <button class="btn" type="button" onClick="{{s.abrir}}" aria-haspopup="dialog"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M9.5 2.5h4v4M6.5 13.5h-4v-4M13.5 2.5 9 7M2.5 13.5 7 9"/></svg>Agrandar</button>
+          </div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 4px; flex-wrap: wrap;">
+          <sc-for list="{{s.leyenda}}" as="l" hint-placeholder-count="3">
+            <button class="ley" type="button" style="{{l.est}}" aria-pressed="{{l.pres}}" onClick="{{l.click}}"><span style="{{l.sw}}"></span>{{l.nombre}}</button>
+          </sc-for>
+        </div>
+        <dc-import name="Grafico" cfg="{{s.cfg}}" hint-size="910px,380px"></dc-import>
+        <div class="fu">{{s.fuente}}</div>
+      </div>
+      <div class="card">
+        <div class="ct">{{s.tTitulo}}</div><div class="cs">{{s.tSub}}</div>
+        <table class="tb" style="margin-top: 8px;">
+          <thead><tr><th class="ind">Indicador</th><th>Corte</th><sc-for list="{{s.cols}}" as="c" hint-placeholder-count="2"><th>{{c}}</th></sc-for></tr></thead>
+          <tbody>
+            <sc-for list="{{s.filas}}" as="r" hint-placeholder-count="3">
+              <tr class="{{r.cls}}" style="{{r.est}}" onClick="{{r.click}}"><th class="ind"><button class="fb" type="button" aria-pressed="{{r.pres}}" onClick="{{r.click}}"><span style="{{r.sw}}"></span>{{r.nombre}}</button></th><td>{{r.corte}}</td><sc-for list="{{r.v}}" as="x" hint-placeholder-count="2"><td>{{x}}</td></sc-for></tr>
+            </sc-for>
+          </tbody>
+        </table>
+        <div class="bs" style="margin-top: 6px; color: #5B6573;">{{s.nota}}</div>
+        <div class="fu">{{s.fuente}}</div>
+      </div>
+    </div>
+  </sc-for>
+  <sc-if value="{{abierto}}" hint-placeholder-val="{{false}}">
+    <div style="{{overEst}}">
+      <div class="dlg" role="dialog" aria-modal="true" aria-label="{{d.titulo}}" onKeyDown="{{onKey}}" style="{{dlgEst}}">
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 16px; height: 48px;">
+          <div><div style="font-size: 20px; line-height: 26px; font-weight: 600;">{{d.titulo}}</div><div class="cs">{{d.sub}}</div></div>
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <select class="sel" aria-label="Período" onChange="{{elegirAtajo}}" value="{{atajo}}"><option value="def">{{d.atajoTxt}}</option><option value="pers" disabled="{{true}}">Personalizado</option></select>
+            <button class="btn" type="button" onClick="{{cerrar}}">Cerrar</button>
+          </div>
+        </div>
+        <sc-for list="{{d.ops}}" as="o" hint-placeholder-count="4">
+          <div style="display: grid; grid-template-columns: 720px minmax(0, 1fr); gap: 24px; border-top: 1px solid #E6EAEF; padding-top: 10px; min-height: 318px;">
+            <div style="display: flex; flex-direction: column; gap: 2px;"><div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; height: 44px;"><div class="bt">{{o.nombre}}</div><button class="btn" type="button" style="{{o.ajEst}}" aria-pressed="{{o.ajPres}}" disabled="{{o.sinSel}}" onClick="{{o.ajustar}}">{{o.ajTxt}}</button></div><dc-import name="Grafico" cfg="{{o.cfg}}" hint-size="700px,220px"></dc-import><div style="padding-left: 40px;"><dc-import name="Rango" cfg="{{o.cfgR}}" hint-size="640px,64px"></dc-import></div></div>
+            <div style="align-self: start;"><table class="tb">
+              <thead><tr><th class="ind">Indicador</th><th>Corte</th><sc-for list="{{o.cols}}" as="c" hint-placeholder-count="4"><th>{{c}}</th></sc-for><th>Historia</th></tr></thead>
+              <tbody>
+                <sc-for list="{{o.filas}}" as="r" hint-placeholder-count="4">
+                  <tr class="{{r.cls}}" style="{{r.est}}" onClick="{{r.click}}"><th class="ind"><button class="fb" type="button" aria-pressed="{{r.pres}}" onClick="{{r.click}}"><span style="{{r.sw}}"></span>{{r.nombre}}</button></th><td>{{r.corte}}</td><sc-for list="{{r.v}}" as="x" hint-placeholder-count="4"><td>{{x}}</td></sc-for><td style="width: 96px;"><div style="position: relative; width: 80px; height: 12px; margin-left: auto;"><div style="{{r.b0}}"></div><div style="{{r.bw}}"></div><div style="{{r.bb}}"></div><div style="{{r.bm}}"></div><div style="{{r.bp}}"></div></div></td></tr>
+                </sc-for>
+              </tbody>
+            </table><div class="bs" style="margin-top: 6px; color: #5B6573;">{{o.nota}}</div></div>
+          </div>
+        </sc-for>
+        <div class="g12" style="border-top: 1px solid #E6EAEF; padding-top: 10px;">
+          <p class="md c6"><b style="color: #24324A;">Columnas.</b> {{d.glosario}}</p>
+          <p class="md c6"><b style="color: #24324A;">Filas y fuentes.</b> {{d.meta}}</p>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"abiertoInicial":{"editor":"text","default":""},"$preview":{"width":1600,"height":12112}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); const a = (p && p.abiertoInicial) || null; this.state = { sel: {}, aj: {}, vista: a, fijo: {}, hover: {}, rng: {}, selO: {}, ajO: {} }; }
+  renderVals() {
+    const X = {};  // datos: sitio/data/v2/Tarjeta.json (construir_v2.py)
+    const REF = '#8A8F96', COBRE = '#A85E24', PAL = ['#2E5C8A', '#6C819B', '#2F7A86', '#8FB0D0', '#4F5B6B', '#9AA5B4', '#C9D2DC'];
+    const st = this.state;
+    const PRODS = [['tar', 'Tarjeta'], ['con', 'Descuento por planilla'], ['per', 'Personal sin planilla'], ['veh', 'Vehículos'], ['inm', 'Inmobiliario'], ['rur', 'Rural'], ['che', 'Sobregiro'], ['pf', 'Total personas']];
+    const P7 = PRODS.slice(0, 7), PALP = ['#2E5C8A', '#6C819B', '#2F7A86', '#8FB0D0', '#4F5B6B', '#9AA5B4', '#1F3F60'];
+    const LAB = { m: X.labm, s: X.labs, q: X.labq }, DEFN = { m: 24, s: 24, q: 16 }, ZN = { m: 120, s: 120, q: 40 }, LAG = { m: 12, s: 12, q: 4 }, UNI = { m: 'meses', s: 'meses', q: 'trimestres' };
+    const multi = (e) => !!(e && (e.ctrlKey || e.metaKey));
+    const linea = (s) => 'width:' + (s.dash ? 20 : 22) + 'px;height:0;flex-shrink:0;border-top:' + (s.dash ? '2px dashed ' : '3px solid ') + s.color;
+    const pp = (v) => v == null ? '—' : (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v).toFixed(2).replace('.', ',');
+    const pc = (v) => v == null ? '—' : (v < 0 ? '−' : '') + Math.abs(v).toFixed(1).replace('.', ',') + ' %';
+    const FMT = { pct: pc, pp };
+    const ultI = (a) => { let k = a.length - 1; while (k >= 0 && a[k] == null) k--; return k; };
+    const zz = (a, n) => { const w = a.filter((x) => x != null).slice(-n); if (w.length < 12) return null; const m = w.reduce((x, y) => x + y, 0) / w.length, s = Math.sqrt(w.reduce((x, y) => x + (y - m) ** 2, 0) / (w.length - 1)); return s ? (w[w.length - 1] - m) / s : null; };
+    const ticks = (lab, d, h) => { const r = [], n = h - d + 1, mens = lab[0].length > 4; for (let i = d; i <= h; i++) { const e = lab[i]; if (mens ? (e.startsWith('ene') && (n <= 60 || +e.slice(4) % 2 === 0)) : (e.startsWith('1T') && (n <= 24 || +e.slice(2) % 2 === 0))) r.push(i - d); } return r; };
+    const escala = (series, d, h, cero, solo) => {
+      const conSel = !!(solo && solo.length);
+      const rango = (ss) => { let a = Infinity, b = -Infinity; ss.forEach((s) => { for (let i = d; i <= h; i++) { const x = s.datos[i]; if (x != null) { a = Math.min(a, x); b = Math.max(b, x); } } }); return [a, b]; };
+      let usar = (conSel ? series.filter((s) => solo.includes(s.id)) : series).filter((s) => { for (let i = d; i <= h; i++) if (s.datos[i] != null) return true; return false; });
+      if (!conSel) {
+        for (let it = 0; it < 3 && usar.length >= 3; it++) {
+          const [a, b] = rango(usar); let mej = null, spm = b - a;
+          usar.forEach((s) => { const [c1, c2] = rango(usar.filter((q) => q !== s)); if (c2 - c1 < spm) { spm = c2 - c1; mej = s; } });
+          if (mej && spm * 3 < b - a) usar = usar.filter((q) => q !== mej); else break;
+        }
+      }
+      let [lo, hi] = rango(usar);
+      if (!conSel) { const vals = []; usar.forEach((s) => { for (let i = d; i <= h; i++) if (s.datos[i] != null) vals.push(s.datos[i]); });
+        if (vals.length >= 8) { const so = vals.sort((x, y) => x - y), q = (p) => so[Math.floor((so.length - 1) * p)], sp = q(0.9) - q(0.1); if (sp > 0) { lo = Math.max(lo, q(0.1) - 1.5 * sp); hi = Math.min(hi, q(0.9) + 1.5 * sp); } } }
+      if (!isFinite(lo)) { lo = 0; hi = 1; }
+      if (cero && !conSel) { lo = Math.min(lo, 0); hi = Math.max(hi, 0); }
+      const paso = [0.25, 0.5, 1, 2, 4, 5, 10, 20, 25, 50, 100, 200, 500, 1000, 2000].find((p) => (hi - lo) / p <= 5) || 5000;
+      const min = Math.floor(lo / paso) * paso, max = Math.ceil(hi / paso) * paso, t = [];
+      for (let v = min; v <= max + 1e-9; v += paso) t.push(Math.round(v * 100) / 100);
+      return { min, max: max === min ? min + paso : max, ticksY: t };
+    };
+    const apil = (series, d, h, sel, aj) => {
+      const usar = series.filter((s) => !sel.length || sel.includes(s.id)), N0 = (series[0] && series[0].datos.length) || 0, base = new Array(N0).fill(0);
+      const out = usar.map((s) => { const b = base.slice(); s.datos.forEach((x, i) => { if (x != null) base[i] += x; }); return { id: s.id, color: s.color, ancho: 0, tipo: 'barras', base: b.slice(d, h + 1), valores: s.datos.slice(d, h + 1) }; });
+      let top = 0; for (let i = d; i <= h; i++) top = Math.max(top, base[i]);
+      const esc = (sel.length && aj) || top > 101 ? escala([{ id: 't', datos: base }], d, h, true) : { min: 0, max: 100, ticksY: [0, 20, 40, 60, 80, 100] };
+      return { series: out, esc };
+    };
+    const qn = (a, p) => { const s = a.slice().sort((x, y) => x - y), k = (s.length - 1) * p, f = Math.floor(k); return s[f] + (s[Math.min(f + 1, s.length - 1)] - s[f]) * (k - f); };
+    const atip = (arrs, sinNivel, protege) => { const A = arrs.map((a) => (a || []).filter((x) => x != null)), out = new Set(), q = (s, p) => s[Math.floor((s.length - 1) * p)];
+      A.forEach((a, i) => { if (a.length < 8) return; const s = a.slice().sort((x, y) => x - y), sp = q(s, 0.9) - q(s, 0.1); const md = q(s, 0.5), umbral = Math.max(4 * sp, 0.5 * Math.abs(md)); if (sp > 0 && (s[0] < q(s, 0.1) - umbral || s[s.length - 1] > q(s, 0.9) + umbral)) out.add(i); });
+      let vivos = A.map((a, i) => i).filter((i) => A[i].length >= 8 && !out.has(i));
+      const span = (ix) => { let lo = Infinity, hi = -Infinity; ix.forEach((i) => A[i].forEach((x) => { lo = Math.min(lo, x); hi = Math.max(hi, x); })); return hi - lo; };
+      for (let it = 0; it < 2 && !sinNivel && vivos.length >= 4; it++) { const sp = span(vivos); let mej = -1, spm = sp; vivos.forEach((i) => { const s2 = span(vivos.filter((j) => j !== i)); if (s2 < spm) { spm = s2; mej = i; } }); if (mej >= 0 && spm * 3 < sp) { out.add(mej); vivos = vivos.filter((j) => j !== mej); } else break; }
+      (protege || []).forEach((i) => out.delete(i)); return out; };
+    const NOTA_AT = '* Serie con valores extremos: queda fuera de la escala común y no se dibuja su caja de historia, para no deformar las demás.';
+    const marcarAt = (filas, sinNivel) => { const ix = atip(filas.map((r) => r._a), sinNivel, filas.map((r, i) => r.cls === 'tot' ? i : -1).filter((i) => i >= 0)); return filas.map((r, i) => ix.has(i) ? { ...r, nombre: r.nombre + ' *', _a: [], _at: true } : r); };
+    const cajas = (filas0, sinNivel) => { const filas = marcarAt(filas0, sinNivel);
+      const todos = filas.flatMap((r) => r._a.filter((x) => x != null)); if (!todos.length) return filas;
+      const lo = Math.min(...todos), hi = Math.max(...todos), X0 = (x) => ((x - lo) / (hi - lo || 1) * 80).toFixed(1);
+      return filas.map((r) => { const a = r._a.filter((x) => x != null); if (a.length < 8) return { ...r, b0: 'display:none', bw: 'display:none', bb: 'display:none', bm: 'display:none', bp: 'display:none' };
+        const u = a[a.length - 1], mn = Math.min(...a), mx = Math.max(...a);
+        return { ...r, b0: lo < 0 && hi > 0 ? 'position:absolute;top:0;height:12px;width:1px;background:#C9D2DC;left:' + X0(0) + 'px' : 'display:none',
+          bw: 'position:absolute;top:6px;height:1px;background:#8A93A0;left:' + X0(mn) + 'px;width:' + (X0(mx) - X0(mn)).toFixed(1) + 'px',
+          bb: 'position:absolute;top:2px;height:8px;box-sizing:border-box;border:1px solid #8A93A0;background:#EEF1F5;left:' + X0(qn(a, 0.25)) + 'px;width:' + Math.max(1, X0(qn(a, 0.75)) - X0(qn(a, 0.25))).toFixed(1) + 'px',
+          bm: 'position:absolute;top:2px;height:8px;width:1px;background:#24324A;left:' + X0(qn(a, 0.5)) + 'px',
+          bp: 'position:absolute;top:3px;width:6px;height:6px;border-radius:50%;margin-left:-3px;background:' + r._c + ';left:' + X0(u) + 'px' }; }); };
+    const rs = (v) => v == null ? '—' : (v < 0 ? '−' : '') + Math.abs(v).toLocaleString('es-CL', { minimumFractionDigits: Math.abs(v) >= 100 ? 0 : 1, maximumFractionDigits: Math.abs(v) >= 100 ? 0 : 1 });
+    FMT.rs = rs; FMT.num = (v) => v == null ? '—' : v.toFixed(2).replace('.', ',');
+    const SUF = { pct: ' %', pp: '', rs: '', num: '' };
+    const dl = (f, a, i, k) => k < 0 || a[k] == null || a[i] == null ? '—' : f === 'rs' ? (a[k] ? pc((a[i] / a[k] - 1) * 100) : '—') : pp(a[i] - a[k]);
+    const GQ = 'Δ a/a: diferencia en pp contra el mismo mes (o trimestre) del año previo; en montos en R$, variación en %. m/m: contra el mes anterior. Z 10 años: (último − promedio de 120 meses o 40 trimestres) / desvío; en el SCR la ventana empieza en ene-18. En montos en R$ no se muestran Z ni Historia: crecen con la inflación. Historia: caja p25–p75, raya mediana, línea mín–máx, punto último.';
+    const MS = 'SGS del BCB: tarjeta de crédito de personas, total y submodalidades (rotativo, en cuotas con interés, al contado). Una fila «en preparación» es un código que falta bajar al crudo.';
+    const MC = 'SCR.data del BCB, cubo por producto (tarjeta, cliente PF): cartera activa, cartera en mora (> 90 días), vencido de 15 a 90 días, activo problemático y número de operaciones, por renta, tipo de institución y ocupación. Mensual desde ene-18. Bandas del SCR: jul-25, reclasificación de renta; ene–feb-26, la mora de «sin renta / N.D.» salta por cambio de composición del segmento (clientes en atraso sin renta actualizada), no por riesgo nuevo; jul-26, pico de un mes en «más de 20 SM». «Sin renta / N.D.» va aparte de los tramos: el mix se calcula sobre los 7 tramos con renta y la línea «Tramos con renta» suma solo esos.';
+    const B4966 = [{ en: 'ene-25', t: 'Res. 4.966' }], BLEY = [{ en: 'ene-24', t: 'Ley 14.690' }];
+    const DIVS = 'Barras: aporte de cada parte, en pp. Línea: total. Las barras suman la línea.';
+    const SECS = [
+      { num: 'P1', nombre: 'Volumen',
+        va: { titulo: 'Saldo de tarjeta, a/a', sub: 'Eje vertical: %. Eje horizontal: mes.', fuente: 'Fuente: BCB, SGS.', cero: true, tTitulo: 'Saldo', tSub: 'a/a en % · Δ a/a en pp', glos: 'Último: crecimiento a/a del saldo, en %. ', meta: MS },
+        vb: { titulo: 'Saldo que devenga interés, % del saldo de tarjeta', sub: 'Eje vertical: % del saldo. Eje horizontal: mes.', fuente: 'Fuente: BCB, SGS.', tTitulo: 'Composición del saldo', tSub: '% del saldo · Δ a/a en pp', glos: 'Último: rotativo y cuotas con interés sobre el saldo total de tarjeta, en %. El resto son compras al contado. ', meta: MS } },
+      { num: 'P2', nombre: 'Precio',
+        va: { titulo: 'Tasa de las nuevas operaciones contra Selic', sub: 'Eje vertical: % a.a. Eje horizontal: mes. Línea discontinua: Selic efectiva, promedio del mes (SGS 4189). Banda: Ley 14.690.', fuente: 'Fuente: BCB, SGS.', bandas: BLEY, tTitulo: 'Tasa media', tSub: '% a.a. · Δ a/a en pp', glos: 'Último: tasa media de las concesiones del mes, en % a.a. ', meta: MS + ' Ley 14.690: desde ene-24 los intereses del rotativo no pueden superar el 100 % de la deuda original.' },
+        vb: { titulo: 'Qué movió la tasa media: tasas o mezcla', sub: DIVS + ' Banda: Ley 14.690.', fuente: 'Fuente: BCB, SGS.', bandas: BLEY, tTitulo: 'Variación a/a de la tasa', tSub: 'pp · Δ a/a en pp', glos: 'Tasa media = rotativo y cuotas ponderados por sus concesiones del mes. Efecto tasa: peso promedio × cambio de la tasa de cada submodalidad. Efecto mezcla: diferencia promedio de tasas × cambio del peso del rotativo. Es la tasa reconstruida de rotativo y cuotas, no la tasa total del SGS (22024), que incluye el contado a tasa cero. Es la tasa reconstruida de rotativo y cuotas, no la tasa total del SGS (22024), que incluye el contado a tasa cero. ', meta: MS } },
+      { num: 'P3', nombre: 'Calidad',
+        va: { titulo: 'Mora mayor a 90 días', sub: 'Eje vertical: % del saldo. Eje horizontal: mes. Banda: Res. 4.966.', fuente: 'Fuente: BCB, SGS.', bandas: B4966, tTitulo: 'Mora > 90 días', tSub: '% · Δ a/a en pp', glos: 'Último: saldo con atraso mayor a 90 días sobre el saldo, en %. ', meta: MS + ' Desde ene-25 rige la Res. CMN 4.966.' },
+        vb: { titulo: 'Mora temprana: atraso de 15 a 90 días por tramo de renta', sub: 'Eje vertical: % de la cartera. Eje horizontal: mes. Banda: Res. 4.966.', fuente: 'Fuente: BCB, SCR.data.', bandas: B4966, tTitulo: 'Atraso 15–90 días', tSub: '% · Δ a/a en pp', glos: 'Último: vencido de 15 a 90 días sobre la cartera activa, en %. Anticipa la mora > 90 días en uno a tres meses. ', meta: MC } },
+      { num: 'P4', nombre: 'Qué movió la mora',
+        va: { titulo: 'Mora > 90 días de la tarjeta con interés: efecto tasa y mezclas', sub: DIVS + ' Banda: Res. 4.966.', fuente: 'Fuente: BCB, SCR.data.', bandas: B4966, tTitulo: 'Variación a/a de la mora', tSub: 'pp · Δ a/a en pp', glos: 'Celdas de renta × tipo de institución. Efecto tasa: peso promedio × cambio de la mora de cada celda. Mezcla de clientes: cambio del peso de cada tramo de renta. Mezcla de instituciones: el resto de la mezcla, dentro de cada tramo. Separar las dos mezclas depende del orden: en Agrandar va también el orden inverso. ', meta: MC + ' Las instituciones de pago casi no registran mora: lo más probable es que la cartera vencida pase a la financiera del grupo. Su crecimiento resta mora por mezcla de forma mecánica.' },
+        vb: { titulo: 'Atraso 15–90 días de la tarjeta con interés: efecto tasa y mezclas', sub: DIVS + ' Banda: Res. 4.966.', fuente: 'Fuente: BCB, SCR.data.', bandas: B4966, tTitulo: 'Variación a/a del atraso', tSub: 'pp · Δ a/a en pp', glos: 'Mismo cálculo que el gráfico de la izquierda, con el vencido de 15 a 90 días. ', meta: MC } },
+      { num: 'P5', nombre: 'Renta',
+        va: { titulo: 'Aporte al crecimiento a/a del saldo, por tramo de renta', sub: DIVS, fuente: 'Fuente: BCB, SCR.data.', tTitulo: 'Aporte al crecimiento', tSub: 'pp · Δ a/a en pp', glos: 'Aporte de cada tramo: (saldo del tramo hoy − hace 12 meses) / saldo total hace 12 meses, en pp. ', meta: MC },
+        vb: { titulo: 'Aporte a la variación a/a de la mora, por tramo de renta', sub: DIVS + ' Banda: Res. 4.966.', fuente: 'Fuente: BCB, SCR.data.', bandas: B4966, tTitulo: 'Aporte a la mora', tSub: 'pp · Δ a/a en pp', glos: 'Aporte de cada tramo: peso × mora hoy menos lo mismo hace 12 meses, en pp. Efecto tasa: peso promedio × cambio de la mora del tramo. Efecto mezcla: mora promedio × cambio del peso. ', meta: MC } },
+      { num: 'P6', nombre: 'Ocupación',
+        va: { titulo: 'Aporte al crecimiento a/a del saldo, por ocupación', sub: DIVS, fuente: 'Fuente: BCB, SCR.data.', tTitulo: 'Aporte al crecimiento', tSub: 'pp · Δ a/a en pp', glos: 'Aporte de cada ocupación al crecimiento del saldo total, en pp. ', meta: MC + ' Ocupaciones del SCR agrupadas. «Otros / no informado» es la categoría «Outros» de la fuente (~31 % del saldo, con renta más baja que el resto): no hay un mapeo mejor con el SCR.data.' },
+        vb: { titulo: 'Aporte a la variación a/a de la mora, por ocupación', sub: DIVS + ' Banda: Res. 4.966.', fuente: 'Fuente: BCB, SCR.data.', bandas: B4966, tTitulo: 'Aporte a la mora', tSub: 'pp · Δ a/a en pp', glos: 'Aporte de cada ocupación a la variación de la mora total, en pp. Efecto tasa y efecto mezcla como en P5. ', meta: MC } },
+      { num: 'P7', nombre: 'Emisor',
+        va: { titulo: 'Aporte al crecimiento a/a del saldo con interés, por tipo de institución', sub: DIVS, fuente: 'Fuente: BCB, SCR.data.', tTitulo: 'Aporte al crecimiento', tSub: 'pp · Δ a/a en pp', glos: 'Aporte de cada tipo de institución al crecimiento del saldo total, en pp. ', meta: MC + ' Participación por banco: IF.Data, panel de bk_cartera_mix7, trimestral.' },
+        vb: { titulo: 'Aporte a la variación a/a de la mora con interés, por tipo de institución', sub: DIVS + ' Banda: Res. 4.966.', fuente: 'Fuente: BCB, SCR.data.', bandas: B4966, tTitulo: 'Aporte a la mora', tSub: 'pp · Δ a/a en pp', glos: 'Aporte de cada tipo a la variación de la mora total, en pp. Efecto tasa y efecto mezcla como en P5. ', meta: MC + ' P4 y P7 van sobre la tarjeta con interés (rotativo, cuotas con interés y no migrado). La tarjeta al contado, donde está toda la cartera de las instituciones de pago, tiene mora cercana a cero en todos los emisores.' } },
+      { num: 'P8', nombre: 'Saldo medio y endeudamiento',
+        va: { titulo: 'Saldo medio por operación, por tramo de renta', sub: 'Eje vertical: R$. Eje horizontal: mes.', fuente: 'Fuente: BCB, SCR.data.', tTitulo: 'Saldo medio por operación', tSub: 'R$ · Δ a/a en %', glos: 'Saldo medio por operación: cartera de las operaciones informadas / número de operaciones, en R$. Es por operación, no por persona: quien tiene dos tarjetas cuenta dos veces. ', meta: MC },
+        vb: { titulo: 'Saldo medio por operación en meses de renta, por tramo', sub: 'Eje vertical: meses de renta. Eje horizontal: mes.', fuente: 'Fuente: BCB, SCR.data y SGS.', tTitulo: 'Meses de renta', tSub: 'meses · Δ a/a', glos: 'Saldo medio por operación / (salario mínimo del mes × punto medio del tramo). Puntos medios: 0,75; 1,5; 2,5; 4; 7,5 y 15 SM; «más de 20 SM» usa 20 (cota superior). Mide la operación media, no la deuda por persona. ', meta: MC + ' Salario mínimo: SGS 1619. En Agrandar, las cotas con la renta en el piso y en el techo de cada tramo.' } },
+      { num: 'P9', nombre: 'Tope por renta',
+        va: { titulo: 'Saldo en clientes de hasta 3 SM, % del total', sub: 'Eje vertical: % de la cartera. Eje horizontal: mes.', fuente: 'Fuente: BCB, SCR.data.', tTitulo: 'Hasta 3 SM', tSub: '% de la cartera · Δ a/a en pp', glos: 'Último: cartera de clientes con renta de hasta 3 salarios mínimos sobre la cartera del producto, en %. ', meta: MC + ' Escenario de un límite al crédito sin garantía según la renta del deudor.' },
+        vb: { titulo: 'Mora mayor a 90 días: hasta 3 SM, más de 3 SM y sin renta', sub: 'Eje vertical: % de la cartera. Eje horizontal: mes. Banda: Res. 4.966.', fuente: 'Fuente: BCB, SCR.data.', bandas: B4966, tTitulo: 'Mora por renta', tSub: '% · Δ a/a en pp', glos: 'Último: cartera en mora sobre cartera activa, en %. «Sin renta / N.D.» va aparte: su mora refleja en parte a clientes en atraso sin renta actualizada. ', meta: MC } },
+    ];
+    const K = {}; SECS.forEach((sc, i) => ['va', 'vb'].forEach((p) => { K[i + p] = { ...sc[p], sec: i, p, key: i + p }; }));
+    const CORTO = { 'Reclasificación de renta (SCR)': 'Renta reclasificada', 'Mora de «sin renta»: cambio de composición (ene–feb-26)': 'N.D.: composición', 'Pico de un mes en «más de 20 SM»': 'Pico > 20 SM', 'MP 1.292: nuevo consignado privado': 'MP 1.292', 'Res. CMN 4.966': 'Res. 4.966' };
+    Object.keys(K).forEach((k) => { const ya = new Set((K[k].bandas || []).map((b) => b.en)), ex = []; (X.bandas || []).forEach((b) => { if (b.sec === k && !ya.has(b.mes)) { ya.add(b.mes); ex.push({ en: b.mes, t: CORTO[b.texto] || b.texto }); } });
+      K[k].bandas = (K[k].bandas || []).concat(ex); const no = X.p[k] && X.p[k].nota; K[k].nota = no || ''; if (no) K[k].meta = K[k].meta + ' ' + no; });
+    Object.keys(K).forEach((k) => { const ya = new Set((K[k].bandas || []).map((b) => b.en)), ex = []; (X.bandas || []).forEach((b) => { if (b.sec === k && !ya.has(b.mes)) { ya.add(b.mes); ex.push({ en: b.mes, t: b.texto }); } });
+      K[k].bandas = (K[k].bandas || []).concat(ex); const no = X.p[k] && X.p[k].nota; K[k].nota = no || ''; if (no) K[k].meta = K[k].meta + ' ' + no; });
+    const mk = (raw) => (raw || []).map((s, j) => ({ id: 's' + j, nombre: s.n, color: s.c, ancho: s.w || 2, dash: s.dash, datos: s.d, tot: !!s.tot, linea: !!s.linea }));
+    const apilDiv = (series, d, h, sel, aj) => {
+      const N0 = (series[0] && series[0].datos.length) || 0, pos = new Array(N0).fill(0), neg = new Array(N0).fill(0);
+      const out = series.filter((s) => !s.linea && (!sel.length || sel.includes(s.id))).map((s) => { const b = s.datos.map((x, i) => x == null ? 0 : (x >= 0 ? pos[i] : neg[i])); s.datos.forEach((x, i) => { if (x != null) { if (x >= 0) pos[i] += x; else neg[i] += x; } }); return { id: s.id, color: s.color, ancho: 0, tipo: 'barras', base: b.slice(d, h + 1), valores: s.datos.slice(d, h + 1) }; });
+      const lin = series.filter((s) => s.linea && (!sel.length || sel.includes(s.id) || !aj));
+      const esc = escala([{ id: 'p', datos: pos }, { id: 'n', datos: neg }].concat(lin), d, h, true);
+      return { series: out.concat(lin.map((s) => ({ id: s.id, color: s.color, ancho: s.ancho, dash: s.dash, valores: s.datos.slice(d, h + 1) }))), esc };
+    };
+    const cuad = (s) => 'width:12px;height:12px;flex-shrink:0;background:' + s.color;
+    const marca = (ap, s) => ap && !s.linea ? cuad(s) : linea(s);
+    const bandasDe = (lista, lab, d, h) => (lista || []).map((b) => { const i = lab.indexOf(b.en); return i >= d && i <= h ? { desde: Math.max(d, i - 1) - d, hasta: i - d, texto: b.t } : null; }).filter(Boolean);
+    const togg = (campo, key, sel, id, m) => { const nuevo = m ? (sel.includes(id) ? sel.filter((k) => k !== id) : sel.concat(id)) : (sel.length === 1 && sel[0] === id ? [] : [id]); this.setState({ [campo]: { ...this.state[campo], [key]: nuevo } }); };
+    const grafCfg = (series, lab, d, h, w, alto, fmt, P, sel, aj, apilar, extra, div) => {
+      const AP = div ? apilDiv(series, d, h, sel, aj) : apilar ? apil(series, d, h, sel, aj) : null;
+      return { w, h: alto, reservaDer: w > 800 ? 64 : 56, n: h - d + 1, categorico: true, etiquetas: lab.slice(d, h + 1), ticksX: ticks(lab, d, h), ...(AP ? AP.esc : escala(series, d, h, !!P.cero, aj ? sel : null)), sufijo: SUF[fmt], decimales: 1,
+        series: AP ? AP.series : series.slice().reverse().map((s) => ({ id: s.id, color: s.color, ancho: s.ancho, dash: s.dash, valores: s.datos.slice(d, h + 1) })), fills: [], sel, bandas: bandasDe(P.bandas, lab, d, h), ...extra };
+    };
+    const armar = (key) => {
+      const P = K[key], D = X.p[key], lab = LAB[D.lab], n = lab.length, series = mk(D.series), sel = st.sel[key] || [], aj = !!st.aj[key] && sel.length > 0, lag = LAG[D.lab];
+      const on = (id) => !sel.length || sel.includes(id), toggle = (id, m) => togg('sel', key, sel, id, m);
+      const d = Math.max(0, n - DEFN[D.lab]), h = n - 1;
+      const AP_ = P.apilar || D.div; const cfg = grafCfg(series, lab, d, h, 910, 380, D.fmt, P, sel, aj, P.apilar, {
+        fijo: Math.min(h, Math.max(d, st.fijo[key] == null ? h : st.fijo[key])) - d, hover: st.hover[key] != null && st.hover[key] >= d && st.hover[key] <= h ? st.hover[key] - d : null,
+        onFijar: (i) => this.setState({ fijo: { ...this.state.fijo, [key]: i + d }, hover: {} }), onHover: (i) => this.setState({ hover: i == null ? {} : { [key]: i + d } }), onSerie: toggle }, D.div);
+      const leyenda = series.map((s) => ({ nombre: s.nombre, pres: sel.includes(s.id) ? 'true' : 'false', sw: marca(AP_, s), est: (sel.includes(s.id) ? 'border-color:#2E5C8A;background:#E8EEF5;' : '') + (on(s.id) ? '' : 'opacity:0.45;'), click: (e) => toggle(s.id, multi(e)) }));
+      const filas = series.map((s) => { const a = s.datos, i = ultI(a);
+        return { nombre: s.nombre, corte: i >= 0 ? lab[i] : '—', v: i < 0 ? ['—', '—'] : [FMT[D.fmt](a[i]), dl(D.fmt, a, i, i - lag)], cls: s.tot ? 'tot' : '', pres: sel.includes(s.id) ? 'true' : 'false', sw: marca(AP_, s),
+          est: sel.includes(s.id) ? 'background:#E8EEF5' : on(s.id) ? '' : 'opacity:0.4', click: (e) => { if (e) e.stopPropagation(); toggle(s.id, multi(e)); } }; });
+      return { titulo: P.titulo, sub: P.sub, fuente: P.fuente, nota: P.nota, nota: P.nota, tTitulo: P.tTitulo, tSub: P.tSub, cols: ['Último', 'Δ a/a'], leyenda, cfg, filas,
+        sinSel: sel.length === 0, ajustar: () => this.setState({ aj: { ...this.state.aj, [key]: !this.state.aj[key] } }), ajusteTxt: aj ? 'Eje completo' : 'Ajustar eje', ajustePres: aj ? 'true' : 'false', ajusteEst: aj ? 'background:#E8EEF5;border-color:#2E5C8A;color:#1F3F60;font-weight:600' : '' };
+    };
+    const bloque = (v, j, Bq) => {
+      const P = K[v], lab = LAB[Bq.lab], n = lab.length, lag = LAG[Bq.lab], key = v + '|' + j, def = Math.max(0, n - DEFN[Bq.lab]), series = mk(Bq.series), f = Bq.fmt, monto = f === 'rs';
+      const r = st.rng[key] || { d: def, h: n - 1 }, d0 = r.d, h0 = r.h, sel = st.selO[key] || [], aj = !!st.ajO[key] && sel.length > 0;
+      const on = (id) => !sel.length || sel.includes(id), toggle = (id, m) => togg('selO', key, sel, id, m);
+      const cfg = grafCfg(series, lab, d0, h0, 700, 220, f, P, sel, aj, Bq.apilar, { fijo: h0 - d0, hover: null, onFijar: () => {}, onHover: () => {}, onSerie: (id, m) => toggle(id, m) }, Bq.div);
+      const base = (series.find((s) => s.tot) || series.find((s) => s.datos.some((x) => x != null)) || { datos: new Array(n).fill(null) }).datos;
+      const cfgR = { w: 640, n, etiquetas: lab, serie: base.map((x, k, a) => x == null ? (a.slice(k).find((y) => y != null) ?? 0) : x), desde: d0, hasta: h0, minimo: 6, unidad: UNI[Bq.lab], onRango: (x, z) => this.setState({ rng: { ...this.state.rng, [key]: { d: x, h: z } } }) };
+      const filas0 = series.map((s) => { const a = s.datos, i = ultI(a);
+        return { _a: monto ? [] : a, _c: s.color, nombre: s.nombre, corte: i >= 0 ? lab[i] : '—', v: i < 0 ? ['—', '—', '—', '—'] : [FMT[f](a[i]), dl(f, a, i, i - 1), dl(f, a, i, i - lag), monto ? '—' : pp(zz(a, ZN[Bq.lab]))], cls: s.tot ? 'tot' : '', pres: sel.includes(s.id) ? 'true' : 'false', sw: marca(Bq.apilar || Bq.div, s),
+          est: sel.includes(s.id) ? 'background:#E8EEF5' : on(s.id) ? '' : 'opacity:0.4', click: (e) => { if (e) e.stopPropagation(); toggle(s.id, multi(e)); } }; });
+      const filas = cajas(filas0, !!(Bq.apilar || Bq.div));
+      return { nombre: Bq.nombre, nota: filas.some((x) => x._at) ? NOTA_AT : '', cols: ['Último', Bq.lab === 'q' ? 't/t' : 'm/m', 'a/a', 'Z 10 años'], cfg, cfgR, filas, sinSel: sel.length === 0, ajTxt: aj ? 'Eje completo' : 'Ajustar eje', ajPres: aj ? 'true' : 'false', ajEst: aj ? 'background:#E8EEF5;border-color:#2E5C8A;color:#1F3F60;font-weight:600' : '', ajustar: () => this.setState({ ajO: { ...this.state.ajO, [key]: !this.state.ajO[key] } }) };
+    };
+    const TOPS = {}; let yy = 48 + 46 + 14;
+    const pares = Object.keys(K).map((key) => { const A = armar(key), P = K[key], cab = P.p === 'va'; if (cab) yy += 82; TOPS[key] = yy; yy += 624;
+      return { ...A, cab, cabNum: SECS[P.sec].num, cabNombre: SECS[P.sec].nombre, abrir: () => this.setState({ vista: key }) }; });
+    const ALTO = yy - 14 + 48;
+    let d = {}, altoD = 0;
+    const v = st.vista && K[st.vista] ? st.vista : null;
+    if (v) {
+      const P = K[v], ops = X.p[v].bloques.map((Bq, j) => bloque(v, j, Bq));
+      altoD = 90 + ops.length * 330 + 120;
+      d = { titulo: P.titulo, sub: P.sub, ops, atajoTxt: 'Últimos 24 meses', atajoOk: Object.keys(st.rng).every((x) => !x.startsWith(v + '|')), glosario: P.glos + GQ, meta: P.meta };
+    }
+    return {
+      pares, d, abierto: !!v,
+      raizEst: 'position: relative; width: 1600px; height: ' + ALTO + 'px; box-sizing: border-box; padding: 48px; background: #F6F7F8; color: #24324A; font-family: \'IBM Plex Sans\', system-ui, sans-serif; display: flex; flex-direction: column;',
+      overEst: 'position: absolute; left: 0; top: 0; width: 1600px; height: ' + ALTO + 'px; background: rgba(27,36,51,0.45); z-index: 20;',
+      dlgEst: 'top: ' + (v ? Math.max(24, Math.min(TOPS[v] - 40, ALTO - altoD - 24)) : 24) + 'px;',
+      atajo: v && d.atajoOk ? 'def' : 'pers',
+      elegirAtajo: (e) => { if (e.target.value === 'def' && v) { const r = { ...this.state.rng }; Object.keys(r).forEach((x) => { if (x.startsWith(v + '|')) delete r[x]; }); this.setState({ rng: r }); } },
+      cerrar: () => this.setState({ vista: null }),
+      onKey: (e) => { if (e.key === 'Escape') { e.preventDefault(); this.setState({ vista: null }); } },
+    };
+  }
+}
+</script>
+</body>
+</html>

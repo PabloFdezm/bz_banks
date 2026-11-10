@@ -1,0 +1,127 @@
+{
+  "componentes": [
+    "Grafico",
+    "Rango"
+  ],
+  "paginas": [
+    {
+      "titulo": "Portada",
+      "ruta": "portada",
+      "menu": "Portada",
+      "grupo": "Sistema",
+      "hojas": [
+        "Seccion01",
+        "Seccion02",
+        "Seccion03"
+      ]
+    },
+    {
+      "titulo": "Bancos por grupo · trimestral",
+      "ruta": "trimestral",
+      "menu": "Trimestral",
+      "grupo": "Sistema",
+      "hojas": [
+        "Trimestral"
+      ]
+    },
+    {
+      "titulo": "Crédito por producto",
+      "ruta": "credito",
+      "menu": "Crédito por producto",
+      "grupo": "Sistema",
+      "hojas": [
+        "Credito"
+      ]
+    },
+    {
+      "titulo": "Tarjeta",
+      "ruta": "tarjeta",
+      "menu": "Tarjeta",
+      "grupo": "Personas",
+      "hojas": [
+        "Tarjeta"
+      ]
+    },
+    {
+      "titulo": "Personal sin planilla y sobregiro",
+      "ruta": "personal",
+      "menu": "Personal",
+      "grupo": "Personas",
+      "hojas": [
+        "Personal"
+      ]
+    },
+    {
+      "titulo": "Descuento por planilla",
+      "ruta": "planilla",
+      "menu": "Descuento por planilla",
+      "grupo": "Personas",
+      "hojas": [
+        "Planilla"
+      ]
+    },
+    {
+      "titulo": "Vehículos",
+      "ruta": "vehiculos",
+      "menu": "Vehículos",
+      "grupo": "Personas",
+      "hojas": [
+        "Vehiculos"
+      ]
+    },
+    {
+      "titulo": "Inmobiliario",
+      "ruta": "inmobiliario",
+      "menu": "Inmobiliario",
+      "grupo": "Personas",
+      "hojas": [
+        "Inmobiliario"
+      ]
+    },
+    {
+      "titulo": "Empresas · MPME",
+      "ruta": "mpme",
+      "menu": "MPME",
+      "grupo": "Empresas",
+      "hojas": [
+        "Mpme"
+      ]
+    },
+    {
+      "titulo": "Empresas · Grandes",
+      "ruta": "grandes",
+      "menu": "Grandes",
+      "grupo": "Empresas",
+      "hojas": [
+        "Grandes"
+      ]
+    },
+    {
+      "titulo": "Fondeo y liquidez",
+      "ruta": "fondeo",
+      "menu": "Fondeo y liquidez",
+      "grupo": "Fondeo",
+      "hojas": [
+        "Fondeo"
+      ]
+    },
+    {
+      "titulo": "Bancos · agregados",
+      "ruta": "agregados",
+      "menu": "Agregados",
+      "grupo": "Bancos",
+      "hojas": [
+        "Ficha"
+      ]
+    },
+    {
+      "titulo": "P&L y balance por banco",
+      "ruta": "pyb",
+      "menu": "P&L y balance",
+      "grupo": "Bancos",
+      "hojas": [
+        "PyB"
+      ]
+    }
+  ]
+}

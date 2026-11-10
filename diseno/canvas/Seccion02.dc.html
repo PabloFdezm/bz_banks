@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Sección 02 · Precio del crédito</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&amp;family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;display=swap">
+<style>
+body{margin:0}
+button:focus-visible,select:focus-visible{outline:2px solid #2E5C8A;outline-offset:2px}
+.btn{font-family:'IBM Plex Sans',sans-serif;font-size:14px;height:44px;padding:0 16px;border:1px solid #C9D2DC;border-radius:4px;background:#FFFFFF;color:#24324A;cursor:pointer;display:inline-flex;align-items:center;gap:8px;flex-shrink:0;box-sizing:border-box}
+.btn:hover{border-color:#2E5C8A;color:#2E5C8A}
+.btn:disabled{color:#6B7684;border-color:#C9D2DC;background:#FFFFFF;cursor:default}
+.btn:disabled:hover{color:#6B7684;border-color:#C9D2DC}
+.agr{width:36px;height:36px;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;padding:0;border:1px solid transparent;border-radius:4px;background:transparent;color:#5B6573;cursor:pointer}
+.agr:hover{background:#EEF1F5;color:#2E5C8A}
+.sel{font-family:'IBM Plex Sans',sans-serif;font-size:14px;height:44px;padding:0 10px;border:1px solid #C9D2DC;border-radius:4px;background:#FFFFFF;color:#24324A;box-sizing:border-box}
+.ley{font-family:'IBM Plex Sans',sans-serif;font-size:13px;height:36px;padding:0 10px;border:1px solid transparent;border-radius:4px;background:transparent;color:#24324A;cursor:pointer;display:inline-flex;align-items:center;gap:6px;box-sizing:border-box}
+.ley:hover{border-color:#C9D2DC}
+.aj{border:1px solid #C9D2DC;margin-left:auto}
+.aj:disabled{color:#8A93A0;border-color:#E1E6EC;cursor:default}
+.card{background:#FFFFFF;border:1px solid #E1E6EC;border-radius:4px;padding:16px 24px 12px;display:flex;flex-direction:column;gap:6px;box-sizing:border-box;min-width:0}
+.ct{font-size:18px;line-height:24px;font-weight:600;color:#24324A}
+.cs{font-size:13px;line-height:18px;color:#5B6573}
+.tb{width:100%;border-collapse:collapse;font-size:13px}
+.tb th,.tb td{padding:9px 8px;border-bottom:1px solid #E6EAEF;text-align:right;font-family:'IBM Plex Mono',monospace;font-weight:400;color:#24324A;white-space:nowrap}
+.tb thead th{font-family:'IBM Plex Sans',sans-serif;font-weight:600;font-size:12px;border-bottom:1px solid #24324A}
+.tb .ind{text-align:left;font-family:'IBM Plex Sans',sans-serif;white-space:normal}
+.tb tr.tot th,.tb tr.tot td{font-weight:600;border-top:2px solid #8A93A0}
+.tb tr.g1 th,.tb tr.g1 td{border-top:2px solid #8A93A0}
+.tb tbody tr{cursor:pointer}
+.tb tbody tr:hover{background:#F6F7F8}
+.fb{font-family:'IBM Plex Sans',sans-serif;font-size:13px;border:0;background:transparent;color:inherit;padding:0;cursor:pointer;display:inline-flex;align-items:center;gap:8px;text-align:left;font-weight:inherit;min-height:24px}
+.m{font-family:'IBM Plex Mono',monospace;font-weight:500}
+.md{font-size:12px;line-height:18px;color:#5B6573;margin:0}
+.fu{font-size:12px;color:#5B6573;margin-top:auto}
+.sh{display:flex;align-items:center;gap:12px;height:44px}
+.bl{border:1px solid #E1E6EC;border-radius:4px;padding:12px 16px;box-sizing:border-box;min-width:0;display:flex;flex-direction:column;gap:2px}
+.bt{font-size:14px;line-height:20px;font-weight:600;color:#24324A}
+.bs{font-size:12px;line-height:16px;color:#5B6573}
+.g12{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:16px;row-gap:12px}
+.c3{grid-column:span 3}.c6{grid-column:span 6}.c9{grid-column:span 9}.c12{grid-column:span 12}
+.dlg{position:absolute;left:24px;width:1552px;box-sizing:border-box;background:#FFFFFF;border-radius:4px;padding:20px 28px 24px;display:flex;flex-direction:column;gap:12px}
+</style>
+</helmet>
+<div style="position: relative; width: 1600px; height: 1440px; box-sizing: border-box; padding: 48px; background: #F6F7F8; color: #24324A; font-family: 'IBM Plex Sans', system-ui, sans-serif; display: flex; flex-direction: column; gap: 14px;">
+  <div class="sh" style="border-top: 2px solid #24324A; padding-top: 10px;">
+    <span style="font-family: 'IBM Plex Mono', monospace; font-size: 15px; color: #5B6573;">02</span>
+    <span style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 26px; color: #2E5C8A;">Precio del crédito</span>
+  </div>
+  <sc-for list="{{pares}}" as="s" hint-placeholder-count="2">
+    <div style="display: grid; grid-template-columns: 960px minmax(0, 1fr); gap: 24px; height: 560px; margin-bottom: 2px;">
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px;">
+          <div><div class="ct">{{s.titulo}}</div><div class="cs">{{s.sub}}</div></div>
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <sc-if value="{{s.control}}" hint-placeholder-val="{{false}}"><select class="sel" aria-label="Corte" value="{{corte}}" onChange="{{elegirCorte}}"><option value="pfpj">Personas / Empresas</option><option value="lidi">Libre / Dirigido</option><option value="pfld">Personas: libre / dirigido</option><option value="todos">Todos</option></select></sc-if>
+            <button class="btn" type="button" style="{{s.ajusteEst}}" aria-pressed="{{s.ajustePres}}" disabled="{{s.sinSel}}" onClick="{{s.ajustar}}">{{s.ajusteTxt}}</button>
+            <button class="btn" type="button" onClick="{{s.abrir}}" aria-haspopup="dialog"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M9.5 2.5h4v4M6.5 13.5h-4v-4M13.5 2.5l-5 5M2.5 13.5l5-5"></path></svg>Agrandar</button>
+          </div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 4px;">
+          <sc-for list="{{s.leyenda}}" as="l" hint-placeholder-count="3">
+            <button class="ley" type="button" style="{{l.est}}" aria-pressed="{{l.pres}}" onClick="{{l.click}}"><span style="{{l.sw}}"></span>{{l.nombre}}</button>
+          </sc-for>
+        </div>
+        <dc-import name="Grafico" cfg="{{s.cfg}}" hint-size="910px,390px"></dc-import>
+        <div class="fu">{{s.fuente}}</div>
+      </div>
+      <div class="card">
+        <div class="ct">{{s.tTitulo}}</div><div class="cs">{{s.tSub}}</div>
+        <table class="tb" style="margin-top: 8px;">
+          <thead><tr><th class="ind">Indicador</th><th>Corte</th><sc-for list="{{s.cols}}" as="c" hint-placeholder-count="3"><th>{{c}}</th></sc-for></tr></thead>
+          <tbody>
+            <sc-for list="{{s.filas}}" as="r" hint-placeholder-count="3">
+              <tr class="{{r.cls}}" style="{{r.est}}" onClick="{{r.click}}"><th class="ind"><button class="fb" type="button" aria-pressed="{{r.pres}}" onClick="{{r.click}}"><span style="{{r.sw}}"></span>{{r.nombre}}</button></th><td>{{r.corte}}</td><sc-for list="{{r.v}}" as="x" hint-placeholder-count="3"><td>{{x}}</td></sc-for></tr>
+            </sc-for>
+          </tbody>
+        </table>
+        <div class="fu">{{s.tFuente}}</div>
+      </div>
+    </div>
+  </sc-for>
+  <sc-if value="{{abierto}}" hint-placeholder-val="{{false}}">
+    <div style="position: absolute; left: 0; top: 0; width: 1600px; height: 1440px; background: rgba(27,36,51,0.45); z-index: 20;">
+      <div class="dlg" role="dialog" aria-modal="true" aria-label="{{d.titulo}}" onKeyDown="{{onKey}}" style="top: 24px; max-height: 1392px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 16px; height: 48px;">
+          <div><div style="font-size: 20px; line-height: 26px; font-weight: 600;">{{d.titulo}}</div><div class="cs">{{d.sub}}</div></div>
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <sc-if value="{{d.control}}" hint-placeholder-val="{{false}}"><select class="sel" aria-label="Corte" value="{{corte}}" onChange="{{elegirCorte}}"><option value="pfpj">Personas / Empresas</option><option value="lidi">Libre / Dirigido</option><option value="pfld">Personas: libre / dirigido</option><option value="todos">Todos</option></select></sc-if>
+            <select class="sel" aria-label="Período" onChange="{{elegirAtajo}}" value="{{atajo}}"><option value="def">{{d.atajoTxt}}</option><option value="pers" disabled="{{true}}">Personalizado</option></select>
+            <button class="btn" type="button" style="{{d.ajusteEst}}" aria-pressed="{{d.ajustePres}}" disabled="{{d.sinSel}}" onClick="{{d.ajustar}}">{{d.ajusteTxt}}</button>
+            <button class="btn" type="button" onClick="{{cerrar}}">Cerrar</button>
+          </div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 4px;">
+          <sc-for list="{{d.leyenda}}" as="l" hint-placeholder-count="3">
+            <button class="ley" type="button" style="{{l.est}}" aria-pressed="{{l.pres}}" onClick="{{l.click}}"><span style="{{l.sw}}"></span>{{l.nombre}}</button>
+          </sc-for>
+        </div>
+        <dc-import name="Grafico" cfg="{{d.cfg}}" hint-size="1490px,300px"></dc-import>
+        <div style="padding-left: 44px;"><dc-import name="Rango" cfg="{{d.cfgR}}" hint-size="1380px,64px"></dc-import></div>
+        <table class="tb" style="margin-top: 4px;">
+          <thead><tr><th class="ind">Indicador</th><th>Corte</th><sc-for list="{{d.cols}}" as="c" hint-placeholder-count="6"><th>{{c}}</th></sc-for><th>Historia</th></tr></thead>
+          <tbody>
+            <sc-for list="{{d.filas}}" as="r" hint-placeholder-count="5">
+              <tr class="{{r.cls}}" style="{{r.est}}" onClick="{{r.click}}"><th class="ind"><button class="fb" type="button" aria-pressed="{{r.pres}}" onClick="{{r.click}}"><span style="{{r.sw}}"></span>{{r.nombre}}</button></th><td>{{r.corte}}</td><sc-for list="{{r.v}}" as="x" hint-placeholder-count="6"><td>{{x}}</td></sc-for><td style="width: 96px;"><div style="position: relative; width: 80px; height: 12px; margin-left: auto;"><div style="{{r.b0}}"></div><div style="{{r.bw}}"></div><div style="{{r.bb}}"></div><div style="{{r.bm}}"></div><div style="{{r.bp}}"></div></div></td></tr>
+            </sc-for>
+          </tbody>
+        </table>
+        <div class="bs" style="margin-top: 6px; color: #5B6573;">{{d.nota}}</div>
+        <div class="g12" style="{{d.estPaneles}}">
+          <sc-for list="{{d.paneles}}" as="p" hint-placeholder-count="2">
+            <div class="bl c6" style="height: 262px;">
+              <div class="bt">{{p.titulo}}</div><div class="bs">{{p.sub}}</div>
+              <sc-if value="{{p.esGrafico}}" hint-placeholder-val="{{true}}"><dc-import name="Grafico" cfg="{{p.cfg}}" hint-size="706px,200px"></dc-import></sc-if>
+              <sc-if value="{{p.esBarras}}" hint-placeholder-val="{{false}}">
+                <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 12px;">
+                  <sc-for list="{{p.barras}}" as="b" hint-placeholder-count="5">
+                    <div style="display: grid; grid-template-columns: 170px minmax(0, 1fr) 150px; align-items: center; gap: 12px; font-size: 13px;">
+                      <span style="{{b.nest}}">{{b.n}}</span><div style="height: 16px; background: #F1F3F6;"><div style="{{b.est}}"></div></div><span class="m" style="text-align: right; font-weight: 400;">{{b.txt}}</span>
+                    </div>
+                  </sc-for>
+                  <div class="bs" style="margin-top: 4px; color: #A85E24;">{{p.nota}}</div>
+                </div>
+              </sc-if>
+            </div>
+          </sc-for>
+        </div>
+        <sc-if value="{{d.ciclo}}" hint-placeholder-val="{{false}}">
+          <div style="{{d.bGrid}}">
+            <div style="display: flex; flex-direction: column; gap: 2px;">
+              <div class="bt">{{d.bTit}}</div><div class="bs">{{d.bSub}}</div>
+              <dc-import name="Grafico" cfg="{{d.cicloCfg}}" hint-size="900px,250px"></dc-import>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 2px;">
+              <div class="bt">{{d.bTTit}}</div><div class="bs">{{d.bTSub}}</div>
+              <table class="tb" style="margin-top: 6px;">
+                <thead><tr><th class="ind">Indicador</th><th>Corte</th><sc-for list="{{d.bCols}}" as="c" hint-placeholder-count="5"><th>{{c}}</th></sc-for><sc-if value="{{d.bBox}}" hint-placeholder-val="{{false}}"><th>Historia</th></sc-if></tr></thead>
+                <tbody><sc-for list="{{d.cicloFilas}}" as="r" hint-placeholder-count="5"><tr class="{{r.cls}}"><th class="ind"><span style="display: inline-flex; align-items: center; gap: 8px;"><span style="{{r.sw}}"></span>{{r.nombre}}</span></th><td>{{r.corte}}</td><sc-for list="{{r.v}}" as="x" hint-placeholder-count="5"><td>{{x}}</td></sc-for><sc-if value="{{d.bBox}}" hint-placeholder-val="{{false}}"><td><div style="position: relative; width: 150px; height: 16px; margin-left: auto;"><div style="{{r.b0}}"></div><div style="{{r.bw}}"></div><div style="{{r.bb}}"></div><div style="{{r.bm}}"></div><div style="{{r.bp}}"></div></div></td></sc-if></tr></sc-for></tbody>
+              </table>
+            </div>
+          </div>
+        </sc-if>
+        <div class="g12" style="border-top: 1px solid #E6EAEF; padding-top: 10px;">
+          <p class="md c6"><b style="color: #24324A;">Columnas.</b> {{d.glosario}}</p>
+          <p class="md c6"><b style="color: #24324A;">Filas y fuentes.</b> {{d.meta}}</p>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"abiertoInicial":{"editor":"text","default":""},"$preview":{"width":1600,"height":1440}}'>
+
+class Component extends DCLogic {
+  constructor(p) { super(p); const a = (p && p.abiertoInicial) || null; this.state = { corte: 'pfpj', sel: { va: [], vb: [] }, aj: {}, vista: a, fijo: null, hover: null, desde: null, hasta: null }; }
+  renderVals() {
+    const D = {"mo":{"tot":[22.84,23.38,23.53,23.41,23.59,23.47,23.7,23.61,23.26,23.79,23.87,23.39,24.6,25.32,25.51,26.13,26.74,27.25,28.05,28.56,29.07,29.86,30.13,29.38,31.04,31.53,31.72,32.13,32.24,32.09,32.55,32.7,32.72,33.0,32.8,31.82,32.55,31.79,31.73,29.83,28.75,28.53,28.96,28.48,26.86,27.37,26.82,25.5,25.99,26.57,25.89,25.62,24.65,24.32,24.15,24.1,24.1,24.39,24.37,23.04,24.47,24.77,25.04,25.13,24.95,24.83,24.71,24.82,24.04,23.55,23.63,22.63,23.15,23.11,22.73,21.34,20.52,19.12,18.88,18.46,17.91,18.5,18.36,18.21,19.86,19.59,19.76,20.23,19.75,19.88,20.26,20.92,21.42,22.89,23.91,24.21,25.23,25.63,26.54,27.46,27.42,27.88,29.24,28.6,28.57,29.68,30.52,29.64,30.54,30.48,30.99,31.62,31.63,30.85,30.43,29.92,29.66,29.24,29.01,28.14,28.0,27.85,28.14,27.86,27.75,27.81,27.74,27.59,27.49,27.94,28.45,28.5,29.88,30.53,31.34,31.63,31.7,31.85,31.75,31.87,31.47,32.04,32.2,31.87,32.45,32.63,32.84,33.36,32.97,32.63,32.06,32.23,32.36]},"at":{"tot":[22.44,23.68,23.82,23.81,24.23,24.71,25.15,25.16,24.55,25.47,25.47,24.61,26.54,27.46,27.21,28.41,29.09,29.75,30.67,31.05,30.89,32.0,32.66,31.08,33.62,35.15,36.44,38.05,38.5,38.36,39.21,39.71,40.22,41.18,40.84,39.12,40.94,41.55,41.03,38.37,35.95,35.59,37.28,36.68,34.53,34.89,34.13,31.56,32.57,33.6,33.28,32.9,30.61,28.96,28.98,28.44,28.22,29.25,29.52,27.38,29.65,30.62,30.89,30.83,30.47,30.79,31.02,30.85,29.9,29.58,29.95,27.76,28.32,28.85,27.55,25.81,24.56,22.96,22.53,21.82,20.8,21.08,20.64,20.44,22.9,22.46,21.85,22.1,21.23,21.06,21.16,21.03,21.07,22.2,22.52,23.14,24.1,24.91,25.15,25.42,25.35,25.93,26.9,27.67,27.75,29.57,29.47,28.07,29.53,30.45,30.59,32.05,32.13,31.89,31.77,31.54,31.23,30.5,30.7,30.04,29.8,29.84,30.05,29.44,29.08,28.7,28.53,28.57,28.32,28.26,28.46,27.16,28.38,29.95,29.87,31.2,32.05,32.34,32.1,32.44,32.1,32.78,34.18,33.3,34.45,35.32,34.78,35.8,35.26,34.49,33.87,34.69,35.52]},"ref":{"cdi":[10.05,10.32,10.56,10.78,10.8,10.8,10.8,10.82,10.82,10.85,11.09,11.51,11.74,12.09,12.53,12.63,13.13,13.57,13.68,14.13,14.13,14.13,14.14,14.14,14.14,14.13,14.13,14.13,14.13,14.13,14.13,14.13,14.13,14.03,13.88,13.63,13.15,12.8,12.13,11.57,11.13,10.14,10.0,9.14,8.34,8.0,7.39,6.99,6.89,6.71,6.57,6.39,6.39,6.39,6.39,6.39,6.39,6.4,6.4,6.4,6.4,6.4,6.4,6.4,6.4,6.4,6.4,5.9,5.71,5.38,4.9,4.59,4.4,4.19,3.95,3.65,3.01,2.58,2.15,1.94,1.9,1.9,1.9,1.9,1.9,1.9,2.23,2.65,3.29,3.76,4.15,5.01,5.44,6.3,7.65,8.76,9.15,10.49,11.15,11.65,12.51,12.89,13.15,13.58,13.65,13.65,13.65,13.65,13.65,13.65,13.65,13.65,13.65,13.65,13.65,13.19,12.97,12.65,12.18,11.88,11.65,11.15,11.0,10.65,10.46,10.4,10.4,10.4,10.5,10.65,11.04,11.77,12.24,13.15,13.57,14.15,14.55,14.74,14.9,14.9,14.9,14.9,14.9,14.9,14.9,14.9,14.8,14.64,14.4,14.29,14.15,13.94,13.78],"sel":[10.5,10.75,10.75,11.0,11.0,11.0,11.0,11.0,11.0,11.25,11.25,11.75,12.25,12.25,12.75,13.25,13.25,13.75,14.25,14.25,14.25,14.25,14.25,14.25,14.25,14.25,14.25,14.25,14.25,14.25,14.25,14.25,14.25,14.0,14.0,13.75,13.0,12.25,12.25,11.25,11.25,10.25,9.25,9.25,8.25,7.5,7.5,7.0,7.0,6.75,6.5,6.5,6.5,6.5,6.5,6.5,6.5,6.5,6.5,6.5,6.5,6.5,6.5,6.5,6.5,6.5,6.5,6.0,5.5,5.0,5.0,4.5,4.5,4.25,3.75,3.75,3.0,2.25,2.25,2.0,2.0,2.0,2.0,2.0,2.0,2.0,2.75,2.75,3.5,4.25,4.25,5.25,6.25,7.75,7.75,9.25,9.25,10.75,11.75,11.75,12.75,13.25,13.25,13.75,13.75,13.75,13.75,13.75,13.75,13.75,13.75,13.75,13.75,13.75,13.75,13.25,12.75,12.75,12.25,11.75,11.75,11.25,10.75,10.75,10.5,10.5,10.5,10.5,10.75,10.75,11.25,12.25,13.25,13.25,14.25,14.25,14.75,15.0,15.0,15.0,15.0,15.0,15.0,15.0,15.0,15.0,14.75,14.5,14.5,14.25,14.25,14.0,13.75],"icc":[18.85,19.18,19.19,19.25,19.27,19.42,19.29,19.31,19.29,19.32,19.36,19.12,19.42,19.76,19.8,20.04,20.18,20.42,20.52,20.68,20.92,21.15,21.42,21.15,21.52,21.87,22.01,22.22,22.29,22.45,22.5,22.59,22.76,22.91,22.9,22.56,22.84,22.98,22.74,22.53,22.15,22.11,22.23,22.1,21.75,21.8,21.76,21.27,21.46,21.61,21.39,21.39,21.07,20.96,20.79,20.67,20.64,20.78,20.78,20.37,20.72,20.92,20.9,21.13,21.11,21.23,21.21,21.13,20.97,20.88,20.73,20.25,20.14,20.24,19.96,19.68,19.09,18.53,18.11,17.72,17.29,17.14,16.95,16.61,16.87,17.03,16.95,17.02,17.05,17.13,17.13,17.29,17.48,17.79,18.08,18.16,18.79,19.2,19.31,19.75,19.98,20.27,20.62,20.82,21.04,21.37,21.4,21.3,21.67,21.98,21.96,22.28,22.34,22.22,22.15,22.16,22.04,21.99,21.92,21.57,21.81,21.89,21.87,21.89,21.72,21.72,21.67,21.67,21.73,21.65,21.66,21.48,21.99,22.28,22.55,22.87,22.98,23.18,23.21,23.39,23.51,23.67,23.78,23.48,23.91,24.22,24.1,24.28,24.24,24.18,24.06,24.16,24.28],"npl":[4.42,4.42,4.43,4.47,4.62,4.5,4.61,4.65,4.63,4.66,4.5,4.36,4.46,4.47,4.44,4.63,4.74,4.65,4.83,4.98,4.98,5.08,5.29,5.35,5.52,5.55,5.59,5.74,5.88,5.71,5.79,5.85,5.87,5.89,5.83,5.71,5.76,5.67,5.81,5.83,6.04,5.64,5.71,5.7,5.51,5.48,5.35,4.99,5.15,5.08,4.88,4.75,4.7,4.5,4.38,4.32,4.2,4.18,4.05,3.94,4.06,3.96,3.96,3.94,3.96,3.92,4.06,3.98,3.99,3.99,3.95,3.81,3.89,3.94,3.97,4.13,4.16,3.8,3.65,3.43,3.27,3.18,3.07,2.96,3.02,2.98,2.97,3.01,3.07,2.99,3.05,3.07,3.09,3.11,3.15,3.15,3.35,3.35,3.5,3.61,3.75,3.72,3.9,4.03,4.09,4.25,4.28,4.3,4.53,4.59,4.59,4.84,5.01,4.99,5.03,5.04,4.96,5.03,4.99,4.68,4.8,4.77,4.67,4.75,4.8,4.64,4.62,4.63,4.63,4.56,4.47,4.28,4.66,4.75,4.79,5.09,5.18,5.27,5.51,5.69,5.59,5.61,5.61,5.63,5.84,6.09,5.96,6.08,6.23,6.06,6.41,6.63,6.58],"gap":[3.99,4.2,4.34,4.16,4.32,4.05,4.41,4.3,3.97,4.47,4.51,4.27,5.18,5.56,5.71,6.09,6.56,6.83,7.53,7.88,8.15,8.71,8.71,8.23,9.52,9.66,9.71,9.91,9.95,9.64,10.05,10.11,9.96,10.09,9.9,9.26,9.71,8.81,8.99,7.3,6.6,6.42,6.73,6.38,5.11,5.57,5.06,4.23,4.53,4.96,4.5,4.23,3.58,3.36,3.36,3.43,3.46,3.61,3.59,2.67,3.75,3.85,4.14,4.0,3.84,3.6,3.5,3.69,3.07,2.67,2.9,2.38,3.01,2.87,2.77,1.66,1.43,0.59,0.77,0.74,0.62,1.36,1.41,1.6,2.99,2.56,2.81,3.21,2.7,2.75,3.13,3.63,3.94,5.1,5.83,6.05,6.44,6.43,7.23,7.71,7.44,7.61,8.62,7.78,7.53,8.31,9.12,8.34,8.87,8.5,9.03,9.34,9.29,8.63,8.28,7.76,7.62,7.25,7.09,6.57,6.19,5.96,6.27,5.97,6.03,6.09,6.07,5.92,5.76,6.29,6.79,7.02,7.89,8.25,8.79,8.76,8.72,8.67,8.54,8.48,7.96,8.37,8.42,8.39,8.54,8.41,8.74,9.08,8.73,8.45,8.0,8.07,8.08]}};
+    const T = {"mo_tot":[32.36,0.13,-0.77,0.89,1.89,1.27],"at_tot":[35.52,0.83,-0.49,3.42,4.18,1.16]};
+    const NM = 153, MES = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+    const meses = []; for (let i = 0; i < NM; i++) meses.push(MES[i % 12] + '-' + (14 + Math.floor(i / 12)));
+    const REF = '#8A8F96', COBRE = '#A85E24';
+    const st = this.state;
+    const NOM = { tot: 'Total', pf: 'Personas', pj: 'Empresas', li: 'Libre', di: 'Dirigido', pfli: 'Personas libre', pfdi: 'Personas dirigido', pjli: 'Empresas libre', pjdi: 'Empresas dirigido' };
+    const COL = { pf: '#2E5C8A', pj: '#6C819B', li: '#2E5C8A', di: '#6C819B', pfli: '#2E5C8A', pfdi: '#8FB0D0', pjli: '#6C819B', pjdi: '#2F7A86' };
+    const CORTE = st.corte === 'lidi' ? ['li', 'di'] : st.corte === 'pfld' ? ['pfli', 'pfdi'] : st.corte === 'todos' ? ['pfli', 'pfdi', 'pjli', 'pjdi'] : ['pf', 'pj'];
+    const VACIO = new Array(NM).fill(null);
+    const RAYA = ['—', '—', '—', '—', '—', '—'];
+    const multi = (e) => !!(e && (e.ctrlKey || e.metaKey));
+    const linea = (s) => 'width:' + (s.dash ? 20 : 22) + 'px;height:0;flex-shrink:0;border-top:' + (s.dash ? '2px dashed ' : '3px solid ') + s.color;
+    const pp = (v) => (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v).toFixed(2).replace('.', ',');
+    const pc = (v) => v.toFixed(2).replace('.', ',') + ' %';
+    const fmt = (r) => [pc(r[0]), pp(r[1]), pp(r[2]), pp(r[3]), pp(r[4]), pp(r[5])];
+    const ticksM = (d, h) => { const k = h - d + 1, r = []; for (let i = d; i <= h; i++) { const m = i % 12; if (k <= 30 ? m % 3 === 0 : k <= 60 ? m === 0 || m === 6 : k <= 120 ? m === 0 : m === 0 && i % 24 === 0) r.push(i - d); } return r; };
+    const escala = (series, d, h, cero, solo) => {
+      const usar = solo && solo.length ? series.filter((s) => solo.includes(s.id)) : series;
+      let lo = Infinity, hi = -Infinity;
+      for (let i = d; i <= h; i++) usar.forEach((s) => { const v = s.datos[i]; if (v != null) { lo = Math.min(lo, v); hi = Math.max(hi, v); } });
+      if (!isFinite(lo)) { lo = 0; hi = 1; }
+      if (cero && !(solo && solo.length)) { lo = Math.min(lo, 0); hi = Math.max(hi, 0); }
+      const paso = [0.25, 0.5, 1, 2, 4, 5, 10, 20].find((p) => (hi - lo) / p <= 4) || 20;
+      const min = Math.floor(lo / paso) * paso, max = Math.ceil(hi / paso) * paso, t = [];
+      for (let v = min; v <= max + 1e-9; v += paso) t.push(Math.round(v * 100) / 100);
+      return { min, max: max === min ? min + paso : max, ticksY: t };
+    };
+    const FALTA = { va: ['pf', 'pj', 'li', 'di', 'pfli', 'pfdi', 'pjli', 'pjdi'], vb: ['pf', 'pj', 'li', 'di', 'pfli', 'pfdi', 'pjli', 'pjdi'] };
+    const PREF = { va: 'mo', vb: 'at' };
+    const nomS = (key, id) => NOM[id] + (FALTA[key].includes(id) ? ' · en preparación' : '');
+    const serieDe = (key, id) => D[PREF[key]][id] || VACIO;
+    const mkSeries = (key) => CORTE.map((id) => ({ id, nombre: nomS(key, id), color: COL[id], ancho: 2.5, datos: serieDe(key, id) })).concat([{ id: 'tot', nombre: 'Total', color: COBRE, ancho: 2.5, datos: serieDe(key, 'tot') }]).concat(key === 'va' ? [{ id: 'sel', nombre: 'Selic meta', color: REF, ancho: 2, dash: '6 4', datos: D.ref.sel }] : []);
+    const PARES = {
+      va: { titulo: 'Tasa media de las operaciones de crédito', sub: 'Eje vertical: % a.a. Eje horizontal: mes.', fuente: 'Fuente: BCB, SGS 20714 y 432.', control: true, cero: false, n: NM, def: 24, series: mkSeries('va'),
+        tTitulo: 'Tasa media', tSub: '% a.a. · Δ a/a en pp', tFuente: 'Fuente: BCB, SGS.', cols: ['Último', 'Δ a/a'] },
+      vb: { titulo: 'Spread de las operaciones con recursos libres', sub: 'Eje vertical: pp a.a. Eje horizontal: mes.', fuente: 'Fuente: BCB, SGS 20786.', control: true, cero: false, n: NM, def: 24, series: mkSeries('vb'),
+        tTitulo: 'Spread', tSub: 'pp a.a. · Δ a/a en pp', tFuente: 'Fuente: BCB, SGS.', cols: ['Último', 'Δ a/a'] },
+    };
+    const armar = (key) => {
+      const P = PARES[key], sel = st.sel[key] || [], aj = !!st.aj[key];
+      const on = (id) => !sel.length || sel.includes(id);
+      const toggle = (id, m) => { const nuevo = m ? (sel.includes(id) ? sel.filter((k) => k !== id) : sel.concat(id)) : (sel.length === 1 && sel[0] === id ? [] : [id]); this.setState({ sel: { ...this.state.sel, [key]: nuevo }, aj: { ...this.state.aj, [key]: nuevo.length ? aj : false } }); };
+      const fijoG = st.fijo == null ? P.n - 1 : st.fijo;
+      const cfg = (d, h, w, alto) => ({
+        w, h: alto, reservaDer: 64, n: h - d + 1, etiquetas: meses.slice(d, h + 1), ticksX: ticksM(d, h), ...escala(P.series, d, h, P.cero, aj ? sel : null), sufijo: ' %', decimales: 2,
+        series: P.series.map((s) => ({ id: s.id, color: s.color, ancho: s.ancho, dash: s.dash, valores: s.datos.slice(d, h + 1) })), fills: [], sel,
+        bandas: (P.quiebre != null && P.quiebre - 1 >= d && P.quiebre <= h) ? [{ desde: P.quiebre - 1 - d, hasta: P.quiebre - d, texto: 'Res. 4.966' }] : [],
+        fijo: Math.min(h, Math.max(d, fijoG)) - d, hover: st.hover != null && st.hover >= d && st.hover <= h ? st.hover - d : null,
+        onFijar: (i) => this.setState({ fijo: Math.max(d, Math.min(h, i + d)), hover: null }), onHover: (i) => this.setState({ hover: i == null ? null : i + d }), onSerie: toggle });
+      const leyenda = P.series.map((s) => ({ nombre: s.nombre, pres: sel.includes(s.id) ? 'true' : 'false', sw: linea(s), est: (sel.includes(s.id) ? 'border-color:#2E5C8A;background:#E8EEF5;' : '') + (on(s.id) ? '' : 'opacity:0.45;'), click: (e) => toggle(s.id, multi(e)) }));
+      const fila = (id, largo, g1) => {
+        const s = P.series.find((q) => q.id === id) || { color: '#C9D2DC' }, falta = FALTA[key].includes(id), r = T[PREF[key] + '_' + id];
+        const f = falta || !r ? RAYA : fmt(r);
+        return { _a: falta ? null : serieDe(key, id), nombre: nomS(key, id), corte: falta ? '—' : 'sep-26', v: largo ? f : [f[0], f[3]], cls: id === 'tot' ? 'tot' : g1 ? 'g1' : '', pres: sel.includes(id) ? 'true' : 'false', sw: s.ancho ? linea(s) : 'width:12px;height:12px;flex-shrink:0;background:' + s.color,
+          est: sel.includes(id) ? 'background:#E8EEF5' : on(id) || !P.series.some((q) => q.id === id) ? '' : 'opacity:0.4', click: (e) => { if (e) e.stopPropagation(); if (P.series.some((q) => q.id === id)) toggle(id, multi(e)); } };
+      };
+      const ajuste = { sinSel: sel.length === 0, ajustar: () => this.setState({ aj: { ...this.state.aj, [key]: !aj } }), ajusteTxt: aj ? 'Eje completo' : 'Ajustar eje', ajustePres: aj ? 'true' : 'false', ajusteEst: aj ? 'background:#E8EEF5;border-color:#2E5C8A;color:#1F3F60;font-weight:600' : '' };
+      return { P, cfg, leyenda, fila, ajuste };
+    };
+    const A = armar('va'), B = armar('vb');
+    const abrir = (key) => () => { const P = PARES[key]; this.setState({ vista: key, desde: P.n - P.def, hasta: P.n - 1 }); };
+    const corto = (X) => CORTE.concat('tot').map((id) => X.fila(id, false));
+    const pares = [
+      { ...A.P, ...A.ajuste, leyenda: A.leyenda, cfg: A.cfg(NM - 24, NM - 1, 910, 390), filas: corto(A), abrir: abrir('va') },
+      { ...B.P, ...B.ajuste, leyenda: B.leyenda, cfg: B.cfg(NM - 24, NM - 1, 910, 390), filas: corto(B), abrir: abrir('vb') },
+    ];
+    const BLOQUE = {
+      va: { tit: 'Tasa nueva contra costo de la cartera (ICC)', sub: 'Eje vertical: % a.a. Eje horizontal: mes.', tTit: 'Precio nuevo y precio de la cartera', tSub: 'Historia desde ene-14, escala propia de cada fila: caja p25–p75, raya mediana, línea mín–máx, punto último', custom: true, porFila: true, fmtU: 'pc', sinBanda: true,
+        lab: meses, datos: { tasa: D.mo.tot, icc: D.ref.icc, gap: D.ref.gap },
+        bCols: ['Último', 'Z 10 años'], box: true,
+        filas: [['tasa', 'Tasa media operaciones nuevas', COBRE, 2.5], ['icc', 'ICC (costo de la cartera)', '#2E5C8A', 2], ['gap', 'Diferencia (pp)', '#6C819B', 2]] },
+      vb: { tit: 'Spread contra mora de recursos libres', sub: 'Eje vertical: %. Eje horizontal: mes.', tTit: 'Precio contra riesgo', tSub: 'Historia desde ene-14, escala propia de cada fila', custom: true, porFila: true, fmtU: 'pc', sinBanda: true,
+        lab: meses, datos: { spr: D.at.tot, npl: D.ref.npl },
+        bCols: ['Último', 'Z 10 años'], box: true,
+        filas: [['spr', 'Spread recursos libres', COBRE, 2.5], ['npl', 'Mora > 90 días, recursos libres', '#2E5C8A', 2]] },
+    };
+    const atip = (arrs, sinNivel, protege) => { const A = arrs.map((a) => (a || []).filter((x) => x != null)), out = new Set(), q = (s, p) => s[Math.floor((s.length - 1) * p)];
+      A.forEach((a, i) => { if (a.length < 8) return; const s = a.slice().sort((x, y) => x - y), sp = q(s, 0.9) - q(s, 0.1); const md = q(s, 0.5), umbral = Math.max(4 * sp, 0.5 * Math.abs(md)); if (sp > 0 && (s[0] < q(s, 0.1) - umbral || s[s.length - 1] > q(s, 0.9) + umbral)) out.add(i); });
+      let vivos = A.map((a, i) => i).filter((i) => A[i].length >= 8 && !out.has(i));
+      const span = (ix) => { let lo = Infinity, hi = -Infinity; ix.forEach((i) => A[i].forEach((x) => { lo = Math.min(lo, x); hi = Math.max(hi, x); })); return hi - lo; };
+      for (let it = 0; it < 2 && !sinNivel && vivos.length >= 4; it++) { const sp = span(vivos); let mej = -1, spm = sp; vivos.forEach((i) => { const s2 = span(vivos.filter((j) => j !== i)); if (s2 < spm) { spm = s2; mej = i; } }); if (mej >= 0 && spm * 3 < sp) { out.add(mej); vivos = vivos.filter((j) => j !== mej); } else break; }
+      (protege || []).forEach((i) => out.delete(i)); return out; };
+    const NOTA_AT = '* Serie con valores extremos: queda fuera de la escala común y no se dibuja su caja de historia, para no deformar las demás.';
+    const marcarAt = (filas, sinNivel) => { const ix = atip(filas.map((r) => r._a), sinNivel, filas.map((r, i) => r.cls === 'tot' ? i : -1).filter((i) => i >= 0)); return filas.map((r, i) => ix.has(i) ? { ...r, nombre: r.nombre + ' *', _a: [], _at: true } : r); };
+    const conCaja = (filas0) => { const filas = marcarAt(filas0);
+      const todos = filas.flatMap((r) => (r._a || []).filter((x) => x != null)); if (!todos.length) return filas;
+      const lo = Math.min(...todos), hi = Math.max(...todos), W = 80, X0 = (x) => ((x - lo) / (hi - lo) * W).toFixed(1);
+      const qn = (a, p) => { const s = a.slice().sort((x, y) => x - y), k = (s.length - 1) * p, f = Math.floor(k); return s[f] + (s[Math.min(f + 1, s.length - 1)] - s[f]) * (k - f); };
+      const no = 'display:none';
+      return filas.map((r) => { const a = (r._a || []).filter((x) => x != null); if (a.length < 8) return { ...r, b0: no, bw: no, bb: no, bm: no, bp: no };
+        const u = a[a.length - 1], mn = Math.min(...a), mx = Math.max(...a), p25 = qn(a, 0.25), p50 = qn(a, 0.5), p75 = qn(a, 0.75);
+        return { ...r, b0: lo < 0 && hi > 0 ? 'position:absolute;top:0;height:12px;width:1px;background:#C9D2DC;left:' + X0(0) + 'px' : no,
+          bw: 'position:absolute;top:6px;height:1px;background:#8A93A0;left:' + X0(mn) + 'px;width:' + (X0(mx) - X0(mn)).toFixed(1) + 'px',
+          bb: 'position:absolute;top:2px;height:8px;box-sizing:border-box;border:1px solid #8A93A0;background:#EEF1F5;left:' + X0(p25) + 'px;width:' + (X0(p75) - X0(p25)).toFixed(1) + 'px',
+          bm: 'position:absolute;top:2px;height:8px;width:1px;background:#24324A;left:' + X0(p50) + 'px',
+          bp: 'position:absolute;top:3px;width:6px;height:6px;border-radius:50%;margin-left:-3px;background:' + (r.cls === 'tot' ? '#A85E24' : '#2E5C8A') + ';left:' + X0(u) + 'px' }; });
+    };
+    let d = {};
+    const v = st.vista;
+    if (v) {
+      const X = v === 'va' ? A : B, P = X.P, Q = BLOQUE[v];
+      const dd = st.desde == null ? P.n - P.def : st.desde, hh = st.hasta == null ? P.n - 1 : st.hasta;
+      const filas = [['pf', 'pj'], ['li', 'di'], ['pfli', 'pfdi', 'pjli', 'pjdi']].flatMap((g, gi) => g.map((id, j) => X.fila(id, true, gi > 0 && j === 0))).concat([X.fila('tot', true)]);
+      const bs = Q.custom ? Q.filas.slice().reverse().map((r) => ({ id: r[0], color: r[2], ancho: r[3], datos: Q.datos[r[0]] })) : Q.items.map((it) => ({ id: it[0], color: it[2], ancho: 2, datos: D[Q.pref][it[0]] }));
+      const nB = Q.custom ? Q.lab.length : NM, labB = Q.custom ? Q.lab : meses;
+      const tickB = Q.custom ? labB.map((x, k) => x.startsWith('ene') && +x.slice(4) % 2 === 0 ? k : -1).filter((k) => k >= 0) : ticksM(0, NM - 1);
+      const i25 = labB.indexOf('ene-25');
+      d = { titulo: P.titulo, sub: P.sub, control: P.control, estPaneles: 'display: none;', paneles: [], leyenda: X.leyenda, ...X.ajuste, cfg: X.cfg(dd, hh, 1490, 300), filas: conCaja(filas), nota: conCaja(filas).some((r) => r._at) ? NOTA_AT : '',
+        cols: ['Último', 'm/m', '3m/3m', 'a/a', '12m/12m', 'Z 10 años'], atajoTxt: 'Últimos 24 meses',
+        cfgR: { w: 1380, n: P.n, etiquetas: meses, serie: P.series.find((s) => s.id === 'tot').datos, desde: dd, hasta: hh, minimo: 6, unidad: 'meses', onRango: (x, z) => this.setState({ desde: x, hasta: z }) },
+        ciclo: true, bTit: Q.tit, bSub: Q.sub, bTTit: Q.tTit, bTSub: Q.tSub, bCols: Q.bCols || ['Último', 'Δ a/a', 'Z 10 años'], bBox: !!Q.box, bGrid: 'display: grid; grid-template-columns: ' + (Q.custom ? 1000 : 940) + 'px minmax(0, 1fr); gap: 24px; border-top: 1px solid #E6EAEF; padding-top: 12px;',
+        cicloCfg: { w: Q.custom ? 980 : 900, h: 250, reservaDer: 64, n: nB, etiquetas: labB, ticksX: tickB, ...escala(bs, 0, nB - 1, !!Q.custom && !Q.sinBanda), sufijo: Q.custom && Q.fmtU !== 'pc' ? '' : ' %', decimales: 2, series: bs.map((s) => ({ id: s.id, color: s.color, ancho: s.ancho, valores: s.datos })), fills: [], sel: [], fijo: nB - 1, bandas: Q.custom && !Q.sinBanda && i25 >= 0 ? [{ desde: i25, hasta: i25 + 11, texto: 'Res. 4.966' }] : [], hover: null, onFijar: () => {}, onHover: () => {}, onSerie: () => {} },
+        cicloFilas: Q.custom ? (() => {
+          const todos = Q.filas.flatMap((r) => Q.datos[r[0]].filter((x) => x != null)), lo0 = Math.floor(Math.min(...todos) * 4) / 4, hi0 = Math.ceil(Math.max(...todos) * 4) / 4, W = 150, X0g = (x) => ((x - lo) / (hi - lo) * W).toFixed(1);
+          const q = (a, p) => { const s = a.slice().sort((x, y) => x - y), k = (s.length - 1) * p, f = Math.floor(k); return s[f] + (s[Math.min(f + 1, s.length - 1)] - s[f]) * (k - f); };
+          const zz = (a) => { const w = a.slice(-120), m = w.reduce((x, y) => x + y, 0) / w.length, s = Math.sqrt(w.reduce((x, y) => x + (y - m) ** 2, 0) / (w.length - 1)); return (a[a.length - 1] - m) / s; };
+          return Q.filas.map((r) => { const a = Q.datos[r[0]].filter((x) => x != null), u = a[a.length - 1], lo = Q.porFila ? Math.min(...a) : lo0, hi = Q.porFila ? Math.max(...a) : hi0, X0 = (x) => ((x - lo) / (hi - lo) * W).toFixed(1), p25 = q(a, 0.25), p50 = q(a, 0.5), p75 = q(a, 0.75), mn = Math.min(...a), mx = Math.max(...a);
+            return { nombre: r[1], corte: 'sep-26', v: [Q.fmtU === 'pc' && r[0] !== 'gap' ? pc(u) : pp(u), pp(zz(a))], cls: r[0] === 'tot' ? 'tot' : '', sw: linea({ color: r[2] }),
+              bw: 'position:absolute;top:8px;height:1px;background:#8A93A0;left:' + X0(mn) + 'px;width:' + (X0(mx) - X0(mn)).toFixed(1) + 'px',
+              bb: 'position:absolute;top:3px;height:10px;box-sizing:border-box;border:1px solid #8A93A0;background:#EEF1F5;left:' + X0(p25) + 'px;width:' + (X0(p75) - X0(p25)).toFixed(1) + 'px',
+              bm: 'position:absolute;top:3px;height:10px;width:1px;background:#24324A;left:' + X0(p50) + 'px',
+              b0: lo < 0 && hi > 0 ? 'position:absolute;top:0;height:16px;width:1px;background:#C9D2DC;left:' + X0(0) + 'px' : 'display:none',
+              bp: 'position:absolute;top:4px;width:8px;height:8px;border-radius:50%;margin-left:-4px;background:' + r[2] + ';left:' + X0(u) + 'px' }; });
+        })() : Q.items.map((it) => { const r = fmt(T[Q.pref + '_' + it[0]]); return { nombre: it[1], corte: 'sep-26', v: [r[0], r[3], r[5]], cls: '', sw: linea({ color: it[2] }) }; }),
+        glosario: 'Último: tasa o spread del mes, en % a.a. o pp a.a. Cambios en pp: m/m y a/a punta contra punta; 3m/3m y 12m/12m, promedio de la ventana contra la anterior. Z 10 años: (último − promedio de 120 meses) / desvío. Historia: caja p25–p75 desde ene-14, raya mediana, línea mín–máx, punto último.',
+        meta: v === 'va'
+          ? 'Tasa media de las operaciones de crédito, total (SGS 20714): tasa de las concesiones del mes, recursos libres y dirigidos. Selic meta a fin de mes (SGS 432). ICC (SGS 25351): costo medio de toda la cartera vigente; si la tasa nueva queda sobre el ICC, el costo de la cartera tiende a subir. Personas, empresas, libre, dirigido y sus cruces: en preparación (series de tasas por segmento por agregar al pipeline). Fuente: BCB, SGS · datos del 8-nov-26.'
+          : 'Spread de las operaciones con recursos libres (SGS 20786): tasa de las concesiones menos el costo de captación de referencia, en pp a.a. Mora > 90 días de la cartera libre (SGS 21085). Segmentos: en preparación. Fuente: BCB, SGS · datos del 8-nov-26.' };
+      d.atajoOk = dd === P.n - P.def && hh === P.n - 1;
+    }
+    return {
+      pares, d, corte: st.corte, abierto: !!v,
+      elegirCorte: (e) => this.setState({ corte: e.target.value, sel: { va: [], vb: [] }, aj: {} }),
+      atajo: v && d.atajoOk ? 'def' : 'pers',
+      elegirAtajo: (e) => { if (e.target.value === 'def' && v) { const P = PARES[v]; this.setState({ desde: P.n - P.def, hasta: P.n - 1 }); } },
+      cerrar: () => this.setState({ vista: null, desde: null, hasta: null }),
+      onKey: (e) => { if (e.key === 'Escape') { e.preventDefault(); this.setState({ vista: null }); } },
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Componente de gráfico común</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="{{raiz}}">
+  <sc-for list="{{bandas}}" as="b" hint-placeholder-count="0">
+    <div style="{{b.style}}">{{b.texto}}</div>
+  </sc-for>
+  <svg width="{{w}}" height="{{h}}" style="position: absolute; left: 0; top: 0; pointer-events: none;" aria-hidden="true">
+    <path d="{{grid}}" stroke="#E6EAEF" stroke-width="1" fill="none"></path>
+    <path d="{{cero}}" stroke="#8A8F96" stroke-width="1" fill="none"></path>
+  </svg>
+  <sc-for list="{{ticksY}}" as="t" hint-placeholder-count="5">
+    <div style="{{t.style}}">{{t.label}}</div>
+  </sc-for>
+  <sc-for list="{{ticksX}}" as="t" hint-placeholder-count="6">
+    <div style="{{t.style}}">{{t.label}}</div>
+  </sc-for>
+  <div style="{{overlay}}" onKeyDown="{{onKey}}" onMouseLeave="{{onLeave}}">
+    <sc-for list="{{hits}}" as="hb" hint-placeholder-count="12">
+      <button type="button" style="{{hb.style}}" tabIndex="{{hb.tab}}" aria-label="{{hb.aria}}" onClick="{{hb.fix}}" onMouseEnter="{{hb.over}}" onFocus="{{hb.over}}"></button>
+    </sc-for>
+  </div>
+  <div style="{{guia}}"></div>
+  <div style="{{clip}}">
+    <sc-for list="{{capas}}" as="c" hint-placeholder-count="3">
+      <svg width="{{w}}" height="{{h}}" style="{{capaSvg}}">
+        <path d="{{c.d}}" fill="{{c.fill}}" stroke="{{c.stroke}}" stroke-width="{{c.sw}}" stroke-dasharray="{{c.dash}}" opacity="{{c.op}}" stroke-linejoin="round" stroke-linecap="round"></path>
+        <path d="{{c.hitD}}" fill="{{c.hitFill}}" stroke="{{c.hitStroke}}" stroke-width="14" style="{{c.hitStyle}}" onClick="{{c.click}}"></path>
+      </svg>
+    </sc-for>
+  </div>
+  <sc-for list="{{marcas}}" as="m" hint-placeholder-count="2">
+    <div style="{{m.style}}"></div>
+  </sc-for>
+  <sc-for list="{{fuera}}" as="f" hint-placeholder-count="0">
+    <div style="{{f.style}}">{{f.texto}}</div>
+  </sc-for>
+  <sc-for list="{{ultimos}}" as="u" hint-placeholder-count="0">
+    <div style="{{u.style}}">{{u.texto}}</div>
+  </sc-for>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"cfg":{"editor":null},"$preview":{"width":860,"height":300}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { fijo: 35, hover: null, sel: [] }; }
+  demo() {
+    const conc = [1.6,1.6,1.6,1.8,2.8,3.3,5.9,7.0,8.1,10.2,11.5,13.0,14.5,14.8,15.7,15.5,15.5,15.7,14.7,14.7,14.3,12.7,11.8,11.2,10.1,9.5,9.4,9.3,8.3,9.2,8.8,8.4,9.1,9.8,10.8,10.5];
+    const stock = [8.4,8.0,8.2,7.8,8.3,8.8,9.0,9.2,10.3,10.7,10.4,10.5,11.0,11.5,11.4,11.6,12.0,11.5,12.0,12.0,11.0,10.9,10.4,10.2,10.3,10.0,10.4,10.3,9.9,10.1,9.6,9.6,9.7,9.3,9.4,8.6];
+    const s = this.state;
+    return {
+      w: 860, h: 300, n: 36, etiquetas: conc.map((_, i) => 'mes ' + (i + 1)), ticksX: [3, 15, 27], min: 0, max: 16, ticksY: [0, 4, 8, 12, 16], sufijo: ' %',
+      series: [{ id: 'stock', color: '#24324A', ancho: 2, valores: stock }, { id: 'conc', color: '#2E5C8A', ancho: 3, valores: conc }],
+      fills: [{ a: 'conc', b: 'stock', pos: 'rgba(46,92,138,0.16)', neg: 'rgba(36,50,74,0.12)' }],
+      sel: s.sel, fijo: s.fijo, hover: s.hover,
+      onFijar: (i) => this.setState({ fijo: Math.max(0, Math.min(35, i)), hover: null }),
+      onHover: (i) => this.setState({ hover: i }),
+      onSerie: (id, multi) => this.setState({ sel: multi ? (s.sel.includes(id) ? s.sel.filter((k) => k !== id) : s.sel.concat(id)) : (s.sel.length === 1 && s.sel[0] === id ? [] : [id]) }),
+    };
+  }
+  renderVals() {
+    const c = this.props.cfg || this.demo();
+    const w = c.w, h = c.h, n = c.n, cat = !!c.categorico;
+    const L = c.izq ?? 44, R = w - (c.reservaDer ?? 12), T = 12, B = h - 26;
+    const paso = cat ? (R - L) / n : (R - L) / Math.max(1, n - 1);
+    const x = (i) => (cat ? L + paso * (i + 0.5) : L + paso * i);
+    const LG = (v) => Math.log10(Math.max(v, c.min));
+    const y = (v) => c.log ? T + (LG(c.max) - LG(v)) / (LG(c.max) - LG(c.min)) * (B - T) : T + (c.max - v) / (c.max - c.min) * (B - T);
+    const F = (v) => v.toFixed(1);
+    const sel = c.sel || [];
+    const on = (id) => !sel.length || sel.includes(id);
+    const ser = (id) => c.series.find((s) => s.id === id);
+    const multi = (e) => !!(e && (e.ctrlKey || e.metaKey));
+    const nada = { hitD: '', hitFill: 'none', hitStroke: 'none', hitStyle: 'pointer-events:none', click: null };
+    const capas = [];
+    (c.fills || []).forEach((f) => {
+      const A = ser(f.a).valores, Bv = ser(f.b).valores;
+      let pos = '', neg = '';
+      const quad = (i) => 'M' + F(x(i)) + ' ' + F(y(A[i])) + ' L' + F(x(i + 1)) + ' ' + F(y(A[i + 1])) + ' L' + F(x(i + 1)) + ' ' + F(y(Bv[i + 1])) + ' L' + F(x(i)) + ' ' + F(y(Bv[i])) + ' Z ';
+      for (let i = 0; i < n - 1; i++) {
+        const a0 = A[i], a1 = A[i + 1], b0 = Bv[i], b1 = Bv[i + 1];
+        if (a0 == null || a1 == null || b0 == null || b1 == null) continue;
+        const d0 = a0 - b0, d1 = a1 - b1;
+        if (d0 >= 0 && d1 >= 0) pos += quad(i);
+        else if (d0 <= 0 && d1 <= 0) neg += quad(i);
+        else {
+          const t = d0 / (d0 - d1), xc = x(i) + t * (x(i + 1) - x(i)), yc = y(a0 + t * (a1 - a0));
+          const t1 = 'M' + F(x(i)) + ' ' + F(y(a0)) + ' L' + F(xc) + ' ' + F(yc) + ' L' + F(x(i)) + ' ' + F(y(b0)) + ' Z ';
+          const t2 = 'M' + F(xc) + ' ' + F(yc) + ' L' + F(x(i + 1)) + ' ' + F(y(a1)) + ' L' + F(x(i + 1)) + ' ' + F(y(b1)) + ' Z ';
+          if (d0 > 0) { pos += t1; neg += t2; } else { neg += t1; pos += t2; }
+        }
+      }
+      const op = on(f.a) && on(f.b) ? 1 : 0.25;
+      capas.push({ d: pos, fill: f.pos, stroke: 'none', sw: 0, dash: 'none', op, ...nada });
+      capas.push({ d: neg, fill: f.neg, stroke: 'none', sw: 0, dash: 'none', op, ...nada });
+    });
+    c.series.forEach((s) => {
+      const activo = on(s.id), marcado = sel.includes(s.id);
+      const click = (e) => c.onSerie(s.id, multi(e));
+      if (s.tipo === 'barras') {
+        const a = paso * 0.56;
+        const d = s.valores.map((v, i) => { if (v == null) return ''; const b0 = s.base ? (s.base[i] || 0) : 0; return 'M' + F(x(i) - a / 2) + ' ' + F(y(b0)) + ' H' + F(x(i) + a / 2) + ' V' + F(y(b0 + v)) + ' H' + F(x(i) - a / 2) + ' Z'; }).join(' ');
+        capas.push({ d, fill: s.color, stroke: marcado ? '#1B2433' : 'none', sw: marcado ? 1 : 0, dash: 'none', op: activo ? 1 : 0.2, hitD: d, hitFill: 'transparent', hitStroke: 'none', hitStyle: 'pointer-events:fill;cursor:pointer', click });
+      } else {
+        let d = '', pluma = false;
+        s.valores.forEach((v, i) => { if (v == null) { pluma = false; return; } d += (pluma ? 'L' : 'M') + F(x(i)) + ' ' + F(y(v)) + ' '; pluma = true; });
+        capas.push({ d, fill: 'none', stroke: s.color, sw: s.ancho + (marcado ? 1.5 : 0), dash: s.dash || 'none', op: activo ? 1 : 0.2, hitD: d, hitFill: 'none', hitStroke: 'transparent', hitStyle: 'pointer-events:stroke;cursor:pointer', click });
+      }
+    });
+    const grid = c.ticksY.filter((v) => v !== 0).map((v) => 'M' + L + ' ' + F(y(v)) + ' H' + R).join(' ');
+    const cero = !c.log && c.min <= 0 && c.max >= 0 ? 'M' + L + ' ' + F(y(0)) + ' H' + R : '';
+    const mono = 'font-size:12px;font-family:IBM Plex Mono,monospace;color:#5B6573;';
+    const ticksY = c.ticksY.map((v) => ({ label: String(v).replace('-', '−').replace('.', ',') + (c.sufijo || ''), style: 'position:absolute;left:0;width:' + (L - 6) + 'px;text-align:right;top:' + Math.round(y(v) - 8) + 'px;' + mono }));
+    const ticksX = c.ticksX.map((i) => ({ label: c.etiquetas[i], style: 'position:absolute;top:' + (B + 6) + 'px;width:60px;text-align:center;left:' + Math.round(x(i) - 30) + 'px;' + mono }));
+    const bandas = (c.bandas || []).map((b) => {
+      const x0 = cat ? L + paso * b.desde : x(b.desde) - paso / 2;
+      return { texto: b.texto, style: 'position:absolute;top:' + T + 'px;height:' + (B - T) + 'px;left:' + F(x0) + 'px;width:' + F(paso * (b.hasta - b.desde + 1)) + 'px;background:#F3E6D8;box-sizing:border-box;padding:6px 4px;text-align:center;font-size:12px;line-height:16px;font-weight:600;color:#7A5C3A;overflow:hidden' };
+    });
+    const idx = c.hover ?? c.fijo;
+    const guia = 'position:absolute;pointer-events:none;top:' + T + 'px;height:' + (B - T) + 'px;width:0;border-left:1px dashed #5B6573;left:' + F(x(idx)) + 'px';
+    const marcas = [];
+    c.series.forEach((s) => {
+      const v = s.valores[idx];
+      if (s.tipo === 'barras' || v == null || !on(s.id) || v < c.min || v > c.max) return;
+      marcas.push({ style: 'position:absolute;pointer-events:none;width:11px;height:11px;border-radius:50%;background:#FFFFFF;box-sizing:border-box;border:2.5px solid ' + s.color + ';left:' + F(x(idx) - 5.5) + 'px;top:' + F(y(v) - 5.5) + 'px' });
+    });
+    const ultimos = [];
+    c.series.forEach((s) => {
+      if (s.tipo === 'barras' || !sel.includes(s.id)) return;
+      let k = -1; for (let i = n - 1; i >= 0; i--) if (s.valores[i] != null) { k = i; break; }
+      if (k < 0) return;
+      const v = s.valores[k];
+      ultimos.push({ v, color: s.color, x: x(k), y: Math.min(B - 9, Math.max(T + 9, y(v))) });
+    });
+    ultimos.sort((a, b) => a.y - b.y);
+    for (let i = 1; i < ultimos.length; i++) if (ultimos[i].y - ultimos[i - 1].y < 20) ultimos[i].y = ultimos[i - 1].y + 20;
+    const ultimosV = ultimos.map((u) => ({ texto: (u.v < 0 ? '−' : '') + Math.abs(u.v).toFixed(c.decimales ?? 1).replace('.', ',') + (c.sufijoEtiqueta ?? c.sufijo ?? ''), style: 'position:absolute;pointer-events:none;white-space:nowrap;border-radius:3px;padding:1px 5px;font-family:IBM Plex Mono,monospace;font-size:12px;font-weight:600;line-height:16px;color:#FFFFFF;background:' + u.color + ';left:' + F(u.x + 8) + 'px;top:' + F(u.y - 9) + 'px' }));
+    const fuera = []; let nArr = 0, nAb = 0;
+    c.series.forEach((s) => {
+      if (s.tipo === 'barras' || !on(s.id)) return;
+      let iM = -1, iN = -1;
+      s.valores.forEach((v, i) => { if (v == null) return; if (v > c.max && (iM < 0 || v > s.valores[iM])) iM = i; if (v < c.min && (iN < 0 || v < s.valores[iN])) iN = i; });
+      const chip = (i, arriba, k) => ({ texto: (arriba ? '▲ ' : '▼ ') + (s.valores[i] < 0 ? '−' : '') + Math.abs(s.valores[i]).toFixed(c.decimales ?? 1).replace('.', ',') + (c.sufijo || ''), style: 'position:absolute;pointer-events:none;white-space:nowrap;border-radius:3px;padding:0 5px;font-family:IBM Plex Mono,monospace;font-size:11px;font-weight:600;line-height:16px;background:#FFFFFF;border:1px solid ' + s.color + ';color:' + s.color + ';left:' + F(Math.max(L, Math.min(R - 80, x(i) - 30))) + 'px;top:' + F(arriba ? T + 2 + k * 19 : B - 20 - k * 19) + 'px' });
+      if (iM >= 0) fuera.push(chip(iM, true, nArr++));
+      if (iN >= 0) fuera.push(chip(iN, false, nAb++));
+    });
+    const x0 = cat ? L : L - paso / 2;
+    const hits = [];
+    for (let i = 0; i < n; i++) hits.push({ tab: i === c.fijo ? 0 : -1, aria: c.etiquetas[i], fix: () => c.onFijar(i), over: () => c.onHover(i), style: 'flex:1 1 0;min-width:0;height:100%;border:0;margin:0;padding:0;background:' + (i === c.fijo ? 'rgba(46,92,138,0.07)' : 'transparent') + ';cursor:crosshair' });
+    const onKey = (e) => {
+      const k = e.key;
+      if (k === 'ArrowLeft') { e.preventDefault(); c.onFijar(c.fijo - 1); }
+      else if (k === 'ArrowRight') { e.preventDefault(); c.onFijar(c.fijo + 1); }
+      else if (k === 'Home') { e.preventDefault(); c.onFijar(0); }
+      else if (k === 'End') { e.preventDefault(); c.onFijar(n - 1); }
+    };
+    return {
+      w, h, grid, cero, ticksY, ticksX, bandas, capas, marcas, guia, hits, onKey, ultimos: ultimosV, fuera,
+      clip: 'position:absolute;left:0;top:' + T + 'px;width:' + w + 'px;height:' + (B - T) + 'px;overflow:hidden;pointer-events:none',
+      capaSvg: 'position:absolute;left:0;top:-' + T + 'px;pointer-events:none;overflow:visible',
+      onLeave: () => c.onHover(null),
+      raiz: 'position:relative;width:' + w + 'px;height:' + h + 'px;font-family:IBM Plex Sans,sans-serif',
+      overlay: 'position:absolute;display:flex;top:' + T + 'px;height:' + (B - T) + 'px;left:' + F(x0) + 'px;width:' + F(paso * n) + 'px',
+    };
+  }
+}
+</script>
+</body>
+</html>
