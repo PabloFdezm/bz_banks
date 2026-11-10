@@ -579,6 +579,54 @@
    "unidad": "% a.a.",
    "periodicidad": "M"
   },
+  "credito_pf_inmobiliario_mercado": {
+   "codigo": 20610,
+   "nombre": "Saldo da carteira de crédito com recursos direcionados - Pessoas físicas - Financiamento imobiliário com taxas de mercado",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "credito_pf_inmobiliario_regulada": {
+   "codigo": 20611,
+   "nombre": "Saldo da carteira de crédito com recursos direcionados - Pessoas físicas - Financiamento imobiliário com taxas reguladas",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "conc_pf_inmobiliario_mercado": {
+   "codigo": 20702,
+   "nombre": "Concessões de crédito com recursos direcionados - Pessoas físicas - Financiamento imobiliário com taxas de mercado",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "conc_pf_inmobiliario_regulada": {
+   "codigo": 20703,
+   "nombre": "Concessões de crédito com recursos direcionados - Pessoas físicas - Financiamento imobiliário com taxas reguladas",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "conc_pf_inmobiliario_total": {
+   "codigo": 20704,
+   "nombre": "Concessões de crédito com recursos direcionados - Pessoas físicas - Financiamento imobiliário total",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "tasa_pf_inmobiliario_mercado": {
+   "codigo": 20772,
+   "nombre": "Taxa média de juros das operações de crédito com recursos direcionados - Pessoas físicas - Financiamento imobiliário com taxas de mercado",
+   "unidad": "% a.a.",
+   "periodicidad": "M"
+  },
+  "tasa_pf_inmobiliario_regulada": {
+   "codigo": 20773,
+   "nombre": "Taxa média de juros das operações de crédito com recursos direcionados - Pessoas físicas - Financiamento imobiliário com taxas reguladas",
+   "unidad": "% a.a.",
+   "periodicidad": "M"
+  },
+  "tasa_pf_inmobiliario_total": {
+   "codigo": 20774,
+   "nombre": "Taxa média de juros das operações de crédito com recursos direcionados - Pessoas físicas - Financiamento imobiliário total",
+   "unidad": "% a.a.",
+   "periodicidad": "M"
+  },
   "tasa_pj_total": {
    "codigo": 20715,
    "nombre": "Taxa média de juros das operações de crédito - Pessoas jurídicas - Total",

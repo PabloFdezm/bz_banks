@@ -1,6 +1,6 @@
 # Frente 16 · Hoja «Inmobiliario»: códigos SGS que faltan y paso a gold
 
-Estado al 10-nov-2026: **por hacer**. Encargo pensado para que lo ejecute otra sesión u otra LLM sin contexto previo.
+Estado al 10-nov-2026: **A hecha; B y C por hacer**. Encargo pensado para que lo ejecute otra sesión u otra LLM sin contexto previo.
 Leer antes `CLAUDE.md`, `tareas/README.md` y `tareas/12_hoja_tarjeta.md` (mismo patrón de gold por producto).
 
 ## Contexto
@@ -11,15 +11,26 @@ Leer antes `CLAUDE.md`, `tareas/README.md` y `tareas/12_hoja_tarjeta.md` (mismo 
   borrador lo calcula en memoria con `preparar_gold_bancos_producto_pf.construir_scr`, sin publicar), IF.Data
   (`bk_cartera_mix7`, categoría hipotecario) y `bk_fondeo_m` (ahorro y letras de crédito).
 
-## Parte A · Datos SGS que faltan (bajar desde el equipo de Pablo)
-- `20610` saldo inmobiliario PF con tasa de mercado y `20611` con tasa regulada (hoy «en preparación» en P1).
-- Agregar a `sgs.CODIGOS` y al catálogo los que ya están en el crudo pero sin nombre: 20612, 20702, 20703, 20704,
-  20772, 20773, 20774 (y revisar 21340, 21387, 21395, 240 y 192 de la carpeta `crudo/bcb_sgs/inmobiliario`: confirmar
-  qué son o sacarlos). Identidad a verificar: 20702 + 20703 = 20704 (concesiones) y, con 20610/20611, 20610 + 20611 = 20612.
+## Parte A · Datos SGS · hecha el 10-nov
+- 20610 (saldo PF con tasa de mercado) y 20611 (con tasa regulada) se bajaron de la API (en el crudo
+  `bancos_sistema`, R$ millones, desde mar-07). Identidades verificadas (±1 por redondeo): 20610 + 20611 = 20612
+  (sep-26: 170.988 + 1.272.018 = 1.443.006) y 20702 + 20703 = 20704 (concesiones).
+- En `sgs.CODIGOS` y en el catálogo (196 series): `credito_pf_inmobiliario_{mercado,regulada}`,
+  `conc_pf_inmobiliario_{mercado,regulada,total}` y `tasa_pf_inmobiliario_{mercado,regulada,total}`. Ya estaban:
+  20612 (`credito_pf_inmobiliario`), 21149–21151 (mora90; ojo: 21150 se llama `mora90_inmobiliario_dirigido` pero es
+  la de tasas reguladas) y 4189 (Selic del mes). 20600 (`credito_pj_inmobiliario`) también.
+- Resto de la carpeta `crudo/bcb_sgs/inmobiliario` (identificado contra el catálogo del SGS): 21340 = IVG-R (índice de
+  valor de garantía de inmuebles residenciales financiados), 21387 / 21395 = encuesta trimestral de crédito
+  habitacional (demanda / oferta observada), 240 = captación líquida diaria de poupança SBPE (R$ mil), 192 = INCC,
+  433 = IPCA. Propuesta: IVG-R a la sección Calidad (valor de la garantía) y 240 a Fondeo (flujo de poupança); los
+  demás quedan de contexto. Decide Pablo.
 
 ## Parte B · Paso a gold
 - Agregar `inmobiliario` a `PRODUCTOS_SGS` y `PRODUCTOS_SCR` de `preparar_gold_bancos_producto_pf.py` (submodalidades:
-  mercado y regulada; SCR: «Inmobiliario»; instituciones de pago y fintechs a «Otros», como hace el borrador).
+  total, mercado y regulada con saldo, concesiones, tasa y mora90; SCR: «Inmobiliario»; instituciones de pago y
+  fintechs a «Otros», como hace el borrador).
+- Agregar `"inmobiliario": ["mercado", "regulada"]` a `DESCOMPONER` (efecto tasa / mezcla de la tasa media). Ojo con
+  los pesos: la tasa de mercado es ~12 % del saldo (sep-26), así que sus movimientos mueven poco el total.
 - El borrador pasa a leer solo de gold, igual que `extraer_producto.py`.
 - Tests: los de la parte B del frente 12 con el producto nuevo.
 
@@ -28,10 +39,14 @@ Leer antes `CLAUDE.md`, `tareas/README.md` y `tareas/12_hoja_tarjeta.md` (mismo 
    cambio de definición de la Res. 4.966; medir desde cuándo.
 2. Concesiones con tasa de mercado −39 % a/a y regulada +26 % (sep-26): confirmar con las notas del BCB o de la Abecip
    si es traslado de originación de SBPE-mercado a SFH/MCMV.
-3. Cobertura poupança / crédito inmobiliario PF: 71 % a sep-26 (80 % un año antes). Confirmar que el denominador
-   correcto es el saldo PF (20612) o PF + PJ (20600).
-4. Cuántas LCI hay dentro de «letras de crédito» (27807 junta LCI y LCA): buscar una serie de LCI sola (B3 o REF
-   1.2.1.1.a) para reemplazar la cota superior de P6.
+3. Cobertura poupança / crédito inmobiliario: 71 % a sep-26 (80 % un año antes) es una sobreestimación con dos
+   sesgos. Denominador: el SBPE financia también a constructoras, así que corresponde PF + PJ (20612 + 20600), no
+   solo PF. Numerador: 1835 es la poupança total e incluye la poupança rural (va a crédito rural, no a vivienda);
+   buscar el saldo de la poupança SBPE sola (SGS o Abecip) antes de publicar el ratio. Sin ese código, la tarjeta va
+   con nota o «en preparación»; no estimar.
+4. Cuántas LCI hay dentro de «letras de crédito» (27807 junta LCI y LCA). El REF no sirve: el 1.2.1.1.a también las
+   publica juntas («Letras com isenção tributária (LCA/LCI)»; revisado en `bk_ref` el 10-nov). Queda B3 o Abecip
+   (fuente nueva, preguntar a Pablo) o dejar P6 como cota superior con su nota.
 
 ## Terminado cuando
 A y B en verde (catálogo, gold, tests), C informado en `tareas/borradores/inmobiliario_verificaciones.md`, y la hoja

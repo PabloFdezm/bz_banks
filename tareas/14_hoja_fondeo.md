@@ -7,7 +7,9 @@ Leer antes `CLAUDE.md` y `tareas/README.md`.
 - A: 14 códigos de agregados monetarios (`mp_*`, 27789–27815) y `mp_ahorro` (1835) en `sgs.CODIGOS`, catálogo y crudo.
   Todos en R$ mil. 27807 = letras de **crédito** (LCI/LCA), no de cambio; 27811 = cuotas de fondos monetarios. La
   poupança está dentro de M2 (M2 = M1 + 27809 + 1835, exacto). Las tasas 28583/28611/28614/28617 fallan en la API del
-  SGS (HTML/500): fuera de `CODIGOS` hasta poder bajarlas.
+  SGS (HTML/500): fuera de `CODIGOS` hasta poder bajarlas. Alternativa parcial ya en gold: REF 1.2.1.4 («Taxas
+  médias mensais de captação», % del DI, jun-22 a jun-26 en `bk_ref`), por segmento (S1 privado, públicos, digitales,
+  SNCC, demás) y no por inversionista. Decide Pablo si cubre la sección mientras.
 - B: `pipeline/preparar_gold_bancos_fondeo.py` → `bk_fondeo_m` (serie, medida, fecha, valor; saldo en R$ millones,
   aa, share_m2, share_m4 y tasa si hay crudo), contrato en `definiciones/contrato_gold.json`, paso `fondeo` en
   `pipeline/actualizar.py` después de `producto_pf`, pruebas en `tests/test_fondeo.py` (8, pasan). El borrador

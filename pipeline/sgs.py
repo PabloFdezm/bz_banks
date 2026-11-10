@@ -74,6 +74,11 @@ CODIGOS = {
     "mora90_cheque_especial": 21113, "mora90_personal_renegociacion": 21115,
     "salario_minimo": 1619,               # R$ (u.m.c.), para el ticket en meses de renta (P8)
     "selic_efectiva_mes": 4189,           # Selic acumulada en el mes, anualizada (base 252): la referencia de las hojas
+    # inmobiliario PF (frente 16; validado 10-nov): 20610 + 20611 = 20612 y 20702 + 20703 = 20704. «Regulada» = SFH y
+    # programas con tasa tope; ojo: 21150 se llama «mora90_inmobiliario_dirigido» pero es la de tasas reguladas.
+    "credito_pf_inmobiliario_mercado": 20610, "credito_pf_inmobiliario_regulada": 20611,
+    "conc_pf_inmobiliario_mercado": 20702, "conc_pf_inmobiliario_regulada": 20703, "conc_pf_inmobiliario_total": 20704,
+    "tasa_pf_inmobiliario_mercado": 20772, "tasa_pf_inmobiliario_regulada": 20773, "tasa_pf_inmobiliario_total": 20774,
     # empresas (frente 13, hojas MPME y Grandes; validado 10-nov). 27706/27707 están desactivadas (terminan en dic-24).
     "tasa_pj_total": 20715, "tasa_pj_libre": 20718, "spread_pj": 20784, "icc_pj": 25352,
     "riesgo_eh_mpme": 27706, "riesgo_eh_grande": 27707,
