@@ -1,6 +1,7 @@
 # Frente 7 · Fuente CVM (ITR/DFP) → `bk_publicado`
 
-Estado al 8-nov-2026: **por construir.** Retomado por Pablo el 8-nov (estaba postergado desde el 3-nov).
+Estado al 10-nov-2026: **construido** (commits 08d1c1e y 5970758, 9-nov; decisiones en `borradores/cvm_informe.md` §7).
+Queda conectar la tarjeta B8-06-0 después del rediseño. Lo que sigue era el encargo original.
 Pensado para que lo ejecute un worker (otra sesión u otra LLM) sin contexto previo.
 
 ## Por qué

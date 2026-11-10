@@ -1,6 +1,7 @@
 # Frente 11 · Balancetes mensuales del BCB → `bk_balancete_m` y `bk_sistema_bal_m`
 
-Estado al 9-nov-2026: **por hacer**. Encargo pensado para que lo ejecute otra sesión u otra LLM sin contexto previo.
+Estado al 10-nov-2026: fase 1 (sondeo) hecha y aprobada el 9-nov (`borradores/balancetes_sondeo.md`: sirve el
+documento 4060 por conglomerado; abiertos 2T26 y la cuenta de provisiones en el plan nuevo); **fase 2 por hacer**. Encargo pensado para que lo ejecute otra sesión u otra LLM sin contexto previo.
 Leer antes `CLAUDE.md`, `spec/README.md`, `spec/08_estado_pendientes_y_riesgos.md` y `tareas/README.md`.
 Reemplaza la opción A de `tareas/10_capital_mensual.md` y la amplía a rentabilidad, margen, eficiencia y depósitos.
 

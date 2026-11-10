@@ -37,6 +37,7 @@ PASOS = [
     ("concesiones", "preparar_gold_bancos_concesiones", [], False),   # usa sgs (20631–20662, 24364, 433) → bk_concesiones
     ("scr_productos", "preparar_gold_bancos_scr_productos", ["--descargar"], True),
     ("scr", "preparar_gold_bancos_scr", [], False),                   # con caché por ZIP
+    ("producto_pf", "preparar_gold_bancos_producto_pf", [], False),   # usa sgs y el cubo de scr_productos → bk_producto_pf_*
     ("cvm", "cvm", ["--descargar"], True),                           # ITR/DFP de la CVM → bk_publicado
     ("capital", "capital", [], False),
     ("ref", "ref", ["--descargar"], True),                           # Anexo Estatístico del REF → bk_ref                                # informe 5 de IF.Data → bk_capital; usa bk_panel

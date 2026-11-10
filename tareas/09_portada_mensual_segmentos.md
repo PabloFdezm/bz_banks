@@ -1,6 +1,7 @@
 # Frente 9 · Portada mensual: completar los segmentos «en preparación» y llevar a gold lo del canvas
 
-Estado al 9-nov-2026: **por hacer**. Encargo pensado para que lo ejecute otra sesión u otra LLM sin contexto previo.
+Estado al 10-nov-2026: **en curso**. A1 hecha el 9-nov (commit e8d4654: `bk_concesiones`, `bk_concesiones_tablas`);
+falta el resto. Encargo pensado para que lo ejecute otra sesión u otra LLM sin contexto previo.
 Leer antes `CLAUDE.md`, `spec/README.md`, `spec/08_estado_pendientes_y_riesgos.md` y `tareas/README.md`.
 Reemplaza a la versión anterior de este frente (solo concesiones libres).
 
@@ -28,7 +29,7 @@ No adivinar códigos ni identificarlos «porque los montos cuadran». Usar `herr
    `tests/test_sgs_catalogo.py`.
 
 ## Parte A · Series que faltan
-### A1 · Concesiones (sección 01)
+### A1 · Concesiones (sección 01) · hecha el 9-nov (commit e8d4654)
 - Ya en el catálogo pero no en `CODIGOS` ni en el crudo: 20634 (libres total) y 20635 (libres personas jurídicas).
 - Segmentos: tot = 20631; pf = 20633; pj = 20632; li = 20634; di = 20631 − 20634; pfli = 20662;
   pfdi = 20633 − 20662; pjli = 20635; pjdi = 20632 − 20635. Identidad: 20634 = 20635 + 20662 (diferencia < 1).
@@ -114,3 +115,22 @@ Contenido por sección:
 Cada opción del desplegable de las tres secciones tiene datos o salió con su razón; `bk_portada_m` y
 `bk_portada_m_tablas` en gold con tests verdes; la tabla de contraste calza; fila 9 de `tareas/README.md`
 actualizada con la fecha.
+
+## Anexo B. Códigos SGS de Personas por producto (página «Crédito por producto»)
+
+Encontrados en el catálogo del repo macro (`Dashboard/definiciones/bcb_sgs__series/*.json`). Validar cada uno con `herramientas/validar_sgs.py` antes de llevarlo a `sgs.py`. Ojo: el catálogo traduce mal 20666 («Total personal credit»): es el personal no consignado; el personal total es 20672.
+
+| Producto | Saldo | Concesiones | Tasa | Mora > 90 |
+|---|---|---|---|---|
+| Tarjeta | 20590 (rotativo 20587, parcelado 20588, a la vista 20589) | 20682 (20679, 20680, 20681) | 22024 (rotativo 22022, parcelado 22023) | 21129 (21127, 21128) |
+| Consignado | 20579 (privado 20576, público 20577, INSS 20578) | 20671 (20668, 20669, 20670) | 20747 (20744–20746) | 21119 (21116–21118) |
+| Personal no consignado | 20574 (renegociación 20575) | 20666 (20667) | 20742 (20743) | 21114 (21115) |
+| Vehículos | 20581 | 20673 | 20749 | 21121 |
+| Inmobiliario | 20612 (mercado 20610, regulado 20611) | 20704 (20702, 20703) | 20774 (20772, 20773) | 21151 (21149, 21150) |
+| Rural | 20609 (20607, 20608) | 20701 (20699, 20700) | 20771 (20769, 20770) | 21148 (21146, 21147) |
+| Cheque especial | 20573 | 20665 | 20741 | 21113 |
+| Total personas | 20541 | 20633 | 20716 | 21084 |
+
+Otros: spread personas 20785; spreads 20783–20787, 20809, 20825, 20826; ICC 25351–25359 (personas 25353); atraso 15–90 días 21003–21010.
+
+Faltan en el crudo hoy (bajar): 20579, 20680, 20681, 22023, 22024, 20744–20746, 20742, 20743, 20610, 20611, 20607, 20608, 20699, 20700, 20769, 20770, 21146, 21147, 20785. Mientras falten, la página los muestra «en preparación»; el consignado total se arma sumando 20576 + 20577 + 20578.

@@ -1,7 +1,7 @@
 {
  "fuente": "Servicio web público del SGS (FachadaWSSGS.getUltimoValorXML)",
  "descripcion": "Nombre, unidad y periodicidad oficiales de cada serie de sgs.CODIGOS. Lo escribe herramientas/validar_sgs.py --escribir; la correspondencia clave ↔ nombre se revisa a mano.",
- "validado": "2026-11-09",
+ "validado": "2026-11-10",
  "series": {
   "credito_total": {
    "codigo": 20539,
@@ -373,6 +373,204 @@
    "codigo": 24369,
    "nombre": "Taxa de desocupação - PNADC",
    "unidad": "%",
+   "periodicidad": "M"
+  },
+  "credito_pf_tarjeta_rotativo": {
+   "codigo": 20587,
+   "nombre": "Saldo da carteira de crédito com recursos livres - Pessoas físicas - Cartão de crédito rotativo",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "credito_pf_tarjeta_parcelado": {
+   "codigo": 20588,
+   "nombre": "Saldo da carteira de crédito com recursos livres - Pessoas físicas - Cartão de crédito parcelado",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "credito_pf_tarjeta_vista": {
+   "codigo": 20589,
+   "nombre": "Saldo da carteira de crédito com recursos livres - Pessoas físicas - Cartão de crédito à vista",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "credito_pf_cheque_especial": {
+   "codigo": 20573,
+   "nombre": "Saldo da carteira de crédito com recursos livres - Pessoas físicas - Cheque especial",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "credito_pf_personal_renegociacion": {
+   "codigo": 20575,
+   "nombre": "Saldo da carteira de crédito com recursos livres - Pessoas físicas - Crédito pessoal não consignado vinculado à composição de dívidas",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "credito_pf_consignado_total": {
+   "codigo": 20579,
+   "nombre": "Saldo da carteira de crédito com recursos livres - Pessoas físicas - Crédito pessoal consignado total",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "conc_pf_tarjeta_total": {
+   "codigo": 20682,
+   "nombre": "Concessões de crédito com recursos livres - Pessoas físicas - Cartão de crédito total",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "conc_pf_tarjeta_rotativo": {
+   "codigo": 20679,
+   "nombre": "Concessões de crédito com recursos livres - Pessoas físicas - Cartão de crédito rotativo",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "conc_pf_tarjeta_parcelado": {
+   "codigo": 20680,
+   "nombre": "Concessões de crédito com recursos livres - Pessoas físicas - Cartão de crédito parcelado",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "conc_pf_tarjeta_vista": {
+   "codigo": 20681,
+   "nombre": "Concessões de crédito com recursos livres - Pessoas físicas - Cartão de crédito à vista",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "conc_pf_cheque_especial": {
+   "codigo": 20665,
+   "nombre": "Concessões de crédito com recursos livres - Pessoas físicas - Cheque especial",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "conc_pf_personal": {
+   "codigo": 20666,
+   "nombre": "Concessões de crédito com recursos livres - Pessoas físicas - Crédito pessoal não consignado total",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "conc_pf_personal_renegociacion": {
+   "codigo": 20667,
+   "nombre": "Concessões de crédito com recursos livres - Pessoas físicas - Crédito pessoal não consignado vinculado à composição de dívidas",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "conc_pf_consignado_privado": {
+   "codigo": 20668,
+   "nombre": "Concessões de crédito com recursos livres - Pessoas físicas - Crédito pessoal consignado para trabalhadores do setor privado",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "conc_pf_consignado_publico": {
+   "codigo": 20669,
+   "nombre": "Concessões de crédito com recursos livres - Pessoas físicas - Crédito pessoal consignado para trabalhadores do setor público",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "conc_pf_consignado_inss": {
+   "codigo": 20670,
+   "nombre": "Concessões de crédito com recursos livres - Pessoas físicas - Crédito pessoal consignado para aposentados e pensionistas do INSS",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "conc_pf_consignado_total": {
+   "codigo": 20671,
+   "nombre": "Concessões de crédito com recursos livres - Pessoas físicas - Crédito pessoal consignado total",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "conc_pf_vehiculos": {
+   "codigo": 20673,
+   "nombre": "Concessões de crédito com recursos livres - Pessoas físicas - Aquisição de veículos",
+   "unidad": "R$ (milhões)",
+   "periodicidad": "M"
+  },
+  "tasa_pf_total": {
+   "codigo": 20716,
+   "nombre": "Taxa média de juros das operações de crédito - Pessoas físicas - Total",
+   "unidad": "% a.a.",
+   "periodicidad": "M"
+  },
+  "tasa_pf_cheque_especial": {
+   "codigo": 20741,
+   "nombre": "Taxa média de juros das operações de crédito com recursos livres - Pessoas físicas - Cheque especial",
+   "unidad": "% a.a.",
+   "periodicidad": "M"
+  },
+  "tasa_pf_personal": {
+   "codigo": 20742,
+   "nombre": "Taxa média de juros das operações de crédito com recursos livres - Pessoas físicas - Crédito pessoal não consignado total",
+   "unidad": "% a.a.",
+   "periodicidad": "M"
+  },
+  "tasa_pf_personal_renegociacion": {
+   "codigo": 20743,
+   "nombre": "Taxa média de juros das operações de crédito com recursos livres - Pessoas físicas - Crédito pessoal não consignado vinculado à composição de dívidas",
+   "unidad": "% a.a.",
+   "periodicidad": "M"
+  },
+  "tasa_pf_consignado_privado": {
+   "codigo": 20744,
+   "nombre": "Taxa média de juros das operações de crédito com recursos livres - Pessoas físicas - Crédito pessoal consignado para trabalhadores do setor privado",
+   "unidad": "% a.a.",
+   "periodicidad": "M"
+  },
+  "tasa_pf_consignado_publico": {
+   "codigo": 20745,
+   "nombre": "Taxa média de juros das operações de crédito com recursos livres - Pessoas físicas - Crédito pessoal consignado para trabalhadores do setor público",
+   "unidad": "% a.a.",
+   "periodicidad": "M"
+  },
+  "tasa_pf_consignado_inss": {
+   "codigo": 20746,
+   "nombre": "Taxa média de juros das operações de crédito com recursos livres - Pessoas físicas - Crédito pessoal consignado para aposentados e pensionistas do INSS",
+   "unidad": "% a.a.",
+   "periodicidad": "M"
+  },
+  "tasa_pf_consignado_total": {
+   "codigo": 20747,
+   "nombre": "Taxa média de juros das operações de crédito com recursos livres - Pessoas físicas - Crédito pessoal consignado total",
+   "unidad": "% a.a.",
+   "periodicidad": "M"
+  },
+  "tasa_pf_vehiculos": {
+   "codigo": 20749,
+   "nombre": "Taxa média de juros das operações de crédito com recursos livres - Pessoas físicas - Aquisição de veículos",
+   "unidad": "% a.a.",
+   "periodicidad": "M"
+  },
+  "tasa_pf_tarjeta_rotativo": {
+   "codigo": 22022,
+   "nombre": "Taxa média de juros das operações de crédito com recursos livres - Pessoas físicas - Cartão de crédito rotativo",
+   "unidad": "% a.a.",
+   "periodicidad": "M"
+  },
+  "tasa_pf_tarjeta_parcelado": {
+   "codigo": 22023,
+   "nombre": "Taxa média de juros das operações de crédito com recursos livres - Pessoas físicas - Cartão de crédito parcelado",
+   "unidad": "% a.a.",
+   "periodicidad": "M"
+  },
+  "tasa_pf_tarjeta_total": {
+   "codigo": 22024,
+   "nombre": "Taxa média de juros das operações de crédito com recursos livres - Pessoas físicas - Cartão de crédito total",
+   "unidad": "% a.a.",
+   "periodicidad": "M"
+  },
+  "mora90_cheque_especial": {
+   "codigo": 21113,
+   "nombre": "Inadimplência da carteira de crédito com recursos livres - Pessoas físicas - Cheque especial",
+   "unidad": "%",
+   "periodicidad": "M"
+  },
+  "mora90_personal_renegociacion": {
+   "codigo": 21115,
+   "nombre": "Inadimplência da carteira de crédito com recursos livres - Pessoas físicas - Crédito pessoal não consignado vinculado à composição de dívidas",
+   "unidad": "%",
+   "periodicidad": "M"
+  },
+  "salario_minimo": {
+   "codigo": 1619,
+   "nombre": "Salário mínimo",
+   "unidad": "u.m.c.",
    "periodicidad": "M"
   }
  }

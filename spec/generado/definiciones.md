@@ -3,7 +3,7 @@
 > Generado por `herramientas/generar_spec.py`. No editar a mano: se sobrescribe.
 
 
-## `bancos__dashboard.json` (7 kB)
+## `bancos__dashboard.json` (8 kB)
 
 - `fuente_definicion`: Claude (arquitecto), 2026-11-02, a partir de bcb_ifdata__bancos_balances.json y del supuesto S4 del esqueleto; tickers a validar por Pablo
 - `nota`: color = null: el sitio resalta el banco activo en navy y deja al resto en acero claro (spec web §5). Los cotizados con ADR en EE.UU. (NU, INTR, XP, STNE, PAGS)…
@@ -63,18 +63,19 @@
 - `ediciones`: lista de 8
 - `meses_candidatos`: objeto con 2 claves
 - `usados`: objeto con 2 claves
+- `sitio`: objeto con 2 claves
 
-## `bcb_sgs__catalogo.json` (12 kB)
+## `bcb_sgs__catalogo.json` (20 kB)
 
 - `fuente`: Servicio web público del SGS (FachadaWSSGS.getUltimoValorXML)
 - `descripcion`: Nombre, unidad y periodicidad oficiales de cada serie de sgs.CODIGOS. Lo escribe herramientas/validar_sgs.py --escribir; la correspondencia clave ↔ nombre se r…
-- `validado`: 2026-11-09
-- `series`: objeto con 58 claves
+- `validado`: 2026-11-10
+- `series`: objeto con 95 claves
 
-## `contrato_gold.json` (7 kB)
+## `contrato_gold.json` (8 kB)
 
 - `descripcion`: Contrato de la capa gold (datos/gold/bk_*.parquet): columnas mínimas y clave única de cada tabla. Lo lee herramientas/verificar_gold.py; una tabla bk_* que no …
-- `tablas`: objeto con 33 claves
+- `tablas`: objeto con 38 claves
 
 ## `cvm__bancos.json` (27 kB)
 

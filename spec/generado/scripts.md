@@ -3,7 +3,7 @@
 > Generado por `herramientas/generar_spec.py`. No editar a mano: se sobrescribe.
 
 
-## `pipeline/actualizar.py` (90 líneas)
+## `pipeline/actualizar.py` (92 líneas)
 
 Importa del pipeline: `almacen`, `red`
 
@@ -636,6 +636,51 @@ La comprobación de mix7 contra cartera_saldo de bk_panel la hace `preparar_gold
 quien produce bk_panel (y lo produce después de este script).
 ```
 
+## `pipeline/preparar_gold_bancos_concesiones.py` (183 líneas)
+
+Importa del pipeline: `almacen`, `sgs`, `tabla_estandar`
+
+```text
+Concesiones libre / dirigido por segmento y el índice de concesiones reales frente a la actividad.
+
+Es la base de la sección 01 de la Portada (canvas, láminas 06–08): libre = SGS 20634 (total), 20635 (empresas) y
+20662 (personas); dirigido = total − libre. El índice compara el crédito concedido real con la actividad (IBC-Br).
+
+TABLAS (datos/gold/)
+------------------
+- bk_concesiones (larga, una fila por segmento y mes): segmento, fecha (último día del mes),
+  concesiones (R$ millones, flujo del mes), conc_12m (suma móvil de 12 meses, R$ millones), conc_12m_aa (a/a de esa suma, fracción),
+  conc_real_12m (suma móvil de 12 meses deflactada, R$ millones a precios del último mes), ibc_12m (promedio móvil de
+  12 meses del IBC-Br desestacionalizado), indice (concesiones reales 12m / IBC-Br 12m, base promedio 2014 = 100),
+  indice_aa (a/a del índice, fracción) e indice_z120 (z-score del índice en 120 meses).
+  Clave: segmento, fecha. Segmentos: tot, pf, pj, li, di, pfli, pfdi, pjli, pjdi.
+- bk_concesiones_tablas: tabla estándar (bloque, orden, fila, grupo, ultimo, d1, d3, d12, dventana, corte, unidades,
+  share, z120). Bloques: «mes» (concesiones del mes, R$ mil millones), «12m» (suma móvil, R$ mil millones) e «indice»
+  (índice de concesiones reales frente a la actividad, puntos con base 2014 = 100). Clave: bloque, orden.
+  La fila Total del bloque «mes» es «Concesiones totales» de bk_cred_tablas: mismas cifras (control en las pruebas).
+
+REGLAS
+------
+- Segmentos: total = SGS 20631; personas = 20633; empresas = 20632; libre = 20634; libre empresas = 20635;
+  libre personas = 20662. Dirigido = total − libre del mismo grupo: di = 20631 − 20634, pfdi = 20633 − 20662,
+  pjdi = 20632 − 20635. Así li + di = total exacto y pf/pj se reconstruyen con sus libres y dirigidos.
+  Identidades de la fuente: 20631 = 20632 + 20633 y 20634 = 20635 + 20662. Las series están en millones enteros, así
+  que cada identidad puede fallar en ±1 R$ millón por redondeo (pruebas de integración).
+- Deflactación: índice de precios a partir de la variación mensual del IPCA (SGS 433), encadenado
+  (producto acumulado de 1 + var/100) y normalizado al último mes (sgs.deflactor). Cada concesión mensual se divide
+  por el índice de su mes (precios del último mes). La normalización a 2014 = 100 del índice final elimina esa
+  escala y no cambia la forma de la serie.
+- Índice: concesiones reales 12m / IBC-Br desestacionalizado promedio 12m (SGS 24364), dividido por su promedio de los
+  meses de 2014 y multiplicado por 100. El IBC-Br publica con dos meses de atraso: el índice llega al último mes del
+  IBC-Br; el último mes de concesiones queda sin índice (no se rellena).
+- Tabla estándar. En «mes» (flujo): m/m y a/a son el mes contra el anterior y contra el mismo mes del año anterior;
+  3m/3m es el promedio de tres meses contra los tres anteriores; 12m/12m es la suma de doce meses contra la de los
+  doce anteriores. En «12m» e «indice» (saldos): las ventanas son promedios de valores. Share: segmento contra total
+  en el mismo mes («mes» y «12m»); vacío en el índice.
+- Z-score del índice: (índice_t − media) / desviación típica muestral (ddof = 1) de los 120 meses que terminan en t.
+  Solo con los 120 meses completos; antes queda vacío.
+```
+
 ## `pipeline/preparar_gold_bancos_exposicion.py` (92 líneas)
 
 Importa del pipeline: `almacen`, `mora_sistema`, `periodos`, `reglas_gold`
@@ -723,6 +768,66 @@ REGLAS
   sgs.cdi_12m (promedio de los 12 meses que terminan en el trimestre).
 - Cuotas: último trimestre del panel IF.Data con informes de pasivo (r3) y cartera PF/PJ (r11, r13);
   activos y crédito total desde bk_panel (share_ativo, share_credito). Solo conglomerados del panel.
+```
+
+## `pipeline/preparar_gold_bancos_producto_pf.py` (356 líneas)
+
+Importa del pipeline: `almacen`, `preparar_gold_bancos_scr_productos`, `sgs`, `tabla_estandar`
+
+```text
+Hojas por producto de personas (frente 12): tarjeta, personal sin planilla, descuento por planilla y vehículos.
+
+Lleva a gold las cifras que el canvas de rediseño calculaba con el borrador `extraer_producto.py`. Dos tablas largas,
+genéricas por producto (columna ``producto``), en vez de una tabla por hoja.
+
+TABLAS (datos/gold/)
+--------------------
+- bk_producto_pf_m (SGS, mensual): producto, sub, medida, fecha (último día del mes), valor.
+  Clave: producto, sub, medida, fecha.
+  * Niveles: ``saldo`` y ``concesiones`` (R$ millones; concesiones = flujo del mes), ``tasa`` y ``mora90``
+    (fracción: el % del SGS / 100).
+  * Descomposición de la tasa media (solo productos con submodalidades en ``DESCOMPONER``), con
+    ``sub = "media"``: ``tasa_media`` (Σ w_i·r_i, w = peso de la submodalidad en las concesiones del mes),
+    ``d_tasa_media`` (a/a, fracción), ``efecto_mezcla``; y por submodalidad ``peso_conc`` y ``efecto_tasa``.
+    efecto_tasa_i = w̄_i·Δr_i; efecto_mezcla = Σ (r̄_i − r̄)·Δw_i, con promedios de t y t−12. Suman d_tasa_media.
+  * Productos de referencia: ``personas`` (total personas: saldo, concesiones, tasa, mora) y ``referencia``
+    (sub ``selic_meta``, medida ``tasa``: meta Selic, último dato del mes; sub ``salario_minimo``, medida ``nivel``:
+    R$, último dato del mes y arrastrado a los meses sin cambio).
+- bk_producto_pf_scr_m (SCR.data, mensual desde ene-18): producto, dimension, segmento, medida, fecha, valor.
+  Clave: producto, dimension, segmento, medida, fecha.
+  * Dimensiones: ``total`` (segmento «Total»), ``renta`` (7 tramos + «Sin renta / N.D.»), ``institucion``,
+    ``ocupacion``, ``renta_institucion`` y ``renta_ocupacion`` (celdas «tramo · institución» y «tramo · ocupación») y ``tope_3sm`` («Hasta 3 SM» y
+    «Más de 3 SM y sin dato»).
+  * Medidas de nivel (todas las dimensiones): ``saldo``, ``mora90``, ``atraso15_90``, ``activo_problematico``
+    (R$), ``ops`` (número de operaciones), ``cart_ops`` (R$ de las celdas con operaciones) y las razones
+    ``tasa_mora``, ``tasa_atraso``, ``tasa_apr``, ``peso`` (saldo / saldo total del producto), ``saldo_aa`` y
+    ``ticket`` (cart_ops / ops, R$) y ``ticket_real`` (R$ del último mes, IPCA).
+  * Aportes (renta, institución, ocupación), en fracción (pp / 100), suman el total en cada mes:
+    ``aporte_crec`` = (S_i,t − S_i,t−12) / S_total,t−12; para x en {mora, atraso}: ``aporte_x`` =
+    w_i,t·m_i,t − w_i,t−12·m_i,t−12, ``efecto_tasa_x`` = w̄_i·Δm_i, ``efecto_mezcla_x`` = m̄_i·Δw_i.
+  * Tres partes (dimensiones ``descomp_renta_primero`` y ``descomp_institucion_primero``, medidas ``mora`` y
+    ``atraso``): segmentos ``efecto_tasa`` (en celdas renta × institución), ``mezcla_renta``,
+    ``mezcla_institucion`` y ``variacion_total``. La mezcla del primer factor se mide sola; la del segundo es la
+    mezcla de las celdas menos la del primero.
+  * Meses de renta por operación (dimensión ``renta``, 7 tramos con renta): ``meses_renta_medio``,
+    ``meses_renta_piso`` (renta en el piso del tramo: cota alta) y ``meses_renta_techo`` (cota baja) = ticket /
+    (salario mínimo × múltiplo del tramo). «Hasta 1 SM» usa 0,75 / 0,5 / 1 y «Más de 20 SM» 20 en las tres.
+
+REGLAS
+------
+- SGS: el personal no consignado TOTAL (20574, 20666, 20742, 21114) ya incluye la renegociación (20575, 20667,
+  20743, 21115); el total de la hoja personal es personal + sobregiro y la renegociación es una parte, nunca un
+  sumando (validado el 10-nov: 20580 = 20574 + 20579).
+- Tarjeta: 22024 incluye el contado a tasa 0 y no se reconstruye con 22022/22023; la descomposición se hace contra la
+  tasa media reconstruida (rotativo + cuotas ponderadas por concesiones), que no es 22024.
+- Aportes: si un segmento no existe en t o en t−12, su tasa faltante toma la del otro período (todo su aporte cae en
+  mezcla). Celdas sin saldo pesan 0.
+- Agrupación de instituciones del canvas: Bancos, Cooperativas, Fintechs, Inst. de pago, Financieras y Otros. Difiere
+  de definiciones/scr_productos.json (que manda Fintech a «Otras»): es la que Pablo aprobó en la hoja Tarjeta.
+- Ocupación: asalariado privado incluye entidades sin fines de lucro; empresarios incluye MEI; el resto (incluido
+  el valor «Outros» de la fuente) va a «Otros».
+- Quiebres del SCR (no se suavizan): jul-25 reclasificación de renta; ago-26 ~R$ 15 mil millones de tarjeta pasan
+  de «más de 20 SM» a «Indisponível».
 ```
 
 ## `pipeline/preparar_gold_bancos_qcambio.py` (156 líneas)
@@ -931,7 +1036,7 @@ Salidas:
 Reintentos y descargas a disco: la única política de reintento del pipeline (bcb_api, ifdata, scr_zip).
 ```
 
-## `pipeline/ref.py` (395 líneas)
+## `pipeline/ref.py` (479 líneas)
 
 Importa del pipeline: `almacen`, `certificados`, `red`
 
@@ -950,8 +1055,9 @@ Trampas (verificadas el 9-nov-2026 sobre las ediciones 202304 a 202610):
 2. Cada hoja tiene su forma: título, «Fonte», notas, una fila de unidad («%», «R$ bilhões»), uno o dos niveles de
    encabezado (el superior en celdas combinadas que openpyxl lee como vacías a la derecha) y después los datos.
 3. Las fechas vienen como datetime, como «2020-12», o como «Jun\n2023» seguido de «Jul», «Ago»… sin año.
-4. Hay hojas sin eje temporal (distribuciones, tablas por categoría, escenarios de estrés): se guardan con
-   ``categoria`` en vez de ``fecha_ref``.
+4. Hay hojas sin eje temporal (distribuciones, tablas por categoría, resultados del estrés): se guardan con
+   ``categoria`` en vez de ``fecha_ref``. La hoja de supuestos del estrés («Grafs 1.2.5.1 a 1.2.5.5») tiene su
+   propio lector (leer_escenarios): bloques por variable, una fila por escenario y trimestres en columnas.
 5. Algunas columnas vienen vacías a propósito (el contrafactual de 1.2.2.21 solo existe en la proyección):
    no se rellena nada; una celda vacía no genera fila.
 
@@ -996,7 +1102,7 @@ ZIP anuales del SCR.data (``datos/crudo/bcb_scr/scrdata/actual/scrdata_<año>.zi
 - Valores con coma decimal y sin separador de miles.
 ```
 
-## `pipeline/sgs.py` (151 líneas)
+## `pipeline/sgs.py` (173 líneas)
 
 Importa del pipeline: `almacen`, `bcb_api`, `certificados`, `red`
 

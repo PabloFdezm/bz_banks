@@ -105,6 +105,14 @@
    "columnas": ["bloque", "orden", "fila", "grupo", "unidad_ultimo", "unidad_cambio", "trimestral", "ultimo", "d1", "d3", "d12", "dventana", "corte", "share", "z120"],
    "clave": ["bloque", "orden"]
   },
+  "bk_producto_pf_m": {
+   "columnas": ["producto", "sub", "medida", "fecha", "valor"],
+   "clave": ["producto", "sub", "medida", "fecha"]
+  },
+  "bk_producto_pf_scr_m": {
+   "columnas": ["producto", "dimension", "segmento", "medida", "fecha", "valor"],
+   "clave": ["producto", "dimension", "segmento", "medida", "fecha"]
+  },
   "bk_cred_series": {
    "columnas": ["serie", "fecha", "valor"],
    "clave": ["serie", "fecha"]

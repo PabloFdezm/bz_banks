@@ -54,6 +54,25 @@ CODIGOS = {
     "credito_pib": 20622, "pib_12m": 4382,
     "endividamento": 29037, "comprometimento": 29034,
     "desocupacion": 24369,                # PNADC (IBGE t6381|v4099)
+    # personas por producto (frente 12, hojas Tarjeta, Personal, Descuento por planilla y Vehículos; validado 10-nov).
+    # Ojo: el «não consignado total» (20574, 20666, 20742, 21114) YA incluye la renegociación «vinculado à composição
+    # de dívidas» (20575, 20667, 20743, 21115): 20580 = 20574 + 20579. No sumarlas.
+    # 22024 (tarjeta total) incluye la tarjeta al contado a tasa 0 y no se reconstruye con 22022/22023 (A.4).
+    "credito_pf_tarjeta_rotativo": 20587, "credito_pf_tarjeta_parcelado": 20588, "credito_pf_tarjeta_vista": 20589,
+    "credito_pf_cheque_especial": 20573, "credito_pf_personal_renegociacion": 20575,
+    "credito_pf_consignado_total": 20579,                 # = 20576 + 20577 + 20578
+    "conc_pf_tarjeta_total": 20682, "conc_pf_tarjeta_rotativo": 20679, "conc_pf_tarjeta_parcelado": 20680,
+    "conc_pf_tarjeta_vista": 20681, "conc_pf_cheque_especial": 20665, "conc_pf_personal": 20666,
+    "conc_pf_personal_renegociacion": 20667, "conc_pf_consignado_privado": 20668,
+    "conc_pf_consignado_publico": 20669, "conc_pf_consignado_inss": 20670, "conc_pf_consignado_total": 20671,
+    "conc_pf_vehiculos": 20673,
+    "tasa_pf_total": 20716, "tasa_pf_cheque_especial": 20741, "tasa_pf_personal": 20742,
+    "tasa_pf_personal_renegociacion": 20743, "tasa_pf_consignado_privado": 20744,
+    "tasa_pf_consignado_publico": 20745, "tasa_pf_consignado_inss": 20746, "tasa_pf_consignado_total": 20747,
+    "tasa_pf_vehiculos": 20749, "tasa_pf_tarjeta_rotativo": 22022, "tasa_pf_tarjeta_parcelado": 22023,
+    "tasa_pf_tarjeta_total": 22024,
+    "mora90_cheque_especial": 21113, "mora90_personal_renegociacion": 21115,
+    "salario_minimo": 1619,               # R$ (u.m.c.), para el ticket en meses de renta (P8)
 }
 
 

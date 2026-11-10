@@ -1,6 +1,7 @@
 # 10 · Capital mensual (sección 04 de la Portada)
 
-Estado: por revisar (Pablo, 9-nov-2026). Canvas: https://claude.ai/artifact/Prgu2BygZtvCDWBTF52ag8, láminas 12–14.
+Estado: cerrado el 9-nov-2026 (Pablo): la opción B se descarta (no pasa 0,3 pp) y la A pasa al frente 11
+(`11_fuente_balancetes.md`). Canvas: https://claude.ai/artifact/Prgu2BygZtvCDWBTF52ag8, láminas 12–14.
 
 ## Problema
 El capital regulatorio (CET1, Nivel I, Basilea, RWA, requerimiento) solo existe trimestral: IF.Data informe 5

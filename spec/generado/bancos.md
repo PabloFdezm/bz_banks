@@ -25,7 +25,7 @@
 | C0080185 | santander | Santander Brasil | Grandes | S1 | Privado extranjero | Tradicional | True | SANB11 | completa | 201403 | 202606 | nan |
 | C0080312 | abc | ABC Brasil | Medianos y nicho | S3 | Privado extranjero | Tradicional | True | ABCB4 | completa | 201403 | 202606 | nan |
 | C0080178 | bmg | BMG | Medianos y nicho | S3 | Privado nacional | Tradicional | True | BMGB4 | completa | 201403 | 202606 | nan |
-| C0080288 | brb | BRB | Medianos y nicho | S3 | Público | Tradicional | False | nan | panel | 201403 | 202606 | nan |
+| C0080288 | brb | BRB | Medianos y nicho | S3 | Público | Tradicional | False | nan | panel | 201403 | 202606 | Entrega IF.Data al día, pero no entrega ITR/DFP a la CVM de… |
 | C0080147 | banestes | Banestes | Medianos y nicho | S3 | Público | Tradicional | False | nan | panel | 201403 | 202606 | nan |
 | C0080154 | banrisul | Banrisul | Medianos y nicho | S2 | Público | Tradicional | True | BRSR6 | completa | 201403 | 202606 | nan |
 | C0081744 | daycoval | Daycoval | Medianos y nicho | S3 | Privado nacional | Tradicional | False | nan | panel | 201403 | 202606 | nan |
@@ -38,6 +38,6 @@
 | C0084710 | cielo | Cielo | Pagos | Sin segmento | Privado nacional | Fintech | False | nan | panel | 201712 | 202606 | Institución de pago dentro de conglomerado prudencial. |
 | C0086581 | cloudwalk | CloudWalk | Pagos | S4 | Privado nacional | Fintech | False | nan | panel | 202212 | 202606 | Institución de pago dentro de conglomerado prudencial. |
 | C0084820 | mercadopago | Mercado Pago | Pagos | S3 | Privado extranjero | Fintech | False | nan | panel | 201812 | 202606 | Institución de pago dentro de conglomerado prudencial. |
-| C0084813 | pagseguro | PagSeguro | Pagos | S3 | Privado nacional | Fintech | True | PAGS | completa | 201812 | 202606 | nan |
+| C0084813 | pagseguro | PagSeguro | Pagos | S3 | Privado nacional | Fintech | True | PAGS | completa | 201812 | 202606 | El vencido de más de 15 días es ínfimo (0,03 % de la carter… |
 | C0088022 | picpay | PicPay | Pagos | S3 | Privado nacional | Fintech | False | nan | panel | 202412 | 202606 | nan |
 | C0084686 | stone | Stone | Pagos | S3 | Privado extranjero | Fintech | True | STNE | completa | 201712 | 202606 | Institución de pago dentro de conglomerado prudencial. |

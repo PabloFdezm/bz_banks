@@ -1,4 +1,4 @@
-# Tareas pendientes · estado al 6-nov-2026
+# Tareas pendientes · estado al 10-nov-2026
 
 Lista ordenada por prioridad. Cada frente tiene su archivo con el detalle, los datos de contraste y el criterio de
 «terminado». Al cerrar una tarea, marcarla aquí con la fecha y actualizar `spec/08_estado_pendientes_y_riesgos.md`.
@@ -9,15 +9,18 @@ Lista ordenada por prioridad. Cada frente tiene su archivo con el detalle, los d
 | 2 | Módulo Personas (SCR.data por renda) | `02_modulo_personas_scr.md` | páginas Personas (B11) y Mora (B12) publicadas el 6-nov; canvas sin revisar por Pablo |
 | 3 | Réplica del reporte sell-side de crédito por renda (detalle en `referencias/`, fuera de git) | `03_replica_sellside.md` | **en pausa** (Pablo, 9-nov): la fuente sirve (sondeo en `03_replica_sellside.md`), pero bajar 2017–2026 son ~3,5 GB y medio día de trabajo |
 | 4 | Réplica de gráficos del REF (BCB, oct-26) | `04_replica_ref.md` | fuente `bcb_ref` construida el 9-nov (`bk_ref`, 8 ediciones del Anexo; informe en `borradores/ref_informe.md`); faltan las tarjetas, con el rediseño |
-| 5 | Rediseño de gráficos (cambio grande anunciado por Pablo) | `05_rediseno_graficos.md` | por definir |
+| 5 | Rediseño de gráficos (cambio grande anunciado por Pablo) | `05_rediseno_graficos.md` | en curso: decisiones del 9-nov (Portada en tres secciones mensuales, una página trimestral, estructura común); hoja Tarjeta aprobada el 10-nov; falta cerrarlo |
 | 6 | Operación: automatización, limpieza, deuda técnica | `06_operacion.md` | sitio en Cloudflare Pages desde el 6-nov; resto pendiente |
 | 7 | Fuente CVM (ITR/DFP) → `bk_publicado` | `07_fuente_cvm.md` | construido y commiteado el 9-nov; decisiones §7 cerradas el 9-nov (15 bancos, 202312–202609, ROE desde 1T24); la tarjeta B8-06-0 espera el rediseño |
 | 8 | Capital: informe 5 de IF.Data → `bk_capital` (página B7) | `08_fuente_capital.md` | construido el 9-nov (`pipeline/capital.py`, `bk_capital`, `bk_capital_grupo`, tests); 2T26 calza con el Pilar 3 de los 5 grandes; decisiones en `borradores/capital_informe.md` §6; B7 espera el rediseño |
-| 9 | Portada mensual (01 colocaciones, 02 precio, 03 NPL): series SGS por segmento y gold `bk_portada_m` | `09_portada_mensual_segmentos.md` | por hacer (spec del 9-nov; primero el barrido de códigos) |
+| 9 | Portada mensual (01 colocaciones, 02 precio, 03 NPL): series SGS por segmento y gold `bk_portada_m` | `09_portada_mensual_segmentos.md` | en curso: A1 (concesiones libre/dirigido, `bk_concesiones`) hecha el 9-nov (commit e8d4654); faltan A2 (precio), NPL y `bk_portada_m`. la versión anterior (`09_concesiones_libre_dirigido.md`) se borró el 10-nov |
 | 10 | Capital mensual: balancetes 4060 o estimación de la holgura (sección 04 de la Portada) | `10_capital_mensual.md` | cerrado el 9-nov: B descartada (no pasa 0,3 pp); A pasa al frente 11 |
-| 11 | Fuente nueva: balancetes mensuales COSIF → ROE, NIM, eficiencia, depósitos y capital mensuales | `11_fuente_balancetes.md` | en curso: sondeo aprobado el 9-nov (`borradores/balancetes_sondeo.md`); fase 2 |
+| 11 | Fuente nueva: balancetes mensuales COSIF → ROE, NIM, eficiencia, depósitos y capital mensuales | `11_fuente_balancetes.md` | sondeo aprobado el 9-nov (`borradores/balancetes_sondeo.md`); fase 2 (construcción) por hacer |
+| 12 | Hojas por producto de personas (Tarjeta, Personal sin planilla, Descuento por planilla y Vehículos): códigos SGS que faltan, gold por producto, verificaciones | `12_hoja_tarjeta.md` | en curso: A (códigos SGS) y B (`bk_producto_pf_m`, `bk_producto_pf_scr_m`) hechas el 10-nov; corregido el doble conteo de la hoja Personal; falta C (verificaciones) |
+| 13 | Hojas de empresas (MPME y Grandes): códigos SGS que faltan, modalidades PJ en el SCR, gold y verificaciones | `13_hojas_empresas.md` | por hacer (spec del 10-nov; las dos hojas están en el canvas con un borrador) |
+| 14 | Hoja «Fondeo y liquidez»: agregados monetarios y tasas de captación del SGS, gold `bk_fondeo_m` | `14_hoja_fondeo.md` | por hacer (spec del 10-nov; la hoja está en el canvas con un borrador) |
 
-Orden sugerido: 1 → 2 → 4 (fuente `bcb_ref`) → 3 → 5 → 6. El 5 puede cambiar cómo se construyen 2–4: preguntar a
+Orden sugerido (6-nov; no incluye los frentes 7–12, falta que Pablo lo reordene): 1 → 2 → 4 (fuente `bcb_ref`) → 3 → 5 → 6. El 5 puede cambiar cómo se construyen 2–4: preguntar a
 Pablo antes de construir páginas nuevas.
 
 ## To do (al cierre del 6-nov)
@@ -27,7 +30,8 @@ Netlify borrados; Personas y Mora publicadas y verificadas en 3 anchos; fuente S
 **Decisiones de Pablo**
 - [ ] Revisar las páginas Personas y Mora ya publicadas (y el canvas de Personas,
       https://claude.ai/artifact/HonVC1nA2y22S9EH3U1gKx): ¿quedan visibles o se ocultan hasta el rediseño?
-- [ ] Definir el rediseño de gráficos (frente 5); mientras, no se construyen páginas nuevas.
+- [ ] Cerrar el rediseño de gráficos (frente 5; decisiones del 9-nov en `05_rediseno_graficos.md`, hoja Tarjeta
+      aprobada el 10-nov); mientras, no se construyen páginas nuevas.
 - [ ] Coordinar las sesiones en paralelo: un frente por sesión.
 
 **Datos**

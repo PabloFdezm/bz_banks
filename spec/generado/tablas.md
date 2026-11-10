@@ -165,7 +165,7 @@ Carpeta `datos/gold/`.
 | `ticker_estado` | str | 62 | validar | 1 |
 | `ficha` | str | 0 | completa | 2 |
 | `color` | object | 100 |  | 0 |
-| `nota` | str | 76 | Incluye Banco Pan en el conglomerado prudencial; Pan no es separable en escopo prudencial. | 4 |
+| `nota` | str | 71 | Entrega IF.Data al día, pero no entrega ITR/DFP a la CVM desde el 2T25. En 2T26 la carter… | 6 |
 | `primer_periodo` | str | 0 | 201403 | 7 |
 | `ultimo_periodo` | str | 0 | 202606 | 1 |
 
@@ -327,6 +327,45 @@ Carpeta `datos/gold/`.
 | `exterior` | float64 | 64 | 293700778.06 | 1037 |
 | `brasil` | float64 | 3 | 131940902322.32 | 2637 |
 
+### `bk_concesiones`
+
+1,683 filas · 10 columnas · fecha: 2011-03-31 → 2026-09-30 · 0.09 MB
+
+| Columna | Tipo | % nulos | Ejemplo | Valores distintos |
+|---|---|---|---|---|
+| `segmento` | str | 0 | tot | 9 |
+| `fecha` | str | 0 | 2011-03-31 | 187 |
+| `concesiones` | float64 | 0 | 215654.0 | 1680 |
+| `conc_12m` | float64 | 6 | 2733927.0 | 1584 |
+| `conc_12m_aa` | float64 | 12 | 0.09426806202213878 | 1476 |
+| `conc_real_12m` | float64 | 6 | 6273800.280177835 | 1584 |
+| `ibc_12m` | float64 | 1 | 96.82733999999999 | 186 |
+| `indice` | float64 | 6 | 97.82186152642328 | 1575 |
+| `indice_aa` | float64 | 13 | 0.022570660202960946 | 1467 |
+| `indice_z120` | float64 | 70 | 1.7485622413044588 | 504 |
+
+### `bk_concesiones_tablas`
+
+27 filas · 15 columnas · — · 0.01 MB
+
+| Columna | Tipo | % nulos | Ejemplo | Valores distintos |
+|---|---|---|---|---|
+| `bloque` | str | 0 | mes | 3 |
+| `orden` | int64 | 0 | 0 | 9 |
+| `fila` | str | 0 | Total | 9 |
+| `grupo` | str | 0 | Total | 3 |
+| `unidad_ultimo` | str | 0 | brl_mm | 2 |
+| `unidad_cambio` | str | 0 | pct | 1 |
+| `trimestral` | bool | 0 | False | 1 |
+| `z120` | float64 | 67 | 1.5164829223656708 | 9 |
+| `ultimo` | float64 | 0 | 747.13 | 27 |
+| `d1` | float64 | 0 | 0.014858915688999108 | 27 |
+| `d3` | float64 | 0 | 0.03332653488885473 | 27 |
+| `d12` | float64 | 0 | 0.06724929005273883 | 27 |
+| `dventana` | float64 | 0 | 0.10492135067563524 | 27 |
+| `corte` | str | 0 | sep-26 | 2 |
+| `share` | float64 | 33 | 1.0 | 17 |
+
 ### `bk_cre_calidad`
 
 36,781 filas · 13 columnas · periodo: 201406 → 202606 · 0.44 MB
@@ -471,22 +510,22 @@ Carpeta `datos/gold/`.
 
 ### `bk_manifiesto`
 
-35 filas · 12 columnas · — · 0.01 MB
+40 filas · 12 columnas · — · 0.01 MB
 
 | Columna | Tipo | % nulos | Ejemplo | Valores distintos |
 |---|---|---|---|---|
 | `tipo` | str | 0 | tabla | 2 |
-| `tabla` | str | 9 | bk_banco | 32 |
-| `archivo` | str | 9 | bk_banco.parquet | 32 |
-| `filas` | float64 | 9 | 34.0 | 31 |
-| `columnas` | float64 | 9 | 17.0 | 16 |
-| `rango` | str | 29 | 2015-03-31–2026-06-30 | 14 |
-| `sha256` | str | 9 | 280bfed071740cd2261356e9a39189f1dc83a96750b33a0f234bbb6626b1aa47 | 32 |
-| `bytes` | float64 | 9 | 12217.0 | 32 |
-| `producido_por` | str | 9 | python -X utf8 preparar_gold_bancos.py base | 14 |
-| `universo` | str | 91 | Panel | 3 |
-| `ultimo_corte` | str | 91 | 2026-06-30 | 3 |
-| `nota` | str | 91 | IF.Data prudencial, trimestral | 3 |
+| `tabla` | str | 8 | bk_banco | 37 |
+| `archivo` | str | 8 | bk_banco.parquet | 37 |
+| `filas` | float64 | 8 | 34.0 | 36 |
+| `columnas` | float64 | 8 | 17.0 | 17 |
+| `rango` | str | 30 | 2015-03-31–2026-06-30 | 17 |
+| `sha256` | str | 8 | 441f33bbe906e2c6783f06d37e8a6ae3e07a3b09b6d14c0e0b2d5d9be3b7aee2 | 37 |
+| `bytes` | float64 | 8 | 13544.0 | 37 |
+| `producido_por` | str | 8 | python -X utf8 preparar_gold_bancos.py base | 16 |
+| `universo` | str | 92 | Panel | 3 |
+| `ultimo_corte` | str | 92 | 2026-06-30 | 3 |
+| `nota` | str | 92 | IF.Data prudencial, trimestral | 3 |
 
 ### `bk_metrica`
 
@@ -604,6 +643,31 @@ Carpeta `datos/gold/`.
 | `corte` | str | 0 | sep-26 | 2 |
 | `share` | float64 | 47 | 1.0 | 5 |
 
+### `bk_producto_pf_m`
+
+15,532 filas · 5 columnas · fecha: 2000-01-31 → 2026-09-30 · 0.12 MB
+
+| Columna | Tipo | % nulos | Ejemplo | Valores distintos |
+|---|---|---|---|---|
+| `producto` | str | 0 | tarjeta | 6 |
+| `sub` | str | 0 | total | 13 |
+| `medida` | str | 0 | saldo | 10 |
+| `fecha` | str | 0 | 2007-03-31 | 321 |
+| `valor` | float64 | 0 | 31285.0 | 13243 |
+
+### `bk_producto_pf_scr_m`
+
+643,488 filas · 6 columnas · fecha: 2018-01-31 → 2026-09-30 · 5.36 MB
+
+| Columna | Tipo | % nulos | Ejemplo | Valores distintos |
+|---|---|---|---|---|
+| `producto` | str | 0 | tarjeta | 4 |
+| `dimension` | str | 0 | total | 9 |
+| `segmento` | str | 0 | Total | 114 |
+| `medida` | str | 0 | saldo | 25 |
+| `fecha` | str | 0 | 2018-01-31 | 105 |
+| `valor` | float64 | 0 | 203907904862.24 | 621494 |
+
 ### `bk_publicado`
 
 2,019 filas · 14 columnas · periodo: 202312 → 202609 · 0.04 MB
@@ -668,21 +732,39 @@ Carpeta `datos/gold/`.
 
 ### `bk_ref`
 
-303,953 filas · 11 columnas · — · 1.73 MB
+306,577 filas · 11 columnas · — · 1.77 MB
 
 | Columna | Tipo | % nulos | Ejemplo | Valores distintos |
 |---|---|---|---|---|
 | `edicion` | str | 0 | 202304 | 8 |
-| `hoja` | str | 0 | Graf 1.1.2 | 232 |
-| `grafico` | str | 0 | 1.1.2 | 228 |
-| `titulo` | str | 0 | Gráfico 1.1.2 – Taxas de política monetária em economias avançadas | 649 |
+| `hoja` | str | 0 | Graf 1.1.2 | 233 |
+| `grafico` | str | 0 | 1.1.2 | 229 |
+| `titulo` | str | 0 | Gráfico 1.1.2 – Taxas de política monetária em economias avançadas | 650 |
 | `unidad` | str | 0 |  | 25 |
 | `tipo` | str | 0 | serie | 2 |
-| `serie` | str | 0 | EUA | 1349 |
-| `orden` | int64 | 0 | 8 | 5653 |
-| `fecha_ref` | str | 9 | 2019-03 | 309 |
+| `serie` | str | 0 | EUA | 1375 |
+| `orden` | int64 | 0 | 8 | 6037 |
+| `fecha_ref` | str | 9 | 2019-03 | 315 |
 | `categoria` | str | 0 |  | 1399 |
-| `valor` | float64 | 0 | 2.5 | 80223 |
+| `valor` | float64 | 0 | 2.5 | 81584 |
+
+### `bk_ref_sitio`
+
+1,166 filas · 11 columnas · — · 0.01 MB
+
+| Columna | Tipo | % nulos | Ejemplo | Valores distintos |
+|---|---|---|---|---|
+| `edicion` | str | 0 | 202610 | 1 |
+| `hoja` | str | 0 | Graf 1.2.3.1 | 3 |
+| `grafico` | str | 0 | 1.2.3.1 | 3 |
+| `titulo` | str | 0 | Gráfico 1.2.3.1 - Evolução do ROE dos segmentos do SFN | 3 |
+| `unidad` | str | 0 |  | 2 |
+| `tipo` | str | 0 | serie | 1 |
+| `serie` | str | 0 | SFN \| LL | 29 |
+| `orden` | int64 | 0 | 10 | 56 |
+| `fecha_ref` | str | 0 | 2020-12 | 59 |
+| `categoria` | str | 0 |  | 1 |
+| `valor` | float64 | 0 | 119383060387.0 | 616 |
 
 ### `bk_roe_arbol`
 
