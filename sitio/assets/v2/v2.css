@@ -84,3 +84,8 @@ html.v2-dialogo { overflow: hidden; }
 .v2-pres-t { font-size: 13px; color: var(--suave); max-width: 360px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-right: 4px; }
 .v2-pres-n { font: 500 13px 'IBM Plex Mono', monospace; min-width: 56px; text-align: center; }
 .v2-pres .v2-b { height: 32px; padding: 0 10px; }
+
+/* 404 */
+.v2-404 main { margin: 0; padding: 96px 48px; }
+.v2-404 h1 { font-family: 'Bricolage Grotesque', sans-serif; font-size: 32px; margin: 16px 0; }
+.v2-404 a { color: var(--acento); }

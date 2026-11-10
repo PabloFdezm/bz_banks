@@ -8,9 +8,9 @@ Entrada:
 - Datos: `tareas/borradores/_salida/v2/<hoja>.json` (fuera de git: los datos de cada hoja tal como están en el canvas
   aprobado) → `sitio/data/v2/<hoja>.json`. Las hojas de la Portada traen sus datos dentro (const D) y no usan JSON.
 
-Salida (todo dentro de `sitio/`, que publica `publicar.bat`):
+Salida (todo dentro de `sitio/`, que publica `publicar.bat`; el sitio entero es esto desde el 10-nov):
 - `assets/v2/componentes/<Nombre>.js` y `assets/v2/paginas/<Nombre>.js`: módulos ES con la plantilla y la clase.
-- `v2/<ruta>/index.html`: página con el menú común.
+- `<ruta>/index.html` para cada página, `index.html` (la Portada) y `404.html`.
 - `data/v2/<slug>.json`.
 
     Set-Location C:\\dev\\bz_banks; python -X utf8 herramientas/construir_v2.py
@@ -75,9 +75,9 @@ def menu(paginas, actual):
         items = []
         for p in ps:
             if p['ruta'] == actual:
-                items.append('<li><a href="/v2/' + p['ruta'] + '/" aria-current="page">' + p['menu'] + '</a><ol class="v2-secs" id="v2-secs"></ol></li>')
+                items.append('<li><a href="/' + p['ruta'] + '/" aria-current="page">' + p['menu'] + '</a><ol class="v2-secs" id="v2-secs"></ol></li>')
             else:
-                items.append('<li><a href="/v2/' + p['ruta'] + '/">' + p['menu'] + '</a></li>')
+                items.append('<li><a href="/' + p['ruta'] + '/">' + p['menu'] + '</a></li>')
         out.append('<div class="v2-grupo"><p class="v2-g">' + g + '</p><ul>' + ''.join(items) + '</ul></div>')
     return ''.join(out)
 
@@ -97,7 +97,7 @@ SHELL = """<!doctype html>
 <a class="v2-saltar" href="#contenido-principal">Saltar al contenido</a>
 <aside class="v2-lateral" id="v2-lateral">
   <div class="v2-lat-cab">
-    <a class="v2-marca" href="/v2/">Bancos Brasil</a>
+    <a class="v2-marca" href="/">Bancos Brasil</a>
     <button class="v2-plegar" id="v2-plegar" type="button" aria-controls="v2-lateral" aria-expanded="true" title="Ocultar el menú"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M11 4 6 9l5 5"/></svg><span class="v2-sr">Ocultar el menú</span></button>
   </div>
   <nav class="v2-nav" aria-label="Páginas">{menu}</nav>
@@ -127,6 +127,22 @@ iniciar({hojas}, {titulo_js});
 """
 
 
+NO_ENCONTRADA = """<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Página no encontrada · Bancos Brasil</title>
+<link rel="stylesheet" href="/assets/v2/v2.css">
+</head>
+<body class="v2-404">
+<main id="contenido-principal"><p class="v2-marca">Bancos Brasil</p><h1>Esta página no existe</h1><p><a href="/">Ir a la Portada</a></p></main>
+</body>
+</html>
+"""
+
+
 def main() -> int:
     cfg = json.loads((CANVAS / 'paginas.json').read_text(encoding='utf-8'))
     paginas, componentes = cfg['paginas'], cfg['componentes']
@@ -149,13 +165,14 @@ def main() -> int:
                 if destino.stat().st_size > LIMITE:
                     raise SystemExit(f'{destino} pasa el límite de 25 MiB de Cloudflare Pages')
             hojas.append({'hoja': h, 'datos': h if con_datos else None})
-        carpeta = SITIO / 'v2' / p['ruta']
+        carpeta = SITIO / p['ruta']
         carpeta.mkdir(parents=True, exist_ok=True)
         (carpeta / 'index.html').write_text(SHELL.format(titulo=p['titulo'], menu=menu(paginas, p['ruta']), hojas=json.dumps(hojas), titulo_js=json.dumps(p['titulo'], ensure_ascii=False)), encoding='utf-8')
-        print(f'v2/{p["ruta"]}/  ←  ' + ', '.join(p['hojas']))
-    # portada del v2: redirige a la primera página
-    (SITIO / 'v2').mkdir(exist_ok=True)
-    (SITIO / 'v2' / 'index.html').write_text(f'<!doctype html><meta charset="utf-8"><meta http-equiv="refresh" content="0; url=/v2/{paginas[0]["ruta"]}/"><title>Bancos Brasil</title>', encoding='utf-8')
+        print(f'{p["ruta"]}/  ←  ' + ', '.join(p['hojas']))
+    # Raíz del sitio: la primera página (Portada) también en /, y una 404 con el mismo marco.
+    p0 = paginas[0]
+    (SITIO / 'index.html').write_text((SITIO / p0['ruta'] / 'index.html').read_text(encoding='utf-8'), encoding='utf-8')
+    (SITIO / '404.html').write_text(NO_ENCONTRADA, encoding='utf-8')
     return 0
 
 

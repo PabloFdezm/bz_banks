@@ -1,0 +1,22 @@
+# Sitio actual (rediseño, 10-nov-2026). El sitio anterior se retiró: sus rutas llevan a la página equivalente.
+/v2/* /:splat 301
+/mora /portada/ 301
+/mora/ /portada/ 301
+/ciclo /portada/ 301
+/ciclo/ /portada/ 301
+/metodologia /portada/ 301
+/metodologia/ /portada/ 301
+/calidad /trimestral/ 301
+/calidad/ /trimestral/ 301
+/rentabilidad /trimestral/ 301
+/rentabilidad/ /trimestral/ 301
+/capital /trimestral/ 301
+/capital/ /trimestral/ 301
+/personas /tarjeta/ 301
+/personas/ /tarjeta/ 301
+/ficha /pyb/ 301
+/ficha/ /pyb/ 301
+/comparador /agregados/ 301
+/comparador/ /agregados/ 301
+/competencia /agregados/ 301
+/competencia/ /agregados/ 301
