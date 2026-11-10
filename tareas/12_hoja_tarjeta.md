@@ -115,8 +115,11 @@ Informe: `borradores/tarjeta_verificaciones.md` (puntos 1–7, con personal y pl
   hoja no tiene campo de bandas; se dibujan en el canvas). P9 sigue con «Más de 3 SM y sin dato».
 - **Selic:** la referencia pasa a la Selic efectiva del mes (SGS 4189, `selic_efectiva_mes`), en vez de la meta a fin de mes.
 - Corregida la nota de quiebres de `preparar_gold_bancos_scr_productos.py` (no hubo traspaso a N.D. en ago-26).
-Propuestas sin decidir: rótulo «Otros / no informado (SCR)» en ocupación, ticket «por operación», IP de personal a
-«Otros», notas de P7 (personal) y P9 (planilla).
+Aplicadas también el 10-nov (Pablo): ocupación «Otros / no informado (SCR)» en gris; «saldo medio por operación» en
+vez de «ticket»; IP de personal sumadas a «Otros» (`OTROS_INSTITUCION` en el gold); notas en P7 de personal y P9 de
+planilla (campo `nota` de la sección); P9 con tres grupos (hasta 3 SM, más de 3 SM y sin renta; en tarjeta, sep-26:
+14,1 %, 7,7 % y 26,2 %). Los JSON traen un campo `bandas` (sección, mes, texto) con jul-25, ene-26, jul-26, ene-25
+(Res. 4.966) y mar-25 (planilla): falta que el canvas lea `bandas` y `nota`.
 
 ## Parte C · Verificaciones abiertas (informar antes de cerrar)
 1. **Instituciones de pago sin mora.** En tarjeta tienen ~R$ 117 mil millones y 0,4 % de activo problemático (sep-26);

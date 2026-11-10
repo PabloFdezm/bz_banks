@@ -770,7 +770,7 @@ REGLAS
   activos y crédito total desde bk_panel (share_ativo, share_credito). Solo conglomerados del panel.
 ```
 
-## `pipeline/preparar_gold_bancos_producto_pf.py` (361 líneas)
+## `pipeline/preparar_gold_bancos_producto_pf.py` (368 líneas)
 
 Importa del pipeline: `almacen`, `preparar_gold_bancos_scr_productos`, `sgs`, `tabla_estandar`
 
@@ -798,8 +798,8 @@ TABLAS (datos/gold/)
   personal, planilla y vehiculos. Las instituciones de pago tienen solo tarjeta al contado: la mora por institución
   de la tarjeta se lee en tarjeta_interes (verificaciones del 10-nov).
   * Dimensiones: ``total`` (segmento «Total»), ``renta`` (7 tramos + «Sin renta / N.D.»), ``institucion``,
-    ``ocupacion``, ``renta_institucion`` y ``renta_ocupacion`` (celdas «tramo · institución» y «tramo · ocupación») y ``tope_3sm`` («Hasta 3 SM» y
-    «Más de 3 SM y sin dato»).
+    ``ocupacion``, ``renta_institucion`` y ``renta_ocupacion`` (celdas «tramo · institución» y «tramo · ocupación») y ``tope_3sm`` («Hasta 3 SM»,
+    «Más de 3 SM» y «Sin renta / N.D.», aparte desde el 10-nov).
   * Medidas de nivel (todas las dimensiones): ``saldo``, ``mora90``, ``atraso15_90``, ``activo_problematico``
     (R$), ``ops`` (número de operaciones), ``cart_ops`` (R$ de las celdas con operaciones) y las razones
     ``tasa_mora``, ``tasa_atraso``, ``tasa_apr``, ``peso`` (saldo / saldo total del producto), ``saldo_aa`` y

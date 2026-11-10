@@ -22,8 +22,8 @@ TABLAS (datos/gold/)
   personal, planilla y vehiculos. Las instituciones de pago tienen solo tarjeta al contado: la mora por institución
   de la tarjeta se lee en tarjeta_interes (verificaciones del 10-nov).
   * Dimensiones: ``total`` (segmento «Total»), ``renta`` (7 tramos + «Sin renta / N.D.»), ``institucion``,
-    ``ocupacion``, ``renta_institucion`` y ``renta_ocupacion`` (celdas «tramo · institución» y «tramo · ocupación») y ``tope_3sm`` («Hasta 3 SM» y
-    «Más de 3 SM y sin dato»).
+    ``ocupacion``, ``renta_institucion`` y ``renta_ocupacion`` (celdas «tramo · institución» y «tramo · ocupación») y ``tope_3sm`` («Hasta 3 SM»,
+    «Más de 3 SM» y «Sin renta / N.D.», aparte desde el 10-nov).
   * Medidas de nivel (todas las dimensiones): ``saldo``, ``mora90``, ``atraso15_90``, ``activo_problematico``
     (R$), ``ops`` (número de operaciones), ``cart_ops`` (R$ de las celdas con operaciones) y las razones
     ``tasa_mora``, ``tasa_atraso``, ``tasa_apr``, ``peso`` (saldo / saldo total del producto), ``saldo_aa`` y
@@ -132,7 +132,7 @@ ORDEN = {
     "institucion": ["Bancos", "Cooperativas", "Fintechs", "Inst. de pago", "Financieras", "Otros"],
     "ocupacion": ["Asalariado privado", "Servidor público", "Jubilados", "Autónomos",
                   "Empresarios y microempresarios", "Otros"],
-    "tope_3sm": ["Hasta 3 SM", "Más de 3 SM y sin dato"],
+    "tope_3sm": ["Hasta 3 SM", "Más de 3 SM", "Sin renta / N.D."],
 }
 INSTITUCIONES = {"Banco": "Bancos", "Cooperativa": "Cooperativas", "Fintech": "Fintechs",
                  "Instituição de pagamento": "Inst. de pago", "Financeira": "Financieras"}
@@ -140,6 +140,9 @@ OCUPACIONES = {"Aposentado/pensionista": "Jubilados", "Empregado de empresa priv
                "Empregado de entidades sem fins lucrativos": "Asalariado privado",
                "Servidor ou empregado público": "Servidor público", "Autônomo": "Autónomos",
                "Empresário": "Empresarios y microempresarios", "MEI": "Empresarios y microempresarios"}
+# Instituciones que se suman a «Otros» en un producto: en personal las IP son R$ 0,14 mil millones (0,04 %), todo
+# con renta «Sem rendimento» y mora ~32 %; aparte solo distraen (verificaciones del 10-nov, punto 6).
+OTROS_INSTITUCION = {"personal": ["Inst. de pago"]}
 # múltiplo del salario mínimo por tramo: (punto medio, piso, techo)
 MULTIPLO_SM = {"Hasta 1 SM": (0.75, 0.5, 1), "1–2 SM": (1.5, 1, 2), "2–3 SM": (2.5, 2, 3), "3–5 SM": (4, 3, 5),
                "5–10 SM": (7.5, 5, 10), "10–20 SM": (15, 10, 20), "Más de 20 SM": (20, 20, 20)}
@@ -220,7 +223,8 @@ def preparar_cubo(cubo: pd.DataFrame) -> pd.DataFrame:
     c["renta"] = c["porte"].map(TRAMOS).fillna(SIN_RENTA)
     c["institucion"] = c["segmento"].map(INSTITUCIONES).fillna("Otros")
     c["ocupacion"] = c["cnae_ocupacao"].map(OCUPACIONES).fillna("Otros")
-    c["tope_3sm"] = np.where(c["porte"].isin(list(TRAMOS)[:3]), "Hasta 3 SM", "Más de 3 SM y sin dato")
+    c["tope_3sm"] = np.select([c["porte"].isin(list(TRAMOS)[:3]), c["porte"].isin(list(TRAMOS)[3:])],
+                              ["Hasta 3 SM", "Más de 3 SM"], SIN_RENTA)
     c["renta_institucion"] = c["renta"] + " · " + c["institucion"]
     c["renta_ocupacion"] = c["renta"] + " · " + c["ocupacion"]
     c["total"] = "Total"
@@ -326,6 +330,9 @@ def construir_scr(cubo: pd.DataFrame, salario_minimo: pd.Series, deflactor: pd.S
     out = []
     for producto, nombres in PRODUCTOS_SCR.items():
         x = c[c["producto"].isin(nombres)]
+        if producto in OTROS_INSTITUCION:                         # segmentos sin peso que van a «Otros»
+            inst = x["institucion"].replace({s: "Otros" for s in OTROS_INSTITUCION[producto]})
+            x = x.assign(institucion=inst, renta_institucion=x["renta"] + " · " + inst)
         if set(nombres) - set(x["producto"]):
             raise ValueError(f"el cubo SCR no tiene {sorted(set(nombres) - set(x['producto']))}")
         for df in construir_producto_scr(x, salario_minimo, deflactor):

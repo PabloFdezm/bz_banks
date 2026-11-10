@@ -657,7 +657,7 @@ Carpeta `datos/gold/`.
 
 ### `bk_producto_pf_scr_m`
 
-960,968 filas · 6 columnas · fecha: 2018-01-31 → 2026-09-30 · 7.80 MB
+965,957 filas · 6 columnas · fecha: 2018-01-31 → 2026-09-30 · 7.85 MB
 
 | Columna | Tipo | % nulos | Ejemplo | Valores distintos |
 |---|---|---|---|---|
@@ -666,7 +666,7 @@ Carpeta `datos/gold/`.
 | `segmento` | str | 0 | Total | 114 |
 | `medida` | str | 0 | saldo | 25 |
 | `fecha` | str | 0 | 2018-01-31 | 105 |
-| `valor` | float64 | 0 | 203907904862.24 | 913050 |
+| `valor` | float64 | 0 | 203907904862.24 | 911723 |
 
 ### `bk_publicado`
 
