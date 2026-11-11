@@ -15,14 +15,17 @@
    "1.2.2.21.a": ["Observada", "Contrafactual"],
    "1.2.2.21.b": ["Observada", "Contrafactual"],
    "1.2.2.21.c": ["Observada", "Contrafactual"],
-   "1.2.3.1": [],
+   "1.2.3.1": ["S1 Privados | ROE", "S1 Privados | LL", "S1 Privados | PLA", "Públicos | ROE", "Públicos | LL", "Públicos | PLA", "Demais IFs | ROE", "Demais IFs | LL", "Demais IFs | PLA", "SNCC | ROE", "SNCC | LL", "SNCC | PLA", "Digitais | ROE", "Digitais | LL", "Digitais | PLA", "SFN | ROE", "SFN | LL", "SFN | PLA", "Ke | CoE_BRL_Min", "Ke | CoE_BRL_Max"],
    "1.2.3.5": ["SFN", "S1 Privados", "Públicos", "Demais IFs", "Digitais (esquerda)", "SNCC"],
-   "1.2.3.8": [],
+   "1.2.3.8": ["SFN", "S1 Privados", "Públicos", "Demais IFs", "Digitais", "SNCC"],
+   "1.2.3.4": ["Retorno do crédito", "Custo de captação", "Margem de crédito", "Margem de crédito ajustada ao risco", "Selic"],
+   "1.2.5.1-1.2.5.5": ["PIB | Cenário Base", "PIB | Recessão aguda", "PIB | Crise de confiança", "Selic | Cenário Base", "Selic | Recessão aguda", "Selic | Crise de confiança", "Desemprego | Cenário Base", "Desemprego | Recessão aguda", "Desemprego | Crise de confiança", "Inflação | Cenário Base", "Inflação | Recessão aguda", "Inflação | Crise de confiança", "Câmbio | Cenário Base", "Câmbio | Recessão aguda", "Câmbio | Crise de confiança", "Inflação | Meta de Inflação"],
+   "1.2.5.7": [],
    "1.2.4.1": ["Sistema | ICP (1)", "Sistema | INI (2)", "Sistema | IB (3)", "Sistema | RA (4)"]
   }
  },
  "sitio": {
-  "descripcion": "Gráficos que se exportan al sitio como bk_ref_sitio, solo de la última edición. Hoy: ROE, costo de provisiones y eficiencia por segmento (1.2.3.x), decididos por Pablo el 9-nov-2026. La tarjeta de estrés (1.2.5.x) se agrega cuando se apruebe en el canvas.",
+  "descripcion": "Gráficos que se exportan al sitio como bk_ref_sitio, solo de la última edición. Hoy: ROE, costo de provisiones y eficiencia por segmento (1.2.3.x), decididos por Pablo el 9-nov-2026. La hoja «Ref» de Agregados (secciones 09–11, aprobada por Pablo el 11-nov-2026) lee bk_ref directo con tareas/borradores/_salida/extraer_ref.py; sus gráficos y series están en «usados».",
   "graficos": ["1.2.3.1", "1.2.3.5", "1.2.3.8"]
  },
  "_unidades_por_clave": "Unidad de los gráficos cuya hoja del anexo no trae fila de unidad, por clave de título (ref.clave_titulo: estable entre ediciones; el número del gráfico no). Verificado el 10-nov contra el Excel crudo 202610 (tareas/borradores/fondeo_verificaciones.md, punto 2): las sumas cuadran con 1.2.1.3, que sí trae «R$».",

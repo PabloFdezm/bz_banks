@@ -112,7 +112,8 @@
       "menu": "Agregados",
       "grupo": "Bancos",
       "hojas": [
-        "Ficha"
+        "Ficha",
+        "Ref"
       ]
     },
     {

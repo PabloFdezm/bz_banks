@@ -44,7 +44,8 @@ Todo lo de hoy está publicado en https://banks-bz.pages.dev. Detalle de cada fr
 - [x] Sección 04 de la Portada (ROE 12m y depósitos a/a por grupo, balancetes): aprobada y publicada el 11-nov.
 - [x] Portada: las series de contexto (crédito/PIB por segmento, crédito real, impulso, ciclo HP, Selic, CDI, ICC,
       mora por producto y por empresa) salen de gold y avanzan con cada mes (11-nov). Códigos nuevos SGS 20623–20628.
-- [ ] Frente 4 (REF): tarjeta de estrés y tarjetas por segmento.
+- [x] Frente 4 (REF): secciones 09–11 de Agregados (hoja `Ref`): ROE y costo de provisiones por segmento del SFN,
+      eficiencia y margen de crédito, prueba de estrés (necesidad de capital y escenarios). Aprobado y publicado el 11-nov.
 - [ ] Rehacer Calidad, Rentabilidad y Ficha en v3.
 - [ ] Frente 14: partida que falta en M3 (no está en 27792–27802); buscar en la nota metodológica del BCB.
 - [ ] Frente 16: confirmar con notas del BCB/Abecip el traslado de concesiones de mercado a regulada; poupança SBPE

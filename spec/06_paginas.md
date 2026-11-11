@@ -34,7 +34,7 @@ Verificación en navegador: `herramientas/verificar_f1.py` (las 13 páginas en 1
 | Empresas | MPME | `/mpme/` | 01 Volumen · 02 Producto · 03 Precio · 04 Calidad · 05 Qué movió la mora · 06 Sector · 07 Porte · 08 Emisor · 09 Riesgo prospectivo · 10 Saldo medio y operaciones |
 | Empresas | Grandes | `/grandes/` | Como MPME, sin Porte; 09 Crédito amplio |
 | Fondeo | Fondeo y liquidez | `/fondeo/` | 01 Volumen · 02 Precio · 03 Instrumentos · 04 Inversionista y canal · 05 Por grupo de bancos · 06 Liquidez · 07 Captación externa |
-| Bancos | Bancos · agregados | `/agregados/` | 01 Rentabilidad · 02 Margen y riesgo · 03 Eficiencia · 04 Crédito · 05 Calidad · 06 Fondeo · 07 Capital · 08 Estructura |
+| Bancos | Bancos · agregados | `/agregados/` | 01 Rentabilidad · 02 Margen y riesgo · 03 Eficiencia · 04 Crédito · 05 Calidad · 06 Fondeo · 07 Capital · 08 Estructura · 09 Rentabilidad del SFN · 10 Eficiencia del SFN · 11 Prueba de estrés (hoja `Ref`, REF del BCB) |
 | Bancos | P&L y balance por banco | `/pyb/` | 01 Estado de resultados · 02 Balance · 03 Resultado · 04 Margen y riesgo · 05 Servicios y gastos · 06 Estructura del balance · 07 Capital · 08 Sensibilidad a la Selic |
 
 Datos: la Portada lleva sus cifras dentro de las hojas (`herramientas/portada_desde_gold.py` las recarga desde

@@ -8,7 +8,7 @@ Lista ordenada por prioridad. Cada frente tiene su archivo con el detalle, los d
 | 1 | Correcciones de datos detectadas en la auditoría del 6-nov | `01_correcciones_datos.md` | 1.1–1.5 cerradas el 6-nov (1.2: se deja el corte mixto); 1.6 hecha el 9-nov (falta publicar); 1.7 hecha y publicada el 8-nov; 1.8 (S4 4.095 % a/a en Trimestral) anotada el 11-nov, por revisar |
 | 2 | Módulo Personas (SCR.data por renda) | `02_modulo_personas_scr.md` | páginas Personas (B11) y Mora (B12) publicadas el 6-nov; canvas sin revisar por Pablo |
 | 3 | Réplica del reporte sell-side de crédito por renda (detalle en `referencias/`, fuera de git) | `03_replica_sellside.md` | **en pausa** (Pablo, 9-nov): la fuente sirve (sondeo en `03_replica_sellside.md`), pero bajar 2017–2026 son ~3,5 GB y medio día de trabajo |
-| 4 | Réplica de gráficos del REF (BCB, oct-26) | `04_replica_ref.md` | fuente `bcb_ref` construida el 9-nov (`bk_ref`, 8 ediciones del Anexo; informe en `borradores/ref_informe.md`); faltan las tarjetas, con el rediseño |
+| 4 | Réplica de gráficos del REF (BCB, oct-26) | `04_replica_ref.md` | fuente `bcb_ref` construida el 9-nov (`bk_ref`, 8 ediciones del Anexo; informe en `borradores/ref_informe.md`); tarjetas publicadas el 11-nov (Agregados 09–11) |
 | 5 | Rediseño de gráficos (cambio grande anunciado por Pablo) | `05_rediseno_graficos.md` | hojas del canvas aprobadas el 10-nov; sitio v2 construido (`/v2/`, motor `sitio/assets/v2/dc.js`); pendiente: datos de v2 desde el pipeline, pasar la raíz a v2 y móvil |
 | 6 | Operación: automatización, limpieza, deuda técnica | `06_operacion.md` | sitio en Cloudflare Pages desde el 6-nov; resto pendiente |
 | 7 | Fuente CVM (ITR/DFP) → `bk_publicado` | `07_fuente_cvm.md` | construido y commiteado el 9-nov; decisiones §7 cerradas el 9-nov (15 bancos, 202312–202609, ROE desde 1T24); la tarjeta B8-06-0 espera el rediseño |
@@ -51,8 +51,8 @@ Netlify borrados; Personas y Mora publicadas y verificadas en 3 anchos; fuente S
 - [ ] Frente 3 en pausa (decisión de Pablo, 9-nov: ~3,5 GB y medio día). Sondeo hecho: `sr` desde 2017-06,
       `tcb` vacío desde 2025-07. Si se retoma, una alternativa más chica es bajar solo los últimos 2–3 años.
 - [ ] Frente 4: fuente `bk_ref` hecha el 9-nov. Decidido (Pablo, 9-nov): Mora sigue con SCR.data propio y el REF
-      como control; ROE y provisiones por segmento desde el REF. Faltan la tarjeta de estrés, qué exportar y las
-      tarjetas (con el rediseño).
+      como control; ROE y provisiones por segmento desde el REF. Tarjetas hechas el 11-nov: secciones 09–11 de Agregados
+      (hoja `Ref`, `_salida/extraer_ref.py`), aprobadas y publicadas.
 - [x] spec/08 punto 5: nombres SGS validados contra el catálogo oficial el 9-nov (`herramientas/validar_sgs.py`).
 - [x] spec/08 punto 6: crecimientos a/a de crédito, activo y depósitos vacíos en 2025 (8-nov; antes salían mal).
       Opcional: medirlos con `bk_cartera`. El a/a de 2024-T4 se deja (revisado el 9-nov): el trimestre es anómalo

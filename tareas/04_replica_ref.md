@@ -126,3 +126,20 @@ espera la aprobación de Pablo.
 
 **Script:** `tareas/borradores/agg_scr_sector.py` agrega por mes × cliente × sección CNAE u ocupación × grupo de
 modalidad.
+
+## Avance 11-nov: tarjetas en el sitio (aprobadas por Pablo)
+Hoja `diseno/canvas/Ref.dc.html`, montada debajo de `Ficha` en `/agregados/`. Datos: `tareas/borradores/_salida/extraer_ref.py`
+→ `_salida/v2/Ref.json` (última edición de `bk_ref`; valida el título de cada gráfico porque la numeración cambia entre ediciones).
+
+| Sección | Gráfico (izq.) | REF |
+|---|---|---|
+| 09 Rentabilidad del SFN | ROE 12 m por segmento con la banda del costo del capital (Agrandar: utilidad y patrimonio) | 1.2.3.1 |
+| | Costo de provisiones 12 m por segmento | 1.2.3.5 |
+| 10 Eficiencia del SFN | Índice de eficiencia por segmento (el BCB lo publica con 2 decimales en fracción) | 1.2.3.8 |
+| | Margen de crédito y componentes, con la Selic | 1.2.3.4 |
+| 11 Prueba de estrés | Necesidad de capital, % del PR, recesión aguda y crisis de confianza; nota con el pico | 1.2.5.7 |
+| | PIB por escenario (Agrandar: Selic, desempleo, inflación con meta, cambio) | 1.2.5.1–5 |
+
+Fuera, por no leerse limpio: bottom-up de Basilea (1.2.5.10, cajas apiladas) y distribución de activos por tramo de
+capital (1.2.5.6, categórico). Las series usadas están en `definiciones/bcb_ref.json` («usados»): si el BCB renombra
+una, falla el test. Con una edición nueva del REF: `ref.py descargar` y `gold`, `extraer_ref.py`, `construir_v2.py`, publicar.
