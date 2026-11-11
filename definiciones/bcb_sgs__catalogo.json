@@ -1178,6 +1178,18 @@
    "nombre": "Meios de pagamento amplos - Depósito de Poupança (saldo em final de período)",
    "unidad": "u.m.c. (mil)",
    "periodicidad": "M"
+  },
+  "ivg_r": {
+   "codigo": 21340,
+   "nombre": "Índice de Valores de Garantia de Imóveis Residenciais Financiados (IVG-R)",
+   "unidad": "Índice",
+   "periodicidad": "M"
+  },
+  "captacion_sbpe_diaria": {
+   "codigo": 240,
+   "nombre": "Captação líquida diária de depósitos de poupança - SBPE",
+   "unidad": "u.m.c. (mil)",
+   "periodicidad": "D"
   }
  }
 }

@@ -118,3 +118,10 @@ def test_gold_poupanca_en_r_mil(gold):
     s = _piv(gold, "saldo")["ahorro"]
     assert s.loc["2020-01-31":].between(5e5, 2e6).all()
     assert (_piv(gold, "share_m2")["ahorro"].loc["2020-01-31":].between(0.08, 0.35)).all()
+
+
+def test_flujo_mensual_suma_dias_y_descarta_mes_incompleto():
+    idx = pd.to_datetime(["2026-07-01", "2026-07-31", "2026-08-03", "2026-08-31", "2026-09-01", "2026-09-15"])
+    m = F.flujo_mensual(pd.Series([1.0, 2.0, 3.0, 4.0, 5.0, 6.0], index=idx))
+    assert list(m.index.astype(str)) == ["2026-07", "2026-08"]      # septiembre llega al 15: fuera
+    assert list(m) == [3.0, 7.0]

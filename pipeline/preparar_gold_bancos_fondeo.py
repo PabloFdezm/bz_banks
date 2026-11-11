@@ -14,6 +14,8 @@ TABLA (datos/gold/)
   * Medidas: ``saldo`` (R$ millones, fin de período), ``aa`` (saldo / saldo de 12 meses antes − 1, fracción),
     ``share_m2`` (solo las 7 hojas de M2: saldo / Σ hojas de M2, fracción; suman 1) y ``share_m4`` (las 11 hojas de
     M4, incluida «M3 sin desglose»; suman 1). Las tasas llevan ``tasa`` (el % del SGS / 100).
+  * ``captacion_sbpe`` (si está el crudo de la SGS 240, diaria): ``flujo_mes`` y ``flujo_12m``, captación líquida de
+    poupança SBPE en R$ millones (suma de los días; el último mes solo si el dato llega a fin de mes).
 
 REGLAS
 ------
@@ -73,8 +75,20 @@ def _existe_crudo(codigo: int) -> bool:
     return SG.ruta(codigo).exists()
 
 
+def flujo_mensual(diaria: pd.Series) -> pd.Series:
+    """Suma por mes de una serie diaria de flujos. El último mes se descarta si el dato no llega a fin de mes
+    (último día hábil): un mes a medias no es comparable."""
+    d = diaria.dropna()
+    m = d.groupby(d.index.to_period("M")).sum()
+    ultimo = d.index.max()
+    if ultimo < (ultimo + pd.offsets.BMonthEnd(0)).normalize():
+        m = m.iloc[:-1]
+    return m
+
+
 def construir_sgs(leer: Callable[[int], pd.Series] = SG.serie_mensual,
-                  existe: Callable[[int], bool] = _existe_crudo) -> pd.DataFrame:
+                  existe: Callable[[int], bool] = _existe_crudo,
+                  leer_diaria: Callable[[int], pd.Series] = SG.serie) -> pd.DataFrame:
     """bk_fondeo_m. ``leer(codigo)`` devuelve la serie mensual (PeriodIndex) de un código SGS, en R$ mil."""
     saldo = pd.DataFrame({s: leer(SG.CODIGOS[k]) for s, k in COMPONENTES.items()})
     saldo = saldo.loc[pd.Period(DESDE, "M"):] / A_MILLONES
@@ -99,6 +113,14 @@ def construir_sgs(leer: Callable[[int], pd.Series] = SG.serie_mensual,
     for serie, codigo in TASAS_INVERSIONISTA.items():
         if existe(codigo):
             agregar(serie, "tasa", leer(codigo) / 100)
+    # Captación líquida de poupança SBPE (SGS 240, diaria, R$ mil; decisión de Pablo del 11-nov): flujo del mes y de 12
+    # meses, en R$ millones. Es el flujo que financia el crédito inmobiliario (hoja Inmobiliario, sección Fondeo).
+    cod = SG.CODIGOS["captacion_sbpe_diaria"]
+    if existe(cod):
+        mes = flujo_mensual(leer_diaria(cod)).loc[pd.Period(DESDE, "M"):] / A_MILLONES
+        mes = mes.reindex(pd.period_range(mes.index.min(), mes.index.max(), freq="M"))
+        agregar("captacion_sbpe", "flujo_mes", mes)
+        agregar("captacion_sbpe", "flujo_12m", mes.rolling(12, min_periods=12).sum())
     return pd.concat(filas, ignore_index=True)
 
 

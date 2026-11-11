@@ -65,3 +65,15 @@ regenerada desde gold sin series «en preparación». Nada se commitea sin pedir
   PF + PJ (20612 + 20600). No estimar.
 - LCI / LCA: P6 como **cota superior con nota**; sin fuente nueva.
 - **Sacar** la vista por tipo de institución del canvas (bancos = 99,3 % del saldo).
+
+## Hecho el 11-nov (sin publicar)
+- IVG-R (21340) y captación SBPE (240) en `sgs.CODIGOS` y en el catálogo (nombres oficiales); crudo copiado de
+  `inmobiliario` a `bancos_sistema`. Gold: `bk_producto_pf_m` (inmobiliario/garantia: `ivg_r`, `ivg_r_aa`) y
+  `bk_fondeo_m` (`captacion_sbpe`: `flujo_mes`, `flujo_12m`; la serie diaria se suma por mes y el mes incompleto
+  sale). Test de `flujo_mensual`.
+- Hoja: IVG-R en Calidad (2vb), captación SBPE en Fondeo (5va), LCI/LCA «cota superior» con nota, cobertura «en
+  preparación» con nota, sin bloques por tipo de institución (y texto de metodología del canvas ajustado). La hoja
+  publicada aún tenía mercado / regulada «en preparación»: queda recargada.
+- Parte C informada en `borradores/inmobiliario_verificaciones.md`: brecha activo problemático − mora estructural
+  (3–4 pp desde 2018) más ~1 pp de la Res. 4.966 en ene-25; traslado de concesiones de mercado a regulada (sin
+  confirmar con notas externas).

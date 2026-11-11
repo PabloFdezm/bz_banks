@@ -15,6 +15,8 @@ TABLAS (datos/gold/)
     ``sub = "media"``: ``tasa_media`` (Σ w_i·r_i, w = peso de la submodalidad en las concesiones del mes),
     ``d_tasa_media`` (a/a, fracción), ``efecto_mezcla``; y por submodalidad ``peso_conc`` y ``efecto_tasa``.
     efecto_tasa_i = w̄_i·Δr_i; efecto_mezcla = Σ (r̄_i − r̄)·Δw_i, con promedios de t y t−12. Suman d_tasa_media.
+  * Inmobiliario, sub ``garantia``: ``ivg_r`` (índice IVG-R del valor de los inmuebles financiados, SGS 21340) e
+    ``ivg_r_aa`` (fracción).
   * Productos de referencia: ``personas`` (total personas: saldo, concesiones, tasa, mora) y ``referencia``
     (sub ``selic``, medida ``tasa``: Selic efectiva del mes anualizada, SGS 4189; sub ``salario_minimo``, medida ``nivel``:
     R$, último dato del mes y arrastrado a los meses sin cambio).
@@ -222,6 +224,10 @@ def construir_sgs(leer=SG.serie_mensual) -> pd.DataFrame:
     # de las concesiones (decisión de Pablo, 10-nov; antes se usaba la meta a fin de mes).
     agregar("referencia", "selic", "tasa", leer(SG.CODIGOS["selic_efectiva_mes"]) / 100)
     agregar("referencia", "salario_minimo", "nivel", salario_minimo_mensual())
+    # Valor de las garantías del crédito inmobiliario (IVG-R, SGS 21340; decisión de Pablo del 11-nov: sección Calidad).
+    ivg = leer(SG.CODIGOS["ivg_r"])
+    agregar("inmobiliario", "garantia", "ivg_r", ivg)
+    agregar("inmobiliario", "garantia", "ivg_r_aa", ivg / ivg.shift(12) - 1)
     df = pd.concat(filas, ignore_index=True)
     # las referencias (Selic diaria, salario mínimo anunciado) no pasan del último mes de los productos
     fin = df.loc[df["producto"] != "referencia", "fecha"].max()

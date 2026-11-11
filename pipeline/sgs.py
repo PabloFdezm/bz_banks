@@ -118,6 +118,9 @@ CODIGOS = {
     "mp_otros_titulos_privados": 27808, "mp_titulos_privados": 27809, "mp_m2": 27810,
     "mp_fondos_monetarios": 27811, "mp_compromisadas_privados": 27812, "mp_m3": 27813,
     "mp_titulos_federales": 27814, "mp_m4": 27815, "mp_ahorro": 1835,
+    # inmobiliario (frente 16, decisión de Pablo del 11-nov): valor de las garantías (índice, mensual) y captación
+    # líquida de poupança SBPE (R$ mil, DIARIA: se suma por mes, no se toma el último dato).
+    "ivg_r": 21340, "captacion_sbpe_diaria": 240,
 }
 
 
