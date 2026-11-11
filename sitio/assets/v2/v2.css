@@ -143,3 +143,14 @@ html.v2-dialogo { overflow: hidden; }
   #v2-raiz .card { padding-left: 16px !important; padding-right: 16px !important; }
   #v2-raiz .tb th, #v2-raiz .tb td { padding-left: 4px; padding-right: 4px; }
 }
+
+/* «Cómo leer»: pistas de uso y glosario (botón de la barra superior). */
+.v2-leer-dlg { width: min(640px, calc(100vw - 32px)); max-height: calc(100vh - 64px); box-sizing: border-box; padding: 20px 24px 24px; border: 1px solid var(--borde); border-radius: 6px; box-shadow: 0 12px 40px rgba(27,36,51,0.25); color: var(--tinta); background: #FFFFFF; font: 400 14px/20px 'IBM Plex Sans', sans-serif; }
+.v2-leer-dlg::backdrop { background: rgba(27,36,51,0.45); }
+.v2-leer-cab { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.v2-leer-dlg h2 { margin: 0; font: 600 20px/26px 'IBM Plex Sans', sans-serif; }
+.v2-leer-dlg h3 { margin: 18px 0 6px; font: 600 12px/16px 'IBM Plex Sans', sans-serif; text-transform: uppercase; letter-spacing: 0.06em; color: #6B7684; }
+.v2-leer-dlg dl { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 6px 16px; margin: 0; }
+.v2-leer-dlg dt { font-weight: 600; }
+.v2-leer-dlg dd { margin: 0; color: var(--suave); }
+@media (max-width: 640px) { .v2-leer-dlg dl { grid-template-columns: 1fr; gap: 2px; } .v2-leer-dlg dd { margin-bottom: 8px; } .v2-barra-acc .v2-b-txt { display: none; } }

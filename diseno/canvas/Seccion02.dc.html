@@ -198,9 +198,9 @@ class Component extends DCLogic {
     const serieDe = (key, id) => D[PREF[key]][id] || VACIO;
     const mkSeries = (key) => CORTE.map((id) => ({ id, nombre: nomS(key, id), color: COL[id], ancho: 2.5, datos: serieDe(key, id) })).concat([{ id: 'tot', nombre: 'Total', color: COBRE, ancho: 2.5, datos: serieDe(key, 'tot') }]).concat(key === 'va' ? [{ id: 'sel', nombre: 'Selic meta', color: REF, ancho: 2, dash: '6 4', datos: D.ref.sel }] : []);
     const PARES = {
-      va: { titulo: 'Tasa media de las operaciones de crédito', sub: 'Eje vertical: % a.a. Eje horizontal: mes.', fuente: 'Fuente: BCB, SGS 20714–20718, 20740, 20756, 20757, 20768 y 432.', control: true, cero: false, n: NM, def: 24, uni: 'pct', series: mkSeries('va'),
+      va: { titulo: 'Tasa media de las operaciones de crédito', sub: 'Eje vertical: % a.a.', fuente: 'Fuente: BCB, SGS 20714–20718, 20740, 20756, 20757, 20768 y 432.', control: true, cero: false, n: NM, def: 24, uni: 'pct', series: mkSeries('va'),
         tTitulo: 'Tasa media', tSub: '% a.a. · Δ a/a en pp', tFuente: 'Fuente: BCB, SGS.', cols: ['Último', 'Δ a/a'] },
-      vb: { titulo: 'Spread de las operaciones de crédito', sub: 'Eje vertical: pp a.a. Eje horizontal: mes.', fuente: 'Fuente: BCB, SGS 20783–20787, 20809, 20825 y 20826.', control: true, cero: false, n: NM, def: 24, uni: 'pp', series: mkSeries('vb'),
+      vb: { titulo: 'Spread de las operaciones de crédito', sub: 'Eje vertical: pp a.a.', fuente: 'Fuente: BCB, SGS 20783–20787, 20809, 20825 y 20826.', control: true, cero: false, n: NM, def: 24, uni: 'pp', series: mkSeries('vb'),
         tTitulo: 'Spread', tSub: 'pp a.a. · Δ a/a en pp', tFuente: 'Fuente: BCB, SGS.', cols: ['Último', 'Δ a/a'] },
     };
     // En la página solo van las series con dato (sin chips ni filas vacías); Agrandar sigue mostrando todo el detalle.
@@ -244,11 +244,11 @@ class Component extends DCLogic {
       { ...B.P, ...B.ajuste, ...extra('vb'), leyenda: B.leyenda, cfg: B.cfg(NM - 24, NM - 1, 910, 390), filas: corto(B, 'vb'), abrir: abrir('vb') },
     ];
     const BLOQUE = {
-      va: { tit: 'Tasa nueva contra costo de la cartera (ICC)', sub: 'Eje vertical: % a.a. Eje horizontal: mes.', tTit: 'Precio nuevo y precio de la cartera', tSub: 'Historia desde ene-14, escala propia de cada fila: caja p25–p75, raya mediana, línea mín–máx, punto último', custom: true, porFila: true, fmtU: 'pc', sinBanda: true,
+      va: { tit: 'Tasa nueva contra costo de la cartera (ICC)', sub: 'Eje vertical: % a.a.', tTit: 'Precio nuevo y precio de la cartera', tSub: 'Historia desde ene-14, escala propia de cada fila: caja p25–p75, raya mediana, línea mín–máx, punto último', custom: true, porFila: true, fmtU: 'pc', sinBanda: true,
         lab: meses, datos: { tasa: D.mo.tot, icc: D.ref.icc, gap: D.ref.gap },
         bCols: ['Último', 'Z 10 años'], box: true,
         filas: [['tasa', 'Tasa media operaciones nuevas', COBRE, 2.5], ['icc', 'ICC (costo de la cartera)', '#2E5C8A', 2], ['gap', 'Diferencia (pp)', '#6C819B', 2]] },
-      vb: { tit: 'Spread contra mora de recursos libres', sub: 'Eje vertical: %. Eje horizontal: mes.', tTit: 'Precio contra riesgo', tSub: 'Historia desde ene-14, escala propia de cada fila', custom: true, porFila: true, fmtU: 'pc', sinBanda: true,
+      vb: { tit: 'Spread contra mora de recursos libres', sub: 'Eje vertical: %.', tTit: 'Precio contra riesgo', tSub: 'Historia desde ene-14, escala propia de cada fila', custom: true, porFila: true, fmtU: 'pc', sinBanda: true,
         lab: meses, datos: { spr: D.at.li, npl: D.ref.npl },
         bCols: ['Último', 'Z 10 años'], box: true,
         filas: [['spr', 'Spread recursos libres', COBRE, 2.5], ['npl', 'Mora > 90 días, recursos libres', '#2E5C8A', 2]] },

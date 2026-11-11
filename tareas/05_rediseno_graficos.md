@@ -90,7 +90,7 @@ Menores:
 - [x] (11-nov, publicado; menú lateral subido a 36 px en vez de excepción) DESIGN.md: contraste del texto atenuado es 4,62:1 (no 4,7); agregar 15 px y 20 px a los tokens de tipografía;
       decidir la excepción de tamaño de los controles del menú lateral (24–34 px).
 - [x] (11-nov: cobre siempre; recuadro de «Ajustar eje» solo con las resaltadas; anotado en DESIGN.md) Decidir con Pablo: ¿Total en cobre aunque no se abra en partes (tasa y spread hoy) o navy cuando es serie única?
-- [ ] Pistas de interacción (Ctrl + clic, flechas, Ajustar eje) y glosario de «NPL», «Share», «a/a», «Δ a/a» fuera de
+- [x] (11-nov, publicado: botón «Cómo leer» con uso y glosario en la barra; «Eje horizontal: …» quitado de las 15 hojas) Pistas de interacción (Ctrl + clic, flechas, Ajustar eje) y glosario de «NPL», «Share», «a/a», «Δ a/a» fuera de
       Agrandar; «Eje horizontal: mes.» repetido en las seis tarjetas.
 - [ ] Ideas para discutir: sección 02 como un solo par (tasa y spread con la Selic) mientras falten los cortes; subir la
       mora como cifra de entrada.

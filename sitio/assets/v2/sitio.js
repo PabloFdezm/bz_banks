@@ -316,6 +316,14 @@ export async function iniciar(HOJAS, titulo) {
   });
   document.addEventListener('fullscreenchange', () => { if (!document.fullscreenElement && presentando) presentar(false); });
   $('v2-presentar').addEventListener('click', () => presentar(true));
+  // «Cómo leer»: pistas de uso y glosario en un <dialog> modal (foco atrapado y Esc nativos); clic fuera lo cierra.
+  const leer = $('v2-leer-dlg');
+  if (leer) {
+    $('v2-leer').addEventListener('click', () => leer.showModal());
+    $('v2-leer-cerrar').addEventListener('click', () => leer.close());
+    leer.addEventListener('click', (e) => { if (e.target === leer) leer.close(); });
+    leer.addEventListener('close', () => $('v2-leer').focus({ preventScroll: true }));
+  }
   $('v2-pres-ant').addEventListener('click', () => mostrarLamina(presentando.i - 1));
   $('v2-pres-sig').addEventListener('click', () => mostrarLamina(presentando.i + 1));
   $('v2-pres-salir').addEventListener('click', () => presentar(false));

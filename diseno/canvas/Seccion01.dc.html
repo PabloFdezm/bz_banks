@@ -134,7 +134,7 @@ button:focus-visible,select:focus-visible{outline:2px solid #2E5C8A;outline-offs
         <sc-if value="{{d.ciclo}}" hint-placeholder-val="{{false}}">
           <div style="display: grid; grid-template-columns: 940px minmax(0, 1fr); gap: 24px; border-top: 1px solid #E6EAEF; padding-top: 12px;">
             <div style="display: flex; flex-direction: column; gap: 2px;">
-              <div class="bt">Crédito/PIB contra su tendencia</div><div class="bs">Eje vertical: % del PIB. Eje horizontal: trimestre.</div>
+              <div class="bt">Crédito/PIB contra su tendencia</div><div class="bs">Eje vertical: % del PIB.</div>
               <dc-import name="Grafico" cfg="{{d.cicloCfg}}" hint-size="900px,250px"></dc-import>
             </div>
             <div style="display: flex; flex-direction: column; gap: 2px;">
@@ -202,11 +202,11 @@ class Component extends DCLogic {
     const brecha = D.cpib_nivel.map((v, i) => Math.round((v - D.cpib_tend[i]) * 100) / 100);
     const aaCI = (id) => (D['ci_' + id] || VACIO).map((x, k, a) => k < 12 || x == null || a[k - 12] == null ? null : Math.round((x / a[k - 12] - 1) * 10000) / 100);
     const PARES = {
-      va: { titulo: 'Concesiones de crédito 12m, a/a', sub: 'Eje vertical: variación a/a nominal, %. Eje horizontal: mes.', fuente: 'Fuente: BCB, SGS 20631–20635 y 20662.', control: true, trim: false, cero: true, dec: 1, n: NM, def: 24, sufijo: ' %',
+      va: { titulo: 'Concesiones de crédito 12m, a/a', sub: 'Eje vertical: variación a/a nominal, %.', fuente: 'Fuente: BCB, SGS 20631–20635 y 20662.', control: true, trim: false, cero: true, dec: 1, n: NM, def: 24, sufijo: ' %',
         series: CORTE.map((id) => ({ id, nombre: nomS(id), color: COL[id], ancho: 2.5, datos: D['aa_' + id] || VACIO })).concat([{ id: 'tot', nombre: 'Total', color: COBRE, ancho: 2.5, datos: D.aa_tot }]),
         tTitulo: 'Concesiones y crecimiento', tSub: 'Suma 12m en R$ mil millones · Share del total · a/a en %', tFuente: 'Fuente: BCB, SGS.', cols: ['Último', 'Share', 'a/a'],
         corto: (id) => LARGO[id] ? [LARGO[id][0], LARGO[id][1], LARGO[id][4]] : RAYA.slice(0, 3) },
-      vb: { titulo: 'Impulso del crédito: concesiones reales sobre IBC-Br', sub: 'Eje vertical: variación a/a, %. Eje horizontal: mes.', fuente: 'Fuente: BCB, SGS (concesiones 20631–20633 y 20662, IPCA 433, IBC-Br 24364); cálculo propio.', control: true, trim: false, cero: true, dec: 1, n: NM, def: 24, sufijo: ' %',
+      vb: { titulo: 'Impulso del crédito: concesiones reales sobre IBC-Br', sub: 'Eje vertical: variación a/a, %.', fuente: 'Fuente: BCB, SGS (concesiones 20631–20633 y 20662, IPCA 433, IBC-Br 24364); cálculo propio.', control: true, trim: false, cero: true, dec: 1, n: NM, def: 24, sufijo: ' %',
         series: CORTE.map((id) => ({ id, nombre: nomS(id), color: COL[id], ancho: 2.5, datos: aaCI(id) })).concat([{ id: 'tot', nombre: 'Total', color: COBRE, ancho: 2.5, datos: aaCI('tot') }]),
         tTitulo: 'Concesiones reales sobre actividad', tSub: 'Último: índice, promedio 2014 = 100 · a/a en %', tFuente: 'Fuente: BCB, SGS; cálculo propio.', cols: ['Último', 'a/a'] },
     };
@@ -257,13 +257,13 @@ class Component extends DCLogic {
       const panelM = (titulo, sub, series, cero) => { const W = 706, H = 200; return { titulo, sub, esGrafico: true, esBarras: false, cfg: { w: W, h: H, izq: 40, reservaDer: 12, n: NM - (NM - 60), etiquetas: meses.slice(NM - 60), ticksX: ticksM(NM - 60, NM - 1), ...escala(series, NM - 60, NM - 1, cero), sufijo: '', series: series.map((s) => ({ id: s.id, color: s.color, ancho: s.ancho, dash: s.dash, tipo: s.tipo, valores: s.datos.slice(NM - 60) })), fills: [], sel: [], fijo: 59, hover: null, onFijar: () => {}, onHover: () => {}, onSerie: () => {} } }; };
       let filas, paneles, glosario, meta, sub;
       if (v === 'va') {
-        sub = 'Eje vertical: variación a/a nominal, %. Eje horizontal: mes.';
+        sub = 'Eje vertical: variación a/a nominal, %.';
         filas = [['pf', 'pj'], ['li', 'di'], ['pfli', 'pfdi', 'pjli', 'pjdi']].map((g) => g.filter((id) => !FALTA.includes(id))).filter((g) => g.length).flatMap((g, gi) => g.map((id, j) => A.fila(id, nomS(id), FALTA.includes(id) ? '—' : 'sep-26', LARGO[id] || RAYA.slice(0, 6), porId(A.P, id) || { color: '#C9D2DC' }, false, gi > 0 && j === 0))).concat([A.fila('tot', 'Total', 'sep-26', LARGO.tot, porId(A.P, 'tot'), true)]);
         paneles = [];
         glosario = 'Último: concesiones sumadas en 12 meses, en R$ mil millones. Share: peso en el total de concesiones. m/m y a/a: punta contra punta. 3m/3m y 12m/12m: promedio de la ventana contra la anterior. Nominal.';
         meta = 'Concesiones: crédito nuevo del mes, sumado en 12 meses. Total = SGS 20631 = empresas 20632 + personas 20633. Libre = SGS 20634; empresas libre = 20635; personas libre = 20662; cada dirigido = su total − su libre. Fuente: BCB, SGS.';
       } else {
-        sub = 'Eje vertical: variación a/a, %. Eje horizontal: mes.';
+        sub = 'Eje vertical: variación a/a, %.';
         filas = [['pf', 'pj'], ['li', 'di'], ['pfli', 'pfdi', 'pjli', 'pjdi']].map((g) => g.filter((id) => !FALTA.includes(id))).filter((g) => g.length).flatMap((g, gi) => g.map((id, j) => filaB(id, 'largo', gi > 0 && j === 0))).concat([filaB('tot', 'largo')]);
         paneles = [];
         glosario = 'Índice: promedio 2014 = 100. m/m y a/a: punta contra punta, en %. 3m/3m y 12m/12m: promedio de la ventana contra la anterior, en %. Z 10 años: (último − promedio de 120 meses) / desvío de esos 120 meses. Share no aplica.';
