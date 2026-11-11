@@ -45,6 +45,14 @@
    "columnas": ["cod_inst", "periodo", "fecha", "trimestre", "capital_principal", "nivel1", "pr", "rwa_total", "rwa_credito", "rwa_mercado", "rwa_operacional", "basilea", "indice_nivel1", "indice_cp", "densidad_rwa", "requerimiento_cp", "fuente_acp", "holgura_cp_pp", "holgura_crecimiento", "var_cp_4t", "lucro_ttm", "otros_var_cp_4t"],
    "clave": ["cod_inst", "periodo"]
   },
+  "bk_balancete_m": {
+   "columnas": ["cod_inst", "mes", "fecha", "concepto", "tipo", "valor", "cuadra_ifdata"],
+   "clave": ["cod_inst", "mes", "concepto"]
+  },
+  "bk_sistema_bal_m": {
+   "columnas": ["optica", "grupo", "mes", "fecha", "n_bancos", "lucro_12m", "pl_medio_12m", "roe_12m", "ativo_total", "patrimonio_liquido", "credito_liquido", "depositos", "depositos_aa", "credito_depositos", "patrimonio_activo", "orden_optica", "orden_grupo"],
+   "clave": ["optica", "grupo", "mes"]
+  },
   "bk_capital_grupo": {
    "columnas": ["optica", "grupo", "periodo", "fecha", "trimestre", "n_bancos", "capital_principal", "rwa_total", "indice_cp", "indice_nivel1", "basilea", "densidad_rwa", "requerimiento_cp", "holgura_cp_pp"],
    "clave": ["optica", "grupo", "periodo"]

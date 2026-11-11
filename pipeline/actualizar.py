@@ -43,6 +43,7 @@ PASOS = [
     ("fondeo", "preparar_gold_bancos_fondeo", [], False),             # usa sgs (27789–27815, 1835) → bk_fondeo_m
     ("cvm", "cvm", ["--descargar"], True),                           # ITR/DFP de la CVM → bk_publicado
     ("capital", "capital", [], False),
+    ("balancetes", "balancetes", ["gold", "--descargar"], True),     # 4060 del BCB → bk_balancete_m, bk_sistema_bal_m; usa bk_panel
     ("pyb", "preparar_gold_bancos_pyb", [], False),                   # usa bank_hechos, bk_panel, bk_capital(_grupo), bk_producto_pf_m → bk_pyb, bk_pyb_grupo
     ("ref", "ref", ["--descargar"], True),                           # Anexo Estatístico del REF → bk_ref                                # informe 5 de IF.Data → bk_capital; usa bk_panel
     ("manifiesto", "manifiesto_gold", [], False),                     # después de todos los bk_*

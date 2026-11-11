@@ -1,0 +1,181 @@
+{
+  "descripcion": "Concepto → cuentas COSIF del balancete 4060 (conglomerado prudencial), por época del plan de cuentas. Cada cuenta es la base de 7 dígitos (los 8 del archivo sin el verificador). Un concepto es la suma de sus cuentas; las de resultado (7 y 8) vienen acumuladas por semestre y pipeline/balancetes.py las pasa a flujo del mes. Signos: los del archivo (gastos negativos).",
+  "fuente": "BCB, balancetes COSIF (documento 4060). Sondeo: tareas/borradores/balancetes_sondeo.md; cuadre contra IF.Data en tareas/borradores/balancetes_informe.md.",
+  "epocas": {
+    "vieja": {
+      "hasta": "202412",
+      "nota": "Plan anterior: ~160 cuentas de nivel 1–3 en el 4060."
+    },
+    "nueva": {
+      "desde": "202501",
+      "nota": "Plan de la Res. CMN 4.966 / Res. BCB 352: ~750 cuentas, con nivel 4."
+    }
+  },
+  "conceptos": {
+    "ativo_total": {
+      "tipo": "saldo",
+      "vieja": [
+        "1000000",
+        "2000000"
+      ],
+      "nueva": [
+        "1000000",
+        "2000000"
+      ],
+      "nota": "Activo realizable + permanente (sin compensación, 3).",
+      "publica": true
+    },
+    "patrimonio_liquido": {
+      "tipo": "saldo",
+      "vieja": [
+        "6000000",
+        "7000000",
+        "8000000"
+      ],
+      "nueva": [
+        "6000000",
+        "7000000",
+        "8000000"
+      ],
+      "nota": "PL de cierre: el 4060 trae el resultado del semestre abierto en 7 y 8.",
+      "publica": true
+    },
+    "credito_liquido": {
+      "tipo": "saldo",
+      "vieja": [
+        "1600000"
+      ],
+      "nueva": [
+        "1600000"
+      ],
+      "nota": "Operaciones de crédito, neto de provisión (cabecera).",
+      "publica": true
+    },
+    "depositos": {
+      "tipo": "saldo",
+      "vieja": [
+        "4100000"
+      ],
+      "nueva": [
+        "4100000"
+      ],
+      "publica": true
+    },
+    "depositos_vista": {
+      "tipo": "saldo",
+      "vieja": [
+        "4110000"
+      ],
+      "nueva": [
+        "4110000"
+      ],
+      "publica": true
+    },
+    "depositos_ahorro": {
+      "tipo": "saldo",
+      "vieja": [
+        "4120000"
+      ],
+      "nueva": [
+        "4120000"
+      ],
+      "publica": true
+    },
+    "depositos_interfinanceiros": {
+      "tipo": "saldo",
+      "vieja": [
+        "4130000"
+      ],
+      "nueva": [
+        "4130000"
+      ],
+      "publica": true
+    },
+    "depositos_plazo": {
+      "tipo": "saldo",
+      "vieja": [
+        "4150000"
+      ],
+      "nueva": [
+        "4150000"
+      ],
+      "nota": "Desde ene-25 incluye una línea propia de depósitos judiciales (4155000); antes iban dentro.",
+      "publica": true
+    },
+    "lucro_liquido": {
+      "tipo": "flujo",
+      "vieja": [
+        "7000000",
+        "8000000"
+      ],
+      "nueva": [
+        "7000000",
+        "8000000"
+      ],
+      "publica": true
+    },
+    "ingresos_intermediacion": {
+      "tipo": "flujo",
+      "vieja": [
+        "7110000",
+        "7120000",
+        "7130000",
+        "7140000",
+        "7150000"
+      ],
+      "nueva": [
+        "7110000",
+        "7120000",
+        "7140000",
+        "7150000",
+        "7160000",
+        "7199100"
+      ],
+      "nota": "Crédito, arrendamiento, cambio, interfinancieros y TVM/derivativos. En el plan nuevo no hay rentas de cambio (7130000): el ajuste de variación cambial va en 7199100; y aparecen las rentas de otras operaciones con características de crédito (7160000). No se publica: no cuadra con IF.Data (11-nov-2026; ver balancetes_informe.md).",
+      "publica": false
+    },
+    "gastos_intermediacion": {
+      "tipo": "flujo",
+      "vieja": [
+        "8110000",
+        "8120000",
+        "8130000",
+        "8140000",
+        "8150000"
+      ],
+      "nueva": [
+        "8110000",
+        "8120000",
+        "8130000",
+        "8150000",
+        "8199100"
+      ],
+      "nota": "Captación, obligaciones y repasses, arrendamiento, cambio y TVM/derivativos. En el plan nuevo el cambio va en 8199100. No se publica: no cuadra con IF.Data (11-nov-2026; ver balancetes_informe.md).",
+      "publica": false
+    },
+    "rendas_servicos_tarifas": {
+      "tipo": "flujo",
+      "vieja": [
+        "7170000"
+      ],
+      "nueva": [
+        "7170000"
+      ],
+      "publica": false,
+      "nota": "No se publica: no cuadra con IF.Data (11-nov-2026; ver balancetes_informe.md)."
+    },
+    "despesas_pessoal_admin": {
+      "tipo": "flujo",
+      "vieja": [
+        "8170000"
+      ],
+      "nueva": [
+        "8170000"
+      ],
+      "nota": "Gastos administrativos con personal. En el plan viejo el 4060 no los separa. No se publica: no cuadra con IF.Data (11-nov-2026; ver balancetes_informe.md).",
+      "publica": false
+    }
+  },
+  "publicable_desde": "202001",
+  "nota_publicable": "Antes de 2019T4 el 4060 no cuadra con IF.Data (lucro y crédito con diferencias de 2 % a 100 %); causa no verificada."
+}

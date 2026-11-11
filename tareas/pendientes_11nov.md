@@ -39,7 +39,11 @@ Todo lo de hoy está publicado en https://banks-bz.pages.dev. Detalle de cada fr
 - [ ] Decisión de Pablo: franja de la Portada con Z 10 años o percentil histórico en vez de repetir el Total (canvas).
 
 ## 4. Datos
-- [ ] Frente 11 (balancetes COSIF, fase 2): ROE, NIM, depósitos y capital mensuales; da la sección 04 de la Portada.
+- [x] Frente 11, fase 2: `bk_balancete_m` y `bk_sistema_bal_m` (ROE 12m, depósitos, crédito/depósitos, PL/activo)
+      desde ene-20; 97 % de los banco-trimestres cuadra con IF.Data (`borradores/balancetes_informe.md`).
+- [ ] Decisión de Pablo (frente 11): NIM, costo de riesgo y eficiencia mensuales no cuadran con IF.Data en el plan
+      viejo; ¿quedan trimestrales, mensuales solo desde ene-25, o se sigue buscando el mapa?
+- [ ] Sección 04 de la Portada con `bk_sistema_bal_m` (canvas → aprobación).
 - [ ] Frente 4 (REF): tarjeta de estrés y tarjetas por segmento.
 - [ ] Rehacer Calidad, Rentabilidad y Ficha en v3.
 - [ ] Frente 14: partida que falta en M3 (no está en 27792–27802); buscar en la nota metodológica del BCB.
