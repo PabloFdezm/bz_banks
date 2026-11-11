@@ -73,3 +73,14 @@ Para hacer:
   mientras el SGS no responda.
 - Poupança **como componente de M2**; bloque «Componentes de M2, a/a».
 - Técnico (sin decisión): `ref.py` completa `unidad = "R$"` en 1.2.1.1.a, 1.2.1.5, 1.2.1.7 y 1.2.1.10 y agrega clave por título.
+
+## Hecho el 11-nov (sin publicar)
+- `ref.py`: columna `clave` en `bk_ref` y `bk_ref_sitio` (título sin «Gráfico x.y.z –»: la numeración cambia entre
+  ediciones, la clave no) y `unidades_por_clave` en `definiciones/bcb_ref.json` (R$ en perfil por instrumento y en los
+  tres de captaciones intermediadas). Contrato del gold actualizado; test de la clave.
+- Desarrollo fuera del gráfico de crédito/depósitos con serie `oculta` (sigue en la tabla) y nota con su valor
+  (1.442 % a 2T26). Tasas por inversionista: el bloque SGS vacío sale; nota que remite al REF 1.2.1.4 (hasta jun-26).
+- Residuo de M3: 27792–27802 dan error 500 en la API de datos y en el servicio de metadatos del SGS (no publicados);
+  27803 y 27804 son tasas diarias, no agregados. La partida no está ahí. La hoja muestra solo M1–M4 a/a, así que el
+  residuo no afecta nada publicado; la composición de M3/M4 sigue fuera. Próxima pista: nota metodológica del BCB
+  de los agregados (metodología nueva).

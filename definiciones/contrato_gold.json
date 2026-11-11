@@ -26,11 +26,11 @@
    "clave": ["cod_inst", "periodo", "linea", "medida"]
   },
   "bk_ref": {
-   "columnas": ["edicion", "hoja", "grafico", "titulo", "unidad", "tipo", "serie", "orden", "fecha_ref", "categoria", "valor"],
+   "columnas": ["edicion", "hoja", "grafico", "titulo", "clave", "unidad", "tipo", "serie", "orden", "fecha_ref", "categoria", "valor"],
    "clave": ["edicion", "hoja", "serie", "orden"]
   },
   "bk_ref_sitio": {
-   "columnas": ["edicion", "hoja", "grafico", "titulo", "unidad", "tipo", "serie", "orden", "fecha_ref", "categoria", "valor"],
+   "columnas": ["edicion", "hoja", "grafico", "titulo", "clave", "unidad", "tipo", "serie", "orden", "fecha_ref", "categoria", "valor"],
    "clave": ["edicion", "hoja", "serie", "orden"]
   },
   "bk_capital": {

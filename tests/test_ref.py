@@ -146,3 +146,14 @@ def test_1_2_2_16_calza_con_la_serie_propia_del_scr(bk_ref):
     j = j[j["fecha_ref"] >= "2025-01"]
     assert len(j) >= 12
     assert (j["valor_ref"] - j["valor_propio"] * 100).abs().mean() < 0.1
+
+
+def test_clave_titulo_estable_entre_ediciones():
+    """La numeración de los gráficos cambia entre ediciones; la clave por título no (11-nov, frente 14)."""
+    import ref
+    a = ref.clave_titulo("Gráfico 1.2.1.8 - Estoque de captações intermediadas por segmento")
+    b = ref.clave_titulo("Gráfico 1.2.1.7 – Estoque de captações intermediadas por segmento")
+    assert a == b == "estoque de captações intermediadas por segmento"
+    assert ref.clave_titulo("Gráfico 1.2.1.16 - Dispersão do LCR - Máximo, mínimo e agregado 1/") == \
+        "dispersão do lcr - máximo, mínimo e agregado"
+    assert ref.clave_titulo("Gráfico 1.2.1.8 - Estoque de captações intermediadas por segmento - (% do total)") != a

@@ -43,8 +43,11 @@ DEF = "bcb_ref"
 UA = {"User-Agent": "Mozilla/5.0 (bz_banks; datos públicos del BCB)"}
 INTENTOS = 3
 
-COLUMNAS = ["edicion", "hoja", "grafico", "titulo", "unidad", "tipo", "serie", "orden", "fecha_ref", "categoria",
-            "valor"]
+COLUMNAS = ["edicion", "hoja", "grafico", "titulo", "clave", "unidad", "tipo", "serie", "orden", "fecha_ref",
+            "categoria", "valor"]
+# «clave»: el título sin «Gráfico x.y.z –» ni notas al pie: la numeración de los gráficos cambia entre ediciones
+# (en 202605 la hoja «1.2.1.7» es otro gráfico que en 202610), el título no. Los consumidores eligen el gráfico por
+# clave y usan «grafico» solo como rótulo.
 # «fecha_ref» es texto («2026-06», o «2027» en series anuales) y no fecha: el anexo trae proyecciones y escenarios
 # posteriores a hoy (brecha de crédito, estrés a 2029), que la regla general de fechas del verificador rechazaría.
 CLAVE = ["edicion", "hoja", "serie", "orden"]
@@ -375,6 +378,15 @@ def leer_hoja(filas: list[tuple], hoja: str, edicion: str, avisos: list[str]) ->
     return pd.DataFrame(salida, columns=COLUMNAS)
 
 
+def clave_titulo(titulo: str) -> str:
+    """«Gráfico 1.2.1.7 - Estoque de captações intermediadas por segmento 1/» → «estoque de captações
+    intermediadas por segmento». Guiones unificados y espacios simples."""
+    t = re.sub(r"^\s*gr[áa]fico\s+[\w.]+\s*[–—-]\s*", "", str(titulo or ""), flags=re.I)
+    t = re.sub(r"\s+\d+/\s*$", "", t)                      # «… agregado 1/»
+    t = re.sub(r"\s*[–—]\s*", " - ", t)
+    return re.sub(r"\s+", " ", t).strip().lower()
+
+
 def leer_edicion(edicion: str, avisos: list[str]) -> pd.DataFrame:
     import openpyxl
     wb = openpyxl.load_workbook(ruta_anexo(edicion), read_only=True, data_only=True)
@@ -416,6 +428,12 @@ def construir(*, avisos: list[str] | None = None) -> pd.DataFrame:
     if not eds:
         raise ValueError("no hay anexos del REF en datos/crudo/bcb_ref/: correr «ref.py descargar»")
     df = pd.concat([leer_edicion(e, avisos) for e in eds], ignore_index=True)
+    df["clave"] = df["titulo"].map(clave_titulo)
+    # Unidad que el anexo no trae en la fila de unidad (p. ej. 1.2.1.1.a y 1.2.1.7 están en R$): definición por clave.
+    por_clave = definicion().get("unidades_por_clave", {})
+    sin = df["unidad"].fillna("").eq("") & df["clave"].isin(por_clave)
+    df.loc[sin, "unidad"] = df.loc[sin, "clave"].map(por_clave)
+    df = df[COLUMNAS]
     rep = int(df.duplicated(CLAVE).sum())
     if rep:
         raise ValueError(f"bk_ref: {rep} filas repiten la clave {CLAVE}")

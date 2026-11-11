@@ -24,5 +24,12 @@
  "sitio": {
   "descripcion": "Gráficos que se exportan al sitio como bk_ref_sitio, solo de la última edición. Hoy: ROE, costo de provisiones y eficiencia por segmento (1.2.3.x), decididos por Pablo el 9-nov-2026. La tarjeta de estrés (1.2.5.x) se agrega cuando se apruebe en el canvas.",
   "graficos": ["1.2.3.1", "1.2.3.5", "1.2.3.8"]
+ },
+ "_unidades_por_clave": "Unidad de los gráficos cuya hoja del anexo no trae fila de unidad, por clave de título (ref.clave_titulo: estable entre ediciones; el número del gráfico no). Verificado el 10-nov contra el Excel crudo 202610 (tareas/borradores/fondeo_verificaciones.md, punto 2): las sumas cuadran con 1.2.1.3, que sí trae «R$».",
+ "unidades_por_clave": {
+  "perfil de captação por instrumento - sistema bancário": "R$",
+  "evolução do estoque de captações intermediadas": "R$",
+  "estoque de captações intermediadas por segmento": "R$",
+  "estoque de captações intermediadas por plataforma": "R$"
  }
 }
