@@ -169,3 +169,7 @@ html.v2-dialogo { overflow: hidden; }
 
 /* Presentar: la franja de cifras de la Portada no entra en las láminas (una lámina = un par). */
 .v2-presentando #v2-raiz .rf { visibility: hidden; }
+
+/* Medida de lectura (crítica 3): notas, glosarios y subtítulos largos no pasan de ~80 caracteres por línea (en P&L
+   llegaban a ~270 a todo el ancho). */
+#v2-raiz .bs, #v2-raiz .md, #v2-raiz .cs { max-width: 80ch; }

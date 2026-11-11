@@ -15,6 +15,9 @@ colors:
   rotulo: "#6B7684"
   gris-apagado: "#8A93A0"
   banda-periodo: "#E8ECF1"
+  rotulo-banda: "#4F5B6B"
+  tinta-oscura: "#1B2433"
+  texto-recuadro: "#3B4656"
   borde-control: "#C9D2DC"
   borde-tarjeta: "#E1E6EC"
   linea-tabla: "#E6EAEF"
@@ -192,6 +195,9 @@ token.
 - **Texto suave** (`texto-suave`): subtítulos de ejes y unidades, fuente, corte de los datos.
 - **Rótulo** (`rotulo`): encabezados de grupo del menú, números de sección del menú, texto deshabilitado y texto de
   las series atenuadas (4,62:1 sobre blanco).
+- **Rótulo de banda** (`rotulo-banda`): el texto de las bandas de período. **Tinta oscura** (`tinta-oscura`): el borde de
+  una barra resaltada y el velo de los diálogos. **Texto del recuadro** (`texto-recuadro`): nombres de serie en el
+  recuadro de valores al pasar el mouse.
 - **Gris apagado** (`gris-apagado`): el filete de 2 px sobre la fila Total. No sirve para texto: da 3,1:1 sobre blanco.
 - **Banda de período** (`banda-periodo`): fondo de las bandas que marcan un quiebre de método en el gráfico
   (Res. 4.966), con su rótulo en `#4F5B6B`. Neutra a propósito: nada cálido compite con el cobre del Total.

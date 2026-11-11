@@ -331,6 +331,14 @@ export async function iniciar(HOJAS, titulo) {
     const b = e.currentTarget; b.disabled = true;
     try { await excel([...raiz.querySelectorAll('dc-import[name="Grafico"]')].filter((g) => !g.closest('[role=dialog]')), slug('bancos_brasil_' + titulo), titulo); } finally { b.disabled = false; }
   });
+  // Cada botón Excel se nombra con el título de su gráfico (la plantilla trae el mismo nombre para todos): se fija al
+  // recibir foco o puntero, antes de que el lector de pantalla lo anuncie (crítica 3).
+  const nombrarExcel = (e) => {
+    const b = e.target.closest && e.target.closest('.v2-excel'); if (!b) return;
+    const g = graficoDe(b); if (g) b.setAttribute('aria-label', 'Descargar en Excel: ' + tituloDe(g));
+  };
+  document.addEventListener('focusin', nombrarExcel);
+  document.addEventListener('mouseover', nombrarExcel);
   document.addEventListener('click', async (e) => {
     const b = e.target.closest('.v2-excel'); if (!b) return;
     const g = graficoDe(b); if (!g) return;

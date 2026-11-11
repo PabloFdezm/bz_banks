@@ -35,7 +35,7 @@ body{margin:0}
   <div style="{{guia}}"></div>
   <div style="{{clip}}">
     <sc-for list="{{capas}}" as="c" hint-placeholder-count="3">
-      <svg width="{{w}}" height="{{h}}" style="{{capaSvg}}">
+      <svg width="{{w}}" height="{{h}}" style="{{capaSvg}}" aria-hidden="true">
         <path d="{{c.d}}" fill="{{c.fill}}" stroke="{{c.stroke}}" stroke-width="{{c.sw}}" stroke-dasharray="{{c.dash}}" opacity="{{c.op}}" stroke-linejoin="round" stroke-linecap="round"></path>
         <path d="{{c.hitD}}" fill="{{c.hitFill}}" stroke="{{c.hitStroke}}" stroke-width="14" style="{{c.hitStyle}}" onClick="{{c.click}}"></path>
       </svg>
@@ -139,9 +139,10 @@ class Component extends DCLogic {
     const ticksX = tx.map((i) => ({ label: c.etiquetas[i], style: 'position:absolute;top:' + (B + 6) + 'px;width:60px;text-align:center;left:' + Math.round(x(i) - 30) + 'px;' + mono }));
     const bandas = (c.bandas || []).map((b) => {
       const x0 = cat ? L + paso * b.desde : x(b.desde) - paso / 2;
-      // El rótulo («Res. 4.966») mide ~62 px: si la banda es más angosta (celular), va sin rótulo en vez de cortado.
+      // Si la banda es más angosta que su rótulo (celular, o «Reclasificación» en dos meses), va sin rótulo, no cortado.
       const ancho = paso * (b.hasta - b.desde + 1);
-      return { texto: ancho >= 66 ? b.texto : '', style: 'position:absolute;top:' + T + 'px;height:' + (B - T) + 'px;left:' + F(x0) + 'px;width:' + F(ancho) + 'px;background:#E8ECF1;box-sizing:border-box;padding:6px 4px;text-align:center;font-size:12px;line-height:16px;font-weight:600;color:#4F5B6B;overflow:hidden' };
+      // Cabe si la banda mide al menos el texto (~7 px por carácter a 12 px, peso 600) más 8 px de margen.
+      return { texto: ancho >= String(b.texto || '').length * 7 + 8 ? b.texto : '', style: 'position:absolute;top:' + T + 'px;height:' + (B - T) + 'px;left:' + F(x0) + 'px;width:' + F(ancho) + 'px;background:#E8ECF1;box-sizing:border-box;padding:6px 4px;text-align:center;font-size:12px;line-height:16px;font-weight:600;color:#4F5B6B;overflow:hidden' };
     });
     // Período fijado efectivo: si ninguna serie tiene dato en el período pedido (p. ej. el último mes del eje cuando la
     // serie llega un mes antes), se retrocede al último período con dato de alguna serie. Vale para todo el sitio.

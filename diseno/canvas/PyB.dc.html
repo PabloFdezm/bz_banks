@@ -151,7 +151,7 @@ class Component extends DCLogic {
     const rsm = (v) => v == null ? '—' : (v < 0 ? '−' : '') + Math.abs(v).toFixed(1).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
     const ultI = (a) => { let k = a.length - 1; while (k >= 0 && a[k] == null) k--; return k; };
     const zz = (a, n) => { const w = a.filter((x) => x != null).slice(-n); if (w.length < 12) return null; const m = w.reduce((x, y) => x + y, 0) / w.length, s = Math.sqrt(w.reduce((x, y) => x + (y - m) ** 2, 0) / (w.length - 1)); return s ? (w[w.length - 1] - m) / s : null; };
-    const ticks = (lab, d, h) => { const r = [], n = h - d + 1, mens = lab[0].length > 4; for (let i = d; i <= h; i++) { const e = lab[i]; if (mens ? (e.startsWith('ene') && (n <= 60 || +e.slice(4) % 2 === 0)) : (e.startsWith('1T') && (n <= 24 || +e.slice(2) % 2 === 0))) r.push(i - d); } return r; };
+    const ticks = (lab, d, h) => { const r = [], n = h - d + 1, mens = lab[0].length > 4; for (let i = d; i <= h; i++) { const e = lab[i]; if (mens ? (n <= 30 ? ['ene', 'abr', 'jul', 'oct'].includes(e.slice(0, 3)) : n <= 60 ? ['ene', 'jul'].includes(e.slice(0, 3)) : e.startsWith('ene') && (n <= 120 || +e.slice(4) % 2 === 0)) : (e.startsWith('1T') && (n <= 24 || +e.slice(2) % 2 === 0))) r.push(i - d); } return r; };
     const escala = (series, d, h, cero, solo) => {
       const conSel = !!(solo && solo.length);
       const rango = (ss) => { let a = Infinity, b = -Infinity; ss.forEach((s) => { for (let i = d; i <= h; i++) { const x = s.datos[i]; if (x != null) { a = Math.min(a, x); b = Math.max(b, x); } } }); return [a, b]; };
