@@ -25,7 +25,7 @@ html { scroll-padding-top: 16px; }
 .v2-secs a { display: flex; gap: 8px; padding: 4px 10px; font-size: 13px; line-height: 18px; color: var(--suave); text-decoration: none; border-left: 2px solid transparent; margin-left: -1px; }
 .v2-secs a:hover { color: var(--acento); }
 .v2-secs a[aria-current="location"] { color: var(--tinta); font-weight: 600; border-left-color: var(--acento); }
-.v2-num { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #8A93A0; min-width: 22px; }
+.v2-num { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #6B7684; min-width: 22px; }
 .v2-nav a:focus-visible, .v2-plegar:focus-visible, .v2-abrir:focus-visible, .v2-marca:focus-visible { outline: 2px solid var(--acento); outline-offset: 2px; }
 
 /* Botón para volver a mostrar el menú (plegado o pantallas chicas) */
@@ -73,11 +73,14 @@ html.v2-dialogo { overflow: hidden; }
 
 /* Modo Presentar */
 .v2-presentando .v2-lateral, .v2-presentando .v2-abrir, .v2-presentando .v2-barra { display: none; }
-.v2-presentando main { margin-left: 0; padding: 24px; }
+/* El espacio al final deja subir la última lámina hasta arriba igual que las demás. */
+.v2-presentando main { margin-left: 0; padding: 24px 24px 100vh; }
 .v2-presentando body { background: #F6F7F8; }
 .v2-presentando #v2-raiz .card, .v2-presentando #v2-raiz .sh { visibility: hidden; }
-.v2-presentando #v2-raiz .v2-actual, .v2-presentando #v2-raiz .v2-actual .card, .v2-presentando #v2-raiz .sh.v2-actual { visibility: visible; }
-.v2-presentando #v2-raiz > .v2-hoja > div > div > span:first-child, .v2-presentando #v2-raiz select { visibility: hidden; }
+.v2-presentando #v2-raiz [data-v2-actual], .v2-presentando #v2-raiz [data-v2-actual] .card, .v2-presentando #v2-raiz .sh[data-v2-actual] { visibility: visible; }
+/* La lámina no lleva controles: selectores, Ajustar eje, Excel y Agrandar salen del flujo; el corte queda como texto. */
+.v2-presentando #v2-raiz .card .btn, .v2-presentando #v2-raiz .card select { display: none !important; }
+.v2-presentando #v2-raiz .card > [data-corte-lam]::after { content: attr(data-corte-lam); flex-shrink: 0; align-self: center; font-size: 14px; line-height: 20px; color: var(--suave); white-space: nowrap; }
 .v2-presentando { overflow: hidden; }
 .v2-pres { position: fixed; right: 20px; bottom: 20px; z-index: 50; display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: #FFFFFF; border: 1px solid var(--borde); border-radius: 6px; box-shadow: 0 4px 16px rgba(27,36,51,0.12); }
 .v2-pres[hidden] { display: none; }
@@ -89,3 +92,46 @@ html.v2-dialogo { overflow: hidden; }
 .v2-404 main { margin: 0; padding: 96px 48px; }
 .v2-404 h1 { font-family: 'Bricolage Grotesque', sans-serif; font-size: 32px; margin: 16px 0; }
 .v2-404 a { color: var(--acento); }
+
+/* Diseño fluido (11-nov): las hojas se dibujan al ancho disponible en vez de un lienzo fijo de 1.600 px escalado.
+   Se reemplazan por CSS los anchos fijos de la plantilla del canvas; los gráficos miden su contenedor (dc.js). */
+#v2-escala { width: auto; max-width: 1760px; margin: 0 auto; }
+#v2-raiz > .v2-hoja > div:first-child { width: auto !important; height: auto !important; padding: 0 0 32px !important; }
+#v2-raiz div[style*="grid-template-columns: 960px"], #v2-raiz div[style*="grid-template-columns: 940px"], #v2-raiz div[style*="grid-template-columns: 1000px"] {
+  grid-template-columns: minmax(0, 1.5fr) minmax(440px, 1fr) !important; height: auto !important; }
+#v2-raiz div[style*="grid-template-columns: 720px"] { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr) !important; }
+#v2-raiz .dlg[role="dialog"] { width: min(1552px, calc(100vw - 48px)) !important; }
+#v2-raiz .tb { font-size: 14px; }
+#v2-raiz .tb thead th { font-size: 13px; }
+#v2-raiz .cs, #v2-raiz .bs { font-size: 13px; line-height: 18px; }
+#v2-raiz .fu { font-size: 12px; }
+@media (max-width: 1099px) {
+  #v2-raiz div[style*="grid-template-columns: 960px"], #v2-raiz div[style*="grid-template-columns: 940px"], #v2-raiz div[style*="grid-template-columns: 1000px"],
+  #v2-raiz div[style*="grid-template-columns: 720px"] { grid-template-columns: minmax(0, 1fr) !important; }
+  #v2-raiz .card > div:first-child { flex-wrap: wrap; }
+  main { padding-left: 12px; padding-right: 12px; }
+}
+/* Botón de descarga: cuadrado, misma altura que los demás; cabecera de tarjeta que se acomoda si falta ancho */
+#v2-raiz .v2-excel { width: 44px; padding: 0; justify-content: center; }
+#v2-raiz .card > div:first-child { flex-wrap: wrap; row-gap: 8px; }
+#v2-raiz .card > div:first-child > div:first-child { flex: 1 1 280px; min-width: 0; }
+#v2-raiz .tb th, #v2-raiz .tb td { padding: 9px 5px; }
+#v2-raiz .card:has(> table), #v2-raiz .card:has(table.tb) { overflow-x: auto; }
+#v2-raiz .tb td { font-size: 13px; }
+
+/* Series atenuadas (otra serie resaltada): el texto pasa a gris legible (#6B7684, 4,7:1 sobre blanco) y solo la muestra
+   de color baja su opacidad. Antes se atenuaba todo el chip o la fila con opacity y el texto quedaba cerca de 2,3:1.
+   Las plantillas marcan el estado con la variable --atenuado en el style del chip o de la fila. */
+#v2-raiz .ley > span, #v2-raiz .tb .fb > span { opacity: var(--atenuado, 1); }
+#v2-raiz .tb tr[style*="--atenuado"] th, #v2-raiz .tb tr[style*="--atenuado"] td { color: #6B7684; }
+
+/* Celular (11-nov): las filas de controles, leyendas y selectores de las plantillas saltan de línea en vez de empujar la
+   página más allá de la pantalla. Solo filas (no columnas flex: la raíz de la hoja es una) y nunca el interior del
+   gráfico (dc-import), que mide su propio ancho. */
+@media (max-width: 640px) {
+  #v2-raiz div:is([style*="display: flex"], [style*="display:flex"]):not([style*="column"]):not(dc-import div) { flex-wrap: wrap; row-gap: 8px; }
+  #v2-raiz .card select.sel { max-width: 100%; }
+  /* Tarjetas un poco más angostas por dentro para que la tabla corta (hasta 5 columnas) quepa sin desplazarse. */
+  #v2-raiz .card { padding-left: 16px !important; padding-right: 16px !important; }
+  #v2-raiz .tb th, #v2-raiz .tb td { padding-left: 4px; padding-right: 4px; }
+}

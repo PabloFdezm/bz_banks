@@ -274,15 +274,15 @@ class Component extends DCLogic {
         bandas: (() => { const r = []; const iB = P.banda ? Q.indexOf(P.banda) : -1; if (iB >= d && iB <= h) r.push({ desde: Math.max(d, iB - 1) - d, hasta: iB - d, texto: 'Res. 4.966' }); const iP = P.panel ? Q.indexOf(P.panel) : -1; if (iP >= d && iP <= h) r.push({ desde: iP - d, hasta: iP - d, texto: '' }); return r; })(),
         fijo: Math.min(h, Math.max(d, fijoG)) - d, hover: st.hover != null && st.hover >= d && st.hover <= h ? st.hover - d : null,
         onFijar: (i) => this.setState({ fijo: Math.max(d, Math.min(h, i + d)), hover: null }), onHover: (i) => this.setState({ hover: i == null ? null : i + d }), onSerie: toggle }; };
-      const leyenda = P.series.map((s) => ({ nombre: s.nombre, pres: sel.includes(s.id) ? 'true' : 'false', sw: linea(s), est: (sel.includes(s.id) ? 'border-color:#2E5C8A;background:#E8EEF5;' : '') + (on(s.id) ? '' : 'opacity:0.45;'), click: (e) => toggle(s.id, multi(e)) }));
+      const leyenda = P.series.map((s) => ({ nombre: s.nombre, pres: sel.includes(s.id) ? 'true' : 'false', sw: linea(s), est: (sel.includes(s.id) ? 'border-color:#2E5C8A;background:#E8EEF5;' : '') + (on(s.id) ? '' : 'color:#6B7684;--atenuado:0.45;'), click: (e) => toggle(s.id, multi(e)) }));
       const fila = (o, g, largo, g1, color) => {
         const a = serieG(key, o, g), i = ultI(a), id = o === 'Total panel' ? 'tot' : g, enG = P.series.some((q) => q.id === id) && (o === op || id === 'tot');
         const f = FMT[P.fmt], corto = P.corto ? P.corto(o === 'Total panel' ? TOT : X.op[o][g], i, FMT) : [f(a[i]), i >= 4 && a[i - 4] != null ? pp(a[i] - a[i - 4]) : '—'];
         return { _a: a, nombre: id === 'tot' ? 'Total panel' : g, corte: i >= 0 ? Q[i] : '—', v: largo ? [f(a[i])].concat(camb(a)) : corto, cls: id === 'tot' ? 'tot' : g1 ? 'g1' : '', pres: sel.includes(id) && enG ? 'true' : 'false',
           sw: linea({ color: id === 'tot' ? COBRE : (enG ? P.series.find((q) => q.id === id).color : (color || '#C9D2DC')) }),
-          est: enG && sel.includes(id) ? 'background:#E8EEF5' : !enG || on(id) ? '' : 'opacity:0.4', click: (e) => { if (e) e.stopPropagation(); if (enG) toggle(id, multi(e)); } };
+          est: enG && sel.includes(id) ? 'background:#E8EEF5' : !enG || on(id) ? '' : '--atenuado:0.4', click: (e) => { if (e) e.stopPropagation(); if (enG) toggle(id, multi(e)); } };
       };
-      const ajuste = { sinSel: sel.length === 0, ajustar: () => this.setState({ aj: { ...this.state.aj, [key]: !aj } }), ajusteTxt: aj ? 'Eje completo' : 'Ajustar eje', ajustePres: aj ? 'true' : 'false', ajusteEst: aj ? 'background:#E8EEF5;border-color:#2E5C8A;color:#1F3F60;font-weight:600' : '' };
+      const ajuste = { sinSel: sel.length === 0, ajustar: () => this.setState({ aj: { ...this.state.aj, [key]: !aj } }), ajusteTxt: 'Ajustar eje', ajustePres: aj ? 'true' : 'false', ajusteEst: aj ? 'background:#E8EEF5;border-color:#2E5C8A;color:#1F3F60;font-weight:600' : '' };
       return { P, cfg, leyenda, fila, ajuste };
     };
     const AR = {}; Object.keys(K).forEach((key) => { AR[key] = armar(key); });
@@ -331,8 +331,8 @@ class Component extends DCLogic {
         const cfgR = { w: 640, n: NQ, etiquetas: Q, serie: totLleno, desde: d0, hasta: h0, minimo: 4, unidad: 'trimestres', onRango: (x, z) => this.setState({ rng: { ...this.state.rng, [key]: { d: x, h: z } } }) };
         const ids = grupos(o).concat(['tot']);
         const filas = conCaja(grupos(o).map((g, j) => Xp.fila(o, g, true, false, PAL[j % PAL.length])).concat([Xp.fila('Total panel', null, true)]), !!P.apilar).map((row, n) => { const id = ids[n];
-          return { ...row, pres: sel.includes(id) ? 'true' : 'false', est: sel.includes(id) ? 'background:#E8EEF5' : on(id) ? '' : 'opacity:0.4', click: (e) => { if (e) e.stopPropagation(); toggle(id, multi(e)); } }; });
-        return { nombre: ETQ[k], sub: '', nota: filas.some((r) => r._at) ? NOTA_AT : '', cols: ['Último', 't/t', 'a/a', '4T/4T', 'Z 10 años'], cfg, cfgR, filas, sinSel: sel.length === 0, ajTxt: aj ? 'Eje completo' : 'Ajustar eje', ajPres: aj ? 'true' : 'false', ajEst: aj ? 'background:#E8EEF5;border-color:#2E5C8A;color:#1F3F60;font-weight:600' : '', ajustar: () => this.setState({ ajO: { ...this.state.ajO, [key]: !this.state.ajO[key] } }) };
+          return { ...row, pres: sel.includes(id) ? 'true' : 'false', est: sel.includes(id) ? 'background:#E8EEF5' : on(id) ? '' : '--atenuado:0.4', click: (e) => { if (e) e.stopPropagation(); toggle(id, multi(e)); } }; });
+        return { nombre: ETQ[k], sub: '', nota: filas.some((r) => r._at) ? NOTA_AT : '', cols: ['Último', 't/t', 'a/a', '4T/4T', 'Z 10 años'], cfg, cfgR, filas, sinSel: sel.length === 0, ajTxt: 'Ajustar eje', ajPres: aj ? 'true' : 'false', ajEst: aj ? 'background:#E8EEF5;border-color:#2E5C8A;color:#1F3F60;font-weight:600' : '', ajustar: () => this.setState({ ajO: { ...this.state.ajO, [key]: !this.state.ajO[key] } }) };
       };
       const ops = Object.keys(OPT).map(bloqueOp);
       const bloqueInf = () => {
@@ -346,8 +346,8 @@ class Component extends DCLogic {
           bandas: iBq >= d0 && iBq <= h0 ? [{ desde: Math.max(d0, iBq - 1) - d0, hasta: iBq - d0, texto: Bq.lab ? '' : 'Res. 4.966' }] : [] };
         const totI = (Bq.filas.find((rw) => rw[5]) || Bq.filas[0])[3].map((x, k2, a) => x == null ? (a.slice(k2).find((y) => y != null) ?? 0) : x);
         const cfgR = { w: 640, n: nI, etiquetas: labI, serie: totI, desde: d0, hasta: h0, minimo: 4, unidad: Bq.lab ? 'meses' : 'trimestres', onRango: (x, z) => this.setState({ rng: { ...this.state.rng, [key]: { d: x, h: z } } }) };
-        const filas = caja(Bq, labI).map((row, n) => { const id = 'b' + n; return { ...row, pres: sel.includes(id) ? 'true' : 'false', est: sel.includes(id) ? 'background:#E8EEF5' : on(id) ? '' : 'opacity:0.4', click: (e) => { if (e) e.stopPropagation(); toggle(id, multi(e)); } }; });
-        return { nombre: Bq.tit, sub: Bq.sub, nota: filas.some((r) => r._at) ? NOTA_AT : '', cols: ['Último', 'Z 10 años'], cfg, cfgR, filas, sinSel: sel.length === 0, ajTxt: aj ? 'Eje completo' : 'Ajustar eje', ajPres: aj ? 'true' : 'false', ajEst: aj ? 'background:#E8EEF5;border-color:#2E5C8A;color:#1F3F60;font-weight:600' : '', ajustar: () => this.setState({ ajO: { ...this.state.ajO, [key]: !this.state.ajO[key] } }) };
+        const filas = caja(Bq, labI).map((row, n) => { const id = 'b' + n; return { ...row, pres: sel.includes(id) ? 'true' : 'false', est: sel.includes(id) ? 'background:#E8EEF5' : on(id) ? '' : '--atenuado:0.4', click: (e) => { if (e) e.stopPropagation(); toggle(id, multi(e)); } }; });
+        return { nombre: Bq.tit, sub: Bq.sub, nota: filas.some((r) => r._at) ? NOTA_AT : '', cols: ['Último', 'Z 10 años'], cfg, cfgR, filas, sinSel: sel.length === 0, ajTxt: 'Ajustar eje', ajPres: aj ? 'true' : 'false', ajEst: aj ? 'background:#E8EEF5;border-color:#2E5C8A;color:#1F3F60;font-weight:600' : '', ajustar: () => this.setState({ ajO: { ...this.state.ajO, [key]: !this.state.ajO[key] } }) };
       };
       const lab = Bq.lab || Q, nB = lab.length, iBb = Bq.lab ? lab.indexOf('ene-25') : (K[v].banda ? Q.indexOf(K[v].banda) : -1);
       const bs = Bq.filas.filter((r) => !r[6]).map((r, k) => ({ id: 'b' + k, color: r[1], ancho: r[5] ? 2.5 : 2, dash: r[2] ? '6 4' : undefined, datos: r[3] }));

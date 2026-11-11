@@ -199,11 +199,11 @@ class Component extends DCLogic {
     const PARES = {
       va: { titulo: 'Concesiones de crédito 12m, a/a', sub: 'Eje vertical: variación a/a nominal, %. Eje horizontal: mes.', fuente: 'Fuente: BCB, SGS 20631–20633 y 20662.', control: true, trim: false, cero: true, dec: 1, n: NM, def: 24, sufijo: ' %',
         series: CORTE.map((id) => ({ id, nombre: nomS(id), color: COL[id], ancho: 2.5, datos: D['aa_' + id] || VACIO })).concat([{ id: 'tot', nombre: 'Total', color: COBRE, ancho: 2.5, datos: D.aa_tot }]),
-        tTitulo: 'Concesiones y crecimiento', tSub: 'Suma 12m en R$ mil millones · Share del total · a/a en %', tFuente: 'Fuente: BCB, SGS.', cols: ['Concesiones 12m', 'Share', 'a/a'],
+        tTitulo: 'Concesiones y crecimiento', tSub: 'Suma 12m en R$ mil millones · Share del total · a/a en %', tFuente: 'Fuente: BCB, SGS.', cols: ['Último', 'Share', 'a/a'],
         corto: (id) => LARGO[id] ? [LARGO[id][0], LARGO[id][1], LARGO[id][4]] : RAYA.slice(0, 3) },
       vb: { titulo: 'Impulso del crédito: concesiones reales sobre IBC-Br', sub: 'Eje vertical: variación a/a, %. Eje horizontal: mes.', fuente: 'Fuente: BCB, SGS (concesiones 20631–20633 y 20662, IPCA 433, IBC-Br 24364); cálculo propio.', control: true, trim: false, cero: true, dec: 1, n: NM, def: 24, sufijo: ' %',
         series: CORTE.map((id) => ({ id, nombre: nomS(id), color: COL[id], ancho: 2.5, datos: aaCI(id) })).concat([{ id: 'tot', nombre: 'Total', color: COBRE, ancho: 2.5, datos: aaCI('tot') }]),
-        tTitulo: 'Concesiones reales sobre actividad', tSub: 'a/a en % · índice, promedio 2014 = 100', tFuente: 'Fuente: BCB, SGS; cálculo propio.', cols: ['a/a', 'Índice'] },
+        tTitulo: 'Concesiones reales sobre actividad', tSub: 'Último: índice, promedio 2014 = 100 · a/a en %', tFuente: 'Fuente: BCB, SGS; cálculo propio.', cols: ['Último', 'a/a'] },
     };
     const ult = (a) => { let k = a.length - 1; while (a[k] == null) k--; return a.slice(0, k + 1); };
     const corteDe = (a) => meses[ult(a).length - 1];
@@ -228,16 +228,16 @@ class Component extends DCLogic {
         series: P.series.map((s) => ({ id: s.id, color: s.color, ancho: s.ancho, dash: s.dash, valores: s.datos.slice(d, h + 1) })), fills: P.fills || [], sel,
         fijo: Math.min(h, Math.max(d, fijoG)) - d, hover: st.hover != null && st.hover >= d && st.hover <= h ? st.hover - d : null,
         onFijar: (i) => this.setState({ fijo: Math.max(d, Math.min(h, i + d)), hover: null }), onHover: (i) => this.setState({ hover: i == null ? null : i + d }), onSerie: toggle });
-      const leyenda = P.series.map((s) => ({ nombre: s.nombre, pres: sel.includes(s.id) ? 'true' : 'false', sw: linea(s), est: (sel.includes(s.id) ? 'border-color:#2E5C8A;background:#E8EEF5;' : '') + (on(s.id) ? '' : 'opacity:0.45;'), click: (e) => toggle(s.id, multi(e)) }));
+      const leyenda = P.series.map((s) => ({ nombre: s.nombre, pres: sel.includes(s.id) ? 'true' : 'false', sw: linea(s), est: (sel.includes(s.id) ? 'border-color:#2E5C8A;background:#E8EEF5;' : '') + (on(s.id) ? '' : 'color:#6B7684;--atenuado:0.45;'), click: (e) => toggle(s.id, multi(e)) }));
       const fila = (id, nombre, corte, v, s, tot, g1) => ({ nombre, corte, v, cls: tot ? 'tot' : g1 ? 'g1' : '', pres: sel.includes(id) ? 'true' : 'false', sw: s.dash || s.ancho ? linea(s) : 'width:12px;height:12px;flex-shrink:0;background:' + s.color,
-        est: sel.includes(id) ? 'background:#E8EEF5' : on(id) || !P.series.some((q) => q.id === id) ? '' : 'opacity:0.4', click: (e) => { if (e) e.stopPropagation(); if (P.series.some((q) => q.id === id)) toggle(id, multi(e)); } });
-      const ajuste = { sinSel: sel.length === 0, ajustar: () => this.setState({ aj: { ...this.state.aj, [key]: !aj } }), ajusteTxt: aj ? 'Eje completo' : 'Ajustar eje', ajustePres: aj ? 'true' : 'false', ajusteEst: aj ? 'background:#E8EEF5;border-color:#2E5C8A;color:#1F3F60;font-weight:600' : '' };
+        est: sel.includes(id) ? 'background:#E8EEF5' : on(id) || !P.series.some((q) => q.id === id) ? '' : '--atenuado:0.4', click: (e) => { if (e) e.stopPropagation(); if (P.series.some((q) => q.id === id)) toggle(id, multi(e)); } });
+      const ajuste = { sinSel: sel.length === 0, ajustar: () => this.setState({ aj: { ...this.state.aj, [key]: !aj } }), ajusteTxt: 'Ajustar eje', ajustePres: aj ? 'true' : 'false', ajusteEst: aj ? 'background:#E8EEF5;border-color:#2E5C8A;color:#1F3F60;font-weight:600' : '' };
       return { P, cfg, leyenda, fila, ajuste };
     };
     const A = armar('va'), B = armar('vb');
     const porId = (P, id) => P.series.find((s) => s.id === id);
     const filasA_corto = CORTE.concat('tot').map((id) => A.fila(id, nomS(id), FALTA.includes(id) ? '—' : 'sep-26', A.P.corto(id), porId(A.P, id), id === 'tot'));
-    const filaB = (id, cols, g1) => { if (FALTA.includes(id)) return B.fila(id, nomS(id), '—', RAYA.slice(0, cols === 'corto' ? 2 : 6), porId(B.P, id) || { color: '#C9D2DC' }, false, g1); const a = ult(serieB(id)); const c = cambPct(a); const idx = a[a.length - 1].toFixed(1).replace('.', ','); const v = cols === 'corto' ? [c[2], idx] : [idx].concat(c, [pp(z120(a))]); return B.fila(id, NOMB[id], corteDe(serieB(id)), v, porId(B.P, id) || { color: '#C9D2DC' }, id === 'tot', g1); };
+    const filaB = (id, cols, g1) => { if (FALTA.includes(id)) return B.fila(id, nomS(id), '—', RAYA.slice(0, cols === 'corto' ? 2 : 6), porId(B.P, id) || { color: '#C9D2DC' }, false, g1); const a = ult(serieB(id)); const c = cambPct(a); const idx = a[a.length - 1].toFixed(1).replace('.', ','); const v = cols === 'corto' ? [idx, c[2]] : [idx].concat(c, [pp(z120(a))]); return B.fila(id, NOMB[id], corteDe(serieB(id)), v, porId(B.P, id) || { color: '#C9D2DC' }, id === 'tot', g1); };
     const filasB_corto = CORTE.concat(['tot']).map((id) => filaB(id, 'corto'));
     const abrir = (key) => () => { const P = PARES[key]; this.setState({ vista: key, desde: P.n - P.def, hasta: P.n - 1 }); };
     const pares = [

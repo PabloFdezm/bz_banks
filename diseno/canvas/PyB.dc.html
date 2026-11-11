@@ -311,12 +311,12 @@ class Component extends DCLogic {
       const AP_ = P.apilar || D.div; const cfg = grafCfg(series, lab, d, h, 910, 380, D.fmt, P, sel, aj, P.apilar, {
         fijo: Math.min(h, Math.max(d, st.fijo[key] == null ? h : st.fijo[key])) - d, hover: st.hover[key] != null && st.hover[key] >= d && st.hover[key] <= h ? st.hover[key] - d : null,
         onFijar: (i) => this.setState({ fijo: { ...this.state.fijo, [key]: i + d }, hover: {} }), onHover: (i) => this.setState({ hover: i == null ? {} : { [key]: i + d } }), onSerie: toggle }, D.div);
-      const leyenda = series.map((s) => ({ nombre: s.nombre, pres: sel.includes(s.id) ? 'true' : 'false', sw: marca(AP_, s), est: (sel.includes(s.id) ? 'border-color:#2E5C8A;background:#E8EEF5;' : '') + (on(s.id) ? '' : 'opacity:0.45;'), click: (e) => toggle(s.id, multi(e)) }));
+      const leyenda = series.map((s) => ({ nombre: s.nombre, pres: sel.includes(s.id) ? 'true' : 'false', sw: marca(AP_, s), est: (sel.includes(s.id) ? 'border-color:#2E5C8A;background:#E8EEF5;' : '') + (on(s.id) ? '' : 'color:#6B7684;--atenuado:0.45;'), click: (e) => toggle(s.id, multi(e)) }));
       const filas = series.map((s) => { const a = s.datos, i = ultI(a);
         return { nombre: s.nombre, corte: i >= 0 ? lab[i] : '—', v: i < 0 ? ['—', '—'] : [FMT[D.fmt](a[i]), dl(D.fmt, a, i, i - lag)], cls: s.tot ? 'tot' : '', pres: sel.includes(s.id) ? 'true' : 'false', sw: marca(AP_, s),
-          est: sel.includes(s.id) ? 'background:#E8EEF5' : on(s.id) ? '' : 'opacity:0.4', click: (e) => { if (e) e.stopPropagation(); toggle(s.id, multi(e)); } }; });
+          est: sel.includes(s.id) ? 'background:#E8EEF5' : on(s.id) ? '' : '--atenuado:0.4', click: (e) => { if (e) e.stopPropagation(); toggle(s.id, multi(e)); } }; });
       return { titulo: P.titulo, sub: P.sub, fuente: P.fuente, tTitulo: P.tTitulo, tSub: P.tSub, cols: ['Último', 'Δ a/a'], leyenda, cfg, filas,
-        sinSel: sel.length === 0, ajustar: () => this.setState({ aj: { ...this.state.aj, [key]: !this.state.aj[key] } }), ajusteTxt: aj ? 'Eje completo' : 'Ajustar eje', ajustePres: aj ? 'true' : 'false', ajusteEst: aj ? 'background:#E8EEF5;border-color:#2E5C8A;color:#1F3F60;font-weight:600' : '' };
+        sinSel: sel.length === 0, ajustar: () => this.setState({ aj: { ...this.state.aj, [key]: !this.state.aj[key] } }), ajusteTxt: 'Ajustar eje', ajustePres: aj ? 'true' : 'false', ajusteEst: aj ? 'background:#E8EEF5;border-color:#2E5C8A;color:#1F3F60;font-weight:600' : '' };
     };
     const bloque = (v, j, Bq) => {
       const P = K[v], lab = LAB[Bq.lab], n = lab.length, lag = LAG[Bq.lab], key = v + '|' + j, def = Math.max(0, n - DEFN[Bq.lab]), series = mk(Bq.series), f = Bq.fmt, monto = f === 'rs';
@@ -327,9 +327,9 @@ class Component extends DCLogic {
       const cfgR = { w: 640, n, etiquetas: lab, serie: base.map((x, k, a) => x == null ? (a.slice(k).find((y) => y != null) ?? 0) : x), desde: d0, hasta: h0, minimo: 6, unidad: UNI[Bq.lab], onRango: (x, z) => this.setState({ rng: { ...this.state.rng, [key]: { d: x, h: z } } }) };
       const filas0 = series.map((s) => { const a = s.datos, i = ultI(a);
         return { _a: monto ? [] : a, _c: s.color, nombre: s.nombre, corte: i >= 0 ? lab[i] : '—', v: i < 0 ? ['—', '—', '—', '—'] : [FMT[f](a[i]), dl(f, a, i, i - 1), dl(f, a, i, i - lag), monto ? '—' : pp(zz(a, ZN[Bq.lab]))], cls: s.tot ? 'tot' : '', pres: sel.includes(s.id) ? 'true' : 'false', sw: marca(Bq.apilar || Bq.div, s),
-          est: sel.includes(s.id) ? 'background:#E8EEF5' : on(s.id) ? '' : 'opacity:0.4', click: (e) => { if (e) e.stopPropagation(); toggle(s.id, multi(e)); } }; });
+          est: sel.includes(s.id) ? 'background:#E8EEF5' : on(s.id) ? '' : '--atenuado:0.4', click: (e) => { if (e) e.stopPropagation(); toggle(s.id, multi(e)); } }; });
       const filas = cajas(filas0, !!(Bq.apilar || Bq.div));
-      return { nombre: Bq.nombre, nota: filas.some((x) => x._at) ? NOTA_AT : '', cols: ['Último', 't/t', 'a/a', 'Z 10 años'], cfg, cfgR, filas, sinSel: sel.length === 0, ajTxt: aj ? 'Eje completo' : 'Ajustar eje', ajPres: aj ? 'true' : 'false', ajEst: aj ? 'background:#E8EEF5;border-color:#2E5C8A;color:#1F3F60;font-weight:600' : '', ajustar: () => this.setState({ ajO: { ...this.state.ajO, [key]: !this.state.ajO[key] } }) };
+      return { nombre: Bq.nombre, nota: filas.some((x) => x._at) ? NOTA_AT : '', cols: ['Último', 't/t', 'a/a', 'Z 10 años'], cfg, cfgR, filas, sinSel: sel.length === 0, ajTxt: 'Ajustar eje', ajPres: aj ? 'true' : 'false', ajEst: aj ? 'background:#E8EEF5;border-color:#2E5C8A;color:#1F3F60;font-weight:600' : '', ajustar: () => this.setState({ ajO: { ...this.state.ajO, [key]: !this.state.ajO[key] } }) };
     };
     // ---- estados contables del trimestre elegido
     const CORTES = X.labq.slice(-12).reverse();

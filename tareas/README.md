@@ -5,7 +5,7 @@ Lista ordenada por prioridad. Cada frente tiene su archivo con el detalle, los d
 
 | # | Frente | Archivo | Estado |
 |---|---|---|---|
-| 1 | Correcciones de datos detectadas en la auditoría del 6-nov | `01_correcciones_datos.md` | 1.1–1.5 cerradas el 6-nov (1.2: se deja el corte mixto); 1.6 hecha el 9-nov (falta publicar); 1.7 hecha y publicada el 8-nov |
+| 1 | Correcciones de datos detectadas en la auditoría del 6-nov | `01_correcciones_datos.md` | 1.1–1.5 cerradas el 6-nov (1.2: se deja el corte mixto); 1.6 hecha el 9-nov (falta publicar); 1.7 hecha y publicada el 8-nov; 1.8 (S4 4.095 % a/a en Trimestral) anotada el 11-nov, por revisar |
 | 2 | Módulo Personas (SCR.data por renda) | `02_modulo_personas_scr.md` | páginas Personas (B11) y Mora (B12) publicadas el 6-nov; canvas sin revisar por Pablo |
 | 3 | Réplica del reporte sell-side de crédito por renda (detalle en `referencias/`, fuera de git) | `03_replica_sellside.md` | **en pausa** (Pablo, 9-nov): la fuente sirve (sondeo en `03_replica_sellside.md`), pero bajar 2017–2026 son ~3,5 GB y medio día de trabajo |
 | 4 | Réplica de gráficos del REF (BCB, oct-26) | `04_replica_ref.md` | fuente `bcb_ref` construida el 9-nov (`bk_ref`, 8 ediciones del Anexo; informe en `borradores/ref_informe.md`); faltan las tarjetas, con el rediseño |

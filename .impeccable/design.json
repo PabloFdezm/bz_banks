@@ -1,0 +1,488 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-11T08:01:01",
+  "title": "Design System: Bancos Brasil",
+  "extensions": {
+    "colorMeta": {
+      "navy-dato": {
+        "role": "primary",
+        "displayName": "Navy dato",
+        "canonical": "#2E5C8A",
+        "tonalRamp": [
+          "#0E1C29",
+          "#172E45",
+          "#204061",
+          "#29537C",
+          "#587DA1",
+          "#8CA5BF",
+          "#C0CEDC",
+          "#EAEFF3"
+        ]
+      },
+      "navy-profundo": {
+        "role": "primary",
+        "displayName": "Navy profundo",
+        "canonical": "#1F3F60",
+        "tonalRamp": [
+          "#09131D",
+          "#102030",
+          "#162C43",
+          "#1C3956",
+          "#4C6580",
+          "#8495A8",
+          "#BCC5CF",
+          "#E9ECEF"
+        ]
+      },
+      "seleccion": {
+        "role": "primary",
+        "displayName": "Selección",
+        "canonical": "#E8EEF5",
+        "tonalRamp": [
+          "#46474A",
+          "#74777A",
+          "#A2A7AC",
+          "#D1D6DC",
+          "#EDF1F7",
+          "#F2F6FA",
+          "#F8FAFC",
+          "#FDFDFE"
+        ]
+      },
+      "cobre-total": {
+        "role": "secondary",
+        "displayName": "Cobre total",
+        "canonical": "#A85E24",
+        "tonalRamp": [
+          "#321C0B",
+          "#542F12",
+          "#764219",
+          "#975520",
+          "#B97E50",
+          "#CFA687",
+          "#E5CFBD",
+          "#F6EFE9"
+        ]
+      },
+      "petroleo": {
+        "role": "tertiary",
+        "displayName": "Petróleo",
+        "canonical": "#2F7A86",
+        "tonalRamp": [
+          "#0E2528",
+          "#183D43",
+          "#21555E",
+          "#2A6E79",
+          "#59959E",
+          "#8DB6BC",
+          "#C1D7DB",
+          "#EAF2F3"
+        ]
+      },
+      "acero": {
+        "role": "tertiary",
+        "displayName": "Acero",
+        "canonical": "#6C819B",
+        "tonalRamp": [
+          "#20272F",
+          "#36404E",
+          "#4C5A6C",
+          "#61748C",
+          "#899AAF",
+          "#AEBAC8",
+          "#D3D9E1",
+          "#F0F2F5"
+        ]
+      },
+      "celeste-acero": {
+        "role": "tertiary",
+        "displayName": "Celeste acero",
+        "canonical": "#8FB0D0",
+        "tonalRamp": [
+          "#2B353E",
+          "#485868",
+          "#647B92",
+          "#819EBB",
+          "#A5C0D9",
+          "#C1D4E5",
+          "#DDE7F1",
+          "#F4F7FA"
+        ]
+      },
+      "gris-referencia": {
+        "role": "tertiary",
+        "displayName": "Gris referencia",
+        "canonical": "#8A8F96",
+        "tonalRamp": [
+          "#292B2D",
+          "#45484B",
+          "#616469",
+          "#7C8187",
+          "#A1A5AB",
+          "#BFC1C5",
+          "#DCDDE0",
+          "#F3F4F4"
+        ]
+      },
+      "tinta": {
+        "role": "neutral",
+        "displayName": "Tinta",
+        "canonical": "#24324A",
+        "tonalRamp": [
+          "#0B0F16",
+          "#121925",
+          "#192334",
+          "#202D43",
+          "#505B6E",
+          "#878E9B",
+          "#BDC2C9",
+          "#E9EAED"
+        ]
+      },
+      "texto-suave": {
+        "role": "neutral",
+        "displayName": "Texto suave",
+        "canonical": "#5B6573",
+        "tonalRamp": [
+          "#1B1E23",
+          "#2E323A",
+          "#404750",
+          "#525B68",
+          "#7C848F",
+          "#A5AAB2",
+          "#CED1D5",
+          "#EFF0F1"
+        ]
+      },
+      "rotulo": {
+        "role": "neutral",
+        "displayName": "Rótulo",
+        "canonical": "#6B7684",
+        "tonalRamp": [
+          "#202328",
+          "#363B42",
+          "#4B535C",
+          "#606A77",
+          "#89919D",
+          "#AEB4BB",
+          "#D3D6DA",
+          "#F0F1F3"
+        ]
+      },
+      "gris-apagado": {
+        "role": "neutral",
+        "displayName": "Gris apagado",
+        "canonical": "#8A93A0",
+        "tonalRamp": [
+          "#292C30",
+          "#454A50",
+          "#616770",
+          "#7C8490",
+          "#A1A9B3",
+          "#BFC4CB",
+          "#DCDFE2",
+          "#F3F4F6"
+        ]
+      },
+      "banda-periodo": {
+        "role": "neutral",
+        "displayName": "Banda de período",
+        "canonical": "#E8ECF1",
+        "tonalRamp": [
+          "#464748",
+          "#747678",
+          "#A2A5A9",
+          "#D1D4D9",
+          "#EDF0F4",
+          "#F2F5F7",
+          "#F8F9FB",
+          "#FDFDFE"
+        ]
+      },
+      "borde-control": {
+        "role": "neutral",
+        "displayName": "Borde control",
+        "canonical": "#C9D2DC",
+        "tonalRamp": [
+          "#3C3F42",
+          "#64696E",
+          "#8D939A",
+          "#B5BDC6",
+          "#D4DBE3",
+          "#E1E6EC",
+          "#EFF2F4",
+          "#FAFAFC"
+        ]
+      },
+      "borde-tarjeta": {
+        "role": "neutral",
+        "displayName": "Borde tarjeta",
+        "canonical": "#E1E6EC",
+        "tonalRamp": [
+          "#444547",
+          "#707376",
+          "#9EA1A5",
+          "#CACFD4",
+          "#E7EBF0",
+          "#EEF1F5",
+          "#F6F8F9",
+          "#FCFCFD"
+        ]
+      },
+      "linea-tabla": {
+        "role": "neutral",
+        "displayName": "Línea tabla",
+        "canonical": "#E6EAEF",
+        "tonalRamp": [
+          "#454648",
+          "#737578",
+          "#A1A4A7",
+          "#CFD3D7",
+          "#EBEEF2",
+          "#F1F3F6",
+          "#F8F9FA",
+          "#FCFDFD"
+        ]
+      },
+      "hover-suave": {
+        "role": "neutral",
+        "displayName": "Hover suave",
+        "canonical": "#EEF1F5",
+        "tonalRamp": [
+          "#47484A",
+          "#77787A",
+          "#A7A9AC",
+          "#D6D9DC",
+          "#F1F4F7",
+          "#F6F7FA",
+          "#FAFBFC",
+          "#FDFEFE"
+        ]
+      },
+      "fondo": {
+        "role": "neutral",
+        "displayName": "Fondo",
+        "canonical": "#F6F7F8",
+        "tonalRamp": [
+          "#4A4A4A",
+          "#7B7C7C",
+          "#ACADAE",
+          "#DDDEDF",
+          "#F8F9F9",
+          "#FAFBFB",
+          "#FCFDFD",
+          "#FEFEFE"
+        ]
+      },
+      "superficie": {
+        "role": "neutral",
+        "displayName": "Superficie",
+        "canonical": "#FFFFFF",
+        "tonalRamp": [
+          "#4D4D4D",
+          "#808080",
+          "#B2B2B2",
+          "#E6E6E6",
+          "#FFFFFF",
+          "#FFFFFF",
+          "#FFFFFF",
+          "#FFFFFF"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Título de página",
+        "purpose": "Título de la página."
+      },
+      "headline": {
+        "displayName": "Sección",
+        "purpose": "Título de sección y de lámina, en navy."
+      },
+      "title": {
+        "displayName": "Título de tarjeta",
+        "purpose": "Descriptivo: qué muestra el gráfico."
+      },
+      "body": {
+        "displayName": "Cuerpo",
+        "purpose": "Indicador de tabla, menú y controles."
+      },
+      "label": {
+        "displayName": "Rótulo de botón",
+        "purpose": "Botones de la barra superior."
+      },
+      "caption": {
+        "displayName": "Nota",
+        "purpose": "Ejes y unidades, corte y leyenda."
+      },
+      "numero": {
+        "displayName": "Cifra",
+        "purpose": "Toda cifra de tabla, a la derecha."
+      },
+      "eje": {
+        "displayName": "Eje y fuente",
+        "purpose": "Ejes del gráfico y fuente."
+      },
+      "grupo-menu": {
+        "displayName": "Grupo de menú",
+        "purpose": "Rótulo de grupo en mayúsculas; única excepción bajo 12 px."
+      }
+    },
+    "shadows": [
+      {
+        "name": "flotante",
+        "value": "0 1px 2px rgba(27,36,51,0.08)",
+        "purpose": "Botón «Menú» con el menú plegado."
+      },
+      {
+        "name": "barra-presentar",
+        "value": "0 4px 16px rgba(27,36,51,0.12)",
+        "purpose": "Controles de lámina en Presentar."
+      },
+      {
+        "name": "menu-encima",
+        "value": "4px 0 16px rgba(27,36,51,0.12)",
+        "purpose": "Menú abierto bajo 1.100 px."
+      },
+      {
+        "name": "dialogo",
+        "value": "0 12px 40px rgba(27,36,51,0.25)",
+        "purpose": "Ventana de Agrandar."
+      }
+    ],
+    "motion": [
+      {
+        "name": "menu",
+        "value": "transform 0.18s ease",
+        "purpose": "Plegar y abrir el menú; solo sin prefers-reduced-motion."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "celular",
+        "value": "640px"
+      },
+      {
+        "name": "apilado",
+        "value": "1099px"
+      },
+      {
+        "name": "menu-plegado-por-defecto",
+        "value": "1400px"
+      },
+      {
+        "name": "contenido-max",
+        "value": "1760px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Botón",
+      "kind": "button",
+      "refersTo": "boton",
+      "description": "Acción de tarjeta o diálogo: blanco con borde, 44 px.",
+      "html": "<button class=\"ds-btn\" type=\"button\">Ajustar eje</button>",
+      "css": ".ds-btn{font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:14px;height:44px;padding:0 16px;border:1px solid #C9D2DC;border-radius:4px;background:#FFFFFF;color:#24324A;cursor:pointer;display:inline-flex;align-items:center;gap:8px}.ds-btn:hover{border-color:#2E5C8A;color:#2E5C8A}.ds-btn:focus-visible{outline:2px solid #2E5C8A;outline-offset:2px}.ds-btn:disabled{color:#6B7684;border-color:#C9D2DC;cursor:default}"
+    },
+    {
+      "name": "Botón de barra",
+      "kind": "button",
+      "refersTo": "boton-barra",
+      "description": "Acciones de la barra superior (Excel de la página, Presentar), 36 px.",
+      "html": "<button class=\"ds-btn-barra\" type=\"button\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" aria-hidden=\"true\"><rect x=\"2\" y=\"3\" width=\"12\" height=\"8\" rx=\"1\"/><path d=\"M8 11v3M5.5 14h5\"/></svg>Presentar</button>",
+      "css": ".ds-btn-barra{font:500 14px 'IBM Plex Sans',sans-serif;height:36px;padding:0 14px;display:inline-flex;align-items:center;gap:8px;border:1px solid #C9D2DC;border-radius:4px;background:#FFFFFF;color:#24324A;cursor:pointer}.ds-btn-barra:hover{border-color:#2E5C8A;color:#2E5C8A}.ds-btn-barra:focus-visible{outline:2px solid #2E5C8A;outline-offset:2px}"
+    },
+    {
+      "name": "Selector",
+      "kind": "input",
+      "refersTo": "selector",
+      "description": "Select nativo para corte, agrupación y período.",
+      "html": "<select class=\"ds-sel\" aria-label=\"Corte\"><option>Personas · Libre</option><option>Empresas · Dirigido</option></select>",
+      "css": ".ds-sel{font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:14px;height:44px;padding:0 10px;border:1px solid #C9D2DC;border-radius:4px;background:#FFFFFF;color:#24324A}.ds-sel:hover{border-color:#2E5C8A}.ds-sel:focus-visible{outline:2px solid #2E5C8A;outline-offset:2px}"
+    },
+    {
+      "name": "Chip de leyenda",
+      "kind": "chip",
+      "refersTo": "chip-leyenda",
+      "description": "Resalta una serie; Ctrl + clic suma.",
+      "html": "<div class=\"ds-leyenda ds-con-sel\"><button class=\"ds-ley\" type=\"button\" aria-pressed=\"true\"><span class=\"ds-ley-m\" style=\"border-top-color:#2E5C8A\"></span>Personas</button><button class=\"ds-ley\" type=\"button\" aria-pressed=\"false\"><span class=\"ds-ley-m\" style=\"border-top-color:#2F7A86\"></span>Empresas</button><button class=\"ds-ley\" type=\"button\" aria-pressed=\"false\"><span class=\"ds-ley-m ds-ley-ref\"></span>Selic</button></div>",
+      "css": ".ds-leyenda{display:flex;flex-wrap:wrap;gap:4px}.ds-ley{font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:13px;height:36px;padding:0 10px;border:1px solid transparent;border-radius:4px;background:transparent;color:#24324A;cursor:pointer;display:inline-flex;align-items:center;gap:6px;box-sizing:border-box}.ds-ley-m{width:22px;height:0;flex-shrink:0;border-top:3px solid #2E5C8A}.ds-ley-ref{width:20px;border-top:2px dashed #8A8F96}.ds-ley:hover{border-color:#C9D2DC}.ds-ley[aria-pressed=true]{border-color:#2E5C8A;background:#E8EEF5}.ds-con-sel .ds-ley[aria-pressed=false]{color:#6B7684}.ds-con-sel .ds-ley[aria-pressed=false] .ds-ley-m{opacity:.45}.ds-ley:focus-visible{outline:2px solid #2E5C8A;outline-offset:2px}"
+    },
+    {
+      "name": "Enlace del menú",
+      "kind": "nav",
+      "refersTo": "menu-enlace",
+      "description": "Menú lateral; la página actual con fondo de selección y barra navy.",
+      "html": "<nav class=\"ds-nav\"><p class=\"ds-nav-g\">Personas</p><a href=\"#\" aria-current=\"page\">Tarjeta</a><a href=\"#\">Personal</a><a href=\"#\">Vehículos</a></nav>",
+      "css": ".ds-nav{width:248px;background:#FFFFFF;padding:8px 0}.ds-nav-g{margin:0 0 4px;padding:0 20px;font:600 11px 'IBM Plex Sans',sans-serif;text-transform:uppercase;letter-spacing:.06em;color:#6B7684}.ds-nav a{display:block;margin:1px 8px;padding:7px 12px;border-radius:4px;font:14px/20px 'IBM Plex Sans',sans-serif;color:#24324A;text-decoration:none}.ds-nav a:hover{background:#EEF1F5;color:#2E5C8A}.ds-nav a[aria-current=page]{background:#E8EEF5;color:#1F3F60;font-weight:600;box-shadow:inset 3px 0 0 #2E5C8A}.ds-nav a:focus-visible{outline:2px solid #2E5C8A;outline-offset:2px}"
+    },
+    {
+      "name": "Tarjeta con tabla estándar",
+      "kind": "card",
+      "refersTo": "tarjeta",
+      "description": "Mitad derecha del par: tabla corta con Total en negrita. Cifras ilustrativas.",
+      "html": "<div class=\"ds-card\"><div class=\"ds-card-t\">Saldo de crédito por segmento</div><div class=\"ds-card-s\">Variación a/a, % · cifras ilustrativas</div><table class=\"ds-tb\"><thead><tr><th class=\"ds-ind\">Indicador</th><th>Corte</th><th>Share</th><th>a/a</th></tr></thead><tbody><tr><td class=\"ds-ind\">Personas</td><td>sep-26</td><td>58,1 %</td><td>10,2 %</td></tr><tr><td class=\"ds-ind\">Empresas</td><td>sep-26</td><td>41,9 %</td><td>7,4 %</td></tr><tr class=\"ds-tot\"><td class=\"ds-ind\">Total</td><td>sep-26</td><td>100 %</td><td>9,0 %</td></tr></tbody></table><div class=\"ds-fu\">Fuente: BCB, SGS.</div></div>",
+      "css": ".ds-card{background:#FFFFFF;border:1px solid #E1E6EC;border-radius:4px;padding:16px 24px 12px;display:flex;flex-direction:column;gap:6px;max-width:520px}.ds-card-t{font:600 18px/24px 'IBM Plex Sans',sans-serif;color:#24324A}.ds-card-s{font:13px/18px 'IBM Plex Sans',sans-serif;color:#5B6573}.ds-tb{width:100%;border-collapse:collapse;font-size:13px}.ds-tb th,.ds-tb td{padding:9px 8px;border-bottom:1px solid #E6EAEF;text-align:right;font-family:'IBM Plex Mono',monospace;color:#24324A;white-space:nowrap}.ds-tb thead th{font:600 13px 'IBM Plex Sans',sans-serif;border-bottom:1px solid #24324A}.ds-tb .ds-ind{text-align:left;font-family:'IBM Plex Sans',sans-serif}.ds-tb tbody tr:hover{background:#F6F7F8;cursor:pointer}.ds-tb tr.ds-tot td{font-weight:600;border-top:2px solid #8A93A0}.ds-fu{font:12px 'IBM Plex Sans',sans-serif;color:#5B6573;margin-top:6px}"
+    }
+  ],
+  "narrative": {
+    "northStar": "El cuaderno del analista",
+    "overview": "Un instrumento de trabajo, no una vitrina. El sitio es la libreta donde un analista buy-side ordena el crédito, el fondeo y la rentabilidad del sistema bancario brasileño. Cada cifra tiene que poder auditarse y nada está ahí por adorno. La unidad es el par gráfico-tabla: el gráfico a la izquierda muestra la trayectoria y la tabla a la derecha da el último dato y sus variaciones. La página entera se arma con esos pares, uno por fila, y cada par es también una lámina de Presentar.\n\nLa densidad es alta pero ordenada. Las superficies son blancas y planas sobre un fondo gris muy claro, con bordes de 1 px. El color se guarda para los datos y para la ubicación; los controles casi no lo usan. La tipografía separa tres voces: Bricolage Grotesque para títulos de página y de sección, IBM Plex Sans para rótulos y texto, e IBM Plex Mono para toda cifra.\n\nLa dirección para lo que viene es firme y precisa: igual de sobria que hoy, pero con más contraste en los estados. Lo seleccionado, resaltado o activo se tiene que leer de un vistazo. Más color decorativo no es el camino.",
+    "keyCharacteristics": [
+      "Un par gráfico-tabla por fila; el gráfico ocupa 1,5 partes y la tabla 1 parte (mínimo 440 px).",
+      "Superficies planas, bordes finos, sin sombras salvo en capas flotantes.",
+      "Navy para datos y ubicación; el Total en cobre.",
+      "Toda cifra en Plex Mono, alineada a la derecha.",
+      "Controles de 44 px de alto (36 px en la barra superior y en los chips de leyenda)."
+    ],
+    "rules": [
+      {
+        "name": "La regla del Total en cobre",
+        "body": "Cuando un gráfico abre un total en partes, el Total va en cobre y siempre visible. El cobre no se usa para nada más.",
+        "section": "colors"
+      },
+      {
+        "name": "La regla de la tabla sin color",
+        "body": "La tabla estándar no lleva colores por fila ni por signo. La fila Total va en negrita, con un filete superior gris de 2 px, nunca en cobre.",
+        "section": "colors"
+      },
+      {
+        "name": "La regla de la referencia rotulada",
+        "body": "Toda línea de referencia es gris referencia punteada y lleva su nombre al final, sobre el último punto (12 px, texto suave). El gráfico lo hace solo para cualquier serie punteada en ese gris.",
+        "section": "colors"
+      },
+      {
+        "name": "La regla de los 12 px",
+        "body": "Nada de contenido bajo 12 px en pantalla. El grupo del menú (11 px en mayúsculas) es la única excepción y no se replica.",
+        "section": "typography"
+      },
+      {
+        "name": "La regla de la cifra en mono",
+        "body": "Todo número que se compara va en Plex Mono. Coma decimal y punto de miles.",
+        "section": "typography"
+      },
+      {
+        "name": "La regla de lo plano en reposo",
+        "body": "Tarjetas, tablas y controles no llevan sombra. Una sombra significa que algo flota sobre la página.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do poner un par gráfico-tabla por fila, el gráfico a la izquierda y la tabla a la derecha.",
+      "Do usar 44 px en controles (36 px en la barra superior y en los chips de leyenda) y un foco navy de 2 px visible.",
+      "Do escribir títulos de tarjeta descriptivos y dejar el subtítulo para ejes y unidades.",
+      "Do marcar «en preparación» o «falta» cuando no hay dato.",
+      "Do marcar lo seleccionado con algo más que color: peso, barra o filete."
+    ],
+    "donts": [
+      "Don't apilar gráfico y tabla en escritorio, ni mostrar en la tabla la misma serie temporal del gráfico.",
+      "Don't colorear filas ni signos en la tabla, ni pintar el Total de cobre en la tabla.",
+      "Don't usar cobre para algo que no sea el Total.",
+      "Don't poner sombras en tarjetas o controles en reposo.",
+      "Don't agregar descripciones, glosarios o lecturas («sube», «preocupa») en la página. Ese detalle va en Agrandar.",
+      "Don't hacer un botón más grande que el contenido al que sirve.",
+      "Don't bajar de 12 px."
+    ]
+  }
+}

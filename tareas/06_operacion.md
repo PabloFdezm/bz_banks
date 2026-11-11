@@ -12,3 +12,17 @@
    - rehacer Calidad, Rentabilidad y Ficha en v3;
    - páginas nuevas: Mora, Márgenes, Por banco, Productos;
    - validar las series SGS de modalidades;
+7. **Documentación que quedó con el armado anterior (anotado el 11-nov):** desde el 11-nov la proporción es gráfico
+   1,5 : tabla 1 y la tabla tiene dos formas (corta en la página, 8 columnas en Agrandar); ver `CLAUDE.md`, `spec/01`
+   y `DESIGN.md`.
+   - `spec/06_paginas.md` (línea 8) describe la estructura v3 retirada (gráfico 4/9, `tabla_estandar` 5/9): reescribir
+     para el sitio v2.
+   - `spec/generado/paginas.md` sigue saliendo del armado viejo (anchos 4/9 y 5/9): cambiar
+     `herramientas/generar_spec.py` para que lea las páginas de `sitio/assets/v2/paginas/`.
+8. **`herramientas/verificar_f1.py` quedó obsoleto con el sitio v2 (detectado el 11-nov):** lee
+   `sitio/assets/js/config.js` (vía `inventario_paginas.mjs`), que se retiró al pasar v2 a la raíz (8cbc7dd), y falla
+   con ERR_MODULE_NOT_FOUND. Reescribirlo para v2: recorrer las rutas de `diseno/canvas/paginas.json` y comprobar
+   HTTP 200, sin errores de página ni de consola, sin `{{` sin reemplazar, sin scroll horizontal en 1920/1280/390,
+   rótulos del eje X sin pisarse y fuentes cargadas (ojo: `document.fonts.check` da falso negativo con Plex Mono por
+   los subconjuntos unicode; mirar `document.fonts` con status «loaded»). El 11-nov se usó un script equivalente fuera
+   del repo y pasaron las 13 páginas en los 3 anchos.

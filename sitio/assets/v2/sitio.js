@@ -14,8 +14,7 @@ const conMenu = () => !(html.classList.contains('v2-plegado') || html.clientWidt
 function ajustar() {
   const esc = $('v2-escala'); if (!esc) return;
   if (presentando) { ajustarPresentar(); return; }
-  const disp = html.clientWidth - (conMenu() ? 248 : 0) - 48;
-  esc.style.zoom = Math.max(html.clientWidth < 1100 ? 0.2 : 0.72, Math.min(1, disp / ANCHO));
+  esc.style.zoom = '';  // diseño fluido: sin escalar
 }
 function plegar(cerrar) {
   html.classList.toggle('v2-plegado', cerrar);
@@ -49,17 +48,34 @@ function indice(raiz) {
 }
 
 // ---------- Agrandar: el diálogo queda centrado y fijo; foco adentro; el resto no se desplaza
+// Al cerrar, el foco vuelve al botón que lo abrió; mientras está abierto, Tab y Mayús+Tab recorren solo el diálogo.
+const ENFOCABLE = 'button:not([disabled]), select:not([disabled]), a[href], input:not([disabled]), [tabindex]:not([tabindex="-1"])';
 function vigilarDialogos(raiz) {
-  let abierto = false;
+  let abierto = false, origen = null;
   new MutationObserver(() => {
     const d = raiz.querySelector('[role=dialog]');
     if (d && !abierto) {
       abierto = true; html.classList.add('v2-dialogo');
+      const a = document.activeElement;
+      origen = a && a !== document.body && raiz.contains(a) && !d.contains(a) ? a : null;
       const c = [...d.querySelectorAll('button')].find((x) => x.textContent.trim() === 'Cerrar');
       (c || d).focus({ preventScroll: true });
       d.parentElement.scrollTop = 0;
-    } else if (!d && abierto) { abierto = false; html.classList.remove('v2-dialogo'); }
+    } else if (!d && abierto) {
+      abierto = false; html.classList.remove('v2-dialogo');
+      const o = origen; origen = null;
+      if (o && o.isConnected) o.focus({ preventScroll: true });
+    }
   }).observe(raiz, { childList: true, subtree: true });
+  addEventListener('keydown', (e) => {
+    if (e.key !== 'Tab' || !abierto) return;
+    const d = raiz.querySelector('[role=dialog]'); if (!d) return;
+    const lista = [...d.querySelectorAll(ENFOCABLE)].filter((x) => x.offsetParent !== null || x === document.activeElement);
+    if (!lista.length) { e.preventDefault(); d.focus(); return; }
+    const primero = lista[0], ultimo = lista[lista.length - 1], a = document.activeElement;
+    if (e.shiftKey && (a === primero || !d.contains(a))) { e.preventDefault(); ultimo.focus(); }
+    else if (!e.shiftKey && (a === ultimo || !d.contains(a))) { e.preventDefault(); primero.focus(); }
+  });
 }
 const cerrarDialogo = () => {
   const d = document.querySelector('[role=dialog]');
@@ -85,20 +101,67 @@ function armarLaminas() {
     return { par: p, sec };
   }).map((l, k, a) => ({ ...l, primera: !!l.sec && (k === 0 || a[k - 1].sec !== l.sec) }));
 }
+// En la lámina los controles no se ven: el corte elegido pasa a ser un texto fijo en la cabecera del gráfico.
+// Va como atributo (lo pinta un ::after en v2.css) porque dc.js borra en cada render los nodos que no son de la plantilla.
+// Selectores que definen qué muestra la lámina (el período no: la lámina siempre va con el período por defecto).
+const SELECTORES_LAMINA = ['Corte', 'Banco', 'Agrupar por', 'Trimestre'];
+function corteDeLamina(l) {
+  l.par.querySelectorAll('[data-corte-lam]').forEach((x) => x.removeAttribute('data-corte-lam'));
+  l.par.querySelectorAll('.card').forEach((c) => {
+    const partes = [...c.querySelectorAll('select')]
+      .filter((s) => SELECTORES_LAMINA.includes(s.getAttribute('aria-label')) && s.selectedIndex >= 0)
+      .map((s) => s.getAttribute('aria-label') + ': ' + s.options[s.selectedIndex].text);
+    if (partes.length) c.firstElementChild.setAttribute('data-corte-lam', partes.join(' · '));
+  });
+}
+// Al entrar a Presentar cada gráfico vuelve a su último dato: un mes fijado con el teclado no se arrastra a la lámina.
+function soltarFijados() {
+  document.querySelectorAll('#v2-raiz > .v2-hoja').forEach((h) => {
+    const inst = h.__dc; if (!inst || !inst.state) return;
+    // Dos formas según la hoja: un número (Portada, Trimestral; null = último dato) o un mapa por gráfico (resto; {} = último).
+    const o = {};
+    for (const k of ['fijo', 'hover']) {
+      const v = inst.state[k];
+      if (typeof v === 'number') o[k] = null;
+      else if (v && typeof v === 'object' && Object.keys(v).length) o[k] = {};
+    }
+    if (Object.keys(o).length) inst.setState(o);
+  });
+}
+// Alto que ocupa abajo la barra de Presentar (más su margen), para que no tape la lámina.
+const RESERVA_BARRA = 88;
 function ajustarPresentar() {
   const l = laminas[presentando.i]; if (!l) return;
   const esc = $('v2-escala');
   esc.style.zoom = 1;
   const r = l.par.getBoundingClientRect(), hs = l.primera ? l.sec.getBoundingClientRect().height + 16 : 0;
-  const z = Math.min((html.clientWidth - 48) / ANCHO, (innerHeight - 96) / (r.height + hs), 1.6);
+  const z = Math.max(0.6, Math.min((innerHeight - 24 - RESERVA_BARRA) / (r.height + hs), 1.5));
   esc.style.zoom = z;
-  const top = (l.primera ? l.sec : l.par).getBoundingClientRect().top + scrollY - 24;
-  scrollTo({ top, behavior: 'instant' });
+  const ir = () => scrollTo({ top: (l.primera ? l.sec : l.par).getBoundingClientRect().top + scrollY - 24, behavior: 'instant' });
+  ir();
+  // Con el zoom cambia el ancho de los gráficos y se redibujan (más altos o más bajos que lo medido): segunda pasada
+  // cuando ya se redibujaron, achicando hasta que la lámina quepa sobre la barra de Presentar.
+  const i = presentando.i;
+  let zz = z, vueltas = 0;
+  const revisar = () => {
+    if (!presentando || presentando.i !== i) return;
+    const fondo = l.par.getBoundingClientRect().bottom, lim = $('v2-pres').getBoundingClientRect().top - 12;
+    if (fondo <= lim || vueltas++ >= 3) return;
+    const arriba = (l.primera ? l.sec : l.par).getBoundingClientRect().top;
+    zz = Math.max(0.6, zz * (lim - arriba) / (fondo - arriba));
+    esc.style.zoom = zz;
+    ir();
+    setTimeout(revisar, 120);
+  };
+  setTimeout(revisar, 120);
 }
 function mostrarLamina(i) {
   presentando.i = Math.max(0, Math.min(laminas.length - 1, i));
-  laminas.forEach((l, k) => { l.par.classList.toggle('v2-actual', k === presentando.i); if (l.sec) l.sec.classList.remove('v2-actual'); });
-  const l = laminas[presentando.i]; if (l.primera) l.sec.classList.add('v2-actual');
+  // Marca de lámina visible como atributo: dc.js reescribe en cada render el `class` que trae la plantilla (el título de
+  // sección es `.sh`), así que una clase agregada aquí se perdía al redibujar y el título desaparecía de la lámina.
+  laminas.forEach((l, k) => { l.par.toggleAttribute('data-v2-actual', k === presentando.i); if (l.sec) l.sec.removeAttribute('data-v2-actual'); });
+  const l = laminas[presentando.i]; if (l.primera) l.sec.setAttribute('data-v2-actual', '');
+  corteDeLamina(l);
   $('v2-pres-n').textContent = (presentando.i + 1) + ' / ' + laminas.length;
   $('v2-pres-t').textContent = l.sec ? [...l.sec.querySelectorAll('span')].map((x) => x.textContent.trim()).join(' ') || l.sec.textContent.trim() : '';
   requestAnimationFrame(ajustarPresentar);
@@ -110,6 +173,7 @@ function presentar(on) {
     let i = 0; const y = scrollY + innerHeight / 3;
     laminas.forEach((l, k) => { if (l.par.getBoundingClientRect().top + scrollY <= y) i = k; });
     presentando = { i, y0: scrollY };
+    soltarFijados();
     html.classList.add('v2-presentando');
     $('v2-pres').hidden = false;
     if (html.requestFullscreen && !document.fullscreenElement) html.requestFullscreen().catch(() => {});
@@ -117,7 +181,8 @@ function presentar(on) {
   } else if (presentando) {
     const l = laminas[presentando.i];
     presentando = null; html.classList.remove('v2-presentando'); $('v2-pres').hidden = true;
-    document.querySelectorAll('.v2-actual').forEach((x) => x.classList.remove('v2-actual'));
+    document.querySelectorAll('[data-v2-actual]').forEach((x) => x.removeAttribute('data-v2-actual'));
+    document.querySelectorAll('[data-corte-lam]').forEach((x) => x.removeAttribute('data-corte-lam'));
     if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
     ajustar();
     if (l) (l.sec || l.par).scrollIntoView({ block: 'start' });
@@ -180,11 +245,35 @@ async function excel(graficos, nombreArchivo, titulo) {
   X.writeFile(wb, nombreArchivo + '.xlsx');
 }
 
+// ---------- estado de la página en la dirección (banco, agrupación, corte y Agrandar abierto)
+const CLAVES = ['banco', 'optica', 'corte', 'vista'];
+function enlazarURL(inst, pref) {
+  const q = new URLSearchParams(location.search);
+  const ini = {};
+  CLAVES.forEach((k) => { if (q.has(pref + k)) ini[k] = q.get(pref + k); });
+  if (Object.keys(ini).length) { Object.assign(inst.state, ini); try { inst.__render(); } catch (e) { CLAVES.forEach((k) => delete inst.state[k]); inst.__render(); } }
+  const orig = inst.setState.bind(inst);
+  inst.setState = (o) => {
+    orig(o);
+    if (!CLAVES.some((k) => k in o)) return;
+    const u = new URL(location.href);
+    CLAVES.forEach((k) => { const v = inst.state[k]; if (v == null || v === '') u.searchParams.delete(pref + k); else u.searchParams.set(pref + k, String(v)); });
+    history.replaceState(null, '', u);
+  };
+}
+
 // ---------- arranque
 export async function iniciar(HOJAS, titulo) {
   const raiz = $('v2-raiz');
-  $('v2-plegar').addEventListener('click', () => plegar(true));
-  $('v2-abrir').addEventListener('click', () => { if (html.clientWidth < 1100) html.classList.toggle('v2-movil-abierto'); else plegar(false); });
+  // El botón que se pulsa desaparece (plegar ↔ abrir), así que el foco pasa al que lo reemplaza en vez de caer en BODY.
+  $('v2-plegar').addEventListener('click', () => { plegar(true); $('v2-abrir').focus(); });
+  $('v2-abrir').addEventListener('click', () => {
+    if (html.clientWidth < 1100) {
+      const abre = html.classList.toggle('v2-movil-abierto');
+      $('v2-abrir').setAttribute('aria-expanded', String(abre));
+      if (abre) { const a = document.querySelector('.v2-nav a[aria-current="page"]') || document.querySelector('.v2-nav a'); if (a) a.focus(); }
+    } else { plegar(false); $('v2-plegar').focus(); }
+  });
   addEventListener('resize', ajustar); ajustar();
   addEventListener('keydown', (e) => {
     if (presentando) {
@@ -193,7 +282,10 @@ export async function iniciar(HOJAS, titulo) {
       else if (e.key === 'Escape') { e.preventDefault(); if (!cerrarDialogo()) presentar(false); }
       return;
     }
-    if (e.key === 'Escape') { if (cerrarDialogo()) e.preventDefault(); else html.classList.remove('v2-movil-abierto'); }
+    if (e.key === 'Escape') {
+      if (cerrarDialogo()) e.preventDefault();
+      else if (html.classList.contains('v2-movil-abierto')) { html.classList.remove('v2-movil-abierto'); $('v2-abrir').setAttribute('aria-expanded', 'false'); $('v2-abrir').focus(); }
+    }
   });
   document.addEventListener('fullscreenchange', () => { if (!document.fullscreenElement && presentando) presentar(false); });
   $('v2-presentar').addEventListener('click', () => presentar(true));
@@ -223,7 +315,8 @@ export async function iniciar(HOJAS, titulo) {
     HOJAS.forEach((h, i) => {
       if (datos[i]) mods[i].datos(datos[i]);
       const d = document.createElement('div'); d.className = 'v2-hoja'; raiz.appendChild(d);
-      montar(d, h.hoja, {});
+      const inst = montar(d, h.hoja, {});
+      enlazarURL(inst, HOJAS.length > 1 ? 's' + (i + 1) + '.' : '');
     });
     const corte = cortes(raiz);
     if (corte) $('v2-corte').textContent = corte;

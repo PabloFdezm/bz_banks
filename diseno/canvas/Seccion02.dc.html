@@ -56,7 +56,7 @@ button:focus-visible,select:focus-visible{outline:2px solid #2E5C8A;outline-offs
     <div style="display: grid; grid-template-columns: 960px minmax(0, 1fr); gap: 24px; height: 560px; margin-bottom: 2px;">
       <div class="card">
         <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px;">
-          <div><div class="ct">{{s.titulo}}</div><div class="cs">{{s.sub}}</div></div>
+          <div><div class="ct">{{s.titulo}}</div><div class="cs">{{s.sub}}</div><sc-if value="{{s.pendiente}}" hint-placeholder-val="{{false}}"><div class="cs">{{s.pendiente}}</div></sc-if></div>
           <div style="display: flex; gap: 8px; align-items: center;">
             <sc-if value="{{s.control}}" hint-placeholder-val="{{false}}"><select class="sel" aria-label="Corte" value="{{corte}}" onChange="{{elegirCorte}}"><option value="pfpj">Personas / Empresas</option><option value="lidi">Libre / Dirigido</option><option value="pfld">Personas: libre / dirigido</option><option value="todos">Todos</option></select></sc-if>
             <button class="btn" type="button" style="{{s.ajusteEst}}" aria-pressed="{{s.ajustePres}}" disabled="{{s.sinSel}}" onClick="{{s.ajustar}}">{{s.ajusteTxt}}</button>
@@ -175,7 +175,8 @@ class Component extends DCLogic {
     const linea = (s) => 'width:' + (s.dash ? 20 : 22) + 'px;height:0;flex-shrink:0;border-top:' + (s.dash ? '2px dashed ' : '3px solid ') + s.color;
     const pp = (v) => (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v).toFixed(2).replace('.', ',');
     const pc = (v) => v.toFixed(2).replace('.', ',') + ' %';
-    const fmt = (r) => [pc(r[0]), pp(r[1]), pp(r[2]), pp(r[3]), pp(r[4]), pp(r[5])];
+    const nivelPp = (v) => v.toFixed(2).replace('.', ',');
+    const fmt = (r, uni) => [uni === 'pp' ? nivelPp(r[0]) : pc(r[0]), pp(r[1]), pp(r[2]), pp(r[3]), pp(r[4]), pp(r[5])];
     const ticksM = (d, h) => { const k = h - d + 1, r = []; for (let i = d; i <= h; i++) { const m = i % 12; if (k <= 30 ? m % 3 === 0 : k <= 60 ? m === 0 || m === 6 : k <= 120 ? m === 0 : m === 0 && i % 24 === 0) r.push(i - d); } return r; };
     const escala = (series, d, h, cero, solo) => {
       const usar = solo && solo.length ? series.filter((s) => solo.includes(s.id)) : series;
@@ -194,38 +195,49 @@ class Component extends DCLogic {
     const serieDe = (key, id) => D[PREF[key]][id] || VACIO;
     const mkSeries = (key) => CORTE.map((id) => ({ id, nombre: nomS(key, id), color: COL[id], ancho: 2.5, datos: serieDe(key, id) })).concat([{ id: 'tot', nombre: 'Total', color: COBRE, ancho: 2.5, datos: serieDe(key, 'tot') }]).concat(key === 'va' ? [{ id: 'sel', nombre: 'Selic meta', color: REF, ancho: 2, dash: '6 4', datos: D.ref.sel }] : []);
     const PARES = {
-      va: { titulo: 'Tasa media de las operaciones de crédito', sub: 'Eje vertical: % a.a. Eje horizontal: mes.', fuente: 'Fuente: BCB, SGS 20714 y 432.', control: true, cero: false, n: NM, def: 24, series: mkSeries('va'),
+      va: { titulo: 'Tasa media de las operaciones de crédito', sub: 'Eje vertical: % a.a. Eje horizontal: mes.', fuente: 'Fuente: BCB, SGS 20714 y 432.', control: true, cero: false, n: NM, def: 24, uni: 'pct', series: mkSeries('va'),
         tTitulo: 'Tasa media', tSub: '% a.a. · Δ a/a en pp', tFuente: 'Fuente: BCB, SGS.', cols: ['Último', 'Δ a/a'] },
-      vb: { titulo: 'Spread de las operaciones con recursos libres', sub: 'Eje vertical: pp a.a. Eje horizontal: mes.', fuente: 'Fuente: BCB, SGS 20786.', control: true, cero: false, n: NM, def: 24, series: mkSeries('vb'),
+      vb: { titulo: 'Spread de las operaciones con recursos libres', sub: 'Eje vertical: pp a.a. Eje horizontal: mes.', fuente: 'Fuente: BCB, SGS 20786.', control: true, cero: false, n: NM, def: 24, uni: 'pp', series: mkSeries('vb'),
         tTitulo: 'Spread', tSub: 'pp a.a. · Δ a/a en pp', tFuente: 'Fuente: BCB, SGS.', cols: ['Último', 'Δ a/a'] },
     };
-    const armar = (key) => {
-      const P = PARES[key], sel = st.sel[key] || [], aj = !!st.aj[key];
+    // En la página solo van las series con dato (sin chips ni filas vacías); Agrandar sigue mostrando todo el detalle.
+    const SEG = ['pf', 'pj', 'li', 'di', 'pfli', 'pfdi', 'pjli', 'pjdi'];
+    const conDato = (key) => (id) => !FALTA[key].includes(id);
+    const armar = (key, soloConDato) => {
+      const P0 = PARES[key], sel0 = st.sel[key] || [], sel = soloConDato ? sel0.filter(conDato(key)) : sel0, aj = !!st.aj[key];
+      const P = soloConDato ? { ...P0, series: P0.series.filter((s) => conDato(key)(s.id)) } : P0;
       const on = (id) => !sel.length || sel.includes(id);
       const toggle = (id, m) => { const nuevo = m ? (sel.includes(id) ? sel.filter((k) => k !== id) : sel.concat(id)) : (sel.length === 1 && sel[0] === id ? [] : [id]); this.setState({ sel: { ...this.state.sel, [key]: nuevo }, aj: { ...this.state.aj, [key]: nuevo.length ? aj : false } }); };
       const fijoG = st.fijo == null ? P.n - 1 : st.fijo;
       const cfg = (d, h, w, alto) => ({
-        w, h: alto, reservaDer: 64, n: h - d + 1, etiquetas: meses.slice(d, h + 1), ticksX: ticksM(d, h), ...escala(P.series, d, h, P.cero, aj ? sel : null), sufijo: ' %', decimales: 2,
+        w, h: alto, reservaDer: 64, n: h - d + 1, etiquetas: meses.slice(d, h + 1), ticksX: ticksM(d, h), ...escala(P.series, d, h, P.cero, aj ? sel : null), sufijo: P.uni === 'pp' ? '' : ' %', decimales: 2,
         series: P.series.map((s) => ({ id: s.id, color: s.color, ancho: s.ancho, dash: s.dash, valores: s.datos.slice(d, h + 1) })), fills: [], sel,
         bandas: (P.quiebre != null && P.quiebre - 1 >= d && P.quiebre <= h) ? [{ desde: P.quiebre - 1 - d, hasta: P.quiebre - d, texto: 'Res. 4.966' }] : [],
         fijo: Math.min(h, Math.max(d, fijoG)) - d, hover: st.hover != null && st.hover >= d && st.hover <= h ? st.hover - d : null,
         onFijar: (i) => this.setState({ fijo: Math.max(d, Math.min(h, i + d)), hover: null }), onHover: (i) => this.setState({ hover: i == null ? null : i + d }), onSerie: toggle });
-      const leyenda = P.series.map((s) => ({ nombre: s.nombre, pres: sel.includes(s.id) ? 'true' : 'false', sw: linea(s), est: (sel.includes(s.id) ? 'border-color:#2E5C8A;background:#E8EEF5;' : '') + (on(s.id) ? '' : 'opacity:0.45;'), click: (e) => toggle(s.id, multi(e)) }));
+      const leyenda = P.series.map((s) => ({ nombre: s.nombre, pres: sel.includes(s.id) ? 'true' : 'false', sw: linea(s), est: (sel.includes(s.id) ? 'border-color:#2E5C8A;background:#E8EEF5;' : '') + (on(s.id) ? '' : 'color:#6B7684;--atenuado:0.45;'), click: (e) => toggle(s.id, multi(e)) }));
       const fila = (id, largo, g1) => {
         const s = P.series.find((q) => q.id === id) || { color: '#C9D2DC' }, falta = FALTA[key].includes(id), r = T[PREF[key] + '_' + id];
-        const f = falta || !r ? RAYA : fmt(r);
+        const f = falta || !r ? RAYA : fmt(r, P.uni);
         return { _a: falta ? null : serieDe(key, id), nombre: nomS(key, id), corte: falta ? '—' : 'sep-26', v: largo ? f : [f[0], f[3]], cls: id === 'tot' ? 'tot' : g1 ? 'g1' : '', pres: sel.includes(id) ? 'true' : 'false', sw: s.ancho ? linea(s) : 'width:12px;height:12px;flex-shrink:0;background:' + s.color,
-          est: sel.includes(id) ? 'background:#E8EEF5' : on(id) || !P.series.some((q) => q.id === id) ? '' : 'opacity:0.4', click: (e) => { if (e) e.stopPropagation(); if (P.series.some((q) => q.id === id)) toggle(id, multi(e)); } };
+          est: sel.includes(id) ? 'background:#E8EEF5' : on(id) || !P.series.some((q) => q.id === id) ? '' : '--atenuado:0.4', click: (e) => { if (e) e.stopPropagation(); if (P.series.some((q) => q.id === id)) toggle(id, multi(e)); } };
       };
-      const ajuste = { sinSel: sel.length === 0, ajustar: () => this.setState({ aj: { ...this.state.aj, [key]: !aj } }), ajusteTxt: aj ? 'Eje completo' : 'Ajustar eje', ajustePres: aj ? 'true' : 'false', ajusteEst: aj ? 'background:#E8EEF5;border-color:#2E5C8A;color:#1F3F60;font-weight:600' : '' };
+      const ajuste = { sinSel: sel.length === 0, ajustar: () => this.setState({ aj: { ...this.state.aj, [key]: !aj } }), ajusteTxt: 'Ajustar eje', ajustePres: aj ? 'true' : 'false', ajusteEst: aj ? 'background:#E8EEF5;border-color:#2E5C8A;color:#1F3F60;font-weight:600' : '' };
       return { P, cfg, leyenda, fila, ajuste };
     };
-    const A = armar('va'), B = armar('vb');
+    const A = armar('va', true), B = armar('vb', true);
     const abrir = (key) => () => { const P = PARES[key]; this.setState({ vista: key, desde: P.n - P.def, hasta: P.n - 1 }); };
-    const corto = (X) => CORTE.concat('tot').map((id) => X.fila(id, false));
+    const corto = (X, key) => CORTE.concat('tot').filter(conDato(key)).map((id) => X.fila(id, false));
+    // Sin ningún segmento con dato, el selector de corte no cambia nada: se oculta y una línea dice qué falta.
+    // Con algunos segmentos, el selector queda y la línea nombra solo los del corte elegido que faltan.
+    const extra = (key) => {
+      if (!SEG.some(conDato(key))) return { control: false, pendiente: 'Cortes por segmento (personas, empresas, libre y dirigido): en preparación.' };
+      const faltan = CORTE.filter((id) => !conDato(key)(id)).map((id) => NOM[id]);
+      return { control: true, pendiente: faltan.length ? faltan.join(', ') + ': en preparación.' : '' };
+    };
     const pares = [
-      { ...A.P, ...A.ajuste, leyenda: A.leyenda, cfg: A.cfg(NM - 24, NM - 1, 910, 390), filas: corto(A), abrir: abrir('va') },
-      { ...B.P, ...B.ajuste, leyenda: B.leyenda, cfg: B.cfg(NM - 24, NM - 1, 910, 390), filas: corto(B), abrir: abrir('vb') },
+      { ...A.P, ...A.ajuste, ...extra('va'), leyenda: A.leyenda, cfg: A.cfg(NM - 24, NM - 1, 910, 390), filas: corto(A, 'va'), abrir: abrir('va') },
+      { ...B.P, ...B.ajuste, ...extra('vb'), leyenda: B.leyenda, cfg: B.cfg(NM - 24, NM - 1, 910, 390), filas: corto(B, 'vb'), abrir: abrir('vb') },
     ];
     const BLOQUE = {
       va: { tit: 'Tasa nueva contra costo de la cartera (ICC)', sub: 'Eje vertical: % a.a. Eje horizontal: mes.', tTit: 'Precio nuevo y precio de la cartera', tSub: 'Historia desde ene-14, escala propia de cada fila: caja p25–p75, raya mediana, línea mín–máx, punto último', custom: true, porFila: true, fmtU: 'pc', sinBanda: true,
@@ -261,7 +273,7 @@ class Component extends DCLogic {
     let d = {};
     const v = st.vista;
     if (v) {
-      const X = v === 'va' ? A : B, P = X.P, Q = BLOQUE[v];
+      const X = armar(v, false), P = X.P, Q = BLOQUE[v];
       const dd = st.desde == null ? P.n - P.def : st.desde, hh = st.hasta == null ? P.n - 1 : st.hasta;
       const filas = [['pf', 'pj'], ['li', 'di'], ['pfli', 'pfdi', 'pjli', 'pjdi']].flatMap((g, gi) => g.map((id, j) => X.fila(id, true, gi > 0 && j === 0))).concat([X.fila('tot', true)]);
       const bs = Q.custom ? Q.filas.slice().reverse().map((r) => ({ id: r[0], color: r[2], ancho: r[3], datos: Q.datos[r[0]] })) : Q.items.map((it) => ({ id: it[0], color: it[2], ancho: 2, datos: D[Q.pref][it[0]] }));

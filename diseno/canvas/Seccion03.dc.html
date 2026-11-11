@@ -209,14 +209,14 @@ class Component extends DCLogic {
         bandas: (P.quiebre != null && P.quiebre - 1 >= d && P.quiebre <= h) ? [{ desde: P.quiebre - 1 - d, hasta: P.quiebre - d, texto: 'Res. 4.966' }] : [],
         fijo: Math.min(h, Math.max(d, fijoG)) - d, hover: st.hover != null && st.hover >= d && st.hover <= h ? st.hover - d : null,
         onFijar: (i) => this.setState({ fijo: Math.max(d, Math.min(h, i + d)), hover: null }), onHover: (i) => this.setState({ hover: i == null ? null : i + d }), onSerie: toggle });
-      const leyenda = P.series.map((s) => ({ nombre: s.nombre, pres: sel.includes(s.id) ? 'true' : 'false', sw: linea(s), est: (sel.includes(s.id) ? 'border-color:#2E5C8A;background:#E8EEF5;' : '') + (on(s.id) ? '' : 'opacity:0.45;'), click: (e) => toggle(s.id, multi(e)) }));
+      const leyenda = P.series.map((s) => ({ nombre: s.nombre, pres: sel.includes(s.id) ? 'true' : 'false', sw: linea(s), est: (sel.includes(s.id) ? 'border-color:#2E5C8A;background:#E8EEF5;' : '') + (on(s.id) ? '' : 'color:#6B7684;--atenuado:0.45;'), click: (e) => toggle(s.id, multi(e)) }));
       const fila = (id, largo, g1) => {
         const s = P.series.find((q) => q.id === id) || { color: '#C9D2DC' }, falta = FALTA[key].includes(id), r = T[PREF[key] + '_' + id];
         const f = falta || !r ? RAYA : fmt(r);
         return { _a: falta ? null : serieDe(key, id), nombre: nomS(key, id), corte: falta ? '—' : 'sep-26', v: largo ? f : [f[0], f[3]], cls: id === 'tot' ? 'tot' : g1 ? 'g1' : '', pres: sel.includes(id) ? 'true' : 'false', sw: s.ancho ? linea(s) : 'width:12px;height:12px;flex-shrink:0;background:' + s.color,
-          est: sel.includes(id) ? 'background:#E8EEF5' : on(id) || !P.series.some((q) => q.id === id) ? '' : 'opacity:0.4', click: (e) => { if (e) e.stopPropagation(); if (P.series.some((q) => q.id === id)) toggle(id, multi(e)); } };
+          est: sel.includes(id) ? 'background:#E8EEF5' : on(id) || !P.series.some((q) => q.id === id) ? '' : '--atenuado:0.4', click: (e) => { if (e) e.stopPropagation(); if (P.series.some((q) => q.id === id)) toggle(id, multi(e)); } };
       };
-      const ajuste = { sinSel: sel.length === 0, ajustar: () => this.setState({ aj: { ...this.state.aj, [key]: !aj } }), ajusteTxt: aj ? 'Eje completo' : 'Ajustar eje', ajustePres: aj ? 'true' : 'false', ajusteEst: aj ? 'background:#E8EEF5;border-color:#2E5C8A;color:#1F3F60;font-weight:600' : '' };
+      const ajuste = { sinSel: sel.length === 0, ajustar: () => this.setState({ aj: { ...this.state.aj, [key]: !aj } }), ajusteTxt: 'Ajustar eje', ajustePres: aj ? 'true' : 'false', ajusteEst: aj ? 'background:#E8EEF5;border-color:#2E5C8A;color:#1F3F60;font-weight:600' : '' };
       return { P, cfg, leyenda, fila, ajuste };
     };
     const A = armar('va'), B = armar('vb');

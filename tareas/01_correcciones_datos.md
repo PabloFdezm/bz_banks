@@ -90,3 +90,12 @@ el «Saldo total» 20539 del gráfico B3-05. Agregar filas de libres (20634/2063
   - renombrar la fila a «Concesiones totales» o cambiar a 20634;
   - descargar 20634 y 20635.
 - Validar contra el catálogo del SGS antes de cerrar.
+
+## 1.8 Trimestral: S4 crece 4.095,7 % a/a en 2T26 (hallazgo del 11-nov, sin revisar)
+- Dónde: hoja Trimestral, primer par «Crecimiento de la cartera de crédito, a/a» (gráfico y tabla «Cartera de crédito»):
+  S4 2T26 = 4.095,7 % a/a (1T26: 23,1 %). Salió al leer el gráfico punto a punto en la revisión de accesibilidad.
+- Sospecha: problema de base, no crecimiento real (un banco que cambia de segmento S1–S5 entre trimestres o un 2T25 casi
+  vacío para S4). Revisar la cartera de S4 en 2T25 y 2T26 y la composición del segmento en `bk_*` de IF.Data.
+- Relacionado: 1T25–4T25 salen sin a/a en ese gráfico (presumiblemente a propósito, por el quiebre Res. 4.966);
+  confirmar con Pablo y, si es así, decirlo en la nota de la tarjeta.
+- No se toca el dato hasta entender la causa (regla: no inventar ni suavizar).

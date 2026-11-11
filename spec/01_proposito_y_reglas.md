@@ -12,16 +12,22 @@
 
 ## Reglas de diseño del sitio (dictadas por Pablo; no cambiarlas sin preguntarle)
 
-1. **Gráfico a la izquierda y tabla a la derecha, siempre.** Nunca apilar gráfico y tabla. Hoy: gráfico
-   4/9 del ancho, tabla 5/9 (la tabla necesita el lado ancho). Esto vale desde 700 px de ancho; debajo es
-   tamaño celular.
+1. **Gráfico a la izquierda y tabla a la derecha, siempre.** Nunca apilar gráfico y tabla en escritorio.
+   Proporción gráfico 1,5 : tabla 1, con la tabla de al menos 440 px (aprobado por Pablo el 11-nov-2026; antes
+   era 4/9–5/9). Un par por fila. Bajo 1.100 px el par se apila (gráfico arriba, tabla abajo).
 2. **Nunca un gráfico y una tabla de la misma serie temporal.** La tabla es siempre **descriptiva**: el
    último dato y sus variaciones, no la serie.
-3. **Una sola tabla estándar, idéntica en todo el sitio** (componente `tabla_estandar`), mismo formato y
-   mismo color (sin colores por fila ni por signo). Columnas, en este orden:
-   `Indicador · Corte · Último · Share · m/m · 3m/3m · a/a · 12m/12m`.
-   En series trimestrales: `t/t · — · a/a · 4T/4T`. «Share» es el peso en el total y lleva «—» donde no
-   aplica. La fila total va en negrita.
+3. **Una tabla estándar con dos formas fijas, idénticas en todo el sitio** (aprobado por Pablo el
+   11-nov-2026), mismo formato y mismo color (sin colores por fila ni por signo):
+   - **En la página y en Presentar (corta):** `Indicador · Corte · Share · a/a`; `Último` en vez de `Share`
+     donde el share no aplica, o `Último · Share` cuando ambos aportan (el monto y su peso, como en concesiones).
+   - `a/a` es crecimiento en %; `Δ a/a` es cambio de una tasa o ratio en pp. Decimales: crecimientos y shares 1;
+     tasas, spreads, mora y cambios en pp 2. Los niveles en pp (spread) van sin sufijo.
+   - **En Agrandar (completa):** `Indicador · Corte · Último · Share · m/m · 3m/3m · a/a · 12m/12m`.
+     En series trimestrales: `t/t · — · a/a · 4T/4T`.
+
+   Las filas son las mismas series del gráfico (el a/a de la fila = último punto de la línea). «Share» es el
+   peso en el total y lleva «—» donde no aplica. La fila total va en negrita.
 4. **Cada sección es una lámina.** En Presentar, las posiciones de título, selectores, gráfico y tabla son
    **idénticas entre láminas** (por eso la franja de selectores existe aunque esté vacía).
 5. **El Total siempre visible y en otro color** (cobre `#A85E24`) cuando un gráfico abre un total en partes.

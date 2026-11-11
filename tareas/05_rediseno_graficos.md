@@ -57,3 +57,15 @@ Pendiente:
    desde la lógica de las hojas.
 2. Hecho el 10-nov: el sitio anterior se borró de `sitio/` (queda en el historial de git); las páginas nuevas están en la raíz (`/portada/`, `/tarjeta/`…; `/` es la Portada) y `sitio/_redirects` lleva las rutas viejas y `/v2/*` a su equivalente. Quedan obsoletos para el sitio: `herramientas/verificar_f1.py` e `inventario_paginas.mjs` (leían el sitio anterior) y el paso `exportar` de `actualizar.py` (`sitio/data/*.json` ya no lo lee ninguna página): rehacer o retirar.
 3. Diseño para móvil: hoy es la página de escritorio escalada.
+
+## Pendientes de canvas de la revisión del 11-nov (critique de la Portada)
+Aprobados por Pablo el 11-nov; van primero a canvas porque cambian la cabecera de todas las hojas:
+1. **Selector de corte por sección:** una sola vez junto al título de la sección (hoy está en cada tarjeta y cambia
+   las dos). En Presentar se muestra como texto («Corte: …»). La cabecera de tarjeta baja de 5 a 4 controles.
+2. **Agrandar de la tabla:** botón en la tarjeta de tabla que abre la tabla completa de 8 columnas y su glosario, sin
+   gráfico (regla del 8-nov; DESIGN.md lo marca como pendiente).
+3. **Cifra de entrada:** franja de 4–6 cifras bajo el título y cifra del Total (28 px mono, Δ a/a) sobre cada tabla
+   (DECISIONES_UX_2026-11 §3).
+Hecho el 11-nov sin canvas (correcciones de reglas ya decididas): Presentar sin controles, sección 02 sin series
+vacías, teclado y lector de pantalla, unidades del spread, encabezados de la tabla corta, banda neutra, rótulo de
+referencias, contraste del menú.
