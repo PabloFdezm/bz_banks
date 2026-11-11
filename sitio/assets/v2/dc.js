@@ -133,7 +133,15 @@ function montarEn(host, nombre, props) {
     inst.__render = () => { pendiente = false; const v = inst.renderVals(); const fin = lista(def.raiz.childNodes, v, host, 0); recortar(host, fin); };
     inst.__pedir = () => { if (!pendiente) { pendiente = true; requestAnimationFrame(() => inst.__render()); } };
     host.__dc = inst;
-    if (host.localName === 'dc-import') host.style.display = 'block';
+    if (host.localName === 'dc-import') {
+      host.style.display = 'block';
+      host.style.minWidth = '0';
+      // Componentes al ancho real de su contenedor: el componente lee this.__ancho en vez del ancho fijo de la hoja.
+      if (typeof ResizeObserver !== 'undefined') {
+        inst.__ancho = Math.floor(host.clientWidth) || undefined;
+        new ResizeObserver(() => { const w = Math.floor(host.clientWidth); if (w && w !== inst.__ancho) { inst.__ancho = w; inst.__pedir(); } }).observe(host);
+      }
+    }
   } else {
     inst.props = props;
   }

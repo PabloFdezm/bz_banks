@@ -40,7 +40,9 @@ def sin_datos(codigo: str) -> str:
     return '\n'.join(out)
 
 
-EXCEL = '<button class="btn v2-excel" type="button" title="Descargar en Excel los datos de este gráfico">Excel</button>'
+EXCEL = ('<button class="btn v2-excel" type="button" title="Descargar en Excel los datos de este gráfico" aria-label="Descargar en Excel">'
+         '<svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">'
+         '<path d="M8 2v8M4.5 6.5 8 10l3.5-3.5M3 13h10"/></svg></button>')
 
 
 def parches_sitio(plantilla: str, codigo: str):
@@ -49,6 +51,9 @@ def parches_sitio(plantilla: str, codigo: str):
     plantilla = plantilla.replace('<button class="btn" type="button" onClick="{{s.abrir}}"', EXCEL + '<button class="btn" type="button" onClick="{{s.abrir}}"')
     plantilla = re.sub(r'(<button class="btn" type="button" style="\{\{[od]\.\w+\}\}" aria-pressed="\{\{[od]\.[^>]*>[^<]*</button>)', lambda m: '<div style="display: flex; gap: 8px; align-items: center;">' + EXCEL + m.group(1) + '</div>', plantilla)
     codigo = codigo.replace('({ id: s.id, color: s.color', '({ id: s.id, nombre: s.nombre, todo: s.datos, color: s.color')
+    # Gráfico y período al ancho real de su contenedor (dc.js mide el contenedor y guarda __ancho).
+    codigo = codigo.replace('const w = c.w, h = c.h, n = c.n,', 'const w = this.__ancho || c.w, h = c.h, n = c.n,')
+    codigo = codigo.replace('const w = c.w, n = c.n, min =', 'const w = this.__ancho || c.w, n = c.n, min =')
     codigo = codigo.replace('{ id: s.id, color: s.color, ancho: 0', '{ id: s.id, nombre: s.nombre, todo: s.datos, color: s.color, ancho: 0')
     codigo = re.sub(r'etiquetas: (\([^()]*\)|[\w.]+)\.slice\((\w+), (\w+) \+ 1\)', r'etiquetasTodas: \1, etiquetas: \1.slice(\2, \3 + 1)', codigo)
     return plantilla, codigo
