@@ -204,3 +204,6 @@ Para hacer en pipeline:
 - MPME sin «Servicios financieros» en el gold (+3,9 % a/a; micro +11,7 %); Grandes con dimensión `total_sin_sf`
   (1.302,5). El borrador lee el gold; la línea «Micro con servicios financieros» se recalcula del cubo PJ.
 - Falta: la sección «Producto» (modalidades) en el canvas de MPME y Grandes. Es diseño nuevo: canvas → Pablo.
+- 11-nov, publicado: sección «Producto» (E2 en MPME, G2 en Grandes), aprobada por Pablo con 5 grupos en la página
+  (capital de giro; inversión y comercio exterior; descuento y tarjeta; rural, inmobiliario y vehículos; resto) y las
+  10 modalidades en Agrandar (peso, atraso, aportes al crecimiento y a la mora).
