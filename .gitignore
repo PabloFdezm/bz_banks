@@ -35,3 +35,6 @@ sitio/agregados/
 sitio/pyb/
 sitio/assets/v2/paginas/
 sitio/assets/v2/componentes/
+
+# Claude Code: permisos locales
+.claude/settings.local.json

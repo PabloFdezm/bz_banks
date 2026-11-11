@@ -161,7 +161,7 @@ Lo seleccionado, resaltado o activo se tiene que leer de un vistazo. Más color 
 - Superficies planas, bordes finos, sin sombras salvo en capas flotantes.
 - Navy para datos y ubicación; el Total en cobre.
 - Toda cifra en Plex Mono, alineada a la derecha.
-- Controles de 44 px de alto (36 px en la barra superior y en los chips de leyenda).
+- Controles de 44 px de alto (36 px en la barra superior, en los chips de leyenda y en el menú lateral).
 
 ## Colors
 
@@ -174,8 +174,8 @@ Una paleta fría y suavizada (sin negro ni azul saturado) donde el único color 
 - **Selección** (`seleccion`): el fondo del estado elegido (página actual, opción activa).
 
 ### Secondary
-- **Cobre total** (`cobre-total`): solo el Total, cuando un gráfico abre un total en partes (trazo de 3 px). Nunca va
-  como una categoría más.
+- **Cobre total** (`cobre-total`): solo el Total (trazo de 3 px), también cuando va sin partes (p. ej. tasa y spread
+  mientras faltan los cortes). Nunca va como una categoría más.
 
 ### Tertiary
 - **Petróleo** (`petroleo`), **Acero** (`acero`) y **Celeste acero** (`celeste-acero`): las series que siguen a la
@@ -203,8 +203,8 @@ token.
 - **Superficie** (`superficie`): tarjetas, menú, diálogos y controles.
 
 ### Named Rules
-**La regla del Total en cobre.** Cuando un gráfico abre un total en partes, el Total va en cobre y siempre visible. El
-cobre no se usa para nada más.
+**La regla del Total en cobre.** El Total va en cobre y siempre visible, abra o no en partes: si cambiara a navy al ir
+solo, el lector ya no podría confiar en que cobre es Total (decidido el 11-nov). El cobre no se usa para nada más.
 
 **La regla de la tabla sin color.** La tabla estándar no lleva colores por fila ni por signo. La fila Total va en
 negrita, con un filete superior gris de 2 px, nunca en cobre.
@@ -307,7 +307,9 @@ Firmes y callados: blancos con borde, sin relleno de color.
   su texto a rótulo (`#6B7684`) y solo la muestra de color baja al 45 %; las líneas del gráfico se atenúan. Nunca se
   atenúa el texto con opacidad (quedaba en 2,3:1).
 - **Interacción:** clic resalta la serie; otro clic en la misma la suelta; Ctrl + clic suma series. «Ajustar eje» va
-  al final de la fila con el mismo tamaño y queda deshabilitado mientras no haya una serie resaltada. Es un botón de
+  al final de la fila con el mismo tamaño y queda deshabilitado mientras no haya una serie resaltada (`aria-disabled`,
+  sigue en el orden de Tab, con la pista «Resalte una serie…»). Con el eje ajustado, las series atenuadas que quedan
+  fuera de escala conservan sus chips ▲▼, más tenues. Es un botón de
   dos estados: el texto no cambia y el estado lo dan `aria-pressed` y el estilo de presionado.
 
 ### Cards / Containers
@@ -327,8 +329,8 @@ Firmes y callados: blancos con borde, sin relleno de color.
 
 ### Navigation
 - **Menú lateral:** blanco, borde derecho de 1 px. Los grupos (Sistema, Personas, Empresas, Fondeo, Bancos) llevan
-  rótulos en mayúsculas de 11 px. Los enlaces son de 14 px con 4 px de radio. En hover, fondo hover suave y texto
-  navy.
+  rótulos en mayúsculas de 11 px. Los enlaces son de 14 px con 4 px de radio y 36 px de alto, igual que las secciones
+  de la página y el botón de plegar. En hover, fondo hover suave y texto navy.
 - **Página actual:** fondo de selección, texto navy profundo en 600 y una barra interior navy de 3 px a la izquierda.
 - **Secciones de la página:** lista numerada bajo el enlace actual, con números en Plex Mono de 12 px. La sección
   visible se marca con un borde izquierdo navy de 2 px.
@@ -357,7 +359,8 @@ Aprobado el 11-nov-2026.
 - Cada período es un botón con la fecha y los valores visibles («sep-26: Personas 9,3 %, …»); las flechas, Inicio y
   Fin mueven el período fijado y el foco.
 - Al pasar el mouse, un recuadro con la fecha y el valor de cada serie visible en el orden de la leyenda, con el Total
-  en negrita, del lado contrario al cursor.
+  en negrita, del lado contrario al cursor. Con una serie resaltada, el recuadro lista solo las resaltadas (decidido el
+  11-nov): las atenuadas pueden estar fuera del eje y sus extremos ya los marcan los chips ▲▼.
 - El último valor se rotula solo en las series resaltadas. Los valores fuera de escala se marcan con chips ▲▼.
 - La página muestra los últimos 24 meses (8 trimestres en series trimestrales).
 
@@ -372,7 +375,7 @@ trae la tabla completa de 8 columnas y su glosario, sin gráfico. Cada bloque ti
 
 ### Do:
 - **Do** poner un par gráfico-tabla por fila, el gráfico a la izquierda y la tabla a la derecha.
-- **Do** usar 44 px en controles (36 px en la barra superior y en los chips de leyenda) y un foco navy de 2 px visible.
+- **Do** usar 44 px en controles (36 px en la barra superior, en los chips de leyenda y en el menú lateral) y un foco navy de 2 px visible.
 - **Do** escribir títulos de tarjeta descriptivos y dejar el subtítulo para ejes y unidades.
 - **Do** marcar «en preparación» o «falta» cuando no hay dato.
 - **Do** marcar lo seleccionado con algo más que color: peso, barra o filete.

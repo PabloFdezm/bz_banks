@@ -87,9 +87,9 @@ Medianos:
       quitar «ver tareas/09» y «datos del 8-nov-26» del glosario.
 Menores:
 - [x] (11-nov, sin publicar; se oculta si la banda mide menos de 66 px) Rótulo «Res. 4.966» cortado a 390 px (la banda mide 20 px): ocultarlo o moverlo fuera de la banda en angosto.
-- [ ] (11-nov: 4,62 y tokens `dialogo` 20 px y `seccion-numero` 15 px hechos; falta la excepción del menú) DESIGN.md: contraste del texto atenuado es 4,62:1 (no 4,7); agregar 15 px y 20 px a los tokens de tipografía;
+- [x] (11-nov, publicado; menú lateral subido a 36 px en vez de excepción) DESIGN.md: contraste del texto atenuado es 4,62:1 (no 4,7); agregar 15 px y 20 px a los tokens de tipografía;
       decidir la excepción de tamaño de los controles del menú lateral (24–34 px).
-- [ ] Decidir con Pablo: ¿Total en cobre aunque no se abra en partes (tasa y spread hoy) o navy cuando es serie única?
+- [x] (11-nov: cobre siempre; recuadro de «Ajustar eje» solo con las resaltadas; anotado en DESIGN.md) Decidir con Pablo: ¿Total en cobre aunque no se abra en partes (tasa y spread hoy) o navy cuando es serie única?
 - [ ] Pistas de interacción (Ctrl + clic, flechas, Ajustar eje) y glosario de «NPL», «Share», «a/a», «Δ a/a» fuera de
       Agrandar; «Eje horizontal: mes.» repetido en las seis tarjetas.
 - [ ] Ideas para discutir: sección 02 como un solo par (tasa y spread con la Selic) mientras falten los cortes; subir la
