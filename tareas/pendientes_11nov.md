@@ -3,7 +3,7 @@
 Todo lo de hoy está publicado en https://banks-bz.pages.dev. Detalle de cada frente en su `tareas/xx_*.md`.
 
 ## 1. Inmediato
-- [ ] **Commit y push del pulido** (publicado, sin commit; el filtro de permisos pidió confirmación explícita):
+- [x] **Commit y push del pulido** (570cee0) (publicado, sin commit; el filtro de permisos pidió confirmación explícita):
       `DESIGN.md`, `diseno/canvas/*.dc.html` (13 hojas), `sitio/assets/v2/sitio.js`, `sitio/assets/v2/v2.css` y el
       informe `.impeccable/critique/2026-11-11T15-11-58Z__sitio-portada-index-html.md`.
 - [ ] Decidir si se agrega una regla de permiso para commits en este repo (como la de `publicar.bat`).
@@ -11,19 +11,21 @@ Todo lo de hoy está publicado en https://banks-bz.pages.dev. Detalle de cada fr
       `tareas/pendientes_10nov.md`.
 
 ## 2. Decisiones de Pablo
-- [ ] Tablas cortas (3 filas) que se estiran al alto de la tarjeta: ¿alinearlas arriba (dos alturas distintas en el
+- [x] Tablas cortas (3 filas) que se estiran al alto de la tarjeta: ¿alinearlas arriba (dos alturas distintas en el
       par) o usar el espacio, p. ej. para la definición que hoy solo está en Agrandar? Con esto se cierra la crítica 3.
+      Hecho: «Definición.» bajo la tabla (11 hojas) cuando hay ≤ 8 filas; con saldo/share/a/a se omite la frase «Último:».
 - [ ] Revisión visual de las 4 hojas de personas (Tarjeta, Personal, Descuento por planilla, Vehículos) en el sitio.
 - [ ] Ideas abiertas: sección 02 de la Portada como un solo par mientras falten cortes.
 - [ ] Frente 3 (réplica sell-side): ¿retomarlo solo con 2024–2026 (~1 GB, 1–2 horas)?
 
 ## 3. Diseño (crítica 3, menores; `tareas/05_rediseno_graficos.md`)
 - [ ] MPME y Grandes: tabla de volumen con saldo y share (falta el saldo en R$ por porte en el par).
-- [ ] «Corte» nombra dos cosas (selector de segmento y columna de fecha): renombrar una.
-- [ ] «Cómo leer» igual en todas las páginas: hacerlo contextual (Z solo donde hay Z; explicar las bandas).
-- [ ] Presentar: «1 de 2» dentro de la sección; barra de 12–13 px; ~150 px vacíos abajo.
-- [ ] Teclado: Inicio va al inicio de la ventana, no de la serie; atajo para saltar entre secciones.
-- [ ] Celular: columnas de mes de 9,7 px (bajo el mínimo táctil; el dato está en la tabla).
+- [x] «Corte» nombra dos cosas (selector de segmento y columna de fecha): renombrar una. Hecho: el selector es «Segmentos» (Portada) y «Agrupar por» (Trimestral).
+- [x] «Cómo leer» igual en todas las páginas: hacerlo contextual (Z solo donde hay Z; explicar las bandas). Hecho: Z, «Banda gris», franja y segmentos solo donde aplican.
+- [x] Presentar: «1 de 2» dentro de la sección; barra a 14 px; lámina centrada en el alto; P&L ya no es una sola lámina.
+- [ ] Presentar en P&L a 1280×800: las tarjetas altas (balance) no caben ni a zoom 0,6; ¿partirlas o dejar desplazar?
+- [x] Teclado: «Cómo leer» aclara que Inicio/Fin son del período visible; Alt + ↓ ↑ salta entre secciones.
+- [x] Celular: deslizar el dedo sobre el gráfico fija el mes más cercano (columnas de 9,7 px).
 - [ ] Volver a correr `/impeccable critique` para medir (última: 26/40).
 
 ## 4. Datos

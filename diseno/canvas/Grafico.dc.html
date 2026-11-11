@@ -27,7 +27,7 @@ body{margin:0}
   <sc-for list="{{ticksX}}" as="t" hint-placeholder-count="6">
     <div style="{{t.style}}">{{t.label}}</div>
   </sc-for>
-  <div style="{{overlay}}" onKeyDown="{{onKey}}" onMouseLeave="{{onLeave}}">
+  <div style="{{overlay}}" onKeyDown="{{onKey}}" onMouseLeave="{{onLeave}}" onPointerDown="{{onScrub}}" onPointerMove="{{onScrub}}">
     <sc-for list="{{hits}}" as="hb" hint-placeholder-count="12">
       <button type="button" style="{{hb.style}}" tabIndex="{{hb.tab}}" aria-label="{{hb.aria}}" onClick="{{hb.fix}}" onMouseEnter="{{hb.over}}" onFocus="{{hb.over}}"></button>
     </sc-for>
@@ -211,13 +211,21 @@ class Component extends DCLogic {
       c.onFijar(j);
       requestAnimationFrame(() => requestAnimationFrame(() => { const b = caja && caja.querySelectorAll('button')[j]; if (b) b.focus({ preventScroll: true }); }));
     };
+    // Táctil: en el celular cada período mide ~10 px, bajo el mínimo para tocarlo. Deslizar el dedo sobre el gráfico fija el
+    // período más cercano (el desplazamiento vertical de la página sigue: touch-action pan-y en la capa).
+    const onScrub = (e) => {
+      if (e.pointerType === 'mouse' || (e.type === 'pointermove' && !e.buttons && e.pointerType !== 'touch')) return;
+      const r = e.currentTarget.getBoundingClientRect(); if (!r.width) return;
+      const j = Math.max(0, Math.min(n - 1, Math.floor((e.clientX - r.left) / r.width * n)));
+      if (j !== fijo) c.onFijar(j);
+    };
     return {
-      w, h, grid, cero, ticksY, ticksX, bandas, capas, marcas, guia, hits, onKey, ultimos: ultimosV, rotulosRef, fuera, tip, tipEst, tipFecha,
+      w, h, grid, cero, ticksY, ticksX, bandas, capas, marcas, guia, hits, onKey, onScrub, ultimos: ultimosV, rotulosRef, fuera, tip, tipEst, tipFecha,
       clip: 'position:absolute;left:0;top:' + T + 'px;width:' + w + 'px;height:' + (B - T) + 'px;overflow:hidden;pointer-events:none',
       capaSvg: 'position:absolute;left:0;top:-' + T + 'px;pointer-events:none;overflow:visible',
       onLeave: () => c.onHover(null),
       raiz: 'position:relative;width:' + w + 'px;height:' + h + 'px;font-family:IBM Plex Sans,sans-serif',
-      overlay: 'position:absolute;display:flex;top:' + T + 'px;height:' + (B - T) + 'px;left:' + F(x0) + 'px;width:' + F(paso * n) + 'px',
+      overlay: 'position:absolute;display:flex;touch-action:pan-y;top:' + T + 'px;height:' + (B - T) + 'px;left:' + F(x0) + 'px;width:' + F(paso * n) + 'px',
     };
   }
 }

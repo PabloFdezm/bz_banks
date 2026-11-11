@@ -87,6 +87,23 @@ def menu(paginas, actual):
     return ''.join(out)
 
 
+def leer_contextual(hojas: list[str], fuentes: str) -> dict[str, str]:
+    """Entradas de «Cómo leer» que dependen de la página: solo lo que la página muestra."""
+    uso = ''
+    if 'Seccion01' in hojas:
+        uso = ('    <dt>Franja de entrada</dt><dd>Cinco cifras del último mes, con su cambio a/a; cada una lleva a su '
+               'sección.</dd>\n'
+               '    <dt>Segmentos</dt><dd>En los pares con selector, elige qué se compara: personas y empresas, libre y '
+               'dirigido, personas por libre y dirigido, o todos. «En preparación»: ese corte todavía no tiene '
+               'datos.</dd>\n')
+    z = ('    <dt>Z 10 años</dt><dd>A cuántos desvíos está el último dato del promedio de los últimos 10 años.</dd>\n'
+         if 'Z 10 años' in fuentes else '')
+    banda = ('    <dt>Banda gris</dt><dd>Período con un cambio de norma o de método que afecta la lectura; el rótulo dice '
+             'cuál (p. ej. Res. CMN 4.966, que desde ene-25 cambia la medición de la mora).</dd>\n'
+             if 'bandas' in fuentes else '')
+    return {'uso_extra': uso, 'glos_z': z, 'glos_banda': banda}
+
+
 SHELL = """<!doctype html>
 <html lang="es">
 <head>
@@ -123,10 +140,11 @@ SHELL = """<!doctype html>
     <dt>Clic en una serie</dt><dd>En la leyenda, en la línea o en la fila de la tabla: la resalta y atenúa las demás. Otro clic la suelta.</dd>
     <dt>Ctrl + clic</dt><dd>Suma series al resaltado (⌘ + clic en Mac).</dd>
     <dt>Ajustar eje</dt><dd>Lleva la escala a las series resaltadas. Las que quedan fuera marcan su máximo y su mínimo con ▲ ▼.</dd>
-    <dt>← →</dt><dd>Con el foco en el gráfico, recorren los períodos; Inicio y Fin van al primero y al último.</dd>
+    <dt>← →</dt><dd>Con el foco en el gráfico, recorren los períodos; Inicio y Fin van al primero y al último del período que se ve (la historia completa está en Agrandar).</dd>
+    <dt>Alt + ↓ ↑</dt><dd>Salta a la sección siguiente o a la anterior.</dd>
     <dt>Agrandar</dt><dd>El gráfico a todo el ancho, con período ajustable, la tabla completa y la metodología.</dd>
     <dt>Presentar</dt><dd>Una sección por pantalla; flechas para avanzar, Esc para salir.</dd>
-  </dl>
+{uso_extra}  </dl>
   <h3>Glosario</h3>
   <dl>
     <dt>a/a</dt><dd>Contra el mismo mes (o trimestre) del año anterior.</dd>
@@ -136,10 +154,9 @@ SHELL = """<!doctype html>
     <dt>Share</dt><dd>Peso en el total.</dd>
     <dt>Mora &gt; 90 días (NPL)</dt><dd>Parte de la cartera con más de 90 días de atraso, en %.</dd>
     <dt>Atraso 15–90 días</dt><dd>Mora temprana: suele adelantar a la mora &gt; 90 días.</dd>
-    <dt>Z 10 años</dt><dd>A cuántos desvíos está el último dato del promedio de los últimos 10 años.</dd>
-    <dt>Corte</dt><dd>Último período con dato de la serie.</dd>
+{glos_z}    <dt>Corte</dt><dd>Último período con dato de la serie.</dd>
     <dt>Total</dt><dd>En cobre en el gráfico y en negrita en la tabla.</dd>
-  </dl>
+{glos_banda}  </dl>
 </dialog>
 <main id="contenido-principal" tabindex="-1"><div id="v2-escala"><div id="v2-raiz"><p class="v2-carga" role="status">Cargando {titulo}…</p></div></div></main>
 <div class="v2-pres" id="v2-pres" hidden>
@@ -198,7 +215,8 @@ def main() -> int:
             hojas.append({'hoja': h, 'datos': h if con_datos else None})
         carpeta = SITIO / p['ruta']
         carpeta.mkdir(parents=True, exist_ok=True)
-        (carpeta / 'index.html').write_text(SHELL.format(titulo=p['titulo'], menu=menu(paginas, p['ruta']), hojas=json.dumps(hojas), titulo_js=json.dumps(p['titulo'], ensure_ascii=False)), encoding='utf-8')
+        fuentes = ''.join((CANVAS / f'{h}.dc.html').read_text(encoding='utf-8') for h in p['hojas'])
+        (carpeta / 'index.html').write_text(SHELL.format(titulo=p['titulo'], menu=menu(paginas, p['ruta']), hojas=json.dumps(hojas), titulo_js=json.dumps(p['titulo'], ensure_ascii=False), **leer_contextual(p['hojas'], fuentes)), encoding='utf-8')
         print(f'{p["ruta"]}/  ←  ' + ', '.join(p['hojas']))
     # Raíz del sitio: la primera página (Portada) también en /, y una 404 con el mismo marco.
     p0 = paginas[0]

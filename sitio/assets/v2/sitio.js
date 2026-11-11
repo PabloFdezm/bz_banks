@@ -77,6 +77,7 @@ function vigilarDialogos(raiz) {
     else if (!e.shiftKey && (a === ultimo || !d.contains(a))) { e.preventDefault(); primero.focus(); }
   });
 }
+const raizDialogoAbierto = () => !!document.querySelector('#v2-raiz [role=dialog]') || !!document.querySelector('dialog[open]');
 const cerrarDialogo = () => {
   const d = document.querySelector('[role=dialog]');
   const c = d && [...d.querySelectorAll('button')].find((x) => x.textContent.trim() === 'Cerrar');
@@ -91,7 +92,9 @@ function armarLaminas() {
   const pares = [];
   raiz.querySelectorAll('.card').forEach((c) => {
     if (c.closest('[role=dialog]')) return;
-    const p = c.parentElement;
+    // El par es la fila que solo lleva tarjetas; una tarjeta suelta en la raíz de la hoja (P&L: estado de resultados)
+    // es su propia lámina (antes la lámina era la hoja entera, a zoom 0,6).
+    const p = [...c.parentElement.children].every((x) => x.classList.contains('card')) ? c.parentElement : c;
     if (!pares.includes(p)) pares.push(p);
   });
   const secs = [...raiz.querySelectorAll('.sh')].filter((s) => !s.closest('[role=dialog]'));
@@ -104,7 +107,7 @@ function armarLaminas() {
 // En la lámina los controles no se ven: el corte elegido pasa a ser un texto fijo en la cabecera del gráfico.
 // Va como atributo (lo pinta un ::after en v2.css) porque dc.js borra en cada render los nodos que no son de la plantilla.
 // Selectores que definen qué muestra la lámina (el período no: la lámina siempre va con el período por defecto).
-const SELECTORES_LAMINA = ['Corte', 'Banco', 'Agrupar por', 'Trimestre'];
+const SELECTORES_LAMINA = ['Segmentos', 'Banco', 'Agrupar por', 'Trimestre'];
 function corteDeLamina(l) {
   l.par.querySelectorAll('[data-corte-lam]').forEach((x) => x.removeAttribute('data-corte-lam'));
   l.par.querySelectorAll('.card').forEach((c) => {
@@ -155,7 +158,15 @@ function ajustarPresentar() {
   const z = Math.max(0.6, Math.min((innerHeight - 24 - RESERVA_BARRA) / (r.height + hs), 1.5));
   esc.style.zoom = z;
   let altoTit = 0;
-  const ir = (zz) => { altoTit = tituloLamina(l, zz); scrollTo({ top: l.par.getBoundingClientRect().top + scrollY - 24 - altoTit, behavior: 'instant' }); };
+  // La lámina va centrada en el alto libre (entre el borde de arriba y la barra de Presentar): cuando el ancho limita el zoom
+  // sobraban ~150 px abajo.
+  const ir = (zz) => {
+    altoTit = tituloLamina(l, zz);
+    const lim = $('v2-pres').getBoundingClientRect().top - 12, alto = l.par.getBoundingClientRect().height;
+    const arriba = 24 + Math.max(0, Math.floor((lim - 24 - altoTit - alto) / 2));
+    const t = $('v2-pres-sec'); if (t) t.style.top = arriba + 'px';
+    scrollTo({ top: l.par.getBoundingClientRect().top + scrollY - arriba - altoTit, behavior: 'instant' });
+  };
   ir(z);
   // Con el zoom cambia el ancho de los gráficos y se redibujan (más altos o más bajos que lo medido): segunda pasada
   // cuando ya se redibujaron, achicando hasta que la lámina quepa sobre la barra de Presentar.
@@ -181,7 +192,10 @@ function mostrarLamina(i) {
   const l = laminas[presentando.i];
   corteDeLamina(l);
   $('v2-pres-n').textContent = (presentando.i + 1) + ' / ' + laminas.length;
-  $('v2-pres-t').textContent = l.sec ? [...l.sec.querySelectorAll('span')].map((x) => x.textContent.trim()).join(' ') || l.sec.textContent.trim() : '';
+  // Posición dentro de la sección («2 de 3») junto al título; el contador de la derecha es el de toda la página.
+  const deSec = laminas.filter((x) => x.sec === l.sec), enSec = deSec.indexOf(l) + 1;
+  const tit = l.sec ? [...l.sec.querySelectorAll('span')].map((x) => x.textContent.trim()).join(' ') || l.sec.textContent.trim() : '';
+  $('v2-pres-t').textContent = tit + (l.sec && deSec.length > 1 ? ' · ' + enSec + ' de ' + deSec.length : '');
   requestAnimationFrame(ajustarPresentar);
 }
 function presentar(on) {
@@ -307,6 +321,17 @@ export async function iniciar(HOJAS, titulo) {
       if (['ArrowRight', 'PageDown', ' '].includes(e.key)) { e.preventDefault(); mostrarLamina(presentando.i + 1); }
       else if (['ArrowLeft', 'PageUp'].includes(e.key)) { e.preventDefault(); mostrarLamina(presentando.i - 1); }
       else if (e.key === 'Escape') { e.preventDefault(); if (!cerrarDialogo()) presentar(false); }
+      return;
+    }
+    // Alt + ↓ / ↑: siguiente o anterior sección de la página (títulos .sh fuera de los diálogos).
+    if (e.altKey && (e.key === 'ArrowDown' || e.key === 'ArrowUp') && !raizDialogoAbierto()) {
+      const secs = [...$('v2-raiz').querySelectorAll('.sh')].filter((s) => !s.closest('[role=dialog]'));
+      if (!secs.length) return;
+      const tope = 8, tops = secs.map((s) => s.getBoundingClientRect().top);
+      const k = e.key === 'ArrowDown' ? tops.findIndex((y) => y > tope + 1) : tops.map((y, i) => [y, i]).filter(([y]) => y < tope - 1).map(([, i]) => i).pop();
+      if (k == null || k < 0) return;
+      e.preventDefault();
+      scrollTo({ top: secs[k].getBoundingClientRect().top + scrollY - tope, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
       return;
     }
     if (e.key === 'Escape') {

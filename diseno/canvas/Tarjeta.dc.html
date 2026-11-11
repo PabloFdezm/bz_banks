@@ -81,6 +81,7 @@ button:focus-visible,select:focus-visible{outline:2px solid #2E5C8A;outline-offs
           </tbody>
         </table>
         <div class="bs" style="margin-top: 6px; color: #5B6573;">{{s.nota}}</div>
+        <sc-if value="{{s.hayDef}}" hint-placeholder-val="{{true}}"><p class="md" style="margin-top: 8px;"><b style="color: #24324A;">Definición.</b> {{s.def}}</p></sc-if>
         <div class="fu">{{s.fuente}}</div>
       </div>
     </div>
@@ -201,7 +202,7 @@ class Component extends DCLogic {
         vb: { titulo: 'Saldo que devenga interés, % del saldo de tarjeta', sub: 'Eje vertical: % del saldo.', fuente: 'Fuente: BCB, SGS.', tTitulo: 'Composición del saldo', tSub: '% del saldo · Δ a/a en pp', glos: 'Último: rotativo y cuotas con interés sobre el saldo total de tarjeta, en %. El resto son compras al contado. ', meta: MS } },
       { num: 'P2', nombre: 'Precio',
         va: { titulo: 'Tasa de las nuevas operaciones contra Selic', sub: 'Eje vertical: % a.a. Línea discontinua: Selic efectiva, promedio del mes (SGS 4189). Banda: Ley 14.690.', fuente: 'Fuente: BCB, SGS.', bandas: BLEY, tTitulo: 'Tasa media', tSub: '% a.a. · Δ a/a en pp', glos: 'Último: tasa media de las concesiones del mes, en % a.a. ', meta: MS + ' Ley 14.690: desde ene-24 los intereses del rotativo no pueden superar el 100 % de la deuda original.' },
-        vb: { titulo: 'Qué movió la tasa media: tasas o mezcla', sub: DIVS + ' Banda: Ley 14.690.', fuente: 'Fuente: BCB, SGS.', bandas: BLEY, tTitulo: 'Variación a/a de la tasa', tSub: 'pp · Δ a/a en pp', glos: 'Tasa media = rotativo y cuotas ponderados por sus concesiones del mes. Efecto tasa: peso promedio × cambio de la tasa de cada submodalidad. Efecto mezcla: diferencia promedio de tasas × cambio del peso del rotativo. Es la tasa reconstruida de rotativo y cuotas, no la tasa total del SGS (22024), que incluye el contado a tasa cero. Es la tasa reconstruida de rotativo y cuotas, no la tasa total del SGS (22024), que incluye el contado a tasa cero. ', meta: MS } },
+        vb: { titulo: 'Qué movió la tasa media: tasas o mezcla', sub: DIVS + ' Banda: Ley 14.690.', fuente: 'Fuente: BCB, SGS.', bandas: BLEY, tTitulo: 'Variación a/a de la tasa', tSub: 'pp · Δ a/a en pp', glos: 'Tasa media = rotativo y cuotas ponderados por sus concesiones del mes. Efecto tasa: peso promedio × cambio de la tasa de cada submodalidad. Efecto mezcla: diferencia promedio de tasas × cambio del peso del rotativo. Es la tasa reconstruida de rotativo y cuotas, no la tasa total del SGS (22024), que incluye el contado a tasa cero. ', meta: MS } },
       { num: 'P3', nombre: 'Calidad',
         va: { titulo: 'Mora mayor a 90 días', sub: 'Eje vertical: % del saldo. Banda: Res. 4.966.', fuente: 'Fuente: BCB, SGS.', bandas: B4966, tTitulo: 'Mora > 90 días', tSub: '% · Δ a/a en pp', glos: 'Último: saldo con atraso mayor a 90 días sobre el saldo, en %. ', meta: MS + ' Desde ene-25 rige la Res. CMN 4.966.' },
         vb: { titulo: 'Mora temprana: atraso de 15 a 90 días por tramo de renta', sub: 'Eje vertical: % de la cartera. Banda: Res. 4.966.', fuente: 'Fuente: BCB, SCR.data.', bandas: B4966, tTitulo: 'Atraso 15–90 días', tSub: '% · Δ a/a en pp', glos: 'Último: vencido de 15 a 90 días sobre la cartera activa, en %. Anticipa la mora > 90 días en uno a tres meses. ', meta: MC } },
@@ -262,7 +263,8 @@ class Component extends DCLogic {
         const v = i < 0 ? (niv ? ['—', '—', '—'] : ['—', '—']) : niv ? [rsm(nv && nv[j]), nv && nt && nt[j] ? pc(nv[j] / nt[j] * 100) : '—', (a[i] > 0 ? '+' : '') + FMT[D.fmt](a[i])] : [FMT[D.fmt](a[i]), dl(D.fmt, a, i, i - lag)];
         return { nombre: s.nombre, corte: i >= 0 ? lab[i] : '—', v, cls: s.tot ? 'tot' : '', pres: sel.includes(s.id) ? 'true' : 'false', sw: marca(AP_, s),
           est: sel.includes(s.id) ? 'background:#E8EEF5' : on(s.id) ? '' : '--atenuado:0.4', click: (e) => { if (e) e.stopPropagation(); toggle(s.id, multi(e)); } }; });
-      return { titulo: P.titulo, sub: P.sub, fuente: P.fuente, nota: P.nota, nota: P.nota, tTitulo: P.tTitulo, tSub: niv ? 'Último: saldo en R$ mil millones · Share del total · a/a en %' : P.tSub, cols: niv ? ['Último', 'Share', 'a/a'] : ['Último', 'Δ a/a'], leyenda, cfg, filas,
+      const defi = ((g) => niv ? g.replace(/^Último:[^.]*\.\s*/, '') : g)(P.glos || '').trim();
+      return { def: defi, hayDef: !!defi && filas.length <= 8, titulo: P.titulo, sub: P.sub, fuente: P.fuente, nota: P.nota, nota: P.nota, tTitulo: P.tTitulo, tSub: niv ? 'Último: saldo en R$ mil millones · Share del total · a/a en %' : P.tSub, cols: niv ? ['Último', 'Share', 'a/a'] : ['Último', 'Δ a/a'], leyenda, cfg, filas,
         sinSel: sel.length === 0, ajustar: () => this.setState({ aj: { ...this.state.aj, [key]: !this.state.aj[key] } }), ajusteTxt: 'Ajustar eje', ajustePres: aj ? 'true' : 'false', ajusteEst: aj ? 'background:#E8EEF5;border-color:#2E5C8A;color:#1F3F60;font-weight:600' : '' };
     };
     const bloque = (v, j, Bq) => {

@@ -59,7 +59,7 @@ button:focus-visible,select:focus-visible{outline:2px solid #2E5C8A;outline-offs
         <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px;">
           <div><div class="ct">{{s.titulo}}</div><div class="cs">{{s.sub}}</div></div>
           <div style="display: flex; gap: 8px; align-items: center;">
-            <sc-if value="{{s.control}}" hint-placeholder-val="{{false}}"><select class="sel" aria-label="Corte" value="{{corte}}" onChange="{{elegirCorte}}"><option value="seg">Segmento regulatorio</option><option value="prop">Propiedad</option><option value="mod">Modelo de negocio</option><option value="fin">Tradicionales / fintechs</option></select></sc-if>
+            <sc-if value="{{s.control}}" hint-placeholder-val="{{false}}"><select class="sel" aria-label="Agrupar por" value="{{corte}}" onChange="{{elegirCorte}}"><option value="seg">Segmento regulatorio</option><option value="prop">Propiedad</option><option value="mod">Modelo de negocio</option><option value="fin">Tradicionales / fintechs</option></select></sc-if>
             <button class="btn" type="button" style="{{s.ajusteEst}}" aria-pressed="{{s.ajustePres}}" aria-disabled="{{s.sinSel}}" title="Resalte una serie (clic en la leyenda o en la tabla) para ajustar el eje a ella" onClick="{{s.ajustar}}">{{s.ajusteTxt}}</button>
             <button class="btn" type="button" onClick="{{s.abrir}}" aria-haspopup="dialog"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M9.5 2.5h4v4M6.5 13.5h-4v-4M13.5 2.5l-5 5M2.5 13.5l5-5"></path></svg>Agrandar</button>
           </div>
@@ -92,7 +92,7 @@ button:focus-visible,select:focus-visible{outline:2px solid #2E5C8A;outline-offs
         <div style="display: flex; justify-content: space-between; align-items: center; gap: 16px; height: 48px;">
           <div><div style="font-size: 20px; line-height: 26px; font-weight: 600;">{{d.titulo}}</div><div class="cs">{{d.sub}}</div></div>
           <div style="display: flex; gap: 8px; align-items: center;">
-            <sc-if value="{{d.control}}" hint-placeholder-val="{{false}}"><select class="sel" aria-label="Corte" value="{{corte}}" onChange="{{elegirCorte}}"><option value="seg">Segmento regulatorio</option><option value="prop">Propiedad</option><option value="mod">Modelo de negocio</option><option value="fin">Tradicionales / fintechs</option></select></sc-if>
+            <sc-if value="{{d.control}}" hint-placeholder-val="{{false}}"><select class="sel" aria-label="Agrupar por" value="{{corte}}" onChange="{{elegirCorte}}"><option value="seg">Segmento regulatorio</option><option value="prop">Propiedad</option><option value="mod">Modelo de negocio</option><option value="fin">Tradicionales / fintechs</option></select></sc-if>
             <select class="sel" aria-label="Período" onChange="{{elegirAtajo}}" value="{{atajo}}"><option value="def">{{d.atajoTxt}}</option><option value="pers" disabled="{{true}}">Personalizado</option></select>
             <button class="btn" type="button" onClick="{{cerrar}}">Cerrar</button>
           </div>
