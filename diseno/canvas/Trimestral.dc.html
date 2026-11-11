@@ -183,13 +183,16 @@ class Component extends DCLogic {
       if (!conSel) {
         for (let it = 0; it < 3 && usar.length >= 4; it++) {
           const [a, b] = rango(usar); let mej = null, spm = b - a;
-          usar.forEach((s) => { const [c1, c2] = rango(usar.filter((q) => q !== s)); if (c2 - c1 < spm) { spm = c2 - c1; mej = s; } });
+          usar.forEach((s) => { if (s.tot) return; const [c1, c2] = rango(usar.filter((q) => q !== s)); if (c2 - c1 < spm) { spm = c2 - c1; mej = s; } });
           if (mej && spm * 3 < b - a) usar = usar.filter((q) => q !== mej); else break;
         }
       }
       let [lo, hi] = rango(usar);
       if (!conSel) { const vals = []; usar.forEach((s) => { for (let i = d; i <= h; i++) if (s.datos[i] != null) vals.push(s.datos[i]); });
         if (vals.length >= 8) { const so = vals.sort((x, y) => x - y), q = (p) => so[Math.floor((so.length - 1) * p)], sp = q(0.9) - q(0.1); if (sp > 0) { const l2 = q(0.1) - 1.5 * sp, h2 = q(0.9) + 1.5 * sp; if (so.filter((x) => x < l2 || x > h2).length <= so.length * 0.05) { lo = Math.max(lo, l2); hi = Math.min(hi, h2); } } } }
+      // Regla del sitio: el Total siempre visible. La escala por defecto puede dejar fuera series extremas (marcadas con
+      // ▲▼), nunca el Total; solo «Ajustar eje» (series resaltadas) lo puede sacar del eje (11-nov, crítica 3).
+      if (!conSel) { const [t1, t2] = rango(series.filter((s) => s.tot)); if (isFinite(t1)) { lo = Math.min(lo, t1); hi = Math.max(hi, t2); } }
       if (!isFinite(lo)) { lo = 0; hi = 1; }
       if (cero && !conSel) { lo = Math.min(lo, 0); hi = Math.max(hi, 0); }
       const paso = [0.25, 0.5, 1, 2, 4, 5, 10, 20, 25, 50, 100, 200, 500, 1000, 2000].find((p) => (hi - lo) / p <= 5) || 5000;

@@ -154,3 +154,15 @@ html.v2-dialogo { overflow: hidden; }
 .v2-leer-dlg dt { font-weight: 600; }
 .v2-leer-dlg dd { margin: 0; color: var(--suave); }
 @media (max-width: 640px) { .v2-leer-dlg dl { grid-template-columns: 1fr; gap: 2px; } .v2-leer-dlg dd { margin-bottom: 8px; } .v2-barra-acc .v2-b-txt { display: none; } }
+
+/* Agrandar en pantallas angostas (crítica 3, 11-nov): la cabecera del diálogo tenía alto fijo (48 px) y sus controles
+   se montaban sobre la leyenda y el gráfico; ahora crece y baja de línea. La tabla de 8 columnas se desplaza en
+   horizontal, con una sombra en el borde que avisa que hay más columnas (se apaga al llegar al extremo). */
+#v2-raiz .dlg[role="dialog"] > div:first-child { height: auto !important; flex-wrap: wrap; row-gap: 8px; }
+#v2-raiz .dlg[role="dialog"] > div:first-child > div:last-child { flex-wrap: wrap; row-gap: 8px; }
+@media (max-width: 640px) {
+  #v2-raiz .dlg[role="dialog"] table.tb { display: block; max-width: 100%; overflow-x: auto; white-space: nowrap;
+    background: linear-gradient(to right, #FFFFFF 30%, rgba(255,255,255,0)), linear-gradient(to left, #FFFFFF 30%, rgba(255,255,255,0)) 100% 0,
+      radial-gradient(farthest-side at 0 50%, rgba(27,36,51,0.18), rgba(27,36,51,0)), radial-gradient(farthest-side at 100% 50%, rgba(27,36,51,0.18), rgba(27,36,51,0)) 100% 0;
+    background-repeat: no-repeat; background-size: 24px 100%, 24px 100%, 10px 100%, 10px 100%; background-attachment: local, local, scroll, scroll; }
+}
