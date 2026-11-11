@@ -3,7 +3,7 @@
 > Generado por `herramientas/generar_spec.py`. No editar a mano: se sobrescribe.
 
 
-## `pipeline/actualizar.py` (95 líneas)
+## `pipeline/actualizar.py` (97 líneas)
 
 Importa del pipeline: `almacen`, `red`
 
@@ -59,6 +59,44 @@ archivo sigue siendo el mismo".
 
 Los derivados llevan su propio manifiesto que además nombra los crudos de los que salieron,
 para poder rehacer la cadena.
+```
+
+## `pipeline/balancetes.py` (411 líneas)
+
+Importa del pipeline: `almacen`, `bancos`, `certificados`, `periodos`, `red`
+
+Argumentos: `--descargar` — con gold: baja antes los meses que falten
+
+```text
+Balancetes COSIF del BCB, documento 4060 (conglomerado prudencial), mensual → bk_balancete_m y bk_sistema_bal_m.
+
+Fuente: https://www4.bcb.gov.br/fis/cosif/cont/balan/individualizados/AAAAMM/4060/AAAAMM-4060-<CNPJ8>.ZIP, un archivo
+por líder de conglomerado y mes (sondeo aprobado el 9-nov-2026: tareas/borradores/balancetes_sondeo.md). Es la única
+fuente mensual con balance y resultado por banco; el IF.Data (bk_panel) es trimestral.
+
+Trampas (verificadas el 11-nov-2026):
+1. El archivo va por el CNPJ8 del **líder** del conglomerado (cadastro de IF.Data, ``CnpjInstituicaoLider``), no por
+   el código C. Para Itaú el líder es la holding (60872504). Dentro del archivo, ``COD_CONGL`` es nuestro
+   ``cod_inst``: se exige que coincida; si no, el archivo no se usa.
+2. Latin-1, separador «;», coma decimal y tres líneas de título antes de la cabecera (``#DATA_BASE;…``).
+3. Las cuentas de resultado (7 y 8) acumulan por semestre y se reinician en enero y julio; junio y diciembre NO
+   cierran el resultado en el 4060. Flujo del mes = acumulado − acumulado del mes anterior, salvo ene y jul.
+4. El 4060 trae el resultado abierto: el patrimonio de cierre es 6 + 7 + 8 (sin 7 y 8 queda bajo).
+5. El plan de cuentas cambia en ene-25 (Res. CMN 4.966): antes ~160 cuentas de nivel 1–3; después ~750, con
+   desglose de nivel 4. Las cuentas se casan por concepto (definiciones/bcb_balancetes__cuentas.json), por época.
+7. Algunos conglomerados de un solo miembro no tienen 4060 (Banco da Amazônia): se usa el 4010 del líder, que trae
+   las mismas cuentas sin COD_CONGL; el cuadre contra IF.Data lo valida. BRB no publica balancetes (ni 4060 ni 4010)
+   desde jul-25: queda como hueco.
+8. Hay archivos con todas las filas repetidas (Cielo IP, 202507): se deduplican si las copias son idénticas.
+9. El patrimonio de junio y diciembre del 4060 es anterior al cierre del semestre (sin destinar dividendos ni
+   JCP): queda 1–6 % sobre IF.Data. El cuadre no lo exige en esos meses (ver informe).
+6. Los meses se publican por trimestre (Comunicado 44.132/2025), y al 11-nov-2026 la carpeta de 2026-04 en adelante
+   no existe (404): la serie llega hasta donde el BCB publicó. Un 404 se anota como faltante, no es error.
+
+Uso:  python -X utf8 pipeline/balancetes.py colectar [--desde AAAAMM] [--hasta AAAAMM]   (baja lo que falte)
+      python -X utf8 pipeline/balancetes.py gold [--descargar]                           (arma y publica; así lo
+                                                                                          llama actualizar.py)
+      python -X utf8 pipeline/balancetes.py --resumen                                    (cobertura y cuadres)
 ```
 
 ## `pipeline/bancos.py` (116 líneas)
@@ -681,7 +719,7 @@ REGLAS
   Solo con los 120 meses completos; antes queda vacío.
 ```
 
-## `pipeline/preparar_gold_bancos_empresas.py` (292 líneas)
+## `pipeline/preparar_gold_bancos_empresas.py` (312 líneas)
 
 Importa del pipeline: `almacen`, `preparar_gold_bancos_producto_pf`, `preparar_gold_bancos_scr_productos`, `sgs`, `tabla_estandar`
 
@@ -710,8 +748,9 @@ TABLAS (datos/gold/)
     (faltan «outros créditos livres», sin tasa publicada).
 - bk_empresas_scr_m (SCR.data, mensual desde ene-18): hoja, dimension, segmento, medida, fecha, valor.
   Clave: hoja, dimension, segmento, medida, fecha. Hojas: ``mpme`` (micro + pequeña + mediana) y ``grandes``.
-  * Dimensiones: ``total`` («Total»), ``porte`` (solo mpme), ``sector`` (10 secciones CNAE + «Otros sectores»),
-    ``institucion`` y la celda de la descomposición (``porte_sector`` en mpme, ``sector_institucion`` en grandes).
+  * Dimensiones: ``total`` («Total»), ``total_sin_sf`` (solo grandes: «Total sin servicios financieros»), ``porte`` (solo mpme),
+    ``sector`` (10 secciones CNAE + «Otros sectores»; mpme sin «Servicios financieros»), ``institucion``,
+    ``modalidad`` (definiciones/scr_modalidades_pj.json: capital de giro, inversión, comercio exterior…) y la celda de la descomposición (``porte_sector`` en mpme, ``sector_institucion`` en grandes).
   * Medidas de nivel: ``saldo``, ``mora90``, ``atraso15_90``, ``activo_problematico`` (R$), ``ops``, ``cart_ops``;
     razones ``tasa_mora``, ``tasa_atraso``, ``tasa_apr``, ``peso``, ``saldo_aa``, ``ops_aa``, ``ticket``
     (cart_ops / ops, R$) y ``ticket_real`` (R$ del último mes, IPCA).
@@ -727,6 +766,8 @@ REGLAS
   mayor riesgo de la Res. CMN 4.966 (29581–29583). No empalman: son definiciones distintas.
 - 27701 + 27702 no es exactamente 20540 (diferencia de hasta R$ 37 mil millones): el peso de cada porte se mide sobre
   la suma de los dos, no sobre el total de empresas.
+- SCR: cubo propio solo PJ (intermedio/scr_empresas/<versión del mapa de modalidades>), con las mismas reglas de
+  caché que scr_productos. MPME excluye el sector «Servicios financieros» (decisión de Pablo, 11-nov).
 - SCR: el porte «Indisponível» queda fuera de las dos hojas (R$ 124 mil millones en sep-26). Instituciones como el
   canvas: Bancos, Desarrollo y fomento, Cooperativas, Financieras, Fintechs, Inst. de pago y Otros.
 ```
@@ -755,7 +796,7 @@ Salida:   datos/gold/bk_exposicion.parquet (banco × trimestre).
 Uso:      python -X utf8 pipeline/preparar_gold_bancos_exposicion.py
 ```
 
-## `pipeline/preparar_gold_bancos_fondeo.py` (115 líneas)
+## `pipeline/preparar_gold_bancos_fondeo.py` (137 líneas)
 
 Importa del pipeline: `almacen`, `sgs`, `tabla_estandar`
 
@@ -775,6 +816,8 @@ TABLA (datos/gold/)
   * Medidas: ``saldo`` (R$ millones, fin de período), ``aa`` (saldo / saldo de 12 meses antes − 1, fracción),
     ``share_m2`` (solo las 7 hojas de M2: saldo / Σ hojas de M2, fracción; suman 1) y ``share_m4`` (las 11 hojas de
     M4, incluida «M3 sin desglose»; suman 1). Las tasas llevan ``tasa`` (el % del SGS / 100).
+  * ``captacion_sbpe`` (si está el crudo de la SGS 240, diaria): ``flujo_mes`` y ``flujo_12m``, captación líquida de
+    poupança SBPE en R$ millones (suma de los días; el último mes solo si el dato llega a fin de mes).
 
 REGLAS
 ------
@@ -856,7 +899,41 @@ REGLAS
   activos y crédito total desde bk_panel (share_ativo, share_credito). Solo conglomerados del panel.
 ```
 
-## `pipeline/preparar_gold_bancos_producto_pf.py` (382 líneas)
+## `pipeline/preparar_gold_bancos_portada_m.py` (141 líneas)
+
+Importa del pipeline: `almacen`, `sgs`, `tabla_estandar`
+
+```text
+Portada mensual, secciones 02 (precio del crédito) y 03 (NPL): series SGS por segmento y su tabla (frente 9).
+
+La sección 01 (concesiones e impulso) ya está en gold: bk_concesiones y bk_concesiones_tablas
+(preparar_gold_bancos_concesiones.py, parte A1). Este preparador cubre lo demás que el canvas de la Portada calculaba
+con los datos incrustados en las hojas (Seccion02/03.dc.html).
+
+TABLAS (datos/gold/)
+--------------------
+- bk_portada_m (larga): seccion («02» o «03»), indicador, segmento, fecha (último día del mes), valor.
+  Clave: indicador, segmento, fecha.
+  * Indicadores: ``tasa`` (tasa media de las operaciones nuevas), ``icc`` (costo del stock), ``spread``, ``mora90``
+    (inadimplência > 90 días), ``atraso15_90`` y ``selic_meta`` (SGS 432, a fin de mes; segmento «tot»). Todos en
+    fracción (el % o los p.p. del SGS / 100). Derivadas: ``tasa_menos_icc`` (tot) y ``d_aa`` de mora y atraso (Δ a/a,
+    fracción) para tot, pf y pj.
+  * Segmentos: tot, pf, pj, li, di, pfli, pfdi, pjli, pjdi. El spread dirigido de personas (pfdi) no lo publica el
+    BCB (tareas/borradores/portada_sgs_barrido.md): no hay fila, y la hoja lo dice.
+- bk_portada_m_tablas: seccion, indicador, orden, fila, segmento, ultimo, d1, d3, d12, dventana, corte, z120, p25, p50,
+  p75, minimo, maximo. Clave: indicador, segmento.
+
+REGLAS
+------
+- Cambios: m/m y a/a punta contra punta; 3m/3m y 12m/12m promedio de la ventana contra la anterior; en pp (tabla
+  estándar, tabla_estandar.variaciones_tasa con escala 100).
+- Z 10 años: (último − promedio de los 120 meses que terminan en el último) / desvío muestral (ddof = 1) de esos
+  meses. Con menos de 120 meses, vacío.
+- Historia (caja): percentiles 25, 50 y 75, mínimo y máximo desde ene-14; en los Δ a/a de mora y atraso, desde mar-12.
+- Res. CMN 4.966 (ene-25): las moras y atrasos cambian de definición; la serie no se empalma (banda en la hoja).
+```
+
+## `pipeline/preparar_gold_bancos_producto_pf.py` (388 líneas)
 
 Importa del pipeline: `almacen`, `preparar_gold_bancos_scr_productos`, `sgs`, `tabla_estandar`
 
@@ -877,6 +954,8 @@ TABLAS (datos/gold/)
     ``sub = "media"``: ``tasa_media`` (Σ w_i·r_i, w = peso de la submodalidad en las concesiones del mes),
     ``d_tasa_media`` (a/a, fracción), ``efecto_mezcla``; y por submodalidad ``peso_conc`` y ``efecto_tasa``.
     efecto_tasa_i = w̄_i·Δr_i; efecto_mezcla = Σ (r̄_i − r̄)·Δw_i, con promedios de t y t−12. Suman d_tasa_media.
+  * Inmobiliario, sub ``garantia``: ``ivg_r`` (índice IVG-R del valor de los inmuebles financiados, SGS 21340) e
+    ``ivg_r_aa`` (fracción).
   * Productos de referencia: ``personas`` (total personas: saldo, concesiones, tasa, mora) y ``referencia``
     (sub ``selic``, medida ``tasa``: Selic efectiva del mes anualizada, SGS 4189; sub ``salario_minimo``, medida ``nivel``:
     R$, último dato del mes y arrastrado a los meses sin cambio).
@@ -922,7 +1001,7 @@ REGLAS
   de «más de 20 SM» a «Indisponível».
 ```
 
-## `pipeline/preparar_gold_bancos_pyb.py` (422 líneas)
+## `pipeline/preparar_gold_bancos_pyb.py` (443 líneas)
 
 Importa del pipeline: `almacen`
 
@@ -946,7 +1025,7 @@ TABLAS (datos/gold/)
 - bk_pyb: cod_inst, periodo (AAAAMM), trimestre («2T26»), seccion, linea, medida, valor.
   Clave: cod_inst, periodo, linea, medida.
   * seccion ``pyl``: medidas ``rs_trim`` (R$ del trimestre), ``rs_12m`` (R$, suma de cuatro trimestres
-    consecutivos; si falta uno, no hay fila) y ``pct_activo_medio_12m`` (rs_12m / ativo_medio_ttm de bk_panel,
+    consecutivos; si falta uno, no hay fila; en las líneas «comparable»: false no hay fila de 1T25 a 3T25) y ``pct_activo_medio_12m`` (rs_12m / ativo_medio_ttm de bk_panel,
     en fracción).
   * secciones ``activo`` y ``pasivo``: ``rs`` (saldo a fin de trimestre, R$) y ``pct_activo`` (rs / activo total,
     fracción). El pasivo se divide por el activo total (= pasivo total).
@@ -958,11 +1037,12 @@ TABLAS (datos/gold/)
     fondeo medio (líneas ``fondeo`` de la definición); ``cf_pct`` = cf_qa / Selic efectiva media del trimestre.
 - bk_pyb_grupo: grupo, periodo, trimestre, seccion, linea, medida, valor, n_bancos.
   Clave: grupo, periodo, linea, medida.
-  * ``grupo`` = modelo de negocio de bk_panel: mediana de los bancos del grupo con dato (n_bancos = cuántos).
+  * ``grupo`` = modelo de negocio de bk_panel: mediana de los bancos del grupo con dato (n_bancos = cuántos), sin los
+    banco-trimestres de FUERA_DE_MEDIANA (Original 4T24).
   * ``grupo`` = «Panel»: razón de sumas de los bancos con numerador y denominador (no promedio de razones):
     Σ rs_12m / Σ ativo_medio_ttm, Σ rs / Σ activo total, ROE = Σ utilidad 12m / Σ pl_medio_ttm. Capital: los
-    índices cp, bas, dens, hol y req_cp se toman de bk_capital_grupo («Total panel», sus n_bancos) y apalancamiento
-    y crecimientos son razón de sumas de los bancos de bk_pyb (decisión pendiente: unificar en 31 o 34 bancos).
+    índices cp, bas, dens, hol, req_cp, apalancamiento y crecimientos son razón de sumas de los bancos de bk_pyb
+    (34; decisión de Pablo del 11-nov: un solo universo, no el «Total panel» de 31 de bk_capital_grupo).
     Sensibilidad: Σ(mfb × 4) / Σ activo medio, Σ(−captación × 4) / Σ fondeo medio y su cociente con la Selic.
   * ``grupo`` = «Referencia»: linea ``selic`` (seccion sensibilidad), promedio de los meses del trimestre de la
     Selic efectiva anualizada (bk_producto_pf_m, referencia/selic, SGS 4189), en fracción.
@@ -1053,7 +1133,7 @@ Receta::
     python -X utf8 pipeline/preparar_gold_bancos_scr.py --solo-descargar
 ```
 
-## `pipeline/preparar_gold_bancos_scr_productos.py` (338 líneas)
+## `pipeline/preparar_gold_bancos_scr_productos.py` (346 líneas)
 
 Importa del pipeline: `almacen`, `reglas_gold`, `scr_zip`, `tabla_estandar`
 
@@ -1186,7 +1266,7 @@ Salidas:
 Reintentos y descargas a disco: la única política de reintento del pipeline (bcb_api, ifdata, scr_zip).
 ```
 
-## `pipeline/ref.py` (479 líneas)
+## `pipeline/ref.py` (497 líneas)
 
 Importa del pipeline: `almacen`, `certificados`, `red`
 
@@ -1252,7 +1332,7 @@ ZIP anuales del SCR.data (``datos/crudo/bcb_scr/scrdata/actual/scrdata_<año>.zi
 - Valores con coma decimal y sin separador de miles.
 ```
 
-## `pipeline/sgs.py` (218 líneas)
+## `pipeline/sgs.py` (232 líneas)
 
 Importa del pipeline: `almacen`, `bcb_api`, `certificados`, `red`
 
@@ -1293,7 +1373,7 @@ Los floats se comparan con tolerancia relativa 1e-12 (solo ruido de redondeo); t
 `bk_manifiesto` se compara sin bytes ni sha256.
 ```
 
-## `herramientas/construir_v2.py` (170 líneas)
+## `herramientas/construir_v2.py` (229 líneas)
 
 ```text
 Construye el sitio v2 (rediseño) desde las hojas del canvas.
@@ -1305,9 +1385,9 @@ Entrada:
 - Datos: `tareas/borradores/_salida/v2/<hoja>.json` (fuera de git: los datos de cada hoja tal como están en el canvas
   aprobado) → `sitio/data/v2/<hoja>.json`. Las hojas de la Portada traen sus datos dentro (const D) y no usan JSON.
 
-Salida (todo dentro de `sitio/`, que publica `publicar.bat`):
+Salida (todo dentro de `sitio/`, que publica `publicar.bat`; el sitio entero es esto desde el 10-nov):
 - `assets/v2/componentes/<Nombre>.js` y `assets/v2/paginas/<Nombre>.js`: módulos ES con la plantilla y la clase.
-- `v2/<ruta>/index.html`: página con el menú común.
+- `<ruta>/index.html` para cada página, `index.html` (la Portada) y `404.html`.
 - `data/v2/<slug>.json`.
 
     Set-Location C:\dev\bz_banks; python -X utf8 herramientas/construir_v2.py
@@ -1330,7 +1410,7 @@ Uso (desde la raíz del repo):
     python -X utf8 herramientas/convertir_crudo_parquet.py --borrar   # además borra cada CSV ya convertido
 ```
 
-## `herramientas/generar_spec.py` (187 líneas)
+## `herramientas/generar_spec.py` (202 líneas)
 
 ```text
 Regenera spec/generado/: el inventario automático del repo (tablas gold, métricas, bancos, páginas,
@@ -1339,6 +1419,27 @@ para que no quede desactualizada.
 
 Uso (desde la raíz del repo):  python -X utf8 herramientas/generar_spec.py
 Requiere los parquet de datos/gold (no van a git) y Node para leer la configuración de páginas.
+```
+
+## `herramientas/portada_desde_gold.py` (175 líneas)
+
+Argumentos: `--revisar` — informa sin escribir
+
+```text
+Recarga los datos incrustados de las hojas de la Portada (diseno/canvas/Seccion01–03.dc.html) desde gold.
+
+Las hojas de la Portada llevan sus datos dentro (``const D``, ``const T`` o ``const LARGO`` y ``const FALTA``); el
+sitio no las lee de JSON (herramientas/construir_v2.py). Este script reemplaza esas líneas con las cifras de:
+- Sección 01: bk_concesiones y bk_concesiones_tablas (bloque «12m»): a/a de las concesiones de 12 meses (``aa_<seg>``),
+  índice de concesiones reales sobre actividad (``ci_<seg>``) y la tabla de la página (``LARGO``).
+- Secciones 02 y 03: bk_portada_m y bk_portada_m_tablas (frente 9): tasa y spread (02), mora y atraso (03) por los
+  nueve segmentos; ``T`` = [último, m/m, 3m/3m, a/a, 12m/12m, Z 10 años] en % y pp.
+Lo que el SGS no publica (spread dirigido de personas) queda fuera de ``D`` y en ``NO_PUB`` de la hoja.
+Las demás claves de D y T (referencias, productos, empresas) no se tocan.
+
+    Set-Location C:\dev\bz_banks; python -X utf8 herramientas/portada_desde_gold.py [--revisar]
+
+Con --revisar solo informa qué cambiaría (no escribe).
 ```
 
 ## `herramientas/validar_sgs.py` (95 líneas)
@@ -1401,33 +1502,28 @@ Uso desde la raíz del repo:
 Código de salida: 0 si no hay errores (o solo avisos sin ``--estricto``), 1 si los hay.
 ```
 
-## `herramientas/verificar_f1.py` (241 líneas)
+## `herramientas/verificar_f1.py` (170 líneas)
 
-Argumentos: `--url` — sitio publicado (sin / final); si falta, levanta uno local; `--anchos` — anchos en px separados por coma, p. ej. 1920,1280,390
+Argumentos: `--url` — revisa el sitio publicado (p. ej. https://banks-bz.pages.dev) en vez del local
 
 ```text
-Verifica el sitio de bancos sobre todas las páginas de config.js (PAGINAS), con y sin ?banco=itau.
+Verifica el sitio v2 (páginas de diseno/canvas/paginas.json) con un Chromium real.
 
-Qué comprueba, con un Chromium real sobre un servidor propio (python -m http.server, que se cierra
-al terminar con su mismo PID; no se usa ningún servidor que ya estuviera corriendo):
-  1. cada página responde 200 y carga sin errores de consola ni de página;
-  2. el número de secciones y de tarjetas es el de la config y el del esqueleto (esqueleto_tarjetas.json);
-  3. cada tarjeta lleva el título de su config; si la config NO tiene armar(), la tarjeta está
-     «en preparación» (esa exigencia no aplica a las tarjetas con armar());
-  4. ninguna tarjeta con armar() muestra error de carga o de cálculo, y ninguna queda cargando: se espera a
-     <html data-pagina="lista"> y a que ningún nodo siga en data-estado cargando/actualizando (ciclo de vida
-     explícito de pagina.js; el estado se lee de data-estado, no del texto visible);
-  5. ningún «[» visible en el texto de la página;
-  6. la cabecera tiene una pestaña por página visible (las de config.js sin oculta: true) y la marca de config.js;
-  7. en cada ancho de --anchos, la página no tiene scroll horizontal;
-  8. cada color de tokens.js (COLOR) es igual a su token de tokens.css (navy → --navy, texto2 → --texto-2).
-Las configs, el esqueleto y los colores salen de herramientas/inventario_paginas.mjs (Node).
-Captura de página completa solo si se pide con --captura DIR.
+Qué comprueba en cada página y cada ancho de --anchos:
+  1. responde 200 y carga sin errores de página ni de consola, y el «Cargando…» desaparece;
+  2. tiene tarjetas (.card) fuera de los diálogos y ningún «{{» sin reemplazar en el texto visible;
+  3. no hay scroll horizontal de la página;
+  4. los rótulos del eje horizontal de cada gráfico no se pisan (cajas de texto de la misma fila sin solaparse);
+  5. con --url (sitio publicado, fuentes reales de Google): IBM Plex Sans, IBM Plex Mono y Bricolage Grotesque
+     quedan en document.fonts con status «loaded». No se usa document.fonts.check: da falso negativo con Plex Mono por
+     los subconjuntos unicode. En local las fuentes se cortan (no dependen de la red) y este punto no se mira.
+Además, una vez por página a 1920: «Cómo leer» abre y cierra con Esc.
 
-Con --url BASE (p. ej. https://banks-bz.pages.dev) revisa el sitio publicado en vez del local, con las fuentes
-reales de Google (en local se cortan, para no depender de la red) y reporta si cargaron.
+En local levanta su propio servidor (python -m http.server sobre sitio/) y lo cierra al terminar; no usa uno que ya
+estuviera corriendo. Con --captura DIR guarda una captura de página completa por página y ancho.
 
 Uso: python -X utf8 herramientas/verificar_f1.py [--puerto 8080] [--url BASE] [--anchos 1920,1280,390] [--captura DIR]
+     (p. ej. --url https://banks-bz.pages.dev --anchos 1920,1280,390)
 ```
 
 ## `herramientas/verificar_gold.py` (1261 líneas)

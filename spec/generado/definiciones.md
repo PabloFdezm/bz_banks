@@ -16,6 +16,15 @@
 - `nota_21114`: 21114 es crédito personal NO consignado: su saldo (SGS 20574) es R$ 400 mil millones contra R$ 792 mil millones del consignado (20576-20578), y la mora pondera…
 - `equivalencias`: objeto con 16 claves
 
+## `bcb_balancetes__cuentas.json` (5 kB)
+
+- `descripcion`: Concepto → cuentas COSIF del balancete 4060 (conglomerado prudencial), por época del plan de cuentas. Cada cuenta es la base de 7 dígitos (los 8 del archivo si…
+- `fuente`: BCB, balancetes COSIF (documento 4060). Sondeo: tareas/borradores/balancetes_sondeo.md; cuadre contra IF.Data en tareas/borradores/balancetes_informe.md.
+- `epocas`: objeto con 2 claves
+- `conceptos`: objeto con 13 claves
+- `publicable_desde`: 202001
+- `nota_publicable`: Antes de 2019T4 el 4060 no cuadra con IF.Data (lucro y crédito con diferencias de 2 % a 100 %); causa no verificada.
+
 ## `bcb_ifdata__bancos_balances.json` (30 kB)
 
 - `fuente`: bcb_ifdata
@@ -53,7 +62,7 @@
 - `trimestres_anomalos`: objeto con 1 claves
 - `nota_duplicados`: El BCB sirvió 2025-09 (informes 11, 13 y 16) con cada fila tres veces; el preparador quita duplicados exactos y falla si queda una clave (banco, grupo, cuenta,…
 
-## `bcb_ref.json` (2 kB)
+## `bcb_ref.json` (3 kB)
 
 - `fuente`: BCB, Relatório de Estabilidade Financeira (REF), Anexo Estatístico (xlsx, una hoja por gráfico o tabla). Público.
 - `url`: https://www.bcb.gov.br/content/publicacoes/ref/{edicion}/RELESTAB{edicion}-refAnexoEstatistico.xlsx
@@ -64,18 +73,20 @@
 - `meses_candidatos`: objeto con 2 claves
 - `usados`: objeto con 2 claves
 - `sitio`: objeto con 2 claves
+- `_unidades_por_clave`: Unidad de los gráficos cuya hoja del anexo no trae fila de unidad, por clave de título (ref.clave_titulo: estable entre ediciones; el número del gráfico no). V…
+- `unidades_por_clave`: objeto con 4 claves
 
-## `bcb_sgs__catalogo.json` (43 kB)
+## `bcb_sgs__catalogo.json` (50 kB)
 
 - `fuente`: Servicio web público del SGS (FachadaWSSGS.getUltimoValorXML)
 - `descripcion`: Nombre, unidad y periodicidad oficiales de cada serie de sgs.CODIGOS. Lo escribe herramientas/validar_sgs.py --escribir; la correspondencia clave ↔ nombre se r…
 - `validado`: 2026-11-10
-- `series`: objeto con 196 claves
+- `series`: objeto con 223 claves
 
-## `contrato_gold.json` (9 kB)
+## `contrato_gold.json` (10 kB)
 
 - `descripcion`: Contrato de la capa gold (datos/gold/bk_*.parquet): columnas mínimas y clave única de cada tabla. Lo lee herramientas/verificar_gold.py; una tabla bk_* que no …
-- `tablas`: objeto con 43 claves
+- `tablas`: objeto con 47 claves
 
 ## `cvm__bancos.json` (27 kB)
 
@@ -137,16 +148,24 @@
 ## `pyb_lineas.json` (19 kB)
 
 - `_descripcion`: Mapa de líneas de la hoja «P&L y balance por banco» (frente 15) para las dos épocas del plan contable del IF.Data (conglomerado prudencial). La época sale de l…
-- `_actualizado`: 2026-11-10
+- `_actualizado`: 2026-11-11
+- `_comparable`: «comparable»: false (decisión de Pablo, 11-nov) = línea bruta que cambia de contenido con el plan contable de 1T25 (variación cambial y hedge dentro de cada lí…
 - `epocas`: lista de 2
 - `fondeo`: lista de 12
 - `_fondeo`: Pasivos con costo explícito: denominador del costo de fondeo de la sección de sensibilidad a la Selic (sin patrimonio ni otros pasivos).
 - `lineas`: lista de 45 · campos: `linea`, `seccion`, `rotulo`, `nivel`, `tipo`, `epocas`
 
-## `scr_productos.json` (4 kB)
+## `scr_modalidades_pj.json` (2 kB)
 
-- `_descripcion`: Mapa de submodalidades del SCR.data a productos. Se aplica en orden: la primera regla que calza gana; lo que no calza va a «Otros». Comparación sin mayúsculas …
-- `_actualizado`: 2026-11-06
+- `_descripcion`: Mapa de modalidade/submodalidade del SCR.data a modalidades de crédito a empresas (PJ), para las hojas MPME y Grandes (frente 13, parte B). Mismo formato y mis…
+- `_actualizado`: 2026-11-11
+- `productos`: lista de 9 · campos: `producto`, `slug`, `modalidade`, `submodalidade`
+- `otros`: objeto con 2 claves
+
+## `scr_productos.json` (5 kB)
+
+- `_descripcion`: Mapa de submodalidades del SCR.data a productos. Se aplica en orden: la primera regla que calza gana (una regla no calza si la submodalidade contiene alguna de…
+- `_actualizado`: 2026-11-11
 - `productos`: lista de 7 · campos: `producto`, `slug`, `partes`, `_partes`, `submodalidade`
 - `otros`: objeto con 2 claves
 - `tramos_pf`: objeto con 9 claves

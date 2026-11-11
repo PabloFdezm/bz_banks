@@ -32,8 +32,7 @@ Todo lo de hoy está publicado en https://banks-bz.pages.dev. Detalle de cada fr
 - [x] Crítica 4, P2: chips ▲▼ en tinta (borde en el color de la serie); «Mora > 90 días» en todo el sitio; «el gráfico
       de la izquierda» → «el gráfico de mora > 90 días de esta sección»; «Tramos con renta» en gris referencia.
 - [ ] Paleta de 8 tramos (renta, ocupación) en DESIGN.md: vecinos navy/gris no se distinguen (diseño: canvas primero).
-- [ ] Crédito: varias series no Total en cobre (Vehículos, Sobregiro, «Atraso 15–90 días»…); revisar si son el Total
-      de su tarjeta o hay que pasarlas a la paleta.
+- [x] Crédito: el cobre marca la serie total de cada tarjeta (el producto elegido); está bien usado.
 - [x] Crítica 4, P3: Presentar con «(cont.)» en su color y «· fin» con ‹ › inactivos en los bordes; notas de página de
       más de 250 caracteres reducidas a su primera oración + «Más en Agrandar» (completas en Agrandar).
 - [ ] Decisión de Pablo: franja de la Portada con Z 10 años o percentil histórico en vez de repetir el Total (canvas).
@@ -41,16 +40,18 @@ Todo lo de hoy está publicado en https://banks-bz.pages.dev. Detalle de cada fr
 ## 4. Datos
 - [x] Frente 11, fase 2: `bk_balancete_m` y `bk_sistema_bal_m` (ROE 12m, depósitos, crédito/depósitos, PL/activo)
       desde ene-20; 97 % de los banco-trimestres cuadra con IF.Data (`borradores/balancetes_informe.md`).
-- [ ] Decisión de Pablo (frente 11): NIM, costo de riesgo y eficiencia mensuales no cuadran con IF.Data en el plan
-      viejo; ¿quedan trimestrales, mensuales solo desde ene-25, o se sigue buscando el mapa?
-- [ ] Sección 04 de la Portada con `bk_sistema_bal_m` (canvas → aprobación).
+- [x] Frente 11: NIM, costo de riesgo y eficiencia quedan trimestrales (IF.Data); aprobado el 11-nov.
+- [x] Sección 04 de la Portada (ROE 12m y depósitos a/a por grupo, balancetes): aprobada y publicada el 11-nov.
+- [ ] Portada: claves que `portada_desde_gold.py` no recarga desde gold (PIB, crédito real, impulso, ref.*, pr.*, em.*)
+      quedan en sep-26; con un mes nuevo se alargan con vacíos. Pasarlas a gold.
 - [ ] Frente 4 (REF): tarjeta de estrés y tarjetas por segmento.
 - [ ] Rehacer Calidad, Rentabilidad y Ficha en v3.
 - [ ] Frente 14: partida que falta en M3 (no está en 27792–27802); buscar en la nota metodológica del BCB.
 - [ ] Frente 16: confirmar con notas del BCB/Abecip el traslado de concesiones de mercado a regulada; poupança SBPE
       sin la rural para la cobertura.
-- [ ] Frente 6 (operación): automatización, limpieza de disco (caché viejo `datos/intermedio/scr_productos/45fa235300`
-      y `e82fb46f9a`, mostrar la lista antes de borrar), deuda técnica.
+- [x] Frente 6: `verificar_f1.py` reescrito para v2 (39/39 OK); `spec/06_paginas.md` al día.
+- [x] Frente 6: caché viejo del SCR borrado (40 MB).
+- [ ] Frente 6, visto bueno de Pablo: ~3,5 GB de bancos en el repo Dashboard (`borradores/limpieza_lista.md`, parte B).
 
 ## Hecho hoy (11-nov)
 Etapas 1–3 completas (frentes 9, 13, 14, 15, 16 y el arrendamiento), sección «Producto» en Empresas, «Cómo leer»,

@@ -145,6 +145,20 @@ Carpeta `datos/gold/`.
 | `rendas_tarifas_bancarias` | float64 | 2 | 3254802.61 | 1266 |
 | `rendas_prestacao_servicos` | float64 | 2 | 37701383.13 | 1459 |
 
+### `bk_balancete_m`
+
+19,012 filas · 7 columnas · fecha: 2020-01-31 → 2026-03-31 · 0.20 MB
+
+| Columna | Tipo | % nulos | Ejemplo | Valores distintos |
+|---|---|---|---|---|
+| `cod_inst` | str | 0 | C0080075 | 34 |
+| `mes` | str | 0 | 202001 | 75 |
+| `fecha` | object | 0 | 2020-01-31 | 75 |
+| `concepto` | str | 0 | ativo_total | 9 |
+| `tipo` | str | 0 | saldo | 2 |
+| `valor` | float64 | 0 | 1172020718993.15 | 18982 |
+| `cuadra_ifdata` | boolean | 0 | True | 2 |
+
 ### `bk_banco`
 
 34 filas · 17 columnas · — · 0.01 MB
@@ -479,16 +493,16 @@ Carpeta `datos/gold/`.
 
 ### `bk_empresas_scr_m`
 
-218,334 filas · 6 columnas · fecha: 2018-01-31 → 2026-09-30 · 1.86 MB
+255,285 filas · 6 columnas · fecha: 2018-01-31 → 2026-09-30 · 2.16 MB
 
 | Columna | Tipo | % nulos | Ejemplo | Valores distintos |
 |---|---|---|---|---|
 | `hoja` | str | 0 | mpme | 2 |
-| `dimension` | str | 0 | total | 9 |
-| `segmento` | str | 0 | Total | 135 |
+| `dimension` | str | 0 | total | 11 |
+| `segmento` | str | 0 | Total | 142 |
 | `medida` | str | 0 | saldo | 23 |
 | `fecha` | str | 0 | 2018-01-31 | 105 |
-| `valor` | float64 | 0 | 553689254728.33 | 191389 |
+| `valor` | float64 | 0 | 531969912493.93 | 228144 |
 
 ### `bk_exposicion`
 
@@ -511,14 +525,14 @@ Carpeta `datos/gold/`.
 
 ### `bk_fondeo_m`
 
-14,385 filas · 4 columnas · fecha: 2002-01-31 → 2026-09-30 · 0.15 MB
+14,774 filas · 4 columnas · fecha: 2002-01-31 → 2026-09-30 · 0.15 MB
 
 | Columna | Tipo | % nulos | Ejemplo | Valores distintos |
 |---|---|---|---|---|
-| `serie` | str | 0 | moneda | 16 |
-| `medida` | str | 0 | saldo | 4 |
+| `serie` | str | 0 | moneda | 17 |
+| `medida` | str | 0 | saldo | 6 |
 | `fecha` | str | 0 | 2002-01-31 | 297 |
-| `valor` | float64 | 0 | 27239.411 | 13662 |
+| `valor` | float64 | 0 | 27239.411 | 14051 |
 
 ### `bk_grupo`
 
@@ -546,22 +560,22 @@ Carpeta `datos/gold/`.
 
 ### `bk_manifiesto`
 
-45 filas · 12 columnas · — · 0.01 MB
+49 filas · 12 columnas · — · 0.01 MB
 
 | Columna | Tipo | % nulos | Ejemplo | Valores distintos |
 |---|---|---|---|---|
 | `tipo` | str | 0 | tabla | 2 |
-| `tabla` | str | 7 | bk_banco | 42 |
-| `archivo` | str | 7 | bk_banco.parquet | 42 |
-| `filas` | float64 | 7 | 34.0 | 41 |
-| `columnas` | float64 | 7 | 17.0 | 18 |
-| `rango` | str | 27 | 2015-03-31–2026-06-30 | 19 |
-| `sha256` | str | 7 | 441f33bbe906e2c6783f06d37e8a6ae3e07a3b09b6d14c0e0b2d5d9be3b7aee2 | 42 |
-| `bytes` | float64 | 7 | 13544.0 | 42 |
-| `producido_por` | str | 7 | python -X utf8 preparar_gold_bancos.py base | 19 |
-| `universo` | str | 93 | Panel | 3 |
-| `ultimo_corte` | str | 93 | 2026-06-30 | 3 |
-| `nota` | str | 93 | IF.Data prudencial, trimestral | 3 |
+| `tabla` | str | 6 | bk_balancete_m | 46 |
+| `archivo` | str | 6 | bk_balancete_m.parquet | 46 |
+| `filas` | float64 | 6 | 19012.0 | 45 |
+| `columnas` | float64 | 6 | 7.0 | 18 |
+| `rango` | str | 27 | 2020-01-31–2026-03-31 | 20 |
+| `sha256` | str | 6 | 0826660a7cb601602cc80acb4efefa23188659bf0c1f99dfa772c6c0afbd0435 | 46 |
+| `bytes` | float64 | 6 | 197378.0 | 46 |
+| `producido_por` | str | 6 | python -X utf8 balancetes.py gold | 21 |
+| `universo` | str | 94 | Panel | 3 |
+| `ultimo_corte` | str | 94 | 2026-06-30 | 3 |
+| `nota` | str | 94 | IF.Data prudencial, trimestral | 3 |
 
 ### `bk_metrica`
 
@@ -635,6 +649,42 @@ Carpeta `datos/gold/`.
 | `grupo` | str | 0 | Grandes | 6 |
 | `periodo` | str | 0 | 202606 | 1 |
 
+### `bk_portada_m`
+
+9,432 filas · 5 columnas · fecha: 2011-03-31 → 2026-09-30 · 0.04 MB
+
+| Columna | Tipo | % nulos | Ejemplo | Valores distintos |
+|---|---|---|---|---|
+| `seccion` | str | 0 | 02 | 2 |
+| `indicador` | str | 0 | tasa | 9 |
+| `segmento` | str | 0 | tot | 9 |
+| `fecha` | str | 0 | 2011-03-31 | 187 |
+| `valor` | float64 | 0 | 0.2735 | 3672 |
+
+### `bk_portada_m_tablas`
+
+51 filas · 17 columnas · — · 0.01 MB
+
+| Columna | Tipo | % nulos | Ejemplo | Valores distintos |
+|---|---|---|---|---|
+| `seccion` | str | 0 | 02 | 2 |
+| `indicador` | str | 0 | tasa | 8 |
+| `orden` | int64 | 0 | 0 | 9 |
+| `fila` | str | 0 | Total | 9 |
+| `segmento` | str | 0 | tot | 9 |
+| `ultimo` | float64 | 0 | 0.3236 | 51 |
+| `d1` | float64 | 0 | 0.13000000000000234 | 46 |
+| `d3` | float64 | 0 | -0.770000000000004 | 51 |
+| `d12` | float64 | 0 | 0.8900000000000019 | 49 |
+| `dventana` | float64 | 0 | 1.894166666666658 | 51 |
+| `corte` | str | 0 | sep-26 | 1 |
+| `z120` | float64 | 0 | 1.2713525045501792 | 51 |
+| `p25` | float64 | 0 | 0.2391 | 49 |
+| `p50` | float64 | 0 | 0.2759 | 50 |
+| `p75` | float64 | 0 | 0.3054 | 51 |
+| `minimo` | float64 | 0 | 0.1791 | 51 |
+| `maximo` | float64 | 0 | 0.3336 | 51 |
+
 ### `bk_portada_mora`
 
 129 filas · 3 columnas · fecha: 2016-01-31 → 2026-09-30 · 0.00 MB
@@ -681,19 +731,19 @@ Carpeta `datos/gold/`.
 
 ### `bk_producto_pf_m`
 
-19,181 filas · 5 columnas · fecha: 2000-01-31 → 2026-09-30 · 0.14 MB
+19,569 filas · 5 columnas · fecha: 2000-01-31 → 2026-09-30 · 0.15 MB
 
 | Columna | Tipo | % nulos | Ejemplo | Valores distintos |
 |---|---|---|---|---|
 | `producto` | str | 0 | tarjeta | 7 |
-| `sub` | str | 0 | total | 15 |
-| `medida` | str | 0 | saldo | 10 |
+| `sub` | str | 0 | total | 16 |
+| `medida` | str | 0 | saldo | 12 |
 | `fecha` | str | 0 | 2007-03-31 | 321 |
-| `valor` | float64 | 0 | 31285.0 | 16000 |
+| `valor` | float64 | 0 | 31285.0 | 16387 |
 
 ### `bk_producto_pf_scr_m`
 
-1,106,404 filas · 6 columnas · fecha: 2018-01-31 → 2026-09-30 · 9.08 MB
+1,106,360 filas · 6 columnas · fecha: 2018-01-31 → 2026-09-30 · 9.08 MB
 
 | Columna | Tipo | % nulos | Ejemplo | Valores distintos |
 |---|---|---|---|---|
@@ -702,7 +752,7 @@ Carpeta `datos/gold/`.
 | `segmento` | str | 0 | Total | 114 |
 | `medida` | str | 0 | saldo | 25 |
 | `fecha` | str | 0 | 2018-01-31 | 105 |
-| `valor` | float64 | 0 | 203907904862.24 | 1048207 |
+| `valor` | float64 | 0 | 203907904862.24 | 1048039 |
 
 ### `bk_publicado`
 
@@ -742,7 +792,7 @@ Carpeta `datos/gold/`.
 
 ### `bk_pyb`
 
-180,794 filas · 7 columnas · periodo: 201403 → 202606 · 1.54 MB
+179,630 filas · 7 columnas · periodo: 201403 → 202606 · 1.53 MB
 
 | Columna | Tipo | % nulos | Ejemplo | Valores distintos |
 |---|---|---|---|---|
@@ -752,11 +802,11 @@ Carpeta `datos/gold/`.
 | `seccion` | str | 0 | activo | 6 |
 | `linea` | str | 0 | activo | 65 |
 | `medida` | str | 0 | pct_activo | 6 |
-| `valor` | float64 | 0 | 1.0 | 145449 |
+| `valor` | float64 | 0 | 1.0 | 144342 |
 
 ### `bk_pyb_grupo`
 
-15,573 filas · 8 columnas · periodo: 201403 → 202606 · 0.14 MB
+15,465 filas · 8 columnas · periodo: 201403 → 202606 · 0.14 MB
 
 | Columna | Tipo | % nulos | Ejemplo | Valores distintos |
 |---|---|---|---|---|
@@ -766,7 +816,7 @@ Carpeta `datos/gold/`.
 | `seccion` | str | 0 | activo | 6 |
 | `linea` | str | 0 | activo | 61 |
 | `medida` | str | 0 | pct_activo | 3 |
-| `valor` | float64 | 0 | 1.0 | 12907 |
+| `valor` | float64 | 0 | 1.0 | 12801 |
 | `n_bancos` | int64 | 0 | 3 | 21 |
 
 ### `bk_qcambio`
@@ -797,7 +847,7 @@ Carpeta `datos/gold/`.
 
 ### `bk_ref`
 
-306,577 filas · 11 columnas · — · 1.77 MB
+306,577 filas · 12 columnas · — · 1.79 MB
 
 | Columna | Tipo | % nulos | Ejemplo | Valores distintos |
 |---|---|---|---|---|
@@ -805,6 +855,7 @@ Carpeta `datos/gold/`.
 | `hoja` | str | 0 | Graf 1.1.2 | 233 |
 | `grafico` | str | 0 | 1.1.2 | 229 |
 | `titulo` | str | 0 | Gráfico 1.1.2 – Taxas de política monetária em economias avançadas | 650 |
+| `clave` | str | 0 | taxas de política monetária em economias avançadas | 478 |
 | `unidad` | str | 0 |  | 25 |
 | `tipo` | str | 0 | serie | 2 |
 | `serie` | str | 0 | EUA | 1375 |
@@ -815,7 +866,7 @@ Carpeta `datos/gold/`.
 
 ### `bk_ref_sitio`
 
-1,166 filas · 11 columnas · — · 0.01 MB
+1,166 filas · 12 columnas · — · 0.01 MB
 
 | Columna | Tipo | % nulos | Ejemplo | Valores distintos |
 |---|---|---|---|---|
@@ -823,6 +874,7 @@ Carpeta `datos/gold/`.
 | `hoja` | str | 0 | Graf 1.2.3.1 | 3 |
 | `grafico` | str | 0 | 1.2.3.1 | 3 |
 | `titulo` | str | 0 | Gráfico 1.2.3.1 - Evolução do ROE dos segmentos do SFN | 3 |
+| `clave` | str | 0 | evolução do roe dos segmentos do sfn | 3 |
 | `unidad` | str | 0 |  | 2 |
 | `tipo` | str | 0 | serie | 1 |
 | `serie` | str | 0 | SFN \| LL | 29 |
@@ -873,17 +925,17 @@ Carpeta `datos/gold/`.
 
 ### `bk_scr_series`
 
-14,548 filas · 3 columnas · fecha: 2019-01-31 → 2026-09-30 · 0.15 MB
+14,503 filas · 3 columnas · fecha: 2019-01-31 → 2026-09-30 · 0.14 MB
 
 | Columna | Tipo | % nulos | Ejemplo | Valores distintos |
 |---|---|---|---|---|
-| `serie` | str | 0 | aa\|Tarjeta\|Hasta 1 SM | 326 |
+| `serie` | str | 0 | aa\|Tarjeta\|Hasta 1 SM | 325 |
 | `fecha` | str | 0 | 2023-01-31 | 93 |
-| `valor` | float64 | 0 | 0.4349751974528233 | 13997 |
+| `valor` | float64 | 0 | 0.4349751974528233 | 13948 |
 
 ### `bk_scr_tablas`
 
-398 filas · 16 columnas · — · 0.03 MB
+397 filas · 16 columnas · — · 0.03 MB
 
 | Columna | Tipo | % nulos | Ejemplo | Valores distintos |
 |---|---|---|---|---|
@@ -896,12 +948,12 @@ Carpeta `datos/gold/`.
 | `unidad_cambio` | str | 0 | pct | 2 |
 | `trimestral` | bool | 0 | False | 1 |
 | `destacar` | bool | 0 | False | 2 |
-| `share` | float64 | 20 | 0.0892021706077773 | 131 |
-| `ultimo` | float64 | 0 | 67.61582059299 | 382 |
-| `d1` | float64 | 0 | -0.011071523183337484 | 382 |
-| `d3` | float64 | 0 | -0.016595358865371 | 382 |
-| `d12` | float64 | 0 | 0.07510662724967987 | 382 |
-| `dventana` | float64 | 0 | 0.03952049357960763 | 382 |
+| `share` | float64 | 20 | 0.0892021706077773 | 130 |
+| `ultimo` | float64 | 0 | 67.61582059299 | 381 |
+| `d1` | float64 | 0 | -0.011071523183337484 | 381 |
+| `d3` | float64 | 0 | -0.016595358865371 | 381 |
+| `d12` | float64 | 0 | 0.07510662724967987 | 381 |
+| `dventana` | float64 | 0 | 0.03952049357960763 | 381 |
 | `corte` | str | 0 | sep-26 | 1 |
 
 ### `bk_sensibilidad`
@@ -918,6 +970,30 @@ Carpeta `datos/gold/`.
 | `r2` | float64 | 6 | 0.010204728303748078 | 32 |
 | `n_trimestres` | Int64 | 0 | 41 | 12 |
 | `excluidos` | str | 0 | 202412 | 3 |
+
+### `bk_sistema_bal_m`
+
+1,485 filas · 17 columnas · fecha: 2020-01-31 → 2026-03-31 · 0.11 MB
+
+| Columna | Tipo | % nulos | Ejemplo | Valores distintos |
+|---|---|---|---|---|
+| `optica` | str | 0 | Total panel | 5 |
+| `grupo` | str | 0 | Todos los grupos | 16 |
+| `mes` | str | 0 | 202001 | 75 |
+| `fecha` | object | 0 | 2020-01-31 | 75 |
+| `n_bancos` | int64 | 0 | 30 | 26 |
+| `lucro_12m` | float64 | 16 | 109716852716.14998 | 924 |
+| `pl_medio_12m` | float64 | 16 | 754079380889.7849 | 924 |
+| `roe_12m` | float64 | 16 | 0.14549774930417575 | 924 |
+| `ativo_total` | float64 | 0 | 8148187375284.838 | 1110 |
+| `patrimonio_liquido` | float64 | 0 | 716956729181.6602 | 1110 |
+| `credito_liquido` | float64 | 1 | 2776143068354.4004 | 1089 |
+| `depositos` | float64 | 0 | 2430188252505.62 | 1110 |
+| `depositos_aa` | float64 | 16 | 0.3908874868001868 | 930 |
+| `credito_depositos` | float64 | 1 | 1.1423572085380986 | 1092 |
+| `patrimonio_activo` | float64 | 0 | 0.08798972043234307 | 1110 |
+| `orden_optica` | int64 | 0 | 1 | 5 |
+| `orden_grupo` | int64 | 0 | 0 | 16 |
 
 ### `bk_sistema_m`
 

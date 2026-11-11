@@ -107,7 +107,7 @@ function armarLaminas() {
 // En la lámina los controles no se ven: el corte elegido pasa a ser un texto fijo en la cabecera del gráfico.
 // Va como atributo (lo pinta un ::after en v2.css) porque dc.js borra en cada render los nodos que no son de la plantilla.
 // Selectores que definen qué muestra la lámina (el período no: la lámina siempre va con el período por defecto).
-const SELECTORES_LAMINA = ['Segmentos', 'Banco', 'Agrupar por', 'Trimestre'];
+const SELECTORES_LAMINA = ['Segmentos', 'Grupos', 'Banco', 'Agrupar por', 'Trimestre'];
 function corteDeLamina(l) {
   l.par.querySelectorAll('[data-corte-lam]').forEach((x) => x.removeAttribute('data-corte-lam'));
   l.par.querySelectorAll('.card').forEach((c) => {

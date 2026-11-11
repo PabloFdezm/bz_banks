@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Sección 02 · Precio del crédito</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&amp;family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;display=swap">
+<style>
+body{margin:0}
+button:focus-visible,select:focus-visible{outline:2px solid #2E5C8A;outline-offset:2px}
+.btn{font-family:'IBM Plex Sans',sans-serif;font-size:14px;height:44px;padding:0 16px;border:1px solid #C9D2DC;border-radius:4px;background:#FFFFFF;color:#24324A;cursor:pointer;display:inline-flex;align-items:center;gap:8px;flex-shrink:0;box-sizing:border-box}
+.btn:hover{border-color:#2E5C8A;color:#2E5C8A}
+.btn:disabled,.btn[aria-disabled="true"]{color:#6B7684;border-color:#C9D2DC;background:#FFFFFF;cursor:default}
+.btn:disabled:hover,.btn[aria-disabled="true"]:hover{color:#6B7684;border-color:#C9D2DC}
+.agr{width:36px;height:36px;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;padding:0;border:1px solid transparent;border-radius:4px;background:transparent;color:#5B6573;cursor:pointer}
+.agr:hover{background:#EEF1F5;color:#2E5C8A}
+.sel{font-family:'IBM Plex Sans',sans-serif;font-size:14px;height:44px;padding:0 10px;border:1px solid #C9D2DC;border-radius:4px;background:#FFFFFF;color:#24324A;box-sizing:border-box}
+.ley{font-family:'IBM Plex Sans',sans-serif;font-size:13px;height:36px;padding:0 10px;border:1px solid transparent;border-radius:4px;background:transparent;color:#24324A;cursor:pointer;display:inline-flex;align-items:center;gap:6px;box-sizing:border-box}
+.ley:hover{border-color:#C9D2DC}
+.aj{border:1px solid #C9D2DC;margin-left:auto}
+.aj:disabled{color:#8A93A0;border-color:#E1E6EC;cursor:default}
+.card{background:#FFFFFF;border:1px solid #E1E6EC;border-radius:4px;padding:16px 24px 12px;display:flex;flex-direction:column;gap:6px;box-sizing:border-box;min-width:0}
+.ct{font-size:18px;line-height:24px;font-weight:600;color:#24324A}
+.cs{font-size:13px;line-height:18px;color:#5B6573}
+.tb{width:100%;border-collapse:collapse;font-size:13px}
+.tb th,.tb td{padding:9px 8px;border-bottom:1px solid #E6EAEF;text-align:right;font-family:'IBM Plex Mono',monospace;font-weight:400;color:#24324A;white-space:nowrap}
+.tb thead th{font-family:'IBM Plex Sans',sans-serif;font-weight:600;font-size:12px;border-bottom:1px solid #24324A}
+.tb .ind{text-align:left;font-family:'IBM Plex Sans',sans-serif;white-space:normal}
+.tb tr.tot th,.tb tr.tot td{font-weight:600;border-top:2px solid #8A93A0}
+.tb tr.g1 th,.tb tr.g1 td{border-top:2px solid #8A93A0}
+.tb tbody tr{cursor:pointer}
+.tb tbody tr:hover{background:#F6F7F8}
+.fb{font-family:'IBM Plex Sans',sans-serif;font-size:13px;border:0;background:transparent;color:inherit;padding:0;cursor:pointer;display:inline-flex;align-items:center;gap:8px;text-align:left;font-weight:inherit;min-height:24px}
+.m{font-family:'IBM Plex Mono',monospace;font-weight:500}
+.md{font-size:12px;line-height:18px;color:#5B6573;margin:0}
+.fu{font-size:12px;color:#5B6573;margin-top:auto}
+.sh{display:flex;align-items:center;gap:12px;height:44px}
+.bl{border:1px solid #E1E6EC;border-radius:4px;padding:12px 16px;box-sizing:border-box;min-width:0;display:flex;flex-direction:column;gap:2px}
+.bt{font-size:14px;line-height:20px;font-weight:600;color:#24324A}
+.bs{font-size:12px;line-height:16px;color:#5B6573}
+.g12{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:16px;row-gap:12px}
+.c3{grid-column:span 3}.c6{grid-column:span 6}.c9{grid-column:span 9}.c12{grid-column:span 12}
+.dlg{position:absolute;left:24px;width:1552px;box-sizing:border-box;background:#FFFFFF;border-radius:4px;padding:20px 28px 24px;display:flex;flex-direction:column;gap:12px}
+</style>
+</helmet>
+<div style="position: relative; width: 1600px; height: 1440px; box-sizing: border-box; padding: 48px; background: #F6F7F8; color: #24324A; font-family: 'IBM Plex Sans', system-ui, sans-serif; display: flex; flex-direction: column; gap: 14px;">
+  <div class="sh" role="heading" aria-level="2" style="border-top: 2px solid #24324A; padding-top: 10px;">
+    <span style="font-family: 'IBM Plex Mono', monospace; font-size: 15px; color: #5B6573;">04</span>
+    <span style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 26px; color: #2E5C8A;">Rentabilidad y depósitos</span>
+  </div>
+  <sc-for list="{{pares}}" as="s" hint-placeholder-count="2">
+    <div style="display: grid; grid-template-columns: 960px minmax(0, 1fr); gap: 24px; height: 560px; margin-bottom: 2px;">
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px;">
+          <div><div class="ct" role="heading" aria-level="3">{{s.titulo}}</div><div class="cs">{{s.sub}}</div><sc-if value="{{s.pendiente}}" hint-placeholder-val="{{false}}"><div class="cs">{{s.pendiente}}</div></sc-if></div>
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <sc-if value="{{s.control}}" hint-placeholder-val="{{false}}"><select class="sel" aria-label="Grupos" value="{{corte}}" onChange="{{elegirCorte}}"><option value="prop">Propiedad</option><option value="modelo">Modelo de negocio</option><option value="seg">Segmento regulatorio</option><option value="fin">Tradicional / Fintech</option></select></sc-if>
+            <button class="btn" type="button" style="{{s.ajusteEst}}" aria-pressed="{{s.ajustePres}}" aria-disabled="{{s.sinSel}}" title="Resalte una serie (clic en la leyenda o en la tabla) para ajustar el eje a ella" onClick="{{s.ajustar}}">{{s.ajusteTxt}}</button>
+            <button class="btn" type="button" onClick="{{s.abrir}}" aria-haspopup="dialog"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M9.5 2.5h4v4M6.5 13.5h-4v-4M13.5 2.5l-5 5M2.5 13.5l5-5"></path></svg>Agrandar</button>
+          </div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 4px;">
+          <sc-for list="{{s.leyenda}}" as="l" hint-placeholder-count="3">
+            <button class="ley" type="button" style="{{l.est}}" aria-pressed="{{l.pres}}" onClick="{{l.click}}"><span style="{{l.sw}}"></span>{{l.nombre}}</button>
+          </sc-for>
+        </div>
+        <dc-import name="Grafico" cfg="{{s.cfg}}" hint-size="910px,390px"></dc-import>
+        <div class="fu">{{s.fuente}}</div>
+      </div>
+      <div class="card">
+        <div class="ct" role="heading" aria-level="3">{{s.tTitulo}}</div><div class="cs">{{s.tSub}}</div>
+        <table class="tb" style="margin-top: 8px;"><caption class="v2-sr">{{s.tTitulo}}</caption>
+          <thead><tr><th scope="col" class="ind">Indicador</th><th scope="col">Corte</th><sc-for list="{{s.cols}}" as="c" hint-placeholder-count="3"><th scope="col">{{c}}</th></sc-for></tr></thead>
+          <tbody>
+            <sc-for list="{{s.filas}}" as="r" hint-placeholder-count="3">
+              <tr class="{{r.cls}}" style="{{r.est}}" onClick="{{r.click}}"><th class="ind" scope="row"><button class="fb" type="button" aria-pressed="{{r.pres}}" onClick="{{r.click}}"><span style="{{r.sw}}"></span>{{r.nombre}}</button></th><td>{{r.corte}}</td><sc-for list="{{r.v}}" as="x" hint-placeholder-count="3"><td>{{x}}</td></sc-for></tr>
+            </sc-for>
+          </tbody>
+        </table>
+        <div class="fu">{{s.tFuente}}</div>
+      </div>
+    </div>
+  </sc-for>
+  <sc-if value="{{abierto}}" hint-placeholder-val="{{false}}">
+    <div style="position: absolute; left: 0; top: 0; width: 1600px; height: 1440px; background: rgba(27,36,51,0.45); z-index: 20;">
+      <div class="dlg" role="dialog" aria-modal="true" aria-label="{{d.titulo}}" onKeyDown="{{onKey}}" style="top: 24px; max-height: 1392px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 16px; height: 48px;">
+          <div><div style="font-size: 20px; line-height: 26px; font-weight: 600;">{{d.titulo}}</div><div class="cs">{{d.sub}}</div></div>
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <sc-if value="{{d.control}}" hint-placeholder-val="{{false}}"><select class="sel" aria-label="Grupos" value="{{corte}}" onChange="{{elegirCorte}}"><option value="prop">Propiedad</option><option value="modelo">Modelo de negocio</option><option value="seg">Segmento regulatorio</option><option value="fin">Tradicional / Fintech</option></select></sc-if>
+            <select class="sel" aria-label="Período" onChange="{{elegirAtajo}}" value="{{atajo}}"><option value="def">{{d.atajoTxt}}</option><option value="pers" disabled="{{true}}">Personalizado</option></select>
+            <button class="btn" type="button" style="{{d.ajusteEst}}" aria-pressed="{{d.ajustePres}}" aria-disabled="{{d.sinSel}}" title="Resalte una serie (clic en la leyenda o en la tabla) para ajustar el eje a ella" onClick="{{d.ajustar}}">{{d.ajusteTxt}}</button>
+            <button class="btn" type="button" onClick="{{cerrar}}">Cerrar</button>
+          </div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 4px;">
+          <sc-for list="{{d.leyenda}}" as="l" hint-placeholder-count="3">
+            <button class="ley" type="button" style="{{l.est}}" aria-pressed="{{l.pres}}" onClick="{{l.click}}"><span style="{{l.sw}}"></span>{{l.nombre}}</button>
+          </sc-for>
+        </div>
+        <dc-import name="Grafico" cfg="{{d.cfg}}" hint-size="1490px,300px"></dc-import>
+        <div style="padding-left: 44px;"><dc-import name="Rango" cfg="{{d.cfgR}}" hint-size="1380px,64px"></dc-import></div>
+        <table class="tb" style="margin-top: 4px;"><caption class="v2-sr">{{d.titulo}}</caption>
+          <thead><tr><th scope="col" class="ind">Indicador</th><th scope="col">Corte</th><sc-for list="{{d.cols}}" as="c" hint-placeholder-count="6"><th scope="col">{{c}}</th></sc-for><th scope="col">Historia</th></tr></thead>
+          <tbody>
+            <sc-for list="{{d.filas}}" as="r" hint-placeholder-count="5">
+              <tr class="{{r.cls}}" style="{{r.est}}" onClick="{{r.click}}"><th class="ind" scope="row"><button class="fb" type="button" aria-pressed="{{r.pres}}" onClick="{{r.click}}"><span style="{{r.sw}}"></span>{{r.nombre}}</button></th><td>{{r.corte}}</td><sc-for list="{{r.v}}" as="x" hint-placeholder-count="6"><td>{{x}}</td></sc-for><td style="width: 96px;"><div style="position: relative; width: 80px; height: 12px; margin-left: auto;"><div style="{{r.b0}}"></div><div style="{{r.bw}}"></div><div style="{{r.bb}}"></div><div style="{{r.bm}}"></div><div style="{{r.bp}}"></div></div></td></tr>
+            </sc-for>
+          </tbody>
+        </table>
+        <div class="bs" style="margin-top: 6px; color: #5B6573;">{{d.nota}}</div>
+        <div class="g12" style="{{d.estPaneles}}">
+          <sc-for list="{{d.paneles}}" as="p" hint-placeholder-count="2">
+            <div class="bl c6" style="height: 262px;">
+              <div class="bt">{{p.titulo}}</div><div class="bs">{{p.sub}}</div>
+              <sc-if value="{{p.esGrafico}}" hint-placeholder-val="{{true}}"><dc-import name="Grafico" cfg="{{p.cfg}}" hint-size="706px,200px"></dc-import></sc-if>
+              <sc-if value="{{p.esBarras}}" hint-placeholder-val="{{false}}">
+                <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 12px;">
+                  <sc-for list="{{p.barras}}" as="b" hint-placeholder-count="5">
+                    <div style="display: grid; grid-template-columns: 170px minmax(0, 1fr) 150px; align-items: center; gap: 12px; font-size: 13px;">
+                      <span style="{{b.nest}}">{{b.n}}</span><div style="height: 16px; background: #F1F3F6;"><div style="{{b.est}}"></div></div><span class="m" style="text-align: right; font-weight: 400;">{{b.txt}}</span>
+                    </div>
+                  </sc-for>
+                  <div class="bs" style="margin-top: 4px; color: #A85E24;">{{p.nota}}</div>
+                </div>
+              </sc-if>
+            </div>
+          </sc-for>
+        </div>
+        <sc-if value="{{d.ciclo}}" hint-placeholder-val="{{false}}">
+          <div style="{{d.bGrid}}">
+            <div style="display: flex; flex-direction: column; gap: 2px;">
+              <div class="bt">{{d.bTit}}</div><div class="bs">{{d.bSub}}</div>
+              <dc-import name="Grafico" cfg="{{d.cicloCfg}}" hint-size="900px,250px"></dc-import>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 2px;">
+              <div class="bt">{{d.bTTit}}</div><div class="bs">{{d.bTSub}}</div>
+              <table class="tb" style="margin-top: 6px;"><caption class="v2-sr">{{d.bTTit}}</caption>
+                <thead><tr><th scope="col" class="ind">Indicador</th><th scope="col">Corte</th><sc-for list="{{d.bCols}}" as="c" hint-placeholder-count="5"><th scope="col">{{c}}</th></sc-for><sc-if value="{{d.bBox}}" hint-placeholder-val="{{false}}"><th scope="col">Historia</th></sc-if></tr></thead>
+                <tbody><sc-for list="{{d.cicloFilas}}" as="r" hint-placeholder-count="5"><tr class="{{r.cls}}"><th class="ind" scope="row"><span style="display: inline-flex; align-items: center; gap: 8px;"><span style="{{r.sw}}"></span>{{r.nombre}}</span></th><td>{{r.corte}}</td><sc-for list="{{r.v}}" as="x" hint-placeholder-count="5"><td>{{x}}</td></sc-for><sc-if value="{{d.bBox}}" hint-placeholder-val="{{false}}"><td><div style="position: relative; width: 150px; height: 16px; margin-left: auto;"><div style="{{r.b0}}"></div><div style="{{r.bw}}"></div><div style="{{r.bb}}"></div><div style="{{r.bm}}"></div><div style="{{r.bp}}"></div></div></td></sc-if></tr></sc-for></tbody>
+              </table>
+            </div>
+          </div>
+        </sc-if>
+        <div class="g12" style="border-top: 1px solid #E6EAEF; padding-top: 10px;">
+          <p class="md c6"><b style="color: #24324A;">Columnas.</b> {{d.glosario}}</p>
+          <p class="md c6"><b style="color: #24324A;">Filas y fuentes.</b> {{d.meta}}</p>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"abiertoInicial":{"editor":"text","default":""},"$preview":{"width":1600,"height":1440}}'>
+
+class Component extends DCLogic {
+  constructor(p) { super(p); const a = (p && p.abiertoInicial) || null; this.state = { corte: 'prop', sel: { va: [], vb: [] }, aj: {}, vista: a, fijo: null, hover: null, desde: null, hasta: null }; }
+  renderVals() {
+    const D = {"mo":{"tot":[null,null,null,null,null,null,null,null,null,null,null,null,14.55,14.24,15.56,16.97,17.64,18.07,17.98,17.81,19.0,18.95,19.01,18.23,17.3,17.48,18.22,17.74,17.97,18.23,18.32,18.31,18.03,17.86,17.48,17.44,17.19,16.38,15.85,15.56,15.07,15.08,14.53,14.52,14.46,14.68,14.56,15.1,15.46,15.93,15.78,15.97,16.18,16.16,16.26,16.45,16.46,16.52,16.79,16.81,17.38,17.57,17.58,17.56,17.31,17.29,17.21,16.65,16.69,16.7,16.31,16.83,16.83,16.51,16.23],"pub":[null,null,null,null,null,null,null,null,null,null,null,null,18.19,16.99,18.84,21.24,22.08,21.33,20.84,20.29,22.46,21.74,22.07,21.46,20.01,20.56,21.55,20.78,20.98,22.11,23.65,23.33,22.57,22.72,22.27,22.4,22.36,20.84,19.92,19.14,18.22,18.73,16.8,16.97,16.98,16.83,16.27,16.85,17.63,17.86,17.45,17.71,18.16,17.87,17.74,17.87,17.49,17.4,17.61,16.98,17.62,17.7,17.41,16.88,16.11,15.8,15.5,14.02,13.89,13.67,12.69,12.96,12.42,11.6,11.15],"pnac":[null,null,null,null,null,null,null,null,null,null,null,null,11.46,11.79,13.05,13.76,14.42,15.43,15.28,15.4,16.3,16.78,16.66,15.6,15.19,14.92,15.34,14.92,15.19,14.93,14.6,14.76,14.73,14.25,13.83,13.71,13.2,12.96,12.82,12.7,12.55,12.5,12.69,12.47,12.45,13.1,13.39,13.9,13.96,14.54,14.57,14.76,14.73,14.66,14.85,15.02,15.3,15.41,15.59,16.02,16.3,16.75,17.02,17.4,17.59,17.66,17.64,17.7,17.89,17.97,18.08,18.74,19.05,18.93,18.95],"pext":[null,null,null,null,null,null,null,null,null,null,null,null,15.47,15.54,15.12,15.88,15.48,17.71,19.2,19.16,18.12,18.18,17.83,17.56,16.55,17.29,18.1,18.38,18.28,17.82,14.28,14.6,15.38,15.24,15.18,14.7,15.23,14.47,13.64,14.36,14.04,12.81,14.03,14.15,13.68,13.52,13.27,13.62,14.08,14.78,14.83,14.75,15.12,16.21,16.74,17.12,17.42,17.9,18.7,19.35,20.94,20.37,20.27,20.49,20.37,20.89,21.36,21.65,21.59,21.97,21.69,22.46,23.09,23.78,22.86],"gra":[null,null,null,null,null,null,null,null,null,null,null,null,13.73,13.79,14.78,15.68,16.34,17.25,17.57,17.6,18.21,18.44,18.47,17.53,17.3,17.38,17.68,17.28,17.12,17.02,16.6,16.84,17.3,17.21,16.97,16.73,16.61,16.27,16.11,16.18,15.85,15.54,15.67,15.39,15.18,15.05,15.18,15.62,15.81,16.29,16.01,16.0,16.1,16.23,16.29,16.44,16.47,16.51,16.59,16.85,17.5,17.55,17.61,17.57,17.33,16.94,16.72,16.34,16.31,16.31,16.14,15.93,15.84,15.68,15.44],"med":[null,null,null,null,null,null,null,null,null,null,null,null,12.15,12.32,12.5,13.18,13.64,13.6,15.04,14.91,15.41,14.96,14.97,14.89,12.79,12.78,12.8,12.19,12.12,12.84,12.29,12.47,12.64,12.84,12.81,12.29,11.64,11.13,11.26,11.19,11.17,10.96,11.39,11.4,11.41,11.45,12.03,12.64,12.78,13.09,12.72,12.93,13.14,13.16,13.94,13.96,14.05,14.04,14.26,13.83,15.03,15.31,15.59,15.96,16.23,16.72,18.04,18.1,18.03,18.07,17.4,18.32,19.56,19.16,19.36],"dig":[null,null,null,null,null,null,null,null,null,null,null,null,-2.05,-2.48,-0.81,-0.68,-0.57,0.03,-5.16,-5.24,-6.51,-6.12,-7.53,-9.11,-10.28,-10.34,-11.28,-15.23,-15.93,-15.56,-16.2,-16.29,-14.74,-18.78,-18.34,-16.65,-15.63,-14.33,-13.4,-11.93,-9.75,-6.51,-2.96,-1.29,-0.49,7.86,10.42,11.6,13.35,16.18,18.47,20.88,22.44,22.83,23.22,25.33,27.29,28.14,28.98,29.78,31.11,31.5,33.53,35.69,36.17,36.34,35.21,35.07,34.32,35.61,33.11,34.77,36.19,36.91,31.98],"pag":[null,null,null,null,null,null,null,null,null,null,null,null,9.0,8.54,7.48,6.91,10.45,10.72,7.66,8.09,8.68,8.72,9.18,9.05,5.18,4.95,5.27,7.37,7.82,7.94,5.27,5.93,6.3,7.47,7.73,8.73,7.62,8.03,8.86,7.98,8.72,10.71,11.24,11.46,11.69,11.63,10.36,10.59,11.31,12.07,11.65,11.65,11.08,9.97,10.06,9.85,9.87,9.59,10.8,10.85,10.28,9.68,10.36,10.13,10.07,11.43,11.78,12.1,12.51,12.19,12.07,16.36,16.47,16.44,19.13],"des":[null,null,null,null,null,null,null,null,null,null,null,null,22.08,20.12,24.38,28.62,28.61,27.4,25.34,24.16,29.1,27.75,27.8,27.53,24.5,25.59,28.69,28.1,30.21,33.62,37.34,35.93,32.21,31.69,29.98,30.58,30.59,27.07,24.04,21.65,19.38,20.21,15.03,15.73,16.18,16.26,14.48,15.39,16.65,16.54,16.64,17.39,18.06,17.5,17.38,17.48,16.91,17.05,17.66,16.6,16.79,17.81,16.7,15.95,15.24,16.03,16.04,14.14,14.51,14.51,13.54,15.62,15.27,13.82,13.63],"s1":[null,null,null,null,null,null,null,null,null,null,null,null,13.73,13.79,14.78,15.68,16.34,17.25,17.57,17.6,18.21,18.44,18.47,17.53,17.3,17.38,17.68,17.28,17.12,17.02,16.6,16.84,17.3,17.21,16.97,16.73,16.61,16.27,16.11,16.18,15.85,15.54,15.67,15.39,15.18,15.05,15.18,15.62,15.81,16.29,16.01,16.0,16.1,16.23,16.29,16.44,16.47,16.51,16.59,16.85,17.5,17.55,17.61,17.57,17.33,16.94,16.72,16.34,16.31,16.31,16.14,15.93,15.84,15.68,15.44],"s2":[null,null,null,null,null,null,null,null,null,null,null,null,19.62,17.99,21.29,24.7,24.83,23.87,22.26,21.38,25.05,24.03,24.0,23.67,21.0,21.84,24.23,23.68,25.13,27.67,30.27,29.2,26.23,25.95,24.77,25.44,25.18,22.51,20.38,18.74,17.27,17.9,14.39,15.2,15.64,15.74,14.79,15.56,16.51,16.8,16.72,17.47,18.16,17.92,18.07,18.35,18.13,18.29,18.86,18.22,18.71,19.43,19.07,18.48,18.04,18.93,19.5,17.94,18.2,18.38,17.13,19.3,19.28,18.37,17.23],"s3":[null,null,null,null,null,null,null,null,null,null,null,null,9.61,9.55,8.8,8.89,10.69,10.14,8.68,8.32,8.64,7.32,7.16,6.73,1.56,0.79,0.75,-0.29,-0.23,-0.83,-1.96,-1.6,-1.0,-2.54,-2.41,-2.97,-2.12,-2.08,-2.36,-1.9,-1.15,0.82,2.31,2.64,2.48,7.81,7.11,8.43,10.35,11.22,12.0,12.82,12.67,12.12,12.61,12.74,13.25,13.23,14.65,14.45,14.87,15.01,14.95,17.75,17.68,17.98,17.38,17.81,17.66,17.43,17.58,20.43,20.9,20.41,22.58],"s4":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,-70.72,-67.24,-69.74,-72.1,-74.24,-79.23,-74.93,-79.3,-56.31,-50.88,-50.3,-51.71,-53.73,-51.29,-40.76,-40.08,-38.86,-39.86,-2.42,-1.65,-1.75,-1.5,-1.14,0.07,1.14,1.62,0.77,1.3,1.87,3.36,4.82,5.43,6.11,6.43,7.19,7.66,6.28,6.85,12.39,12.81,13.12,10.81,10.77,9.63,9.59,10.11,10.86,9.95],"trad":[null,null,null,null,null,null,null,null,null,null,null,null,14.97,14.67,16.08,17.51,18.12,18.62,18.65,18.46,19.72,19.67,19.77,19.01,18.2,18.45,19.24,18.81,19.1,19.47,19.81,19.78,19.45,19.31,18.88,18.77,18.55,17.7,17.1,16.76,16.14,15.99,15.28,15.18,15.09,15.01,14.85,15.38,15.74,16.11,15.88,16.02,16.22,16.23,16.31,16.46,16.38,16.44,16.63,16.61,17.22,17.44,17.32,17.18,16.9,16.77,16.68,16.06,16.1,16.1,15.76,16.01,15.97,15.57,15.36],"fint":[null,null,null,null,null,null,null,null,null,null,null,null,5.81,5.35,5.14,4.51,6.68,6.52,0.53,0.7,0.15,0.32,-0.54,-1.71,-2.85,-3.29,-3.72,-5.05,-5.53,-5.95,-6.01,-5.85,-4.99,-6.28,-6.17,-4.85,-3.71,-3.26,-2.61,-2.21,-0.86,1.78,3.77,4.84,5.3,9.88,10.39,11.07,12.13,13.71,14.44,15.35,15.71,15.26,15.59,16.31,17.37,17.58,18.8,19.24,19.33,19.09,20.58,21.76,21.99,23.0,23.03,23.27,23.18,23.21,22.05,25.33,25.86,26.16,25.21]},"at":{"tot":[null,null,null,null,null,null,null,null,null,null,null,null,39.09,37.49,28.48,19.58,14.35,12.81,11.91,10.93,9.79,7.33,7.08,7.43,4.9,5.49,4.87,6.12,7.19,6.73,5.58,6.57,6.35,5.44,6.89,7.27,9.23,9.33,11.3,10.29,10.85,9.35,9.43,8.93,9.56,10.08,9.51,11.89,11.66,12.06,11.04,12.06,11.57,13.77,13.9,13.98,12.84,12.11,12.23,9.43,8.53,7.77,6.97,7.15,6.76,4.32,5.62,4.78,5.7,6.19,7.02,7.9,9.13,9.0,12.63],"pub":[null,null,null,null,null,null,null,null,null,null,null,null,19.1,19.4,16.07,13.03,10.64,8.71,7.62,6.06,4.65,2.39,2.25,1.95,1.2,1.14,1.85,3.31,3.68,2.72,2.71,5.45,5.41,5.51,7.32,8.67,9.21,9.61,10.07,9.28,10.26,8.48,8.15,6.44,7.75,7.26,6.5,11.98,11.11,12.46,10.82,10.08,9.64,11.4,12.69,13.39,13.58,15.18,15.41,9.1,9.87,8.89,9.51,9.85,8.55,7.49,9.72,8.34,7.3,4.75,4.89,4.89,5.75,5.38,11.11],"pnac":[null,null,null,null,null,null,null,null,null,null,null,null,59.82,56.52,40.0,25.14,17.16,15.39,14.19,14.64,14.34,11.4,10.39,11.32,7.16,7.55,5.48,6.89,8.46,8.54,6.74,6.55,5.42,4.01,5.98,5.0,7.8,8.08,11.86,10.96,11.98,10.1,10.45,9.97,9.35,11.04,10.56,10.09,11.36,10.55,9.52,12.16,10.89,13.72,13.07,12.46,11.99,9.27,9.03,8.95,5.71,5.29,3.68,4.37,4.43,1.06,1.97,1.83,3.57,5.91,7.37,9.73,11.68,11.95,14.95],"pext":[null,null,null,null,null,null,null,null,null,null,null,null,45.68,41.11,31.87,21.97,16.54,17.31,17.9,13.31,9.8,7.83,9.99,10.04,8.21,11.64,12.11,12.18,13.69,12.84,10.27,10.06,12.65,10.48,8.9,11.55,14.59,13.08,12.85,10.86,8.63,9.26,9.62,12.53,15.45,14.76,14.49,17.71,14.2,16.07,16.98,17.39,19.62,20.67,20.21,20.8,13.73,13.44,14.47,11.9,14.26,12.81,10.88,9.24,9.74,6.69,6.81,5.08,8.48,10.89,11.47,9.65,9.61,8.93,9.12],"gra":[null,null,null,null,null,null,null,null,null,null,null,null,37.0,35.54,26.23,17.53,12.45,11.23,9.97,8.53,7.5,5.27,5.18,5.45,2.98,3.15,2.33,3.23,4.15,3.56,2.74,4.36,4.21,3.21,4.82,5.3,7.16,7.69,10.26,9.17,10.02,8.33,8.46,7.99,8.6,9.45,8.31,10.74,10.51,10.88,8.92,9.69,8.51,10.47,10.96,10.68,9.43,9.81,10.32,7.57,6.7,5.92,5.44,5.31,5.32,2.93,4.24,3.47,4.56,4.67,5.38,5.84,6.9,6.85,11.22],"med":[null,null,null,null,null,null,null,null,null,null,null,null,40.84,38.07,34.12,28.68,22.7,15.04,14.08,11.62,9.14,2.45,1.73,3.24,3.32,5.09,3.96,4.65,7.44,10.3,9.39,8.57,8.99,9.31,9.58,8.26,10.78,10.43,8.54,8.79,7.7,6.01,4.96,5.74,6.79,9.47,12.62,11.38,12.23,11.46,15.65,17.2,20.45,24.83,24.14,23.66,21.81,17.77,13.23,11.91,9.82,7.86,4.26,2.31,-1.76,-4.71,-2.68,-1.89,-1.54,-6.68,-3.81,3.27,6.05,9.43,12.18],"dig":[null,null,null,null,null,null,null,null,null,null,null,null,224.81,214.78,192.99,143.36,126.38,123.72,138.92,166.99,160.14,148.85,130.13,117.14,69.44,76.65,84.09,105.88,103.26,96.37,84.62,59.04,51.7,51.32,49.54,47.06,42.8,36.01,31.47,29.57,29.76,32.36,33.04,29.81,29.26,22.31,26.96,32.52,29.21,31.01,37.32,38.49,41.15,41.49,37.48,41.57,44.23,33.1,31.28,26.73,27.58,29.52,28.27,31.12,27.57,25.03,24.92,20.47,19.02,26.83,26.74,26.66,28.71,23.28,20.12],"pag":[null,null,null,null,null,null,null,null,null,null,null,null,250.25,223.43,191.49,67.09,46.4,93.19,123.51,124.64,109.26,146.15,93.38,92.87,117.45,136.77,171.74,183.39,182.26,131.64,86.0,81.21,88.0,55.71,46.93,57.0,85.15,57.19,55.24,45.4,31.15,28.98,50.25,37.63,48.73,39.14,40.04,49.05,34.79,44.15,64.26,53.63,77.67,90.03,73.53,86.58,67.25,72.54,69.06,52.12,54.02,47.82,38.83,41.15,45.58,38.92,43.39,44.61,47.57,47.3,46.51,43.04,47.47,51.09,48.71],"des":[null,null,null,null,null,null,null,null,null,null,null,null,14.69,11.97,12.19,12.65,5.2,4.61,2.67,2.64,-6.45,-5.6,-5.57,-5.07,1.68,7.13,6.22,6.36,9.84,10.7,8.09,6.09,7.66,8.96,10.83,13.35,7.52,5.06,7.95,9.28,6.59,3.47,1.03,2.21,2.5,3.9,2.24,5.37,5.44,4.08,4.28,5.45,5.52,9.46,10.76,13.47,12.76,10.23,14.62,10.04,7.01,8.67,0.95,-0.04,2.02,-1.57,-1.94,-8.14,-5.77,-5.96,-8.34,-7.77,-10.17,-11.31,-5.11],"s1":[null,null,null,null,null,null,null,null,null,null,null,null,37.0,35.54,26.23,17.53,12.45,11.23,9.97,8.53,7.5,5.27,5.18,5.45,2.98,3.15,2.33,3.23,4.15,3.56,2.74,4.36,4.21,3.21,4.82,5.3,7.16,7.69,10.26,9.17,10.02,8.33,8.46,7.99,8.6,9.45,8.31,10.74,10.51,10.88,8.92,9.69,8.51,10.47,10.96,10.68,9.43,9.81,10.32,7.57,6.7,5.92,5.44,5.31,5.32,2.93,4.24,3.47,4.56,4.67,5.38,5.84,6.9,6.85,11.22],"s2":[null,null,null,null,null,null,null,null,null,null,null,null,60.24,58.13,49.48,38.85,30.6,23.22,22.23,26.57,24.32,18.88,18.04,18.77,9.21,11.99,14.89,20.53,23.63,27.12,24.26,17.53,17.1,19.63,19.33,17.24,17.72,16.02,11.48,11.93,11.03,8.5,7.52,7.51,7.37,9.07,15.43,17.07,15.78,15.09,20.36,19.98,23.96,30.24,28.93,32.53,33.78,29.46,25.07,20.68,19.31,18.93,14.88,13.5,8.89,5.24,8.07,5.78,3.9,6.46,9.09,15.52,18.72,17.96,18.06],"s3":[null,null,null,null,null,null,null,null,null,null,null,null,57.37,53.1,52.78,46.24,41.51,41.08,46.73,47.17,42.98,43.3,37.8,37.94,44.6,51.0,47.34,49.2,49.71,45.92,39.32,36.23,33.63,32.29,32.11,33.44,33.46,27.46,28.24,25.83,23.6,26.51,28.14,26.02,27.92,22.14,20.35,22.51,22.69,25.27,31.19,34.21,38.21,38.21,34.53,35.55,32.42,22.13,21.44,19.89,19.37,18.74,16.49,20.44,19.7,17.81,17.43,17.27,19.47,23.09,23.04,21.35,21.47,21.34,20.93],"s4":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,23.39,41.28,41.53,37.53,35.17,46.01,41.31,56.38,45.51,52.19,71.59,87.63,139.66,166.32,245.07,337.14,417.21,417.02,473.93,451.07,489.55,545.21,507.65,456.01,363.93,321.76,223.78,146.97,120.02,99.15,90.82,83.23,74.34,63.04,56.16,64.37,61.45,56.2,51.98,51.87,47.52,46.75,41.69,33.54,28.94,30.9,26.12,21.73],"trad":[null,null,null,null,null,null,null,null,null,null,null,null,37.06,35.49,26.68,18.23,13.07,11.43,10.2,8.71,7.5,4.98,4.85,5.2,2.99,3.32,2.48,3.36,4.43,4.09,3.25,4.67,4.58,3.65,5.18,5.56,7.43,7.87,10.12,9.14,9.82,8.11,8.13,7.78,8.41,9.41,8.58,10.75,10.6,10.87,9.37,10.21,9.36,11.5,11.92,11.63,10.36,10.41,10.58,7.92,6.94,6.09,5.32,5.03,4.73,2.27,3.64,2.96,3.99,3.77,4.62,5.56,6.7,6.89,11.17],"fint":[null,null,null,null,null,null,null,null,null,null,null,null,227.18,215.65,192.85,132.54,114.52,119.59,137.89,164.31,157.13,148.65,127.14,115.11,73.89,82.43,91.56,113.06,110.49,100.15,84.7,60.23,53.44,51.58,49.37,47.71,47.7,38.65,34.33,31.63,29.94,31.92,34.12,30.29,30.41,23.46,27.87,33.83,30.12,33.12,41.64,40.66,45.93,47.71,42.25,47.34,47.42,39.38,37.43,31.25,32.05,32.7,30.24,32.7,30.45,27.34,27.92,24.42,23.55,31.01,30.84,30.15,32.56,28.93,25.98]},"ref":{"pla":[8.8,8.55,7.98,7.94,8.02,7.95,8.1,8.02,7.99,8.01,8.19,8.47,8.38,8.37,8.52,8.57,8.65,8.88,8.81,8.83,8.56,8.52,8.66,8.87,9.02,9.0,9.14,9.02,9.13,8.89,8.92,8.85,8.73,8.92,8.96,9.06,8.92,8.89,9.01,9.06,9.01,9.03,9.01,8.99,8.83,8.88,8.92,9.02,8.85,8.82,8.73,8.69,8.71,8.6,8.57,8.55,8.55,8.56,8.52,8.54,8.62,8.56,8.65,8.65,8.64,8.68,8.65,8.69,8.64,8.67,8.53,8.54,8.47,8.53,8.44],"cd":[114.24,114.02,109.73,104.36,100.22,96.55,95.24,95.71,95.64,95.22,95.35,94.61,96.08,96.67,97.31,97.54,97.79,96.17,96.68,97.56,98.85,100.31,101.29,100.42,104.05,103.74,103.25,103.51,103.05,102.88,103.96,104.04,105.31,106.6,106.4,104.79,106.03,105.6,104.08,104.14,102.68,101.19,100.51,101.12,100.65,101.64,101.71,98.05,100.96,100.52,100.38,100.2,99.8,98.39,98.9,99.08,99.48,100.57,101.03,99.94,102.75,103.44,103.64,104.0,103.51,103.21,102.22,102.26,101.96,102.81,101.94,100.7,102.91,102.86,100.02]}};
+    const T = {"mo_tot":[16.23,-0.28,-0.09,-1.35,0.17,null],"at_tot":[12.63,3.63,3.22,5.66,-4.08,null],"mo_pub":[11.15,-0.45,-1.38,-6.25,-3.74,null],"at_pub":[11.11,5.73,2.57,1.59,-4.23,null],"mo_pnac":[18.95,0.02,0.71,1.93,2.6,null],"at_pnac":[14.95,3.0,5.19,11.27,-3.12,null],"mo_pext":[22.86,-0.92,1.2,2.59,3.94,null],"at_pext":[9.12,0.19,-1.45,-1.76,-7.04,null],"mo_gra":[15.44,-0.24,-0.47,-2.17,-0.3,null],"at_gra":[11.22,4.38,3.02,5.78,-3.23,null],"mo_med":[19.36,0.2,1.43,3.77,3.81,null],"at_med":[12.18,2.75,11.63,7.93,-15.56,null],"mo_dig":[31.98,-4.93,0.53,-1.55,8.03,null],"at_dig":[20.12,-3.16,-2.71,-8.15,-10.03,null],"mo_pag":[19.13,2.69,3.81,8.76,3.05,null],"at_pag":[48.71,-2.38,3.47,9.88,-19.81,null],"mo_des":[13.63,-0.19,-0.32,-3.07,-2.42,null],"at_des":[-5.11,6.2,-1.51,-6.06,-14.42,null],"mo_s1":[15.44,-0.24,-0.47,-2.17,-0.3,null],"at_s1":[11.22,4.38,3.02,5.78,-3.23,null],"mo_s2":[17.23,-1.14,0.02,-1.83,0.01,null],"at_s2":[18.06,0.09,7.89,3.17,-13.88,null],"mo_s3":[22.58,2.17,2.82,7.63,5.18,null],"at_s3":[20.93,-0.41,-1.25,4.44,-7.32,null],"mo_s4":[9.95,-0.91,0.31,2.29,6.29,null],"at_s4":[21.73,-4.39,-8.47,-42.63,-100.74,null],"mo_trad":[15.36,-0.21,-0.32,-1.96,-0.4,null],"at_trad":[11.17,4.28,3.6,5.85,-4.24,null],"mo_fint":[25.21,-0.95,2.21,4.62,6.15,null],"at_fint":[25.98,-2.95,-1.51,-4.26,-10.71,null]};
+    // Meses y corte salen de los datos (antes fijos en 153 y «sep-26»: la hoja no avanzaba con un mes nuevo).
+    const NM = D.mo.tot.length, MES = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+    const meses = []; for (let i = 0; i < NM; i++) meses.push(MES[i % 12] + '-' + (20 + Math.floor(i / 12)));
+    const CORTE_D = (() => { for (let i = NM - 1; i >= 0; i--) if (D.mo.tot[i] != null) return meses[i]; return '—'; })();
+    const REF = '#8A8F96', COBRE = '#A85E24';
+    const st = this.state;
+    const NOM = { tot: 'Total panel', pub: 'Público', pnac: 'Privado nacional', pext: 'Privado extranjero', gra: 'Grandes', med: 'Medianos y nicho', dig: 'Digitales', pag: 'Pagos', des: 'Desarrollo', s1: 'S1', s2: 'S2', s3: 'S3', s4: 'S4', trad: 'Tradicionales', fint: 'Fintechs' };
+    const COL = { pub: '#2E5C8A', pnac: '#6C819B', pext: '#2F7A86', gra: '#2E5C8A', med: '#6C819B', dig: '#2F7A86', pag: '#8FB0D0', des: '#4F5B6B', s1: '#2E5C8A', s2: '#6C819B', s3: '#2F7A86', s4: '#8FB0D0', trad: '#2E5C8A', fint: '#2F7A86' };
+    const GRUPOS = { prop: ['pub', 'pnac', 'pext'], modelo: ['gra', 'med', 'dig', 'pag', 'des'], seg: ['s1', 's2', 's3', 's4'], fin: ['trad', 'fint'] };
+    const CORTE = GRUPOS[st.corte] || GRUPOS.prop;
+    const VACIO = new Array(NM).fill(null);
+    const RAYA = ['—', '—', '—', '—', '—', '—'];
+    const multi = (e) => !!(e && (e.ctrlKey || e.metaKey));
+    const linea = (s) => 'width:' + (s.dash ? 20 : 22) + 'px;height:0;flex-shrink:0;border-top:' + (s.dash ? '2px dashed ' : '3px solid ') + s.color;
+    const pp = (v) => (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v).toFixed(2).replace('.', ',');
+    const pc = (v) => v.toFixed(2).replace('.', ',') + ' %';
+    const nivelPp = (v) => v.toFixed(2).replace('.', ',');
+    const ppN = (v) => v == null ? '—' : pp(v);
+    const fmt = (r, uni) => [uni === 'pp' ? nivelPp(r[0]) : pc(r[0]), ppN(r[1]), ppN(r[2]), ppN(r[3]), ppN(r[4]), ppN(r[5])];
+    const ticksM = (d, h) => { const k = h - d + 1, r = []; for (let i = d; i <= h; i++) { const m = i % 12; if (k <= 30 ? m % 3 === 0 : k <= 60 ? m === 0 || m === 6 : k <= 120 ? m === 0 : m === 0 && i % 24 === 0) r.push(i - d); } return r; };
+    const escala = (series, d, h, cero, solo) => {
+      const usar = solo && solo.length ? series.filter((s) => solo.includes(s.id)) : series;
+      let lo = Infinity, hi = -Infinity;
+      for (let i = d; i <= h; i++) usar.forEach((s) => { const v = s.datos[i]; if (v != null) { lo = Math.min(lo, v); hi = Math.max(hi, v); } });
+      if (!isFinite(lo)) { lo = 0; hi = 1; }
+      if (cero && !(solo && solo.length)) { lo = Math.min(lo, 0); hi = Math.max(hi, 0); }
+      const paso = [0.25, 0.5, 1, 2, 4, 5, 10, 20].find((p) => (hi - lo) / p <= 4) || 20;
+      const min = Math.floor(lo / paso) * paso, max = Math.ceil(hi / paso) * paso, t = [];
+      for (let v = min; v <= max + 1e-9; v += paso) t.push(Math.round(v * 100) / 100);
+      return { min, max: max === min ? min + paso : max, ticksY: t };
+    };
+    const FALTA = { va: [], vb: [] };
+    // Cortes que el BCB no publica (tareas/borradores/portada_sgs_barrido.md): fuera del gráfico, con su razón.
+    const NO_PUB = {};
+    const PREF = { va: 'mo', vb: 'at' };
+    const noPub = (key, id) => (NO_PUB[key] || []).includes(id);
+    const nomS = (key, id) => NOM[id] + (FALTA[key].includes(id) ? ' · en preparación' : noPub(key, id) ? ' · no publicado' : '');
+    const serieDe = (key, id) => D[PREF[key]][id] || VACIO;
+    const mkSeries = (key) => CORTE.map((id) => ({ id, nombre: nomS(key, id), color: COL[id], ancho: 2.5, datos: serieDe(key, id) })).concat([{ id: 'tot', nombre: NOM.tot, color: COBRE, ancho: 2.5, datos: serieDe(key, 'tot') }]);
+    const PARES = {
+      va: { titulo: 'ROE de 12 meses por grupo de bancos', sub: 'Eje vertical: %. Lucro de 12 meses sobre patrimonio medio (t y t−12), Σ / Σ de los bancos del grupo.', fuente: 'Fuente: BCB, balancetes COSIF (documento 4060), conglomerado prudencial.', control: true, cero: false, n: NM, def: 24, uni: 'pct', series: mkSeries('va'),
+        tTitulo: 'ROE 12 meses', tSub: '% · Δ a/a en pp', tFuente: 'Fuente: BCB, balancetes.', cols: ['Último', 'Δ a/a'] },
+      vb: { titulo: 'Depósitos por grupo de bancos, a/a', sub: 'Eje vertical: %. Saldo de fin de mes contra el de 12 meses antes, mismos bancos.', fuente: 'Fuente: BCB, balancetes COSIF (documento 4060), conglomerado prudencial.', control: true, cero: true, n: NM, def: 24, uni: 'pct', series: mkSeries('vb'),
+        tTitulo: 'Depósitos a/a', tSub: '% · Δ a/a en pp', tFuente: 'Fuente: BCB, balancetes.', cols: ['Último', 'Δ a/a'] },
+    };
+    // En la página solo van las series con dato (sin chips ni filas vacías); Agrandar sigue mostrando todo el detalle.
+    const SEG = Object.values(GRUPOS).flat();
+    const conDato = (key) => (id) => !FALTA[key].includes(id) && !noPub(key, id);
+    const armar = (key, soloConDato) => {
+      const P0 = PARES[key], sel0 = st.sel[key] || [], sel = soloConDato ? sel0.filter(conDato(key)) : sel0, aj = !!st.aj[key];
+      const P = soloConDato ? { ...P0, series: P0.series.filter((s) => conDato(key)(s.id)) } : P0;
+      const on = (id) => !sel.length || sel.includes(id);
+      const toggle = (id, m) => { const nuevo = m ? (sel.includes(id) ? sel.filter((k) => k !== id) : sel.concat(id)) : (sel.length === 1 && sel[0] === id ? [] : [id]); this.setState({ sel: { ...this.state.sel, [key]: nuevo }, aj: { ...this.state.aj, [key]: nuevo.length ? aj : false } }); };
+      const fijoG = st.fijo == null ? P.n - 1 : st.fijo;
+      const cfg = (d, h, w, alto) => ({
+        w, h: alto, reservaDer: 64, n: h - d + 1, etiquetas: meses.slice(d, h + 1), ticksX: ticksM(d, h), ...escala(P.series, d, h, P.cero, aj ? sel : null), sufijo: P.uni === 'pp' ? '' : ' %', decimales: 2,
+        series: P.series.map((s) => ({ id: s.id, color: s.color, ancho: s.ancho, dash: s.dash, valores: s.datos.slice(d, h + 1) })), fills: [], sel,
+        bandas: (P.quiebre != null && P.quiebre - 1 >= d && P.quiebre <= h) ? [{ desde: P.quiebre - 1 - d, hasta: P.quiebre - d, texto: 'Res. 4.966' }] : [],
+        fijo: Math.min(h, Math.max(d, fijoG)) - d, hover: st.hover != null && st.hover >= d && st.hover <= h ? st.hover - d : null,
+        onFijar: (i) => this.setState({ fijo: Math.max(d, Math.min(h, i + d)), hover: null }), onHover: (i) => this.setState({ hover: i == null ? null : i + d }), onSerie: toggle });
+      const leyenda = P.series.map((s) => ({ nombre: s.nombre, pres: sel.includes(s.id) ? 'true' : 'false', sw: linea(s), est: (sel.includes(s.id) ? 'border-color:#2E5C8A;background:#E8EEF5;' : '') + (on(s.id) ? '' : 'color:#6B7684;--atenuado:0.45;'), click: (e) => toggle(s.id, multi(e)) }));
+      const fila = (id, largo, g1) => {
+        const s = P.series.find((q) => q.id === id) || { color: '#C9D2DC' }, falta = FALTA[key].includes(id) || noPub(key, id), r = T[PREF[key] + '_' + id];
+        const f = falta || !r ? RAYA : fmt(r, P.uni);
+        return { _a: falta ? null : serieDe(key, id), nombre: nomS(key, id), corte: falta ? '—' : CORTE_D, v: largo ? f : [f[0], f[3]], cls: id === 'tot' ? 'tot' : g1 ? 'g1' : '', pres: sel.includes(id) ? 'true' : 'false', sw: s.ancho ? linea(s) : 'width:12px;height:12px;flex-shrink:0;background:' + s.color,
+          est: sel.includes(id) ? 'background:#E8EEF5' : on(id) || !P.series.some((q) => q.id === id) ? '' : '--atenuado:0.4', click: (e) => { if (e) e.stopPropagation(); if (P.series.some((q) => q.id === id)) toggle(id, multi(e)); } };
+      };
+      const ajuste = { sinSel: sel.length === 0, ajustar: () => this.setState({ aj: { ...this.state.aj, [key]: !aj } }), ajusteTxt: 'Ajustar eje', ajustePres: aj ? 'true' : 'false', ajusteEst: aj ? 'background:#E8EEF5;border-color:#2E5C8A;color:#1F3F60;font-weight:600' : '' };
+      return { P, cfg, leyenda, fila, ajuste };
+    };
+    const A = armar('va', true), B = armar('vb', true);
+    const abrir = (key) => () => { const P = PARES[key]; this.setState({ vista: key, desde: P.n - P.def, hasta: P.n - 1 }); };
+    const corto = (X, key) => CORTE.concat('tot').filter(conDato(key)).map((id) => X.fila(id, false));
+    // Sin ningún segmento con dato, el selector de corte no cambia nada: se oculta y una línea dice qué falta.
+    // Con algunos segmentos, el selector queda y la línea nombra solo los del corte elegido que faltan.
+    const extra = (key) => {
+      if (!SEG.some(conDato(key))) return { control: false, pendiente: 'Cortes por grupo de bancos: en preparación.' };
+      const faltan = CORTE.filter((id) => FALTA[key].includes(id)).map((id) => NOM[id]);
+      const nopub = CORTE.filter((id) => noPub(key, id)).map((id) => NOM[id]);
+      return { control: true, pendiente: [faltan.length ? faltan.join(', ') + ': en preparación.' : '', nopub.length ? nopub.join(', ') + ': el BCB no publica este corte.' : ''].filter(Boolean).join(' ') };
+    };
+    const pares = [
+      { ...A.P, ...A.ajuste, ...extra('va'), leyenda: A.leyenda, cfg: A.cfg(NM - 24, NM - 1, 910, 390), filas: corto(A, 'va'), abrir: abrir('va') },
+      { ...B.P, ...B.ajuste, ...extra('vb'), leyenda: B.leyenda, cfg: B.cfg(NM - 24, NM - 1, 910, 390), filas: corto(B, 'vb'), abrir: abrir('vb') },
+    ];
+    const BLOQUE = {
+      va: { tit: 'ROE contra apalancamiento contable, Total panel', sub: 'Eje vertical: %.', tTit: 'Rentabilidad y apalancamiento', tSub: 'Historia desde 2020, escala propia de cada fila: caja p25–p75, raya mediana, línea mín–máx, punto último', custom: true, porFila: true, fmtU: 'pc', sinBanda: true,
+        lab: meses, datos: { roe: D.mo.tot, pla: D.ref.pla },
+        bCols: ['Último', 'Z 10 años'], box: true,
+        filas: [['roe', 'ROE 12 meses', COBRE, 2.5], ['pla', 'Patrimonio / activo', '#2E5C8A', 2]] },
+      vb: { tit: 'Depósitos contra crédito, Total panel', sub: 'Eje vertical: %.', tTit: 'Fondeo', tSub: 'Historia desde 2020, escala propia de cada fila', custom: true, porFila: true, fmtU: 'pc', sinBanda: true,
+        lab: meses, datos: { dep: D.at.tot, cd: D.ref.cd },
+        bCols: ['Último', 'Z 10 años'], box: true,
+        filas: [['dep', 'Depósitos a/a', COBRE, 2.5], ['cd', 'Crédito neto / depósitos', '#2E5C8A', 2]] },
+    };
+    const atip = (arrs, sinNivel, protege) => { const A = arrs.map((a) => (a || []).filter((x) => x != null)), out = new Set(), q = (s, p) => s[Math.floor((s.length - 1) * p)];
+      A.forEach((a, i) => { if (a.length < 8) return; const s = a.slice().sort((x, y) => x - y), sp = q(s, 0.9) - q(s, 0.1); const md = q(s, 0.5), umbral = Math.max(4 * sp, 0.5 * Math.abs(md)); if (sp > 0 && (s[0] < q(s, 0.1) - umbral || s[s.length - 1] > q(s, 0.9) + umbral)) out.add(i); });
+      let vivos = A.map((a, i) => i).filter((i) => A[i].length >= 8 && !out.has(i));
+      const span = (ix) => { let lo = Infinity, hi = -Infinity; ix.forEach((i) => A[i].forEach((x) => { lo = Math.min(lo, x); hi = Math.max(hi, x); })); return hi - lo; };
+      for (let it = 0; it < 2 && !sinNivel && vivos.length >= 4; it++) { const sp = span(vivos); let mej = -1, spm = sp; vivos.forEach((i) => { const s2 = span(vivos.filter((j) => j !== i)); if (s2 < spm) { spm = s2; mej = i; } }); if (mej >= 0 && spm * 3 < sp) { out.add(mej); vivos = vivos.filter((j) => j !== mej); } else break; }
+      (protege || []).forEach((i) => out.delete(i)); return out; };
+    const NOTA_AT = '* Serie con valores extremos: queda fuera de la escala común y no se dibuja su caja de historia, para no deformar las demás.';
+    const marcarAt = (filas, sinNivel) => { const ix = atip(filas.map((r) => r._a), sinNivel, filas.map((r, i) => r.cls === 'tot' ? i : -1).filter((i) => i >= 0)); return filas.map((r, i) => ix.has(i) ? { ...r, nombre: r.nombre + ' *', _a: [], _at: true } : r); };
+    const conCaja = (filas0) => { const filas = marcarAt(filas0);
+      const todos = filas.flatMap((r) => (r._a || []).filter((x) => x != null)); if (!todos.length) return filas;
+      const lo = Math.min(...todos), hi = Math.max(...todos), W = 80, X0 = (x) => ((x - lo) / (hi - lo) * W).toFixed(1);
+      const qn = (a, p) => { const s = a.slice().sort((x, y) => x - y), k = (s.length - 1) * p, f = Math.floor(k); return s[f] + (s[Math.min(f + 1, s.length - 1)] - s[f]) * (k - f); };
+      const no = 'display:none';
+      return filas.map((r) => { const a = (r._a || []).filter((x) => x != null); if (a.length < 8) return { ...r, b0: no, bw: no, bb: no, bm: no, bp: no };
+        const u = a[a.length - 1], mn = Math.min(...a), mx = Math.max(...a), p25 = qn(a, 0.25), p50 = qn(a, 0.5), p75 = qn(a, 0.75);
+        return { ...r, b0: lo < 0 && hi > 0 ? 'position:absolute;top:0;height:12px;width:1px;background:#C9D2DC;left:' + X0(0) + 'px' : no,
+          bw: 'position:absolute;top:6px;height:1px;background:#8A93A0;left:' + X0(mn) + 'px;width:' + (X0(mx) - X0(mn)).toFixed(1) + 'px',
+          bb: 'position:absolute;top:2px;height:8px;box-sizing:border-box;border:1px solid #8A93A0;background:#EEF1F5;left:' + X0(p25) + 'px;width:' + (X0(p75) - X0(p25)).toFixed(1) + 'px',
+          bm: 'position:absolute;top:2px;height:8px;width:1px;background:#24324A;left:' + X0(p50) + 'px',
+          bp: 'position:absolute;top:3px;width:6px;height:6px;border-radius:50%;margin-left:-3px;background:' + (r.cls === 'tot' ? '#A85E24' : '#2E5C8A') + ';left:' + X0(u) + 'px' }; });
+    };
+    let d = {};
+    const v = st.vista;
+    if (v) {
+      const X = armar(v, false), P = X.P, Q = BLOQUE[v];
+      const dd = st.desde == null ? P.n - P.def : st.desde, hh = st.hasta == null ? P.n - 1 : st.hasta;
+      const filas = [GRUPOS.prop, GRUPOS.modelo, GRUPOS.seg, GRUPOS.fin].flatMap((g, gi) => g.map((id, j) => X.fila(id, true, gi > 0 && j === 0))).concat([X.fila('tot', true)]);
+      const bs = Q.custom ? Q.filas.slice().reverse().map((r) => ({ id: r[0], color: r[2], ancho: r[3], datos: Q.datos[r[0]] })) : Q.items.map((it) => ({ id: it[0], color: it[2], ancho: 2, datos: D[Q.pref][it[0]] }));
+      const nB = Q.custom ? Q.lab.length : NM, labB = Q.custom ? Q.lab : meses;
+      const tickB = Q.custom ? labB.map((x, k) => x.startsWith('ene') && +x.slice(4) % 2 === 0 ? k : -1).filter((k) => k >= 0) : ticksM(0, NM - 1);
+      const i25 = labB.indexOf('ene-25');
+      d = { titulo: P.titulo, sub: P.sub, control: P.control, estPaneles: 'display: none;', paneles: [], leyenda: X.leyenda, ...X.ajuste, cfg: X.cfg(dd, hh, 1490, 300), filas: conCaja(filas), nota: conCaja(filas).some((r) => r._at) ? NOTA_AT : '',
+        cols: ['Último', 'm/m', '3m/3m', 'a/a', '12m/12m', 'Z 10 años'], atajoTxt: 'Últimos 24 meses',
+        cfgR: { w: 1380, n: P.n, etiquetas: meses, serie: P.series.find((s) => s.id === 'tot').datos, desde: dd, hasta: hh, minimo: 6, unidad: 'meses', onRango: (x, z) => this.setState({ desde: x, hasta: z }) },
+        ciclo: true, bTit: Q.tit, bSub: Q.sub, bTTit: Q.tTit, bTSub: Q.tSub, bCols: Q.bCols || ['Último', 'Δ a/a', 'Z 10 años'], bBox: !!Q.box, bGrid: 'display: grid; grid-template-columns: ' + (Q.custom ? 1000 : 940) + 'px minmax(0, 1fr); gap: 24px; border-top: 1px solid #E6EAEF; padding-top: 12px;',
+        cicloCfg: { w: Q.custom ? 980 : 900, h: 250, reservaDer: 64, n: nB, etiquetas: labB, ticksX: tickB, ...escala(bs, 0, nB - 1, !!Q.custom && !Q.sinBanda), sufijo: Q.custom && Q.fmtU !== 'pc' ? '' : ' %', decimales: 2, series: bs.map((s) => ({ id: s.id, color: s.color, ancho: s.ancho, valores: s.datos })), fills: [], sel: [], fijo: nB - 1, bandas: Q.custom && !Q.sinBanda && i25 >= 0 ? [{ desde: i25, hasta: i25 + 11, texto: 'Res. 4.966' }] : [], hover: null, onFijar: () => {}, onHover: () => {}, onSerie: () => {} },
+        cicloFilas: Q.custom ? (() => {
+          const todos = Q.filas.flatMap((r) => Q.datos[r[0]].filter((x) => x != null)), lo0 = Math.floor(Math.min(...todos) * 4) / 4, hi0 = Math.ceil(Math.max(...todos) * 4) / 4, W = 150, X0g = (x) => ((x - lo) / (hi - lo) * W).toFixed(1);
+          const q = (a, p) => { const s = a.slice().sort((x, y) => x - y), k = (s.length - 1) * p, f = Math.floor(k); return s[f] + (s[Math.min(f + 1, s.length - 1)] - s[f]) * (k - f); };
+          const zz = (a) => { if (a.length < 120) return null; const w = a.slice(-120), m = w.reduce((x, y) => x + y, 0) / w.length, s = Math.sqrt(w.reduce((x, y) => x + (y - m) ** 2, 0) / (w.length - 1)); return (a[a.length - 1] - m) / s; };
+          return Q.filas.map((r) => { const a = Q.datos[r[0]].filter((x) => x != null), u = a[a.length - 1], lo = Q.porFila ? Math.min(...a) : lo0, hi = Q.porFila ? Math.max(...a) : hi0, X0 = (x) => ((x - lo) / (hi - lo) * W).toFixed(1), p25 = q(a, 0.25), p50 = q(a, 0.5), p75 = q(a, 0.75), mn = Math.min(...a), mx = Math.max(...a);
+            return { nombre: r[1], corte: CORTE_D, v: [pc(u), ppN(zz(a))], cls: r[0] === 'tot' ? 'tot' : '', sw: linea({ color: r[2] }),
+              bw: 'position:absolute;top:8px;height:1px;background:#8A93A0;left:' + X0(mn) + 'px;width:' + (X0(mx) - X0(mn)).toFixed(1) + 'px',
+              bb: 'position:absolute;top:3px;height:10px;box-sizing:border-box;border:1px solid #8A93A0;background:#EEF1F5;left:' + X0(p25) + 'px;width:' + (X0(p75) - X0(p25)).toFixed(1) + 'px',
+              bm: 'position:absolute;top:3px;height:10px;width:1px;background:#24324A;left:' + X0(p50) + 'px',
+              b0: lo < 0 && hi > 0 ? 'position:absolute;top:0;height:16px;width:1px;background:#C9D2DC;left:' + X0(0) + 'px' : 'display:none',
+              bp: 'position:absolute;top:4px;width:8px;height:8px;border-radius:50%;margin-left:-4px;background:' + r[2] + ';left:' + X0(u) + 'px' }; });
+        })() : Q.items.map((it) => { const r = fmt(T[Q.pref + '_' + it[0]]); return { nombre: it[1], corte: CORTE_D, v: [r[0], r[3], r[5]], cls: '', sw: linea({ color: it[2] }) }; }),
+        glosario: 'Último: ROE de 12 meses o crecimiento a/a de los depósitos, en %. Cambios en pp: m/m y a/a punta contra punta; 3m/3m y 12m/12m, promedio de la ventana contra la anterior. Z 10 años: vacío, la serie empieza en 2020. Historia: caja p25–p75 desde 2020, raya mediana, línea mín–máx, punto último.',
+        meta: v === 'va'
+          ? 'Balancete COSIF del BCB, documento 4060 (conglomerado prudencial), mensual, desde ene-20. Lucro del mes = resultado acumulado del semestre (cuentas 7 y 8) menos el del mes anterior, salvo enero y julio; ROE = Σ lucro de 12 meses / Σ patrimonio medio (t y t−12) de los bancos del grupo con los 12 meses. El patrimonio de junio y diciembre es anterior al cierre del semestre (sin destinar dividendos ni JCP). Solo entran los banco-trimestres que cuadran con IF.Data (97 % desde 2020); BRB no publica balancetes desde jul-25. Detalle: tareas/borradores/balancetes_informe.md.'
+          : 'Balancete COSIF del BCB, documento 4060 (conglomerado prudencial), mensual, desde ene-20. Depósitos: cuenta 4100000 (vista, ahorro, interfinancieros, a plazo y otros). a/a = Σ depósitos / Σ depósitos de 12 meses antes, mismos bancos. Crédito neto: cuenta 1600000 (operaciones de crédito, neto de provisión). Solo entran los banco-trimestres que cuadran con IF.Data.' };
+      d.atajoOk = dd === P.n - P.def && hh === P.n - 1;
+    }
+    return {
+      pares, d, corte: st.corte, abierto: !!v,
+      elegirCorte: (e) => this.setState({ corte: e.target.value, sel: { va: [], vb: [] }, aj: {} }),
+      atajo: v && d.atajoOk ? 'def' : 'pers',
+      elegirAtajo: (e) => { if (e.target.value === 'def' && v) { const P = PARES[v]; this.setState({ desde: P.n - P.def, hasta: P.n - 1 }); } },
+      cerrar: () => this.setState({ vista: null, desde: null, hasta: null }),
+      onKey: (e) => { if (e.key === 'Escape') { e.preventDefault(); this.setState({ vista: null }); } },
+    };
+  }
+}
+</script>
+</body>
+</html>

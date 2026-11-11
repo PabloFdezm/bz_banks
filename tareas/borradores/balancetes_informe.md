@@ -57,7 +57,7 @@ Es el dato publicado y cuadra exacto con IF.Data a mar-26; no lo expliqué.
   (desde ene-25) cuadra mejor (mediana −1,5 %) pero con dispersión. Las provisiones del plan nuevo vienen en bruto
   (gasto y reversión de ~100 mil millones por trimestre en BB). Personal y administrativos no se separan antes de
   2025. Las cuentas candidatas quedan en la definición con `"publica": false`.
-- Opciones: (a) dejar NIM, costo de riesgo y eficiencia trimestrales (IF.Data) y usar el balancete solo para ROE,
+- Decidido el 11-nov: opción (a). Opciones: (a) dejar NIM, costo de riesgo y eficiencia trimestrales (IF.Data) y usar el balancete solo para ROE,
   depósitos y balance; (b) publicar NIM mensual solo desde ene-25, con el plan nuevo, tras un cuadre más fino;
   (c) seguir buscando el mapa del plan viejo en el nivel 4 del masivo «Bancos» (individual, otro perímetro).
 

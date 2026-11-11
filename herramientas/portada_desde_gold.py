@@ -5,6 +5,7 @@ Las hojas de la Portada llevan sus datos dentro (``const D``, ``const T`` o ``co
 sitio no las lee de JSON (herramientas/construir_v2.py). Este script reemplaza esas líneas con las cifras de:
 - Sección 01: bk_concesiones y bk_concesiones_tablas (bloque «12m»): a/a de las concesiones de 12 meses (``aa_<seg>``),
   índice de concesiones reales sobre actividad (``ci_<seg>``) y la tabla de la página (``LARGO``).
+- Sección 04: bk_sistema_bal_m (balancetes, frente 11): ROE de 12 meses y depósitos a/a por grupo.
 - Secciones 02 y 03: bk_portada_m y bk_portada_m_tablas (frente 9): tasa y spread (02), mora y atraso (03) por los
   nueve segmentos; ``T`` = [último, m/m, 3m/3m, a/a, 12m/12m, Z 10 años] en % y pp.
 Lo que el SGS no publica (spread dirigido de personas) queda fuera de ``D`` y en ``NO_PUB`` de la hoja.
@@ -25,6 +26,8 @@ from pathlib import Path
 
 import pandas as pd
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "pipeline"))
+
 RAIZ = Path(__file__).resolve().parents[1]
 CANVAS = RAIZ / "diseno" / "canvas"
 GOLD = RAIZ / "datos" / "gold"
@@ -34,6 +37,23 @@ INICIO = "2014-01"
 
 def meses(n: int) -> pd.PeriodIndex:
     return pd.period_range(INICIO, periods=n, freq="M")
+
+
+def hasta_ultimo(*fechas: pd.Series) -> pd.PeriodIndex:
+    """Calendario mensual desde INICIO hasta el último mes con dato en gold (antes se recortaba al largo que ya
+    tenía la hoja, y la Portada no avanzaba con un mes nuevo)."""
+    fin = max(pd.Period(pd.to_datetime(f).max(), "M") for f in fechas)
+    return pd.period_range(INICIO, fin, freq="M")
+
+
+def alargar(D: dict, n_viejo: int, n: int) -> None:
+    """Las series mensuales de la hoja que este script no recarga (PIB, referencias, productos…) se completan con
+    vacíos hasta el largo nuevo, para que sigan alineadas con el calendario. No se recorta nunca."""
+    for k, v in D.items():
+        if isinstance(v, dict):
+            alargar(v, n_viejo, n)
+        elif isinstance(v, list) and len(v) == n_viejo and n > n_viejo:
+            D[k] = v + [None] * (n - n_viejo)
 
 
 def lista(s: pd.Series, ix: pd.PeriodIndex, escala=1.0, dec=2) -> list:
@@ -79,8 +99,10 @@ def pct_signo(x: float) -> str:
 
 def seccion01(texto: str) -> str:
     D = leer_const(texto, "D")
-    ix = meses(len(D["aa_tot"]))
     c = pd.read_parquet(GOLD / "bk_concesiones.parquet")
+    n_viejo = len(D["aa_tot"])
+    ix = hasta_ultimo(c["fecha"])
+    alargar(D, n_viejo, len(ix))
     for seg in SEGMENTOS:
         x = c[c["segmento"] == seg]
         D[f"aa_{seg}"] = lista(serie(x, "conc_12m_aa"), ix, 100)
@@ -129,8 +151,10 @@ def seccion_m(texto: str, mapa: dict[str, str]) -> tuple[str, dict[str, list[str
     """``mapa``: clave de D (mo, at) → indicador de bk_portada_m. Devuelve el texto y los segmentos no publicados."""
     D, T = leer_const(texto, "D"), leer_const(texto, "T")
     clave0 = next(iter(mapa))
-    ix = meses(len(next(iter(D[clave0].values()))))
     largo = pd.read_parquet(GOLD / "bk_portada_m.parquet")
+    n_viejo = len(next(iter(D[clave0].values())))
+    ix = hasta_ultimo(largo.loc[largo["indicador"].isin(list(mapa.values())), "fecha"])
+    alargar(D, n_viejo, len(ix))
     tab = pd.read_parquet(GOLD / "bk_portada_m_tablas.parquet").set_index(["indicador", "segmento"])
     no_pub = {}
     for clave, indicador in mapa.items():
@@ -148,15 +172,59 @@ def seccion_m(texto: str, mapa: dict[str, str]) -> tuple[str, dict[str, list[str
     return texto, no_pub
 
 
+# ---------------------------------------------------------------- sección 04 (balancetes, frente 11)
+
+GRUPOS_S04 = {("Total panel", "Todos los grupos"): "tot",
+              ("Propiedad", "Público"): "pub", ("Propiedad", "Privado nacional"): "pnac",
+              ("Propiedad", "Privado extranjero"): "pext",
+              ("Modelo de negocio", "Grandes"): "gra", ("Modelo de negocio", "Medianos y nicho"): "med",
+              ("Modelo de negocio", "Digitales"): "dig", ("Modelo de negocio", "Pagos"): "pag",
+              ("Modelo de negocio", "Desarrollo"): "des",
+              ("Segmento regulatorio", "S1"): "s1", ("Segmento regulatorio", "S2"): "s2",
+              ("Segmento regulatorio", "S3"): "s3", ("Segmento regulatorio", "S4"): "s4",
+              ("Tradicional vs Fintech", "Tradicionales"): "trad", ("Tradicional vs Fintech", "Fintechs"): "fint"}
+INICIO_S04 = "2020-01"
+
+
+def seccion04(texto: str) -> str:
+    """ROE de 12 meses (mo) y depósitos a/a (at) por grupo, y patrimonio/activo y crédito/depósitos del Total panel
+    (ref), desde bk_sistema_bal_m. T = [último, m/m, 3m/3m, a/a, 12m/12m, Z]: Z vacío (la serie empieza en 2020)."""
+    import tabla_estandar as TE
+    g = pd.read_parquet(GOLD / "bk_sistema_bal_m.parquet")
+    ix = pd.period_range(INICIO_S04, pd.Period(g["mes"].max(), "M"), freq="M")
+    D = {"mo": {}, "at": {}, "ref": {}}
+    T = {}
+    for (opt, grp), k in GRUPOS_S04.items():
+        x = g[(g["optica"] == opt) & (g["grupo"] == grp)]
+        s_idx = pd.PeriodIndex(pd.to_datetime(x["mes"], format="%Y%m"), freq="M")
+        for clave, col in (("mo", "roe_12m"), ("at", "depositos_aa")):
+            s = pd.Series(x[col].to_numpy(dtype=float), index=s_idx)
+            D[clave][k] = lista(s, ix, 100)
+            v = TE.variaciones_tasa(s.dropna(), escala=100, minimo=25)
+            if pd.notna(v.get("ultimo")):
+                T[f"{clave}_{k}"] = [round(v["ultimo"] * 100, 2), round(v["d1"], 2), round(v["d3"], 2),
+                                     round(v["d12"], 2), round(v["dventana"], 2), None]
+        if k == "tot":
+            D["ref"]["pla"] = lista(pd.Series(x["patrimonio_activo"].to_numpy(dtype=float), index=s_idx), ix, 100)
+            D["ref"]["cd"] = lista(pd.Series(x["credito_depositos"].to_numpy(dtype=float), index=s_idx), ix, 100)
+    texto = poner_const(texto, "D", D)
+    texto = poner_const(texto, "T", T)
+    return texto
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--revisar", action="store_true", help="informa sin escribir")
     a = ap.parse_args(argv)
     for hoja, f in (("Seccion01", None), ("Seccion02", {"mo": "tasa", "at": "spread"}),
-                    ("Seccion03", {"mo": "mora90", "at": "atraso15_90"})):
+                    ("Seccion03", {"mo": "mora90", "at": "atraso15_90"}), ("Seccion04", "bal")):
         p = CANVAS / f"{hoja}.dc.html"
+        if not p.exists():
+            continue
         antes = p.read_text(encoding="utf-8")
-        if f is None:
+        if f == "bal":
+            nuevo, no_pub = seccion04(antes), {}
+        elif f is None:
             nuevo, no_pub = seccion01(antes), {}
         else:
             nuevo, no_pub = seccion_m(antes, f)
