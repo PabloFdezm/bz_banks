@@ -11,6 +11,8 @@ cd /d "%~dp0"
 set "PY=python"
 if exist ".venv\Scripts\python.exe" set "PY=.venv\Scripts\python.exe"
 "%PY%" -X utf8 pipeline\actualizar.py %* || goto error
+rem La Portada lleva sus datos dentro de las hojas del canvas: se recargan desde el gold recien calculado.
+"%PY%" -X utf8 herramientas\portada_desde_gold.py || goto error
 exit /b 0
 :error
 echo.
