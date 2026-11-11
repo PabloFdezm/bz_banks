@@ -351,6 +351,30 @@
    "unidad": "%",
    "periodicidad": "M"
   },
+  "credito_pib_pj": {
+   "codigo": 20623,
+   "nombre": "Saldo da carteira de crédito a pessoas jurídicas em relação ao PIB",
+   "unidad": "%",
+   "periodicidad": "M"
+  },
+  "credito_pib_pf": {
+   "codigo": 20624,
+   "nombre": "Saldo da carteira de crédito a pessoas físicas em relação ao PIB",
+   "unidad": "%",
+   "periodicidad": "M"
+  },
+  "credito_pib_livre": {
+   "codigo": 20625,
+   "nombre": "Saldo da carteira de crédito com recursos livres em relação ao PIB",
+   "unidad": "%",
+   "periodicidad": "M"
+  },
+  "credito_pib_direcionado": {
+   "codigo": 20628,
+   "nombre": "Saldo da carteira de crédito com recursos direcionados em relação ao PIB",
+   "unidad": "%",
+   "periodicidad": "M"
+  },
   "pib_12m": {
    "codigo": 4382,
    "nombre": "PIB acumulado dos últimos 12 meses - Valores correntes (R$ milhões)",

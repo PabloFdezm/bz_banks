@@ -52,6 +52,8 @@ CODIGOS = {
     # tasas, precios, actividad, hogares
     "spread_livre": 20786, "icc": 25351, "tasa_creditos_nuevos": 20714, "cdi": 4389, "ipca": 433, "selic_meta": 432,
     "credito_pib": 20622, "pib_12m": 4382,
+    # Crédito/PIB por segmento (Portada 01, validado con validar_sgs el 11-nov-2026).
+    "credito_pib_pj": 20623, "credito_pib_pf": 20624, "credito_pib_livre": 20625, "credito_pib_direcionado": 20628,
     "endividamento": 29037, "comprometimento": 29034,
     "desocupacion": 24369,                # PNADC (IBGE t6381|v4099)
     # personas por producto (frente 12, hojas Tarjeta, Personal, Descuento por planilla y Vehículos; validado 10-nov).

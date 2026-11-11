@@ -42,8 +42,8 @@ Todo lo de hoy está publicado en https://banks-bz.pages.dev. Detalle de cada fr
       desde ene-20; 97 % de los banco-trimestres cuadra con IF.Data (`borradores/balancetes_informe.md`).
 - [x] Frente 11: NIM, costo de riesgo y eficiencia quedan trimestrales (IF.Data); aprobado el 11-nov.
 - [x] Sección 04 de la Portada (ROE 12m y depósitos a/a por grupo, balancetes): aprobada y publicada el 11-nov.
-- [ ] Portada: claves que `portada_desde_gold.py` no recarga desde gold (PIB, crédito real, impulso, ref.*, pr.*, em.*)
-      quedan en sep-26; con un mes nuevo se alargan con vacíos. Pasarlas a gold.
+- [x] Portada: las series de contexto (crédito/PIB por segmento, crédito real, impulso, ciclo HP, Selic, CDI, ICC,
+      mora por producto y por empresa) salen de gold y avanzan con cada mes (11-nov). Códigos nuevos SGS 20623–20628.
 - [ ] Frente 4 (REF): tarjeta de estrés y tarjetas por segmento.
 - [ ] Rehacer Calidad, Rentabilidad y Ficha en v3.
 - [ ] Frente 14: partida que falta en M3 (no está en 27792–27802); buscar en la nota metodológica del BCB.

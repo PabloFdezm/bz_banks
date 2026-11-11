@@ -9,6 +9,8 @@ TABLAS (datos/gold/)
 --------------------
 - bk_portada_m (larga): seccion («02» o «03»), indicador, segmento, fecha (último día del mes), valor.
   Clave: indicador, segmento, fecha.
+  * Sección 01: ``credito_pib`` (crédito/PIB, SGS 20622–20628) por tot, pf, pj, li y di. Sección 02, además:
+    ``cdi`` (promedio del mes, tot).
   * Indicadores: ``tasa`` (tasa media de las operaciones nuevas), ``icc`` (costo del stock), ``spread``, ``mora90``
     (inadimplência > 90 días), ``atraso15_90`` y ``selic_meta`` (SGS 432, a fin de mes; segmento «tot»). Todos en
     fracción (el % o los p.p. del SGS / 100). Derivadas: ``tasa_menos_icc`` (tot) y ``d_aa`` de mora y atraso (Δ a/a,
@@ -65,7 +67,10 @@ CLAVES = {
                     "pfdi": "atraso15_90_pf_direccionado", "pjli": "atraso15_90_pj_libre",
                     "pjdi": "atraso15_90_pj_direccionado"},
 }
-SECCION = {"tasa": "02", "icc": "02", "spread": "02", "selic_meta": "02", "tasa_menos_icc": "02",
+# Sección 01: crédito/PIB por segmento (la hoja lo dibuja contra las concesiones). Sección 02: CDI promedio del mes.
+CLAVES_PIB = {"tot": "credito_pib", "pf": "credito_pib_pf", "pj": "credito_pib_pj", "li": "credito_pib_livre",
+              "di": "credito_pib_direcionado"}
+SECCION = {"credito_pib": "01", "cdi": "02", "tasa": "02", "icc": "02", "spread": "02", "selic_meta": "02", "tasa_menos_icc": "02",
            "mora90": "03", "atraso15_90": "03", "mora90_d_aa": "03", "atraso15_90_d_aa": "03"}
 CON_DAA = ["tot", "pf", "pj"]
 COLUMNAS_TABLA = ["seccion", "indicador", "orden", "fila", "segmento", "ultimo", "d1", "d3", "d12", "dventana",
@@ -87,7 +92,8 @@ def caja(x: pd.Series, desde: str) -> dict:
     return dict(p25=h.quantile(0.25), p50=h.quantile(0.5), p75=h.quantile(0.75), minimo=h.min(), maximo=h.max())
 
 
-def construir(series: dict[str, dict[str, pd.Series]], selic: pd.Series) -> tuple[pd.DataFrame, pd.DataFrame]:
+def construir(series: dict[str, dict[str, pd.Series]], selic: pd.Series, cdi: pd.Series | None = None,
+              pib: dict[str, pd.Series] | None = None) -> tuple[pd.DataFrame, pd.DataFrame]:
     """``series``: indicador → segmento → serie mensual (PeriodIndex) en % o p.p. del SGS; ``selic``: meta, % a.a."""
     largas, tablas = [], []
 
@@ -118,18 +124,24 @@ def construir(series: dict[str, dict[str, pd.Series]], selic: pd.Series) -> tupl
     fin = pd.Period(max(pd.concat(largas)["fecha"]), "M")
     sm = selic.loc[pd.Period(DESDE, "M"):fin]
     agregar("selic_meta", "tot", sm)
+    # CDI promedio del mes (sgs.cdi_mensual, fracción × 100 para usar agregar) y crédito/PIB por segmento.
+    if cdi is not None:
+        agregar("cdi", "tot", (cdi * 100).loc[pd.Period(DESDE, "M"):fin])
+    for seg, s in (pib or {}).items():
+        agregar("credito_pib", seg, s.loc[pd.Period(DESDE, "M"):])
     larga = pd.concat(largas, ignore_index=True)
     return larga, pd.DataFrame(tablas)[COLUMNAS_TABLA]
 
 
-def leer() -> tuple[dict[str, dict[str, pd.Series]], pd.Series]:
+def leer():
     series = {ind: {seg: SG.serie_mensual(SG.CODIGOS[k]) for seg, k in segs.items()} for ind, segs in CLAVES.items()}
-    return series, SG.serie_mensual(SG.CODIGOS["selic_meta"])
+    pib = {seg: SG.serie_mensual(SG.CODIGOS[k]) for seg, k in CLAVES_PIB.items()}
+    return series, SG.serie_mensual(SG.CODIGOS["selic_meta"]), SG.cdi_mensual(), pib
 
 
 def main(argv: list[str] | None = None) -> int:
-    series, selic = leer()
-    larga, tablas = construir(series, selic)
+    series, selic, cdi, pib = leer()
+    larga, tablas = construir(series, selic, cdi, pib)
     for nombre, df in (("bk_portada_m", larga), ("bk_portada_m_tablas", tablas)):
         A.publicar_gold(nombre, df, fuente="bcb_sgs", dataset=DATASET, desde=[f"crudo/{SG.FUENTE}"],
                         nota="Portada mensual, secciones 02 y 03 (frente 9)")

@@ -58,3 +58,23 @@ def test_mora_dirigida_oficial_calza_con_la_derivacion_por_saldos():
         d = (deriv - m(f"mora90_{cli}_direccionado")).dropna().loc["2015-01":]
         assert len(d) > 100
         assert d.abs().max() < 0.03, (cli, d.abs().idxmax(), d.abs().max())
+
+
+@pytest.mark.integracion
+def test_series_de_contexto_de_la_portada_salen_de_gold():
+    """Las series de contexto de las hojas 01–03 (PIB, crédito real, referencias, productos…) coinciden con gold y
+    llegan al último mes de la hoja: antes quedaban congeladas en sep-26 (herramientas/portada_desde_gold.py)."""
+    import sys
+    from pathlib import Path
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "herramientas"))
+    import portada_desde_gold as PG
+    g = PG._gold_series()
+    for hoja, claves in PG.EXTRAS.items():
+        D = PG.leer_const((PG.CANVAS / f"{hoja}.dc.html").read_text(encoding="utf-8"), "D")
+        n = len(PG._leer(D, "aa_tot" if hoja == "Seccion01" else "mo.tot"))
+        ix = PG.meses(n)
+        for clave, (tabla, nombre, escala) in claves.items():
+            hoja_v = pd.Series(PG._leer(D, clave), index=ix, dtype=float)
+            gold_v = g[(tabla, nombre)].reindex(ix) * escala
+            assert len(PG._leer(D, clave)) == n, clave
+            assert (hoja_v - gold_v).abs().max() <= 0.006, (hoja, clave)

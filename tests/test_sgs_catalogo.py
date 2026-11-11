@@ -33,4 +33,4 @@ def test_nombres_oficiales_coinciden_con_el_uso():
         assert "consignado para" in nombre(k)
     assert all(CATALOGO[k]["unidad"] == "%" for k in sgs.CODIGOS if k.startswith(("mora90_", "atraso15_90_")))
     assert all(CATALOGO[k]["unidad"] == "R$ (milhões)" for k in sgs.CODIGOS
-               if k.startswith(("credito_", "conc")) and k != "credito_pib")       # credito_pib va en %
+               if k.startswith(("credito_", "conc")) and not k.startswith("credito_pib"))   # crédito/PIB va en %

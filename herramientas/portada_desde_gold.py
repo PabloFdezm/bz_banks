@@ -9,7 +9,8 @@ sitio no las lee de JSON (herramientas/construir_v2.py). Este script reemplaza e
 - Secciones 02 y 03: bk_portada_m y bk_portada_m_tablas (frente 9): tasa y spread (02), mora y atraso (03) por los
   nueve segmentos; ``T`` = [último, m/m, 3m/3m, a/a, 12m/12m, Z 10 años] en % y pp.
 Lo que el SGS no publica (spread dirigido de personas) queda fuera de ``D`` y en ``NO_PUB`` de la hoja.
-Las demás claves de D y T (referencias, productos, empresas) no se tocan.
+Las series de contexto (PIB, crédito real, impulso, referencias, productos y empresas) también salen de gold
+(EXTRAS); antes quedaban congeladas en la hoja.
 
     Set-Location C:\\dev\\bz_banks; python -X utf8 herramientas/portada_desde_gold.py [--revisar]
 
@@ -172,6 +173,102 @@ def seccion_m(texto: str, mapa: dict[str, str]) -> tuple[str, dict[str, list[str
     return texto, no_pub
 
 
+# ---------------------------------------------------------------- series de contexto (antes congeladas en sep-26)
+
+# Hoja → clave de D (con «.» para las anidadas) → (tabla gold, serie, escala). Verificadas el 11-nov-2026 contra lo que
+# tenía la hoja: diferencia 0 (≤ 0,005 por redondeo) en todos los meses.
+EXTRAS = {
+    "Seccion01": {
+        "pib_tot": ("pm", ("credito_pib", "tot"), 100), "pib_pf": ("pm", ("credito_pib", "pf"), 100),
+        "pib_pj": ("pm", ("credito_pib", "pj"), 100), "pib_li": ("pm", ("credito_pib", "li"), 100),
+        "pib_di": ("pm", ("credito_pib", "di"), 100),
+        "credito_total_real_aa": ("sm", "credito_total_real_aa", 100),
+        "credito_total_real_aa_pf": ("sm", "credito_total_real_aa_pf", 100),
+        "credito_total_real_aa_pj": ("sm", "credito_total_real_aa_pj", 100),
+        "impulso_credito_pp": ("sm", "impulso_credito_pp", 1),
+    },
+    "Seccion02": {
+        "ref.sel": ("pm", ("selic_meta", "tot"), 100), "ref.icc": ("pm", ("icc", "tot"), 100),
+        "ref.gap": ("pm", ("tasa_menos_icc", "tot"), 100), "ref.npl": ("pm", ("mora90", "li"), 100),
+        "ref.cdi": ("pm", ("cdi", "tot"), 100),
+    },
+    "Seccion03": {
+        "pr.tar": ("sm", "mora90_cartao_total", 100), "pr.con": ("sm", "mora90_consignado_total", 100),
+        "pr.per": ("sm", "mora90_personal", 100), "pr.veh": ("sm", "mora90_vehiculos", 100),
+        "pr.inm": ("sm", "mora90_inmobiliario_total", 100), "em.mpme": ("sm", "mora90_mpme", 100),
+        "em.gr": ("sm", "mora90_grande", 100),
+    },
+}
+# Filas de tabla (T) que salen de esas series: [último, m/m, 3m/3m, a/a, 12m/12m, Z 10 años] en % y pp.
+T_EXTRAS = {"Seccion03": {"pr_tar": "pr.tar", "pr_con": "pr.con", "pr_per": "pr.per", "pr_veh": "pr.veh",
+                          "pr_inm": "pr.inm", "em_mpme": "em.mpme", "em_gr": "em.gr"}}
+INICIO_CICLO = "2005Q1"
+
+
+def _gold_series() -> dict[str, pd.Series]:
+    """Todas las series candidatas, en fracción o en su unidad, con índice mensual."""
+    out = {}
+    sm = pd.read_parquet(GOLD / "bk_sistema_m.parquet")
+    for k, g in sm.groupby("serie_id"):
+        out[("sm", k)] = serie(g)
+    pm = pd.read_parquet(GOLD / "bk_portada_m.parquet")
+    for (i, s), g in pm.groupby(["indicador", "segmento"]):
+        out[("pm", (i, s))] = serie(g)
+    return out
+
+
+def _poner(D: dict, clave: str, valor) -> None:
+    if "." in clave:
+        a, b = clave.split(".")
+        D.setdefault(a, {})[b] = valor
+    else:
+        D[clave] = valor
+
+
+def _leer(D: dict, clave: str):
+    a, _, b = clave.partition(".")
+    return D[a][b] if b else D[a]
+
+
+def extras(hoja: str, texto: str) -> str:
+    """Recarga las series de contexto de la hoja desde gold (y sus filas de T y, en la 01, el ciclo trimestral)."""
+    if hoja not in EXTRAS:
+        return texto
+    D = leer_const(texto, "D")
+    clave0 = "aa_tot" if hoja == "Seccion01" else "mo.tot"
+    ix = meses(len(_leer(D, clave0)))
+    g = _gold_series()
+    for clave, (tabla, nombre, escala) in EXTRAS[hoja].items():
+        s = g.get((tabla, nombre))
+        if s is None:
+            raise ValueError(f"{hoja}: no está en gold {tabla}:{nombre}")
+        _poner(D, clave, lista(s, ix, escala))
+    if hoja == "Seccion01":
+        cs = pd.read_parquet(GOLD / "bk_cred_series.parquet")
+        q = {}
+        for nombre in ("cpib_nivel", "cpib_tendencia"):
+            x = cs[cs["serie"] == nombre]
+            q[nombre] = pd.Series(x["valor"].to_numpy(dtype=float),
+                                  index=pd.PeriodIndex(pd.to_datetime(x["fecha"]), freq="Q")).loc[INICIO_CICLO:]
+        iq = q["cpib_nivel"].index
+        D["cpib_nivel"] = [round(float(v), 2) for v in q["cpib_nivel"]]
+        D["cpib_tend"] = [None if pd.isna(v) else round(float(v), 2) for v in q["cpib_tendencia"].reindex(iq)]
+        D["cpib_tri"] = [f"{p.quarter}T{str(p.year)[2:]}" for p in iq]
+    texto = poner_const(texto, "D", D)
+    if hoja in T_EXTRAS:
+        import preparar_gold_bancos_portada_m as PM
+        import tabla_estandar as TE
+        T = leer_const(texto, "T")
+        for fila, clave in T_EXTRAS[hoja].items():
+            tabla, nombre, _ = EXTRAS[hoja][clave]
+            s = g[(tabla, nombre)].dropna()
+            v = TE.variaciones_tasa(s, escala=100)
+            T[fila] = [round(v["ultimo"] * 100, 2), round(v["d1"], 2), round(v["d3"], 2), round(v["d12"], 2),
+                       round(v["dventana"], 2), None if pd.isna(z := PM.zscore(s)) else round(z, 2)]
+        texto = poner_const(texto, "T", T)
+    return texto
+
+
 # ---------------------------------------------------------------- sección 04 (balancetes, frente 11)
 
 GRUPOS_S04 = {("Total panel", "Todos los grupos"): "tot",
@@ -232,6 +329,7 @@ def main(argv: list[str] | None = None) -> int:
             nuevo = poner_const(nuevo, "FALTA", {pares[k]: [] for k in f},
                                 js="{ " + ", ".join(f"{pares[k]}: []" for k in f) + " }")
             nuevo = poner_const(nuevo, "NO_PUB", {pares[k]: v for k, v in no_pub.items()})
+        nuevo = extras(hoja, nuevo)
         print(f"{hoja}: {'cambia' if nuevo != antes else 'sin cambios'}"
               + (f"; no publicados: {no_pub}" if no_pub else ""))
         if not a.revisar and nuevo != antes:
