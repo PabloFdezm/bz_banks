@@ -48,7 +48,7 @@ button:focus-visible,select:focus-visible{outline:2px solid #2E5C8A;outline-offs
 </style>
 </helmet>
 <div style="position: relative; width: 1600px; height: 1440px; box-sizing: border-box; padding: 48px; background: #F6F7F8; color: #24324A; font-family: 'IBM Plex Sans', system-ui, sans-serif; display: flex; flex-direction: column; gap: 14px;">
-  <div class="sh" style="border-top: 2px solid #24324A; padding-top: 10px;">
+  <div class="sh" role="heading" aria-level="2" style="border-top: 2px solid #24324A; padding-top: 10px;">
     <span style="font-family: 'IBM Plex Mono', monospace; font-size: 15px; color: #5B6573;">02</span>
     <span style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 26px; color: #2E5C8A;">Precio del crédito</span>
   </div>
@@ -56,7 +56,7 @@ button:focus-visible,select:focus-visible{outline:2px solid #2E5C8A;outline-offs
     <div style="display: grid; grid-template-columns: 960px minmax(0, 1fr); gap: 24px; height: 560px; margin-bottom: 2px;">
       <div class="card">
         <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px;">
-          <div><div class="ct">{{s.titulo}}</div><div class="cs">{{s.sub}}</div><sc-if value="{{s.pendiente}}" hint-placeholder-val="{{false}}"><div class="cs">{{s.pendiente}}</div></sc-if></div>
+          <div><div class="ct" role="heading" aria-level="3">{{s.titulo}}</div><div class="cs">{{s.sub}}</div><sc-if value="{{s.pendiente}}" hint-placeholder-val="{{false}}"><div class="cs">{{s.pendiente}}</div></sc-if></div>
           <div style="display: flex; gap: 8px; align-items: center;">
             <sc-if value="{{s.control}}" hint-placeholder-val="{{false}}"><select class="sel" aria-label="Segmentos" value="{{corte}}" onChange="{{elegirCorte}}"><option value="pfpj">Personas / Empresas</option><option value="lidi">Libre / Dirigido</option><option value="pfld">Personas: libre / dirigido</option><option value="todos">Todos</option></select></sc-if>
             <button class="btn" type="button" style="{{s.ajusteEst}}" aria-pressed="{{s.ajustePres}}" aria-disabled="{{s.sinSel}}" title="Resalte una serie (clic en la leyenda o en la tabla) para ajustar el eje a ella" onClick="{{s.ajustar}}">{{s.ajusteTxt}}</button>
@@ -72,12 +72,12 @@ button:focus-visible,select:focus-visible{outline:2px solid #2E5C8A;outline-offs
         <div class="fu">{{s.fuente}}</div>
       </div>
       <div class="card">
-        <div class="ct">{{s.tTitulo}}</div><div class="cs">{{s.tSub}}</div>
-        <table class="tb" style="margin-top: 8px;">
-          <thead><tr><th class="ind">Indicador</th><th>Corte</th><sc-for list="{{s.cols}}" as="c" hint-placeholder-count="3"><th>{{c}}</th></sc-for></tr></thead>
+        <div class="ct" role="heading" aria-level="3">{{s.tTitulo}}</div><div class="cs">{{s.tSub}}</div>
+        <table class="tb" style="margin-top: 8px;"><caption class="v2-sr">{{s.tTitulo}}</caption>
+          <thead><tr><th scope="col" class="ind">Indicador</th><th scope="col">Corte</th><sc-for list="{{s.cols}}" as="c" hint-placeholder-count="3"><th scope="col">{{c}}</th></sc-for></tr></thead>
           <tbody>
             <sc-for list="{{s.filas}}" as="r" hint-placeholder-count="3">
-              <tr class="{{r.cls}}" style="{{r.est}}" onClick="{{r.click}}"><th class="ind"><button class="fb" type="button" aria-pressed="{{r.pres}}" onClick="{{r.click}}"><span style="{{r.sw}}"></span>{{r.nombre}}</button></th><td>{{r.corte}}</td><sc-for list="{{r.v}}" as="x" hint-placeholder-count="3"><td>{{x}}</td></sc-for></tr>
+              <tr class="{{r.cls}}" style="{{r.est}}" onClick="{{r.click}}"><th class="ind" scope="row"><button class="fb" type="button" aria-pressed="{{r.pres}}" onClick="{{r.click}}"><span style="{{r.sw}}"></span>{{r.nombre}}</button></th><td>{{r.corte}}</td><sc-for list="{{r.v}}" as="x" hint-placeholder-count="3"><td>{{x}}</td></sc-for></tr>
             </sc-for>
           </tbody>
         </table>
@@ -104,11 +104,11 @@ button:focus-visible,select:focus-visible{outline:2px solid #2E5C8A;outline-offs
         </div>
         <dc-import name="Grafico" cfg="{{d.cfg}}" hint-size="1490px,300px"></dc-import>
         <div style="padding-left: 44px;"><dc-import name="Rango" cfg="{{d.cfgR}}" hint-size="1380px,64px"></dc-import></div>
-        <table class="tb" style="margin-top: 4px;">
-          <thead><tr><th class="ind">Indicador</th><th>Corte</th><sc-for list="{{d.cols}}" as="c" hint-placeholder-count="6"><th>{{c}}</th></sc-for><th>Historia</th></tr></thead>
+        <table class="tb" style="margin-top: 4px;"><caption class="v2-sr">{{d.titulo}}</caption>
+          <thead><tr><th scope="col" class="ind">Indicador</th><th scope="col">Corte</th><sc-for list="{{d.cols}}" as="c" hint-placeholder-count="6"><th scope="col">{{c}}</th></sc-for><th scope="col">Historia</th></tr></thead>
           <tbody>
             <sc-for list="{{d.filas}}" as="r" hint-placeholder-count="5">
-              <tr class="{{r.cls}}" style="{{r.est}}" onClick="{{r.click}}"><th class="ind"><button class="fb" type="button" aria-pressed="{{r.pres}}" onClick="{{r.click}}"><span style="{{r.sw}}"></span>{{r.nombre}}</button></th><td>{{r.corte}}</td><sc-for list="{{r.v}}" as="x" hint-placeholder-count="6"><td>{{x}}</td></sc-for><td style="width: 96px;"><div style="position: relative; width: 80px; height: 12px; margin-left: auto;"><div style="{{r.b0}}"></div><div style="{{r.bw}}"></div><div style="{{r.bb}}"></div><div style="{{r.bm}}"></div><div style="{{r.bp}}"></div></div></td></tr>
+              <tr class="{{r.cls}}" style="{{r.est}}" onClick="{{r.click}}"><th class="ind" scope="row"><button class="fb" type="button" aria-pressed="{{r.pres}}" onClick="{{r.click}}"><span style="{{r.sw}}"></span>{{r.nombre}}</button></th><td>{{r.corte}}</td><sc-for list="{{r.v}}" as="x" hint-placeholder-count="6"><td>{{x}}</td></sc-for><td style="width: 96px;"><div style="position: relative; width: 80px; height: 12px; margin-left: auto;"><div style="{{r.b0}}"></div><div style="{{r.bw}}"></div><div style="{{r.bb}}"></div><div style="{{r.bm}}"></div><div style="{{r.bp}}"></div></div></td></tr>
             </sc-for>
           </tbody>
         </table>
@@ -139,9 +139,9 @@ button:focus-visible,select:focus-visible{outline:2px solid #2E5C8A;outline-offs
             </div>
             <div style="display: flex; flex-direction: column; gap: 2px;">
               <div class="bt">{{d.bTTit}}</div><div class="bs">{{d.bTSub}}</div>
-              <table class="tb" style="margin-top: 6px;">
-                <thead><tr><th class="ind">Indicador</th><th>Corte</th><sc-for list="{{d.bCols}}" as="c" hint-placeholder-count="5"><th>{{c}}</th></sc-for><sc-if value="{{d.bBox}}" hint-placeholder-val="{{false}}"><th>Historia</th></sc-if></tr></thead>
-                <tbody><sc-for list="{{d.cicloFilas}}" as="r" hint-placeholder-count="5"><tr class="{{r.cls}}"><th class="ind"><span style="display: inline-flex; align-items: center; gap: 8px;"><span style="{{r.sw}}"></span>{{r.nombre}}</span></th><td>{{r.corte}}</td><sc-for list="{{r.v}}" as="x" hint-placeholder-count="5"><td>{{x}}</td></sc-for><sc-if value="{{d.bBox}}" hint-placeholder-val="{{false}}"><td><div style="position: relative; width: 150px; height: 16px; margin-left: auto;"><div style="{{r.b0}}"></div><div style="{{r.bw}}"></div><div style="{{r.bb}}"></div><div style="{{r.bm}}"></div><div style="{{r.bp}}"></div></div></td></sc-if></tr></sc-for></tbody>
+              <table class="tb" style="margin-top: 6px;"><caption class="v2-sr">{{d.bTTit}}</caption>
+                <thead><tr><th scope="col" class="ind">Indicador</th><th scope="col">Corte</th><sc-for list="{{d.bCols}}" as="c" hint-placeholder-count="5"><th scope="col">{{c}}</th></sc-for><sc-if value="{{d.bBox}}" hint-placeholder-val="{{false}}"><th scope="col">Historia</th></sc-if></tr></thead>
+                <tbody><sc-for list="{{d.cicloFilas}}" as="r" hint-placeholder-count="5"><tr class="{{r.cls}}"><th class="ind" scope="row"><span style="display: inline-flex; align-items: center; gap: 8px;"><span style="{{r.sw}}"></span>{{r.nombre}}</span></th><td>{{r.corte}}</td><sc-for list="{{r.v}}" as="x" hint-placeholder-count="5"><td>{{x}}</td></sc-for><sc-if value="{{d.bBox}}" hint-placeholder-val="{{false}}"><td><div style="position: relative; width: 150px; height: 16px; margin-left: auto;"><div style="{{r.b0}}"></div><div style="{{r.bw}}"></div><div style="{{r.bb}}"></div><div style="{{r.bm}}"></div><div style="{{r.bp}}"></div></div></td></sc-if></tr></sc-for></tbody>
               </table>
             </div>
           </div>

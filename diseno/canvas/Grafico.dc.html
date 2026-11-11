@@ -27,7 +27,7 @@ body{margin:0}
   <sc-for list="{{ticksX}}" as="t" hint-placeholder-count="6">
     <div style="{{t.style}}">{{t.label}}</div>
   </sc-for>
-  <div style="{{overlay}}" onKeyDown="{{onKey}}" onMouseLeave="{{onLeave}}" onPointerDown="{{onScrub}}" onPointerMove="{{onScrub}}">
+  <div style="{{overlay}}" onKeyDown="{{onKey}}" onMouseLeave="{{onLeave}}" onPointerDown="{{onScrub}}" onPointerMove="{{onScrub}}" role="group" aria-label="Períodos del gráfico: ← → para recorrer, Inicio y Fin">
     <sc-for list="{{hits}}" as="hb" hint-placeholder-count="12">
       <button type="button" style="{{hb.style}}" tabIndex="{{hb.tab}}" aria-label="{{hb.aria}}" onClick="{{hb.fix}}" onMouseEnter="{{hb.over}}" onFocus="{{hb.over}}"></button>
     </sc-for>

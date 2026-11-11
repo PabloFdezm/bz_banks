@@ -52,11 +52,11 @@ button:focus-visible,select:focus-visible{outline:2px solid #2E5C8A;outline-offs
     <span style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 32px; color: #24324A;">Fondeo y liquidez</span>
   </div>
   <sc-for list="{{pares}}" as="s" hint-placeholder-count="2">
-    <sc-if value="{{s.cab}}" hint-placeholder-val="{{true}}"><div class="sh" style="border-top: 2px solid #24324A; padding-top: 10px; margin-top: 24px;"><span style="font-family: 'IBM Plex Mono', monospace; font-size: 15px; color: #5B6573;">{{s.cabNum}}</span><span style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 26px; color: #2E5C8A;">{{s.cabNombre}}</span></div></sc-if>
+    <sc-if value="{{s.cab}}" hint-placeholder-val="{{true}}"><div class="sh" role="heading" aria-level="2" style="border-top: 2px solid #24324A; padding-top: 10px; margin-top: 24px;"><span style="font-family: 'IBM Plex Mono', monospace; font-size: 15px; color: #5B6573;">{{s.cabNum}}</span><span style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 26px; color: #2E5C8A;">{{s.cabNombre}}</span></div></sc-if>
     <div style="display: grid; grid-template-columns: 960px minmax(0, 1fr); gap: 24px; height: 600px; margin-bottom: 24px;">
       <div class="card">
         <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px;">
-          <div><div class="ct">{{s.titulo}}</div><div class="cs">{{s.sub}}</div></div>
+          <div><div class="ct" role="heading" aria-level="3">{{s.titulo}}</div><div class="cs">{{s.sub}}</div></div>
           <div style="display: flex; gap: 8px; align-items: center;">
             <button class="btn" type="button" style="{{s.ajusteEst}}" aria-pressed="{{s.ajustePres}}" aria-disabled="{{s.sinSel}}" title="Resalte una serie (clic en la leyenda o en la tabla) para ajustar el eje a ella" onClick="{{s.ajustar}}">{{s.ajusteTxt}}</button>
             <button class="btn" type="button" onClick="{{s.abrir}}" aria-haspopup="dialog"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M9.5 2.5h4v4M6.5 13.5h-4v-4M13.5 2.5 9 7M2.5 13.5 7 9"/></svg>Agrandar</button>
@@ -71,12 +71,12 @@ button:focus-visible,select:focus-visible{outline:2px solid #2E5C8A;outline-offs
         <div class="fu">{{s.fuente}}</div>
       </div>
       <div class="card">
-        <div class="ct">{{s.tTitulo}}</div><div class="cs">{{s.tSub}}</div>
-        <table class="tb" style="margin-top: 8px;">
-          <thead><tr><th class="ind">Indicador</th><th>Corte</th><sc-for list="{{s.cols}}" as="c" hint-placeholder-count="2"><th>{{c}}</th></sc-for></tr></thead>
+        <div class="ct" role="heading" aria-level="3">{{s.tTitulo}}</div><div class="cs">{{s.tSub}}</div>
+        <table class="tb" style="margin-top: 8px;"><caption class="v2-sr">{{s.tTitulo}}</caption>
+          <thead><tr><th scope="col" class="ind">Indicador</th><th scope="col">Corte</th><sc-for list="{{s.cols}}" as="c" hint-placeholder-count="2"><th scope="col">{{c.t}}<span class="u">{{c.u}}</span></th></sc-for></tr></thead>
           <tbody>
             <sc-for list="{{s.filas}}" as="r" hint-placeholder-count="3">
-              <tr class="{{r.cls}}" style="{{r.est}}" onClick="{{r.click}}"><th class="ind"><button class="fb" type="button" aria-pressed="{{r.pres}}" onClick="{{r.click}}"><span style="{{r.sw}}"></span>{{r.nombre}}</button></th><td>{{r.corte}}</td><sc-for list="{{r.v}}" as="x" hint-placeholder-count="2"><td>{{x}}</td></sc-for></tr>
+              <tr class="{{r.cls}}" style="{{r.est}}" onClick="{{r.click}}"><th class="ind" scope="row"><button class="fb" type="button" aria-pressed="{{r.pres}}" onClick="{{r.click}}"><span style="{{r.sw}}"></span>{{r.nombre}}</button></th><td>{{r.corte}}</td><sc-for list="{{r.v}}" as="x" hint-placeholder-count="2"><td>{{x}}</td></sc-for></tr>
             </sc-for>
           </tbody>
         </table>
@@ -99,11 +99,11 @@ button:focus-visible,select:focus-visible{outline:2px solid #2E5C8A;outline-offs
         <sc-for list="{{d.ops}}" as="o" hint-placeholder-count="4">
           <div style="display: grid; grid-template-columns: 720px minmax(0, 1fr); gap: 24px; border-top: 1px solid #E6EAEF; padding-top: 10px; min-height: 318px;">
             <div style="display: flex; flex-direction: column; gap: 2px;"><div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; height: 44px;"><div class="bt">{{o.nombre}}</div><button class="btn" type="button" style="{{o.ajEst}}" aria-pressed="{{o.ajPres}}" aria-disabled="{{o.sinSel}}" title="Resalte una serie (clic en la leyenda o en la tabla) para ajustar el eje a ella" onClick="{{o.ajustar}}">{{o.ajTxt}}</button></div><dc-import name="Grafico" cfg="{{o.cfg}}" hint-size="700px,220px"></dc-import><div style="padding-left: 40px;"><dc-import name="Rango" cfg="{{o.cfgR}}" hint-size="640px,64px"></dc-import></div></div>
-            <div style="align-self: start;"><table class="tb">
-              <thead><tr><th class="ind">Indicador</th><th>Corte</th><sc-for list="{{o.cols}}" as="c" hint-placeholder-count="4"><th>{{c}}</th></sc-for><th>Historia</th></tr></thead>
+            <div style="align-self: start;"><table class="tb"><caption class="v2-sr">{{o.nombre}}</caption>
+              <thead><tr><th scope="col" class="ind">Indicador</th><th scope="col">Corte</th><sc-for list="{{o.cols}}" as="c" hint-placeholder-count="4"><th scope="col">{{c}}</th></sc-for><th scope="col">Historia</th></tr></thead>
               <tbody>
                 <sc-for list="{{o.filas}}" as="r" hint-placeholder-count="4">
-                  <tr class="{{r.cls}}" style="{{r.est}}" onClick="{{r.click}}"><th class="ind"><button class="fb" type="button" aria-pressed="{{r.pres}}" onClick="{{r.click}}"><span style="{{r.sw}}"></span>{{r.nombre}}</button></th><td>{{r.corte}}</td><sc-for list="{{r.v}}" as="x" hint-placeholder-count="4"><td>{{x}}</td></sc-for><td style="width: 96px;"><div style="position: relative; width: 80px; height: 12px; margin-left: auto;"><div style="{{r.b0}}"></div><div style="{{r.bw}}"></div><div style="{{r.bb}}"></div><div style="{{r.bm}}"></div><div style="{{r.bp}}"></div></div></td></tr>
+                  <tr class="{{r.cls}}" style="{{r.est}}" onClick="{{r.click}}"><th class="ind" scope="row"><button class="fb" type="button" aria-pressed="{{r.pres}}" onClick="{{r.click}}"><span style="{{r.sw}}"></span>{{r.nombre}}</button></th><td>{{r.corte}}</td><sc-for list="{{r.v}}" as="x" hint-placeholder-count="4"><td>{{x}}</td></sc-for><td style="width: 96px;"><div style="position: relative; width: 80px; height: 12px; margin-left: auto;"><div style="{{r.b0}}"></div><div style="{{r.bw}}"></div><div style="{{r.bb}}"></div><div style="{{r.bm}}"></div><div style="{{r.bp}}"></div></div></td></tr>
                 </sc-for>
               </tbody>
             </table><div class="bs" style="margin-top: 6px; color: #5B6573;">{{o.nota}}</div></div>
@@ -199,25 +199,25 @@ class Component extends DCLogic {
     const MR = 'REF del BCB (Relatório de Estabilidade Financeira, oct-26), sección 1.2.1, Anexo Estatístico. Perfil de captación e inversionistas: semestral desde 2021; tasas de captación: mensual desde jun-22; LCR y NSFR: mensual.';
     const MQ = 'IF.Data del BCB, panel de bancos agrupado por modelo de negocio (el mismo de «Bancos por grupo»), trimestral.';
     const SECS = [
-      { num: 'F1', nombre: 'Volumen',
+      { num: '01', nombre: 'Volumen',
         va: { titulo: 'Componentes de M2, a/a', sub: 'Eje vertical: %. M2 en cobre.', fuente: 'Fuente: BCB, SGS.', cero: true, tTitulo: 'Saldo', tSub: 'a/a en % · Δ a/a en pp', glos: 'Último: crecimiento a/a del saldo de cada componente en manos del público, en %. ', meta: MS + ' M2 suma moneda en poder del público, depósitos a la vista, depósitos a plazo, títulos privados (letras financieras, letras de crédito LCI/LCA y otros) y cuentas de ahorro, que en la metodología nueva están dentro de M2; M3 agrega cuotas de fondos monetarios y pactos; M4, títulos federales.' },
         vb: { titulo: 'Cuentas de ahorro: variación del saldo en 12 meses', sub: 'Eje vertical: R$ mil millones.', fuente: 'Fuente: BCB, SGS.', cero: true, tTitulo: 'Cuentas de ahorro', tSub: 'R$ mil millones · Δ a/a', glos: 'Saldo de cuentas de ahorro hoy menos hace 12 meses, en R$ mil millones (incluye intereses abonados). ', meta: MS } },
-      { num: 'F2', nombre: 'Precio',
+      { num: '02', nombre: 'Precio',
         va: { titulo: 'Tasa media de captación por segmento, % del CDI', sub: 'Eje vertical: % del CDI.', fuente: 'Fuente: BCB, REF.', tTitulo: 'Tasa de captación', tSub: '% del CDI · Δ a/a', glos: 'Último: tasa media mensual de las captaciones de cada segmento como % del CDI. ', meta: MR },
         vb: { titulo: 'Costo de captación por modelo de negocio', sub: 'Eje vertical: %.', fuente: 'Fuente: BCB, IF.Data.', tTitulo: 'Costo de captación', tSub: '% · Δ a/a en pp', glos: 'Gastos de captación sobre el fondeo con costo (no solo depósitos), en %. ', meta: MQ } },
-      { num: 'F3', nombre: 'Instrumentos',
+      { num: '03', nombre: 'Instrumentos',
         va: { titulo: 'Perfil de captación por instrumento, sistema bancario', sub: 'Eje vertical: % del total.', fuente: 'Fuente: BCB, REF.', apilar: true, tTitulo: 'Instrumentos', tSub: '% · Δ a/a en pp', glos: 'Último: participación de cada instrumento en el stock de captaciones, en %. ', meta: MR },
         vb: { titulo: 'Stock por instrumento, a/a', sub: 'Eje vertical: %.', fuente: 'Fuente: BCB, REF.', cero: true, tTitulo: 'Crecimiento', tSub: 'a/a en % · Δ a/a en pp', glos: 'Último: crecimiento del stock de cada instrumento contra el mismo semestre del año previo, en %. ', meta: MR } },
-      { num: 'F4', nombre: 'Inversionista y canal',
+      { num: '04', nombre: 'Inversionista y canal',
         va: { titulo: 'Perfil de captación por tipo de inversionista', sub: 'Eje vertical: % del total.', fuente: 'Fuente: BCB, REF.', apilar: true, tTitulo: 'Inversionista', tSub: '% · Δ a/a en pp', glos: 'Último: participación de cada tipo de inversionista en el stock de captaciones, en %. ', meta: MR },
         vb: { titulo: 'Captaciones vía plataformas de inversión, por segmento', sub: 'Eje vertical: % del total.', fuente: 'Fuente: BCB, REF.', apilar: true, tTitulo: 'Plataformas', tSub: '% · Δ a/a en pp', glos: 'Último: participación de cada segmento en el stock captado vía plataformas, en %. ', meta: MR } },
-      { num: 'F5', nombre: 'Por grupo de bancos',
+      { num: '05', nombre: 'Por grupo de bancos',
         va: { titulo: 'Depósitos por tipo, total panel', sub: 'Eje vertical: % de los depósitos.', fuente: 'Fuente: BCB, IF.Data.', apilar: true, tTitulo: 'Tipo de depósito', tSub: '% · Δ a/a en pp', glos: 'Último: participación de cada tipo en los depósitos del panel, en %. En Agrandar, por modelo de negocio. ', meta: MQ },
         vb: { titulo: 'Crédito sobre depósitos, por modelo de negocio', sub: 'Eje vertical: %.', fuente: 'Fuente: BCB, IF.Data.', tTitulo: 'Crédito / depósitos', tSub: '% · Δ a/a en pp', glos: 'Último: cartera de crédito sobre depósitos, en %. ', meta: MQ + ' Los bancos de desarrollo se fondean casi sin depósitos: su cociente queda fuera de escala.' } },
-      { num: 'F6', nombre: 'Liquidez',
+      { num: '06', nombre: 'Liquidez',
         va: { titulo: 'LCR del sistema bancario', sub: 'Eje vertical: veces. Línea discontinua: mínimo regulatorio.', fuente: 'Fuente: BCB, REF.', tTitulo: 'LCR', tSub: 'veces · Δ a/a', glos: 'LCR: activos líquidos de alta calidad sobre salidas netas de caja en 30 días de estrés. ', meta: MR },
         vb: { titulo: 'NSFR del sistema bancario', sub: 'Eje vertical: veces. Línea discontinua: mínimo regulatorio.', fuente: 'Fuente: BCB, REF.', tTitulo: 'NSFR', tSub: 'veces · Δ a/a', glos: 'NSFR: fondeo estable disponible sobre fondeo estable requerido. ', meta: MR } },
-      { num: 'F7', nombre: 'Captación externa',
+      { num: '07', nombre: 'Captación externa',
         va: { titulo: 'Captaciones externas por tipo', sub: 'Eje vertical: US$ mil millones.', fuente: 'Fuente: BCB, REF.', apilar: true, tTitulo: 'Stock externo', tSub: 'US$ mil millones · Δ a/a en %', glos: 'Último: stock de captaciones externas de cada tipo, en US$ mil millones. ', meta: MR },
         vb: { titulo: 'Captaciones externas totales, a/a', sub: 'Eje vertical: %.', fuente: 'Fuente: BCB, REF.', cero: true, tTitulo: 'Crecimiento', tSub: 'a/a en % · Δ a/a en pp', glos: 'Último: crecimiento a/a del stock total en dólares, en %. ', meta: MR } },
     ];
@@ -258,8 +258,11 @@ class Component extends DCLogic {
         const v = i < 0 ? (niv ? ['—', '—', '—'] : ['—', '—']) : niv ? [rsm(nv && nv[j]), nv && nt && nt[j] ? pc(nv[j] / nt[j] * 100) : '—', (a[i] > 0 ? '+' : '') + FMT[D.fmt](a[i])] : [FMT[D.fmt](a[i]), dl(D.fmt, a, i, i - lag)];
         return { nombre: s.nombre, corte: i >= 0 ? lab[i] : '—', v, cls: s.tot ? 'tot' : '', pres: sel.includes(s.id) ? 'true' : 'false', sw: marca(AP_, s),
           est: sel.includes(s.id) ? 'background:#E8EEF5' : on(s.id) ? '' : '--atenuado:0.4', click: (e) => { if (e) e.stopPropagation(); toggle(s.id, multi(e)); } }; });
+      // Unidad de cada columna, del subtítulo «<unidad> · Δ a/a en <unidad>» (crítica 4: «Último» cambia de
+      // significado entre tablas; la unidad va en el encabezado).
+      const UNI = (s) => { const m = /^(.*?) · Δ a\/a(?: en ([^(]*?))?(?: \(.*\))?$/.exec(s || ''); return m ? [m[1], (m[2] || '').trim()] : []; };
       const defi = ((g) => niv ? g.replace(/^Último:[^.]*\.\s*/, '') : g)(P.glos || '').trim();
-      return { def: defi, hayDef: !!defi && filas.length <= 8, titulo: P.titulo, sub: P.sub, fuente: P.fuente, nota: P.nota, tTitulo: P.tTitulo, tSub: niv ? 'Último: saldo en R$ mil millones · Share del total · a/a en %' : P.tSub, cols: niv ? ['Último', 'Share', 'a/a'] : ['Último', 'Δ a/a'], leyenda, cfg, filas,
+      return { def: defi, hayDef: !!defi && filas.length <= 8, titulo: P.titulo, sub: P.sub, fuente: P.fuente, nota: P.nota, tTitulo: P.tTitulo, tSub: niv ? 'Último: saldo en R$ mil millones · Share del total · a/a en %' : P.tSub, cols: ((u) => (niv ? ['Último', 'Share', 'a/a'] : ['Último', 'Δ a/a']).map((c, i) => ({ t: c, u: u[i] || '' })))((niv ? ['R$ mil mill.', '% del total', '%'] : UNI(P.tSub))), leyenda, cfg, filas: filas.filter((r) => !/\btot\b/.test(r.cls || '')).concat(filas.filter((r) => /\btot\b/.test(r.cls || ''))),
         sinSel: sel.length === 0, ajustar: () => this.setState({ aj: { ...this.state.aj, [key]: !this.state.aj[key] } }), ajusteTxt: 'Ajustar eje', ajustePres: aj ? 'true' : 'false', ajusteEst: aj ? 'background:#E8EEF5;border-color:#2E5C8A;color:#1F3F60;font-weight:600' : '' };
     };
     const bloque = (v, j, Bq) => {
@@ -273,7 +276,7 @@ class Component extends DCLogic {
         return { _a: monto ? [] : a, _c: s.color, nombre: s.nombre, corte: i >= 0 ? lab[i] : '—', v: i < 0 ? ['—', '—', '—', '—'] : [FMT[f](a[i]), dl(f, a, i, i - 1), dl(f, a, i, i - lag), monto ? '—' : pp(zz(a, ZN[Bq.lab]))], cls: s.tot ? 'tot' : '', pres: sel.includes(s.id) ? 'true' : 'false', sw: marca(Bq.apilar || Bq.div, s),
           est: sel.includes(s.id) ? 'background:#E8EEF5' : on(s.id) ? '' : '--atenuado:0.4', click: (e) => { if (e) e.stopPropagation(); toggle(s.id, multi(e)); } }; });
       const filas = cajas(filas0, !!(Bq.apilar || Bq.div));
-      return { nombre: Bq.nombre, nota: filas.some((x) => x._at) ? NOTA_AT : '', cols: ['Último', Bq.lab === 'q' ? 't/t' : 'm/m', 'a/a', 'Z 10 años'], cfg, cfgR, filas, sinSel: sel.length === 0, ajTxt: 'Ajustar eje', ajPres: aj ? 'true' : 'false', ajEst: aj ? 'background:#E8EEF5;border-color:#2E5C8A;color:#1F3F60;font-weight:600' : '', ajustar: () => this.setState({ ajO: { ...this.state.ajO, [key]: !this.state.ajO[key] } }) };
+      return { nombre: Bq.nombre, nota: filas.some((x) => x._at) ? NOTA_AT : '', cols: ['Último', Bq.lab === 'q' ? 't/t' : 'm/m', 'a/a', 'Z 10 años'], cfg, cfgR, filas: filas.filter((r) => !/\btot\b/.test(r.cls || '')).concat(filas.filter((r) => /\btot\b/.test(r.cls || ''))), sinSel: sel.length === 0, ajTxt: 'Ajustar eje', ajPres: aj ? 'true' : 'false', ajEst: aj ? 'background:#E8EEF5;border-color:#2E5C8A;color:#1F3F60;font-weight:600' : '', ajustar: () => this.setState({ ajO: { ...this.state.ajO, [key]: !this.state.ajO[key] } }) };
     };
     const TOPS = {}; let yy = 48 + 46 + 14;
     const pares = Object.keys(K).map((key) => { const A = armar(key), P = K[key], cab = P.p === 'va'; if (cab) yy += 82; TOPS[key] = yy; yy += 624;

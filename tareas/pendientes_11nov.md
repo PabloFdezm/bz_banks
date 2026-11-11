@@ -26,7 +26,13 @@ Todo lo de hoy está publicado en https://banks-bz.pages.dev. Detalle de cada fr
 - [ ] Presentar en P&L a 1280×800: las tarjetas altas (balance) no caben ni a zoom 0,6; ¿partirlas o dejar desplazar?
 - [x] Teclado: «Cómo leer» aclara que Inicio/Fin son del período visible; Alt + ↓ ↑ salta entre secciones.
 - [x] Celular: deslizar el dedo sobre el gráfico fija el mes más cercano (columnas de 9,7 px).
-- [ ] Volver a correr `/impeccable critique` para medir (última: 26/40).
+- [x] Crítica 4 (25/40; `.impeccable/critique/2026-11-11T18-23-35Z__…`). Hechos sus dos P1: unidad bajo «Último» y «Δ a/a»
+      en todas las tablas de página, Total siempre al final, prefijos de sección numéricos (01, 02…); encabezados
+      h1/h2/h3 (role=heading), caption y scope en las tablas, «Agrandar: título» y grupo con nombre en los períodos.
+- [ ] Crítica 4, P2: contraste de los chips ▲▼ (acero 4,0:1 y gris atenuado 2,0:1); «Mora > 90» vs «Mora mayor a 90»;
+      «el gráfico de la izquierda» en celular; cobre en «Tramos con renta» (Tarjeta 05–06); paleta de 8 tramos.
+- [ ] Crítica 4, P3: título de continuación en gris en Presentar (navy + «cont.»), señal de fin del deck; nota de
+      5 líneas de MPME a Agrandar; franja de la Portada con Z o percentil en vez de repetir el Total.
 
 ## 4. Datos
 - [ ] Frente 11 (balancetes COSIF, fase 2): ROE, NIM, depósitos y capital mensuales; da la sección 04 de la Portada.

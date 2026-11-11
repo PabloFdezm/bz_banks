@@ -359,8 +359,11 @@ export async function iniciar(HOJAS, titulo) {
   // Cada botón Excel se nombra con el título de su gráfico (la plantilla trae el mismo nombre para todos): se fija al
   // recibir foco o puntero, antes de que el lector de pantalla lo anuncie (crítica 3).
   const nombrarExcel = (e) => {
-    const b = e.target.closest && e.target.closest('.v2-excel'); if (!b) return;
-    const g = graficoDe(b); if (g) b.setAttribute('aria-label', 'Descargar en Excel: ' + tituloDe(g));
+    const b = e.target.closest && e.target.closest('.v2-excel, button[aria-haspopup="dialog"]'); if (!b) return;
+    const g = graficoDe(b); if (!g) return;
+    // «Agrandar» también lleva el nombre del gráfico: seis botones iguales no se distinguen con lector de pantalla.
+    if (b.classList.contains('v2-excel')) b.setAttribute('aria-label', 'Descargar en Excel: ' + tituloDe(g));
+    else if (b.textContent.trim() === 'Agrandar') b.setAttribute('aria-label', 'Agrandar: ' + tituloDe(g));
   };
   document.addEventListener('focusin', nombrarExcel);
   document.addEventListener('mouseover', nombrarExcel);
@@ -390,6 +393,8 @@ export async function iniciar(HOJAS, titulo) {
     if (corte) $('v2-corte').textContent = corte;
     indice(raiz);
     vigilarDialogos(raiz);
+    // Nombres accesibles de Excel y Agrandar desde la carga (el lector de pantalla no siempre pasa por focusin).
+    raiz.querySelectorAll('.v2-excel, button[aria-haspopup="dialog"]').forEach((b) => nombrarExcel({ target: b }));
   } catch (e) {
     raiz.innerHTML = '<p class="v2-carga" role="alert">No se pudieron cargar los datos de esta página.</p>';
     console.error(e);

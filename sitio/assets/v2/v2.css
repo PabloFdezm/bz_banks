@@ -173,3 +173,7 @@ html.v2-dialogo { overflow: hidden; }
 /* Medida de lectura (crítica 3): notas, glosarios y subtítulos largos no pasan de ~80 caracteres por línea (en P&L
    llegaban a ~270 a todo el ancho). */
 #v2-raiz .bs, #v2-raiz .md, #v2-raiz .cs { max-width: 80ch; }
+
+/* Unidad bajo el encabezado de la tabla de página (crítica 4). */
+#v2-raiz .tb thead th .u { display: block; font-weight: 400; font-size: 12px; line-height: 16px; color: var(--suave); white-space: nowrap; }
+#v2-raiz .tb thead th .u:empty { display: none; }
