@@ -14,8 +14,8 @@ body{margin:0}
 button:focus-visible,select:focus-visible{outline:2px solid #2E5C8A;outline-offset:2px}
 .btn{font-family:'IBM Plex Sans',sans-serif;font-size:14px;height:44px;padding:0 16px;border:1px solid #C9D2DC;border-radius:4px;background:#FFFFFF;color:#24324A;cursor:pointer;display:inline-flex;align-items:center;gap:8px;flex-shrink:0;box-sizing:border-box}
 .btn:hover{border-color:#2E5C8A;color:#2E5C8A}
-.btn:disabled{color:#6B7684;border-color:#C9D2DC;background:#FFFFFF;cursor:default}
-.btn:disabled:hover{color:#6B7684;border-color:#C9D2DC}
+.btn:disabled,.btn[aria-disabled="true"]{color:#6B7684;border-color:#C9D2DC;background:#FFFFFF;cursor:default}
+.btn:disabled:hover,.btn[aria-disabled="true"]:hover{color:#6B7684;border-color:#C9D2DC}
 .agr{width:36px;height:36px;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;padding:0;border:1px solid transparent;border-radius:4px;background:transparent;color:#5B6573;cursor:pointer}
 .agr:hover{background:#EEF1F5;color:#2E5C8A}
 .sel{font-family:'IBM Plex Sans',sans-serif;font-size:14px;height:44px;padding:0 10px;border:1px solid #C9D2DC;border-radius:4px;background:#FFFFFF;color:#24324A;box-sizing:border-box}
@@ -58,8 +58,8 @@ button:focus-visible,select:focus-visible{outline:2px solid #2E5C8A;outline-offs
         <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px;">
           <div><div class="ct">{{s.titulo}}</div><div class="cs">{{s.sub}}</div></div>
           <div style="display: flex; gap: 8px; align-items: center;">
-            <sc-if value="{{s.control}}" hint-placeholder-val="{{false}}"><select class="sel" aria-label="Corte" value="{{corte}}" onChange="{{elegirCorte}}"><option value="pfpj">Personas / Empresas</option><option value="lidi">Libre / Dirigido</option><option value="pfld">Personas: libre / dirigido</option><option value="todos">Todos</option></select></sc-if>
-            <button class="btn" type="button" style="{{s.ajusteEst}}" aria-pressed="{{s.ajustePres}}" disabled="{{s.sinSel}}" onClick="{{s.ajustar}}">{{s.ajusteTxt}}</button>
+            <sc-if value="{{s.control}}" hint-placeholder-val="{{false}}"><select class="sel" aria-label="Corte" value="{{corte}}" onChange="{{elegirCorte}}"><option value="pfpj" disabled="{{opc.pfpj.no}}">{{opc.pfpj.txt}}</option><option value="lidi" disabled="{{opc.lidi.no}}">{{opc.lidi.txt}}</option><option value="pfld" disabled="{{opc.pfld.no}}">{{opc.pfld.txt}}</option><option value="todos" disabled="{{opc.todos.no}}">{{opc.todos.txt}}</option></select></sc-if>
+            <button class="btn" type="button" style="{{s.ajusteEst}}" aria-pressed="{{s.ajustePres}}" aria-disabled="{{s.sinSel}}" title="Resalte una serie (clic en la leyenda o en la tabla) para ajustar el eje a ella" onClick="{{s.ajustar}}">{{s.ajusteTxt}}</button>
             <button class="btn" type="button" onClick="{{s.abrir}}" aria-haspopup="dialog"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M9.5 2.5h4v4M6.5 13.5h-4v-4M13.5 2.5l-5 5M2.5 13.5l5-5"></path></svg>Agrandar</button>
           </div>
         </div>
@@ -91,9 +91,9 @@ button:focus-visible,select:focus-visible{outline:2px solid #2E5C8A;outline-offs
         <div style="display: flex; justify-content: space-between; align-items: center; gap: 16px; height: 48px;">
           <div><div style="font-size: 20px; line-height: 26px; font-weight: 600;">{{d.titulo}}</div><div class="cs">{{d.sub}}</div></div>
           <div style="display: flex; gap: 8px; align-items: center;">
-            <sc-if value="{{d.control}}" hint-placeholder-val="{{false}}"><select class="sel" aria-label="Corte" value="{{corte}}" onChange="{{elegirCorte}}"><option value="pfpj">Personas / Empresas</option><option value="lidi">Libre / Dirigido</option><option value="pfld">Personas: libre / dirigido</option><option value="todos">Todos</option></select></sc-if>
+            <sc-if value="{{d.control}}" hint-placeholder-val="{{false}}"><select class="sel" aria-label="Corte" value="{{corte}}" onChange="{{elegirCorte}}"><option value="pfpj" disabled="{{opc.pfpj.no}}">{{opc.pfpj.txt}}</option><option value="lidi" disabled="{{opc.lidi.no}}">{{opc.lidi.txt}}</option><option value="pfld" disabled="{{opc.pfld.no}}">{{opc.pfld.txt}}</option><option value="todos" disabled="{{opc.todos.no}}">{{opc.todos.txt}}</option></select></sc-if>
             <select class="sel" aria-label="Período" onChange="{{elegirAtajo}}" value="{{atajo}}"><option value="def">{{d.atajoTxt}}</option><option value="pers" disabled="{{true}}">Personalizado</option></select>
-            <button class="btn" type="button" style="{{d.ajusteEst}}" aria-pressed="{{d.ajustePres}}" disabled="{{d.sinSel}}" onClick="{{d.ajustar}}">{{d.ajusteTxt}}</button>
+            <button class="btn" type="button" style="{{d.ajusteEst}}" aria-pressed="{{d.ajustePres}}" aria-disabled="{{d.sinSel}}" title="Resalte una serie (clic en la leyenda o en la tabla) para ajustar el eje a ella" onClick="{{d.ajustar}}">{{d.ajusteTxt}}</button>
             <button class="btn" type="button" onClick="{{cerrar}}">Cerrar</button>
           </div>
         </div>
@@ -112,6 +112,7 @@ button:focus-visible,select:focus-visible{outline:2px solid #2E5C8A;outline-offs
             </sc-for>
           </tbody>
         </table>
+        <sc-if value="{{d.nota}}" hint-placeholder-val="{{false}}"><div class="bs" style="margin-top: 2px;">{{d.nota}}</div></sc-if>
         <div class="g12" style="{{d.estPaneles}}">
           <sc-for list="{{d.paneles}}" as="p" hint-placeholder-count="2">
             <div class="bl c6" style="height: 262px;">
@@ -169,6 +170,10 @@ class Component extends DCLogic {
     const FALTA = ['li', 'di', 'pjli', 'pjdi'];
     const VACIO = new Array(NM).fill(null);
     const RAYA = ['—', '—', '—', '—', '—', '—', '—'];
+    // Regla de la sección 02: un corte con algún segmento sin dato no se ofrece (opción deshabilitada, «en preparación»),
+    // así el selector no lleva a un gráfico vacío ni a chips «en preparación».
+    const CORTES = { pfpj: ['pf', 'pj'], lidi: ['li', 'di'], pfld: ['pfli', 'pfdi'], todos: ['pfli', 'pfdi', 'pjli', 'pjdi'] };
+    const opc = {}; Object.keys(CORTES).forEach((k) => { const no = CORTES[k].some((id) => FALTA.includes(id)); opc[k] = { no, txt: CORTE_TXT[k] + (no ? ' (en preparación)' : '') }; });
     const CORTE = st.corte === 'lidi' ? ['li', 'di'] : st.corte === 'pfld' ? ['pfli', 'pfdi'] : st.corte === 'todos' ? ['pfli', 'pfdi', 'pjli', 'pjdi'] : ['pf', 'pj'];
     const nomS = (id) => NOM[id] + (FALTA.includes(id) ? ' · en preparación' : '');
     const multi = (e) => !!(e && (e.ctrlKey || e.metaKey));
@@ -253,18 +258,19 @@ class Component extends DCLogic {
       let filas, paneles, glosario, meta, sub;
       if (v === 'va') {
         sub = 'Eje vertical: variación a/a nominal, %. Eje horizontal: mes.';
-        filas = [['pf', 'pj'], ['li', 'di'], ['pfli', 'pfdi', 'pjli', 'pjdi']].flatMap((g, gi) => g.map((id, j) => A.fila(id, nomS(id), FALTA.includes(id) ? '—' : 'sep-26', LARGO[id] || RAYA.slice(0, 6), porId(A.P, id) || { color: '#C9D2DC' }, false, gi > 0 && j === 0))).concat([A.fila('tot', 'Total', 'sep-26', LARGO.tot, porId(A.P, 'tot'), true)]);
+        filas = [['pf', 'pj'], ['li', 'di'], ['pfli', 'pfdi', 'pjli', 'pjdi']].map((g) => g.filter((id) => !FALTA.includes(id))).filter((g) => g.length).flatMap((g, gi) => g.map((id, j) => A.fila(id, nomS(id), FALTA.includes(id) ? '—' : 'sep-26', LARGO[id] || RAYA.slice(0, 6), porId(A.P, id) || { color: '#C9D2DC' }, false, gi > 0 && j === 0))).concat([A.fila('tot', 'Total', 'sep-26', LARGO.tot, porId(A.P, 'tot'), true)]);
         paneles = [];
         glosario = 'Último: concesiones sumadas en 12 meses, en R$ mil millones. Share: peso en el total de concesiones. m/m y a/a: punta contra punta. 3m/3m y 12m/12m: promedio de la ventana contra la anterior. Nominal.';
-        meta = 'Concesiones: crédito nuevo del mes, sumado en 12 meses. Total = SGS 20631 = empresas 20632 + personas 20633. Personas libre = SGS 20662; personas dirigido = 20633 − 20662. Libre / Dirigido y empresas libre / dirigido, en preparación: faltan en el pipeline las series 20634 (libre total) y 20635 (libre empresas); ver tareas/09. Fuente: BCB, SGS · datos del 8-nov-26.';
+        meta = 'Concesiones: crédito nuevo del mes, sumado en 12 meses. Total = SGS 20631 = empresas 20632 + personas 20633. Personas libre = SGS 20662; personas dirigido = 20633 − 20662. Fuente: BCB, SGS.';
       } else {
         sub = 'Eje vertical: variación a/a, %. Eje horizontal: mes.';
-        filas = [['pf', 'pj'], ['li', 'di'], ['pfli', 'pfdi', 'pjli', 'pjdi']].flatMap((g, gi) => g.map((id, j) => filaB(id, 'largo', gi > 0 && j === 0))).concat([filaB('tot', 'largo')]);
+        filas = [['pf', 'pj'], ['li', 'di'], ['pfli', 'pfdi', 'pjli', 'pjdi']].map((g) => g.filter((id) => !FALTA.includes(id))).filter((g) => g.length).flatMap((g, gi) => g.map((id, j) => filaB(id, 'largo', gi > 0 && j === 0))).concat([filaB('tot', 'largo')]);
         paneles = [];
         glosario = 'Índice: promedio 2014 = 100. m/m y a/a: punta contra punta, en %. 3m/3m y 12m/12m: promedio de la ventana contra la anterior, en %. Z 10 años: (último − promedio de 120 meses) / desvío de esos 120 meses. Share no aplica.';
-        meta = 'Índice = concesiones reales de 12 meses (cada mes deflactado por IPCA, SGS 433) / IBC-Br desestacionalizado promedio de 12 meses (SGS 24364), llevado a promedio 2014 = 100. Su a/a equivale al crecimiento real de las concesiones menos el de la actividad. El IBC-Br se publica con un mes más de rezago y se revisa hacia atrás. Segmentos como en la sección de arriba. Crédito/PIB: saldo total sobre el PIB nominal de 12 meses (SGS 4382), promedio trimestral desde 2005; tendencia HP unilateral, λ = 400.000; Z: (último − promedio de 40 trimestres) / desvío de esos 40 trimestres. Fuente: BCB, SGS · datos del 8-nov-26.';
+        meta = 'Índice = concesiones reales de 12 meses (cada mes deflactado por IPCA, SGS 433) / IBC-Br desestacionalizado promedio de 12 meses (SGS 24364), llevado a promedio 2014 = 100. Su a/a equivale al crecimiento real de las concesiones menos el de la actividad. El IBC-Br se publica con un mes más de rezago y se revisa hacia atrás. Segmentos como en la sección de arriba. Crédito/PIB: saldo total sobre el PIB nominal de 12 meses (SGS 4382), promedio trimestral desde 2005; tendencia HP unilateral, λ = 400.000; Z: (último − promedio de 40 trimestres) / desvío de esos 40 trimestres. Fuente: BCB, SGS.';
       }
-      d = { titulo: P.titulo, sub, control: P.control, estPaneles: paneles.length ? 'margin-top: 4px;' : 'display: none;', leyenda: X.leyenda, ...X.ajuste, cfg: X.cfg(dd, hh, 1490, 300), filas, paneles, glosario, meta, cols: v === 'va' ? ['Último', 'Share', 'm/m', '3m/3m', 'a/a', '12m/12m'] : ['Índice', 'm/m', '3m/3m', 'a/a', '12m/12m', 'Z 10 años'], ciclo: v === 'vb',
+      const nota = 'En preparación: ' + FALTA.map((id) => NOM[id]).join(', ') + ' (faltan las series SGS 20634, libre total, y 20635, libre empresas).';
+      d = { titulo: P.titulo, sub, nota, control: P.control, estPaneles: paneles.length ? 'margin-top: 4px;' : 'display: none;', leyenda: X.leyenda, ...X.ajuste, cfg: X.cfg(dd, hh, 1490, 300), filas, paneles, glosario, meta, cols: v === 'va' ? ['Último', 'Share', 'm/m', '3m/3m', 'a/a', '12m/12m'] : ['Índice', 'm/m', '3m/3m', 'a/a', '12m/12m', 'Z 10 años'], ciclo: v === 'vb',
         cicloCfg: { w: 900, h: 250, reservaDer: 64, n: NQ, categorico: true, etiquetas: D.cpib_tri, ticksX: ticksT(0, NQ - 1), ...escala([{ datos: D.cpib_nivel }, { datos: D.cpib_tend }], 0, NQ - 1, false), sufijo: ' %', decimales: 1, series: [{ id: 'niv', color: COBRE, ancho: 2.5, valores: D.cpib_nivel }, { id: 'ten', color: REF, ancho: 2, dash: '6 4', valores: D.cpib_tend }], fills: [{ a: 'niv', b: 'ten', pos: 'rgba(46,92,138,0.16)', neg: 'rgba(138,143,150,0.24)' }], sel: [], fijo: NQ - 1, hover: null, onFijar: () => {}, onHover: () => {}, onSerie: () => {} },
         cicloFilas: CICLO.map((r) => ({ nombre: r.nombre, corte: '3T26', v: [r.ult, camb(r.serie, true)[2], r.id === 'ten' ? '—' : pp(zs(r.serie))], cls: r.id === 'niv' ? 'tot' : '', sw: r.s.ancho ? linea(r.s) : 'width:12px;height:12px;flex-shrink:0;background:' + r.s.color })),
         atajoTxt: P.trim ? 'Toda la serie' : 'Últimos 24 meses',
@@ -272,7 +278,7 @@ class Component extends DCLogic {
       d.atajoOk = dd === P.n - P.def && hh === P.n - 1;
     }
     return {
-      pares, d, corte: st.corte, abierto: !!v,
+      pares, d, opc, corte: st.corte, abierto: !!v,
       elegirCorte: (e) => this.setState({ corte: e.target.value, sel: { ...this.state.sel, va: [] }, aj: { ...this.state.aj, va: false } }),
       atajo: v && d.atajoOk ? 'def' : 'pers',
       elegirAtajo: (e) => { if (e.target.value === 'def' && v) { const P = PARES[v]; this.setState({ desde: P.n - P.def, hasta: P.n - 1 }); } },

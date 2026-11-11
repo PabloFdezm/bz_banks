@@ -14,8 +14,8 @@ body{margin:0}
 button:focus-visible,select:focus-visible{outline:2px solid #2E5C8A;outline-offset:2px}
 .btn{font-family:'IBM Plex Sans',sans-serif;font-size:14px;height:44px;padding:0 16px;border:1px solid #C9D2DC;border-radius:4px;background:#FFFFFF;color:#24324A;cursor:pointer;display:inline-flex;align-items:center;gap:8px;flex-shrink:0;box-sizing:border-box}
 .btn:hover{border-color:#2E5C8A;color:#2E5C8A}
-.btn:disabled{color:#6B7684;border-color:#C9D2DC;background:#FFFFFF;cursor:default}
-.btn:disabled:hover{color:#6B7684;border-color:#C9D2DC}
+.btn:disabled,.btn[aria-disabled="true"]{color:#6B7684;border-color:#C9D2DC;background:#FFFFFF;cursor:default}
+.btn:disabled:hover,.btn[aria-disabled="true"]:hover{color:#6B7684;border-color:#C9D2DC}
 .agr{width:36px;height:36px;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;padding:0;border:1px solid transparent;border-radius:4px;background:transparent;color:#5B6573;cursor:pointer}
 .agr:hover{background:#EEF1F5;color:#2E5C8A}
 .sel{font-family:'IBM Plex Sans',sans-serif;font-size:14px;height:44px;padding:0 10px;border:1px solid #C9D2DC;border-radius:4px;background:#FFFFFF;color:#24324A;box-sizing:border-box}
@@ -58,7 +58,7 @@ button:focus-visible,select:focus-visible{outline:2px solid #2E5C8A;outline-offs
         <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px;">
           <div><div class="ct">{{s.titulo}}</div><div class="cs">{{s.sub}}</div></div>
           <div style="display: flex; gap: 8px; align-items: center;">
-            <button class="btn" type="button" style="{{s.ajusteEst}}" aria-pressed="{{s.ajustePres}}" disabled="{{s.sinSel}}" onClick="{{s.ajustar}}">{{s.ajusteTxt}}</button>
+            <button class="btn" type="button" style="{{s.ajusteEst}}" aria-pressed="{{s.ajustePres}}" aria-disabled="{{s.sinSel}}" title="Resalte una serie (clic en la leyenda o en la tabla) para ajustar el eje a ella" onClick="{{s.ajustar}}">{{s.ajusteTxt}}</button>
             <button class="btn" type="button" onClick="{{s.abrir}}" aria-haspopup="dialog"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M9.5 2.5h4v4M6.5 13.5h-4v-4M13.5 2.5 9 7M2.5 13.5 7 9"/></svg>Agrandar</button>
           </div>
         </div>
@@ -96,7 +96,7 @@ button:focus-visible,select:focus-visible{outline:2px solid #2E5C8A;outline-offs
         </div>
         <sc-for list="{{d.ops}}" as="o" hint-placeholder-count="4">
           <div style="display: grid; grid-template-columns: 720px minmax(0, 1fr); gap: 24px; border-top: 1px solid #E6EAEF; padding-top: 10px; min-height: 318px;">
-            <div style="display: flex; flex-direction: column; gap: 2px;"><div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; height: 44px;"><div class="bt">{{o.nombre}}</div><button class="btn" type="button" style="{{o.ajEst}}" aria-pressed="{{o.ajPres}}" disabled="{{o.sinSel}}" onClick="{{o.ajustar}}">{{o.ajTxt}}</button></div><dc-import name="Grafico" cfg="{{o.cfg}}" hint-size="700px,220px"></dc-import><div style="padding-left: 40px;"><dc-import name="Rango" cfg="{{o.cfgR}}" hint-size="640px,64px"></dc-import></div></div>
+            <div style="display: flex; flex-direction: column; gap: 2px;"><div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; height: 44px;"><div class="bt">{{o.nombre}}</div><button class="btn" type="button" style="{{o.ajEst}}" aria-pressed="{{o.ajPres}}" aria-disabled="{{o.sinSel}}" title="Resalte una serie (clic en la leyenda o en la tabla) para ajustar el eje a ella" onClick="{{o.ajustar}}">{{o.ajTxt}}</button></div><dc-import name="Grafico" cfg="{{o.cfg}}" hint-size="700px,220px"></dc-import><div style="padding-left: 40px;"><dc-import name="Rango" cfg="{{o.cfgR}}" hint-size="640px,64px"></dc-import></div></div>
             <div style="align-self: start;"><table class="tb">
               <thead><tr><th class="ind">Indicador</th><th>Corte</th><sc-for list="{{o.cols}}" as="c" hint-placeholder-count="4"><th>{{c}}</th></sc-for><th>Historia</th></tr></thead>
               <tbody>

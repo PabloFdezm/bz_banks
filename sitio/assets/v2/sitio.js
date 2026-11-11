@@ -130,15 +130,33 @@ function soltarFijados() {
 }
 // Alto que ocupa abajo la barra de Presentar (más su margen), para que no tape la lámina.
 const RESERVA_BARRA = 88;
+// Título de sección de la lámina (spec/01 regla 4): el real solo está sobre el primer par de cada sección, así que se pinta
+// una copia fija arriba en todas las láminas; la tarjeta queda a la misma altura entre láminas. Desde la segunda lámina de
+// la sección, la copia va en gris. Devuelve el alto que ocupa en pantalla (con su margen), 0 si la lámina no tiene título.
+function tituloLamina(l, z) {
+  let t = $('v2-pres-sec');
+  if (!t) { t = document.createElement('div'); t.id = 'v2-pres-sec'; t.className = 'v2-pres-sec'; t.setAttribute('aria-hidden', 'true'); document.body.appendChild(t); }
+  t.replaceChildren();
+  if (!l || !l.sec) { t.hidden = true; return 0; }
+  const c = l.sec.cloneNode(true);
+  c.style.zoom = z;
+  t.appendChild(c);
+  t.classList.toggle('v2-rep', !l.primera);
+  const r = l.par.getBoundingClientRect();
+  t.style.left = r.left + 'px'; t.style.width = r.width + 'px';
+  t.hidden = false;
+  return t.getBoundingClientRect().height + 16 * z;
+}
 function ajustarPresentar() {
   const l = laminas[presentando.i]; if (!l) return;
   const esc = $('v2-escala');
   esc.style.zoom = 1;
-  const r = l.par.getBoundingClientRect(), hs = l.primera ? l.sec.getBoundingClientRect().height + 16 : 0;
+  const r = l.par.getBoundingClientRect(), hs = l.sec ? l.sec.getBoundingClientRect().height + 16 : 0;
   const z = Math.max(0.6, Math.min((innerHeight - 24 - RESERVA_BARRA) / (r.height + hs), 1.5));
   esc.style.zoom = z;
-  const ir = () => scrollTo({ top: (l.primera ? l.sec : l.par).getBoundingClientRect().top + scrollY - 24, behavior: 'instant' });
-  ir();
+  let altoTit = 0;
+  const ir = (zz) => { altoTit = tituloLamina(l, zz); scrollTo({ top: l.par.getBoundingClientRect().top + scrollY - 24 - altoTit, behavior: 'instant' }); };
+  ir(z);
   // Con el zoom cambia el ancho de los gráficos y se redibujan (más altos o más bajos que lo medido): segunda pasada
   // cuando ya se redibujaron, achicando hasta que la lámina quepa sobre la barra de Presentar.
   const i = presentando.i;
@@ -147,10 +165,10 @@ function ajustarPresentar() {
     if (!presentando || presentando.i !== i) return;
     const fondo = l.par.getBoundingClientRect().bottom, lim = $('v2-pres').getBoundingClientRect().top - 12;
     if (fondo <= lim || vueltas++ >= 3) return;
-    const arriba = (l.primera ? l.sec : l.par).getBoundingClientRect().top;
+    const arriba = l.par.getBoundingClientRect().top - altoTit;
     zz = Math.max(0.6, zz * (lim - arriba) / (fondo - arriba));
     esc.style.zoom = zz;
-    ir();
+    ir(zz);
     setTimeout(revisar, 120);
   };
   setTimeout(revisar, 120);
@@ -160,7 +178,7 @@ function mostrarLamina(i) {
   // Marca de lámina visible como atributo: dc.js reescribe en cada render el `class` que trae la plantilla (el título de
   // sección es `.sh`), así que una clase agregada aquí se perdía al redibujar y el título desaparecía de la lámina.
   laminas.forEach((l, k) => { l.par.toggleAttribute('data-v2-actual', k === presentando.i); if (l.sec) l.sec.removeAttribute('data-v2-actual'); });
-  const l = laminas[presentando.i]; if (l.primera) l.sec.setAttribute('data-v2-actual', '');
+  const l = laminas[presentando.i];
   corteDeLamina(l);
   $('v2-pres-n').textContent = (presentando.i + 1) + ' / ' + laminas.length;
   $('v2-pres-t').textContent = l.sec ? [...l.sec.querySelectorAll('span')].map((x) => x.textContent.trim()).join(' ') || l.sec.textContent.trim() : '';
@@ -183,9 +201,12 @@ function presentar(on) {
     presentando = null; html.classList.remove('v2-presentando'); $('v2-pres').hidden = true;
     document.querySelectorAll('[data-v2-actual]').forEach((x) => x.removeAttribute('data-v2-actual'));
     document.querySelectorAll('[data-corte-lam]').forEach((x) => x.removeAttribute('data-corte-lam'));
+    tituloLamina(null, 1);
     if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
     ajustar();
     if (l) (l.sec || l.par).scrollIntoView({ block: 'start' });
+    // El foco vuelve al botón que abrió Presentar (antes caía en body).
+    $('v2-presentar').focus({ preventScroll: true });
   }
 }
 
@@ -275,6 +296,12 @@ export async function iniciar(HOJAS, titulo) {
     } else { plegar(false); $('v2-plegar').focus(); }
   });
   addEventListener('resize', ajustar); ajustar();
+  // Botones con aria-disabled (p. ej. «Ajustar eje» sin serie resaltada): siguen en el orden de Tab y muestran su pista,
+  // pero el clic no hace nada. Va en captura para cortar antes del manejador de la hoja.
+  document.addEventListener('click', (e) => {
+    const b = e.target.closest && e.target.closest('[aria-disabled="true"]');
+    if (b) { e.preventDefault(); e.stopImmediatePropagation(); }
+  }, true);
   addEventListener('keydown', (e) => {
     if (presentando) {
       if (['ArrowRight', 'PageDown', ' '].includes(e.key)) { e.preventDefault(); mostrarLamina(presentando.i + 1); }

@@ -57,6 +57,15 @@ typography:
     fontFamily: "IBM Plex Mono, monospace"
     fontSize: "12px"
     fontWeight: 400
+  dialogo:
+    fontFamily: "IBM Plex Sans, system-ui, sans-serif"
+    fontSize: "20px"
+    fontWeight: 600
+    lineHeight: "26px"
+  seccion-numero:
+    fontFamily: "IBM Plex Mono, monospace"
+    fontSize: "15px"
+    fontWeight: 400
   grupo-menu:
     fontFamily: "IBM Plex Sans, system-ui, sans-serif"
     fontSize: "11px"
@@ -182,7 +191,7 @@ token.
 - **Tinta** (`tinta`): texto principal, cifras y la línea bajo el encabezado de la tabla.
 - **Texto suave** (`texto-suave`): subtítulos de ejes y unidades, fuente, corte de los datos.
 - **Rótulo** (`rotulo`): encabezados de grupo del menú, números de sección del menú, texto deshabilitado y texto de
-  las series atenuadas (4,7:1 sobre blanco).
+  las series atenuadas (4,62:1 sobre blanco).
 - **Gris apagado** (`gris-apagado`): el filete de 2 px sobre la fila Total. No sirve para texto: da 3,1:1 sobre blanco.
 - **Banda de período** (`banda-periodo`): fondo de las bandas que marcan un quiebre de método en el gráfico
   (Res. 4.966), con su rótulo en `#4F5B6B`. Neutra a propósito: nada cálido compite con el cobre del Total.

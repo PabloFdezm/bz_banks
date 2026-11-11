@@ -14,8 +14,8 @@ body{margin:0}
 button:focus-visible,select:focus-visible{outline:2px solid #2E5C8A;outline-offset:2px}
 .btn{font-family:'IBM Plex Sans',sans-serif;font-size:14px;height:44px;padding:0 16px;border:1px solid #C9D2DC;border-radius:4px;background:#FFFFFF;color:#24324A;cursor:pointer;display:inline-flex;align-items:center;gap:8px;flex-shrink:0;box-sizing:border-box}
 .btn:hover{border-color:#2E5C8A;color:#2E5C8A}
-.btn:disabled{color:#6B7684;border-color:#C9D2DC;background:#FFFFFF;cursor:default}
-.btn:disabled:hover{color:#6B7684;border-color:#C9D2DC}
+.btn:disabled,.btn[aria-disabled="true"]{color:#6B7684;border-color:#C9D2DC;background:#FFFFFF;cursor:default}
+.btn:disabled:hover,.btn[aria-disabled="true"]:hover{color:#6B7684;border-color:#C9D2DC}
 .agr{width:36px;height:36px;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;padding:0;border:1px solid transparent;border-radius:4px;background:transparent;color:#5B6573;cursor:pointer}
 .agr:hover{background:#EEF1F5;color:#2E5C8A}
 .sel{font-family:'IBM Plex Sans',sans-serif;font-size:14px;height:44px;padding:0 10px;border:1px solid #C9D2DC;border-radius:4px;background:#FFFFFF;color:#24324A;box-sizing:border-box}
@@ -59,7 +59,7 @@ button:focus-visible,select:focus-visible{outline:2px solid #2E5C8A;outline-offs
           <div><div class="ct">{{s.titulo}}</div><div class="cs">{{s.sub}}</div><sc-if value="{{s.pendiente}}" hint-placeholder-val="{{false}}"><div class="cs">{{s.pendiente}}</div></sc-if></div>
           <div style="display: flex; gap: 8px; align-items: center;">
             <sc-if value="{{s.control}}" hint-placeholder-val="{{false}}"><select class="sel" aria-label="Corte" value="{{corte}}" onChange="{{elegirCorte}}"><option value="pfpj">Personas / Empresas</option><option value="lidi">Libre / Dirigido</option><option value="pfld">Personas: libre / dirigido</option><option value="todos">Todos</option></select></sc-if>
-            <button class="btn" type="button" style="{{s.ajusteEst}}" aria-pressed="{{s.ajustePres}}" disabled="{{s.sinSel}}" onClick="{{s.ajustar}}">{{s.ajusteTxt}}</button>
+            <button class="btn" type="button" style="{{s.ajusteEst}}" aria-pressed="{{s.ajustePres}}" aria-disabled="{{s.sinSel}}" title="Resalte una serie (clic en la leyenda o en la tabla) para ajustar el eje a ella" onClick="{{s.ajustar}}">{{s.ajusteTxt}}</button>
             <button class="btn" type="button" onClick="{{s.abrir}}" aria-haspopup="dialog"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M9.5 2.5h4v4M6.5 13.5h-4v-4M13.5 2.5l-5 5M2.5 13.5l5-5"></path></svg>Agrandar</button>
           </div>
         </div>
@@ -93,7 +93,7 @@ button:focus-visible,select:focus-visible{outline:2px solid #2E5C8A;outline-offs
           <div style="display: flex; gap: 8px; align-items: center;">
             <sc-if value="{{d.control}}" hint-placeholder-val="{{false}}"><select class="sel" aria-label="Corte" value="{{corte}}" onChange="{{elegirCorte}}"><option value="pfpj">Personas / Empresas</option><option value="lidi">Libre / Dirigido</option><option value="pfld">Personas: libre / dirigido</option><option value="todos">Todos</option></select></sc-if>
             <select class="sel" aria-label="Período" onChange="{{elegirAtajo}}" value="{{atajo}}"><option value="def">{{d.atajoTxt}}</option><option value="pers" disabled="{{true}}">Personalizado</option></select>
-            <button class="btn" type="button" style="{{d.ajusteEst}}" aria-pressed="{{d.ajustePres}}" disabled="{{d.sinSel}}" onClick="{{d.ajustar}}">{{d.ajusteTxt}}</button>
+            <button class="btn" type="button" style="{{d.ajusteEst}}" aria-pressed="{{d.ajustePres}}" aria-disabled="{{d.sinSel}}" title="Resalte una serie (clic en la leyenda o en la tabla) para ajustar el eje a ella" onClick="{{d.ajustar}}">{{d.ajusteTxt}}</button>
             <button class="btn" type="button" onClick="{{cerrar}}">Cerrar</button>
           </div>
         </div>

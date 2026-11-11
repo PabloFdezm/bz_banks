@@ -139,9 +139,16 @@ class Component extends DCLogic {
     const ticksX = tx.map((i) => ({ label: c.etiquetas[i], style: 'position:absolute;top:' + (B + 6) + 'px;width:60px;text-align:center;left:' + Math.round(x(i) - 30) + 'px;' + mono }));
     const bandas = (c.bandas || []).map((b) => {
       const x0 = cat ? L + paso * b.desde : x(b.desde) - paso / 2;
-      return { texto: b.texto, style: 'position:absolute;top:' + T + 'px;height:' + (B - T) + 'px;left:' + F(x0) + 'px;width:' + F(paso * (b.hasta - b.desde + 1)) + 'px;background:#E8ECF1;box-sizing:border-box;padding:6px 4px;text-align:center;font-size:12px;line-height:16px;font-weight:600;color:#4F5B6B;overflow:hidden' };
+      // El rótulo («Res. 4.966») mide ~62 px: si la banda es más angosta (celular), va sin rótulo en vez de cortado.
+      const ancho = paso * (b.hasta - b.desde + 1);
+      return { texto: ancho >= 66 ? b.texto : '', style: 'position:absolute;top:' + T + 'px;height:' + (B - T) + 'px;left:' + F(x0) + 'px;width:' + F(ancho) + 'px;background:#E8ECF1;box-sizing:border-box;padding:6px 4px;text-align:center;font-size:12px;line-height:16px;font-weight:600;color:#4F5B6B;overflow:hidden' };
     });
-    const idx = c.hover ?? c.fijo;
+    // Período fijado efectivo: si ninguna serie tiene dato en el período pedido (p. ej. el último mes del eje cuando la
+    // serie llega un mes antes), se retrocede al último período con dato de alguna serie. Vale para todo el sitio.
+    const conDato = (i) => c.series.some((s) => s.valores[i] != null);
+    let fijo = Math.max(0, Math.min(n - 1, c.fijo ?? n - 1));
+    if (!conDato(fijo)) { let k = fijo; while (k > 0 && !conDato(k)) k--; if (conDato(k)) fijo = k; }
+    const idx = c.hover ?? fijo;
     const guia = 'position:absolute;pointer-events:none;top:' + T + 'px;height:' + (B - T) + 'px;width:0;border-left:1px dashed #5B6573;left:' + F(x(idx)) + 'px';
     const marcas = [];
     c.series.forEach((s) => {
@@ -171,10 +178,11 @@ class Component extends DCLogic {
     }).filter(Boolean);
     const fuera = []; let nArr = 0, nAb = 0;
     c.series.forEach((s) => {
-      if (s.tipo === 'barras' || !on(s.id)) return;
+      // También las series atenuadas: con «Ajustar eje» quedan fuera del eje y su máximo o mínimo debe seguir a la vista.
+      if (s.tipo === 'barras') return;
       let iM = -1, iN = -1;
       s.valores.forEach((v, i) => { if (v == null) return; if (v > c.max && (iM < 0 || v > s.valores[iM])) iM = i; if (v < c.min && (iN < 0 || v < s.valores[iN])) iN = i; });
-      const chip = (i, arriba, k) => ({ texto: (arriba ? '▲ ' : '▼ ') + (s.valores[i] < 0 ? '−' : '') + Math.abs(s.valores[i]).toFixed(c.decimales ?? 1).replace('.', ',') + (c.sufijo || ''), style: 'position:absolute;pointer-events:none;white-space:nowrap;border-radius:4px;padding:0 5px;font-family:IBM Plex Mono,monospace;font-size:11px;font-weight:600;line-height:16px;background:#FFFFFF;border:1px solid ' + s.color + ';color:' + s.color + ';left:' + F(Math.max(L, Math.min(R - 80, x(i) - 30))) + 'px;top:' + F(arriba ? T + 2 + k * 19 : B - 20 - k * 19) + 'px' });
+      const chip = (i, arriba, k) => ({ texto: (arriba ? '▲ ' : '▼ ') + (s.valores[i] < 0 ? '−' : '') + Math.abs(s.valores[i]).toFixed(c.decimales ?? 1).replace('.', ',') + (c.sufijo || ''), style: 'position:absolute;pointer-events:none;white-space:nowrap;border-radius:4px;padding:0 5px;font-family:IBM Plex Mono,monospace;font-size:11px;font-weight:600;line-height:16px;background:#FFFFFF;border:1px solid ' + s.color + ';color:' + s.color + ';left:' + F(Math.max(L, Math.min(R - 80, x(i) - 30))) + 'px;top:' + F(arriba ? T + 2 + k * 19 : B - 20 - k * 19) + 'px' + (on(s.id) ? '' : ';opacity:0.55') });
       if (iM >= 0) fuera.push(chip(iM, true, nArr++));
       if (iN >= 0) fuera.push(chip(iN, false, nAb++));
     });
@@ -192,10 +200,10 @@ class Component extends DCLogic {
     // con lector de pantalla el gráfico se lee punto a punto, no solo como una lista de fechas.
     const conNombre = c.series.filter((s) => s.nombre && on(s.id)).sort((a, b) => numId(a) - numId(b));
     const aria = (i) => { const v = conNombre.filter((s) => s.valores[i] != null).map((s) => s.nombre + ' ' + fmtV(s.valores[i])); return c.etiquetas[i] + (v.length ? ': ' + v.join(', ') : ''); };
-    for (let i = 0; i < n; i++) hits.push({ tab: i === c.fijo ? 0 : -1, aria: aria(i), fix: () => c.onFijar(i), over: () => c.onHover(i), style: 'flex:1 1 0;min-width:0;height:100%;border:0;margin:0;padding:0;background:' + (i === c.fijo ? 'rgba(46,92,138,0.07)' : 'transparent') + ';cursor:crosshair' });
+    for (let i = 0; i < n; i++) hits.push({ tab: i === fijo ? 0 : -1, aria: aria(i), fix: () => c.onFijar(i), over: () => c.onHover(i), style: 'flex:1 1 0;min-width:0;height:100%;border:0;margin:0;padding:0;background:' + (i === fijo ? 'rgba(46,92,138,0.07)' : 'transparent') + ';cursor:crosshair' });
     // Las flechas mueven el período fijado y también el foco real, para que el anillo y el lector sigan al período.
     const onKey = (e) => {
-      const k = e.key, destino = { ArrowLeft: c.fijo - 1, ArrowRight: c.fijo + 1, Home: 0, End: n - 1 }[k];
+      const k = e.key, destino = { ArrowLeft: fijo - 1, ArrowRight: fijo + 1, Home: 0, End: n - 1 }[k];
       if (destino == null) return;
       e.preventDefault();
       const j = Math.max(0, Math.min(n - 1, destino)), caja = e.currentTarget;

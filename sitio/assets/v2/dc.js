@@ -71,8 +71,9 @@ function atributos(nodo, t, ambito) {
     const m = UNA.exec(a.value);
     const v = m ? valor(m[1], ambito) : texto(a.value, ambito);
     if (n === 'value' && (nodo.localName === 'select' || nodo.localName === 'input')) { valorSelect = v; continue; }
-    if (v === false || v == null) { if (nodo.hasAttribute(n)) nodo.removeAttribute(n); continue; }
-    const s = v === true ? '' : String(v);
+    if ((v === false && !n.startsWith('aria-')) || v == null) { if (nodo.hasAttribute(n)) nodo.removeAttribute(n); continue; }
+    // Los aria-* booleanos van como «true»/«false» (un aria-disabled vacío no lo entiende el lector de pantalla).
+    const s = n.startsWith('aria-') && typeof v === 'boolean' ? String(v) : v === true ? '' : String(v);
     if (nodo.getAttribute(n) !== s) nodo.setAttribute(n, s);
   }
   return valorSelect;

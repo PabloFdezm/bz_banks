@@ -72,22 +72,22 @@ referencias, contraste del menú.
 
 ## Por hacer · segunda revisión de la Portada (11-nov, 27/40; informe en .impeccable/critique/)
 Mayores:
-- [ ] **Selector de corte de la sección 01 sin callejones:** «Libre / Dirigido» deja el gráfico sin datos y «Todos»
+- [x] (11-nov, sin publicar) **Selector de corte de la sección 01 sin callejones:** «Libre / Dirigido» deja el gráfico sin datos y «Todos»
       trae «Empresas libre/dirigido · en preparación». Aplicar la regla de la sección 02: opciones sin datos
       deshabilitadas con «(en preparación)» y sin chips vacíos.
-- [ ] **Presentar estable:** la tarjeta salta ~105 px entre láminas porque el título de sección solo va en la primera
+- [x] (11-nov, sin publicar; copia fija del título en sitio.js, salto de 3 px; el foco vuelve) **Presentar estable:** la tarjeta salta ~105 px entre láminas porque el título de sección solo va en la primera
       (choca con spec/01 regla 4). Reservar el alto del título en todas (repetido en gris desde la 2), estirar el par al
       alto disponible y devolver el foco a «Presentar» al salir (hoy cae en body).
-- [ ] **«Impulso del crédito» fija sep-26 sin dato** (la serie llega a ago-26): el período fijado por defecto debe ser
+- [x] (11-nov, sin publicar; en Grafico: retrocede al último período con dato) **«Impulso del crédito» fija sep-26 sin dato** (la serie llega a ago-26): el período fijado por defecto debe ser
       el último con dato de alguna serie visible (Grafico.dc.html, vale para todo el sitio).
 Medianos:
-- [ ] «Ajustar eje»: chips ▲▼ también para las series atenuadas que quedan fuera del eje; `aria-disabled` con la pista
+- [x] (11-nov, sin publicar; queda decidir el recuadro) «Ajustar eje»: chips ▲▼ también para las series atenuadas que quedan fuera del eje; `aria-disabled` con la pista
       «Resalte una serie para ajustar el eje» en vez de `disabled`; decidir si el recuadro lista todas las visibles.
-- [ ] Agrandar: agrupar las filas «en preparación» (4 de 9 en concesiones) en una nota con las series SGS que faltan;
+- [x] (11-nov, sin publicar) Agrandar: agrupar las filas «en preparación» (4 de 9 en concesiones) en una nota con las series SGS que faltan;
       quitar «ver tareas/09» y «datos del 8-nov-26» del glosario.
 Menores:
-- [ ] Rótulo «Res. 4.966» cortado a 390 px (la banda mide 20 px): ocultarlo o moverlo fuera de la banda en angosto.
-- [ ] DESIGN.md: contraste del texto atenuado es 4,62:1 (no 4,7); agregar 15 px y 20 px a los tokens de tipografía;
+- [x] (11-nov, sin publicar; se oculta si la banda mide menos de 66 px) Rótulo «Res. 4.966» cortado a 390 px (la banda mide 20 px): ocultarlo o moverlo fuera de la banda en angosto.
+- [ ] (11-nov: 4,62 y tokens `dialogo` 20 px y `seccion-numero` 15 px hechos; falta la excepción del menú) DESIGN.md: contraste del texto atenuado es 4,62:1 (no 4,7); agregar 15 px y 20 px a los tokens de tipografía;
       decidir la excepción de tamaño de los controles del menú lateral (24–34 px).
 - [ ] Decidir con Pablo: ¿Total en cobre aunque no se abra en partes (tasa y spread hoy) o navy cuando es serie única?
 - [ ] Pistas de interacción (Ctrl + clic, flechas, Ajustar eje) y glosario de «NPL», «Share», «a/a», «Δ a/a» fuera de

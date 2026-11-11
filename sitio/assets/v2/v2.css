@@ -84,6 +84,11 @@ html.v2-dialogo { overflow: hidden; }
 .v2-presentando { overflow: hidden; }
 .v2-pres { position: fixed; right: 20px; bottom: 20px; z-index: 50; display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: #FFFFFF; border: 1px solid var(--borde); border-radius: 6px; box-shadow: 0 4px 16px rgba(27,36,51,0.12); }
 .v2-pres[hidden] { display: none; }
+/* Título de sección repetido en cada lámina (copia fija; ver tituloLamina en sitio.js); desde la segunda, en gris. */
+.v2-pres-sec { position: fixed; top: 24px; z-index: 45; pointer-events: none; }
+.v2-pres-sec[hidden] { display: none; }
+.v2-pres-sec.v2-rep .sh { border-top-color: #C9D2DC !important; }
+.v2-pres-sec.v2-rep .sh span { color: var(--suave) !important; }
 .v2-pres-t { font-size: 13px; color: var(--suave); max-width: 360px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-right: 4px; }
 .v2-pres-n { font: 500 13px 'IBM Plex Mono', monospace; min-width: 56px; text-align: center; }
 .v2-pres .v2-b { height: 32px; padding: 0 10px; }
