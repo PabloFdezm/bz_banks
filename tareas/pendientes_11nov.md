@@ -34,8 +34,9 @@ Todo lo de hoy está publicado en https://banks-bz.pages.dev. Detalle de cada fr
 - [ ] Paleta de 8 tramos (renta, ocupación) en DESIGN.md: vecinos navy/gris no se distinguen (diseño: canvas primero).
 - [ ] Crédito: varias series no Total en cobre (Vehículos, Sobregiro, «Atraso 15–90 días»…); revisar si son el Total
       de su tarjeta o hay que pasarlas a la paleta.
-- [ ] Crítica 4, P3: título de continuación en gris en Presentar (navy + «cont.»), señal de fin del deck; nota de
-      5 líneas de MPME a Agrandar; franja de la Portada con Z o percentil en vez de repetir el Total.
+- [x] Crítica 4, P3: Presentar con «(cont.)» en su color y «· fin» con ‹ › inactivos en los bordes; notas de página de
+      más de 250 caracteres reducidas a su primera oración + «Más en Agrandar» (completas en Agrandar).
+- [ ] Decisión de Pablo: franja de la Portada con Z 10 años o percentil histórico en vez de repetir el Total (canvas).
 
 ## 4. Datos
 - [ ] Frente 11 (balancetes COSIF, fase 2): ROE, NIM, depósitos y capital mensuales; da la sección 04 de la Portada.

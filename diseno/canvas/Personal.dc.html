@@ -267,8 +267,13 @@ class Component extends DCLogic {
       // Unidad de cada columna, del subtítulo «<unidad> · Δ a/a en <unidad>» (crítica 4: «Último» cambia de
       // significado entre tablas; la unidad va en el encabezado).
       const UNI = (s) => { const m = /^(.*?) · Δ a\/a(?: en ([^(]*?))?(?: \(.*\))?$/.exec(s || ''); return m ? [m[1], (m[2] || '').trim()] : []; };
+      // Nota de la página: hasta 250 caracteres va entera; más larga, la primera oración (o hasta los dos puntos si esa
+      // oración pasa de 200). Completa, en Agrandar («Filas y fuentes»).
+      const NOTA_CORTA = (n) => { if (!n || n.length <= 250) return n || ''; const m = /^(.+?\.)\s+(?=[A-ZÁÉÍÓÚÑ«(])/.exec(n); let s = m ? m[1] : n;
+        if (s.length > 200 && s.indexOf(': ') > 40) s = s.slice(0, s.indexOf(': ')) + '.';
+        return s === n ? n : s + (/Agrandar/.test(s) ? '' : ' Más en Agrandar.'); };
       const defi = ((g) => niv ? g.replace(/^Último:[^.]*\.\s*/, '') : g)(P.glos || '').trim();
-      return { def: defi, hayDef: !!defi && filas.length <= 8, titulo: P.titulo, sub: P.sub, fuente: P.fuente, nota: P.nota, nota: P.nota, tTitulo: P.tTitulo, tSub: niv ? 'Último: saldo en R$ mil millones · Share del total · a/a en %' : P.tSub, cols: ((u) => (niv ? ['Último', 'Share', 'a/a'] : ['Último', 'Δ a/a']).map((c, i) => ({ t: c, u: u[i] || '' })))((niv ? ['R$ mil mill.', '% del total', '%'] : UNI(P.tSub))), leyenda, cfg, filas: filas.filter((r) => !/\btot\b/.test(r.cls || '')).concat(filas.filter((r) => /\btot\b/.test(r.cls || ''))),
+      return { def: defi, hayDef: !!defi && filas.length <= 8, titulo: P.titulo, sub: P.sub, fuente: P.fuente, nota: NOTA_CORTA(P.nota), tTitulo: P.tTitulo, tSub: niv ? 'Último: saldo en R$ mil millones · Share del total · a/a en %' : P.tSub, cols: ((u) => (niv ? ['Último', 'Share', 'a/a'] : ['Último', 'Δ a/a']).map((c, i) => ({ t: c, u: u[i] || '' })))((niv ? ['R$ mil mill.', '% del total', '%'] : UNI(P.tSub))), leyenda, cfg, filas: filas.filter((r) => !/\btot\b/.test(r.cls || '')).concat(filas.filter((r) => /\btot\b/.test(r.cls || ''))),
         sinSel: sel.length === 0, ajustar: () => this.setState({ aj: { ...this.state.aj, [key]: !this.state.aj[key] } }), ajusteTxt: 'Ajustar eje', ajustePres: aj ? 'true' : 'false', ajusteEst: aj ? 'background:#E8EEF5;border-color:#2E5C8A;color:#1F3F60;font-weight:600' : '' };
     };
     const bloque = (v, j, Bq) => {

@@ -90,8 +90,6 @@ html.v2-dialogo { overflow: hidden; }
 /* Título de sección repetido en cada lámina (copia fija; ver tituloLamina en sitio.js); desde la segunda, en gris. */
 .v2-pres-sec { position: fixed; top: 24px; z-index: 45; pointer-events: none; }
 .v2-pres-sec[hidden] { display: none; }
-.v2-pres-sec.v2-rep .sh { border-top-color: #C9D2DC !important; }
-.v2-pres-sec.v2-rep .sh span { color: var(--suave) !important; }
 .v2-pres-t { font-size: 14px; color: var(--suave); max-width: 360px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-right: 4px; }
 .v2-pres-n { font: 500 14px 'IBM Plex Mono', monospace; min-width: 56px; text-align: center; }
 .v2-pres .v2-b { height: 36px; padding: 0 12px; font-size: 14px; }
@@ -177,3 +175,7 @@ html.v2-dialogo { overflow: hidden; }
 /* Unidad bajo el encabezado de la tabla de página (crítica 4). */
 #v2-raiz .tb thead th .u { display: block; font-weight: 400; font-size: 12px; line-height: 16px; color: var(--suave); white-space: nowrap; }
 #v2-raiz .tb thead th .u:empty { display: none; }
+
+/* Presentar: «(cont.)» en el título repetido y flechas inactivas en los bordes del deck (crítica 4). */
+.v2-pres-sec .v2-cont { font-weight: 400; color: var(--suave); }
+.v2-pres .v2-b[aria-disabled="true"] { color: #8A93A0; border-color: #E1E6EC; cursor: default; }

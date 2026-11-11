@@ -145,6 +145,8 @@ function tituloLamina(l, z) {
   c.style.zoom = z;
   t.appendChild(c);
   t.classList.toggle('v2-rep', !l.primera);
+  // Desde la 2.ª lámina de la sección, el título sigue en su color con «(cont.)»: en gris parecía deshabilitado (crítica 4).
+  if (!l.primera) { const s = c.querySelectorAll('span'), n = s[s.length - 1]; if (n) { const k = document.createElement('span'); k.className = 'v2-cont'; k.textContent = ' (cont.)'; n.appendChild(k); } }
   const r = l.par.getBoundingClientRect();
   t.style.left = r.left + 'px'; t.style.width = r.width + 'px';
   t.hidden = false;
@@ -191,7 +193,11 @@ function mostrarLamina(i) {
   laminas.forEach((l, k) => { l.par.toggleAttribute('data-v2-actual', k === presentando.i); if (l.sec) l.sec.removeAttribute('data-v2-actual'); });
   const l = laminas[presentando.i];
   corteDeLamina(l);
-  $('v2-pres-n').textContent = (presentando.i + 1) + ' / ' + laminas.length;
+  const ultima = presentando.i === laminas.length - 1;
+  $('v2-pres-n').textContent = (presentando.i + 1) + ' / ' + laminas.length + (ultima ? ' · fin' : '');
+  // Bordes del deck: ‹ y › quedan inactivos en la primera y la última lámina (antes la flecha no hacía nada, sin aviso).
+  $('v2-pres-ant').setAttribute('aria-disabled', presentando.i === 0 ? 'true' : 'false');
+  $('v2-pres-sig').setAttribute('aria-disabled', ultima ? 'true' : 'false');
   // Posición dentro de la sección («2 de 3») junto al título; el contador de la derecha es el de toda la página.
   const deSec = laminas.filter((x) => x.sec === l.sec), enSec = deSec.indexOf(l) + 1;
   const tit = l.sec ? [...l.sec.querySelectorAll('span')].map((x) => x.textContent.trim()).join(' ') || l.sec.textContent.trim() : '';
