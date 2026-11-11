@@ -194,3 +194,13 @@ Para hacer en pipeline:
   Personas y Mora.
 - Aplicar: bandas en sep-25, mar–abr-26 y jul-26 (saldo) y nov-25 (operaciones); ticket de Grandes en escala
   logarítmica; tasa libre ponderada por saldo.
+
+## Hecho el 11-nov (sin publicar)
+- `scr_productos.json`: regla «excluir» en Vehículos; el arrendamiento «exceto veículos» va a Otros. Cubo de personas
+  reprocesado (versión 6e094da528): Vehículos PF −0,45 mil millones (429,6 a sep-26). Test nuevo.
+- Parte B: cubo PJ propio (`intermedio/scr_empresas/`, mapa `definiciones/scr_modalidades_pj.json`, 10 modalidades)
+  y dimensión `modalidad` en `bk_empresas_scr_m` para las dos hojas. Sep-26: MPME 1.241,0 (capital de giro 557,2);
+  Grandes 1.549,6 (inversión y proyectos 466,2).
+- MPME sin «Servicios financieros» en el gold (+3,9 % a/a; micro +11,7 %); Grandes con dimensión `total_sin_sf`
+  (1.302,5). El borrador lee el gold; la línea «Micro con servicios financieros» se recalcula del cubo PJ.
+- Falta: la sección «Producto» (modalidades) en el canvas de MPME y Grandes. Es diseño nuevo: canvas → Pablo.

@@ -157,3 +157,10 @@ Para hacer en pipeline:
 - Aplicar: nota PicPay/Original (Original 4T24 fuera de la mediana del grupo); nota BRB «no publica desde 4T25»;
   en el grupo Pagos, «Recebíveis y otros activos realizáveis» en vez de «Otros activos»; impuesto con su signo y nota
   «positivo = crédito fiscal».
+
+## Hecho el 11-nov (sin publicar)
+- `pyb_lineas.json`: «comparable»: false en 11 líneas brutas; el 12m de 1T25–3T25 de las del P&L queda vacío en el gold.
+- Original 4T24 fuera de la mediana del grupo (`FUERA_DE_MEDIANA`).
+- Panel de capital: razón de sumas sobre los bancos de bk_pyb con capital (31–32 por trimestre; los 34 de la hoja no
+  publican todos el informe 5). Da los mismos índices que el «Total panel» anterior: el 31/34 no era de método.
+- Notas de PicPay/Original/BRB, rótulo «Recebíveis» en Pagos y nota del impuesto: ya estaban en el canvas (10-nov).

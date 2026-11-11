@@ -23,8 +23,9 @@ TABLAS (datos/gold/)
     (faltan «outros créditos livres», sin tasa publicada).
 - bk_empresas_scr_m (SCR.data, mensual desde ene-18): hoja, dimension, segmento, medida, fecha, valor.
   Clave: hoja, dimension, segmento, medida, fecha. Hojas: ``mpme`` (micro + pequeña + mediana) y ``grandes``.
-  * Dimensiones: ``total`` («Total»), ``porte`` (solo mpme), ``sector`` (10 secciones CNAE + «Otros sectores»),
-    ``institucion`` y la celda de la descomposición (``porte_sector`` en mpme, ``sector_institucion`` en grandes).
+  * Dimensiones: ``total`` («Total»), ``total_sin_sf`` (solo grandes: «Total sin servicios financieros»), ``porte`` (solo mpme),
+    ``sector`` (10 secciones CNAE + «Otros sectores»; mpme sin «Servicios financieros»), ``institucion``,
+    ``modalidad`` (definiciones/scr_modalidades_pj.json: capital de giro, inversión, comercio exterior…) y la celda de la descomposición (``porte_sector`` en mpme, ``sector_institucion`` en grandes).
   * Medidas de nivel: ``saldo``, ``mora90``, ``atraso15_90``, ``activo_problematico`` (R$), ``ops``, ``cart_ops``;
     razones ``tasa_mora``, ``tasa_atraso``, ``tasa_apr``, ``peso``, ``saldo_aa``, ``ops_aa``, ``ticket``
     (cart_ops / ops, R$) y ``ticket_real`` (R$ del último mes, IPCA).
@@ -40,6 +41,8 @@ REGLAS
   mayor riesgo de la Res. CMN 4.966 (29581–29583). No empalman: son definiciones distintas.
 - 27701 + 27702 no es exactamente 20540 (diferencia de hasta R$ 37 mil millones): el peso de cada porte se mide sobre
   la suma de los dos, no sobre el total de empresas.
+- SCR: cubo propio solo PJ (intermedio/scr_empresas/<versión del mapa de modalidades>), con las mismas reglas de
+  caché que scr_productos. MPME excluye el sector «Servicios financieros» (decisión de Pablo, 11-nov).
 - SCR: el porte «Indisponível» queda fuera de las dos hojas (R$ 124 mil millones en sep-26). Instituciones como el
   canvas: Bancos, Desarrollo y fomento, Cooperativas, Financieras, Fintechs, Inst. de pago y Otros.
 """
@@ -115,17 +118,29 @@ OTROS_SECTORES = "Otros sectores"
 INSTITUCIONES = {"Banco": "Bancos", "Cooperativa": "Cooperativas", "Fintech": "Fintechs",
                  "Instituição de pagamento": "Inst. de pago", "Financeira": "Financieras",
                  "Desenvolvimento/Fomento": "Desarrollo y fomento"}
+# Modalidades PJ del SCR (definiciones/scr_modalidades_pj.json; cubo propio en intermedio/scr_empresas, solo PJ)
+DEF_MODALIDADES = A.DEFINICIONES / "scr_modalidades_pj.json"
+CACHE_PJ = A.INTERMEDIO / "scr_empresas"
+SERV_FIN = "Servicios financieros"
+TOTAL_SIN_SF = "Total sin servicios financieros"
 ORDEN = {
     "porte": ["Micro", "Pequeña", "Mediana", "Grande"],
+    "modalidad": ["Capital de giro", "Inversión y proyectos", "Comercio exterior", "Descuento y recebíveis", "Rural",
+                  "Vehículos", "Inmobiliario", "Cuenta garantizada y sobregiro", "Tarjeta", "Otros"],
     "sector": list(SECTORES.values()) + [OTROS_SECTORES],
     "institucion": ["Bancos", "Desarrollo y fomento", "Cooperativas", "Financieras", "Fintechs", "Inst. de pago",
                     "Otros"],
 }
 # hoja → (portes, dimensiones con aportes, celda de la descomposición en tres partes (a, b))
+# Servicios financieros (decisión de Pablo, 11-nov): fuera de MPME (un bloque de R$ 38–47 mil millones salta de porte
+# de un mes a otro; el SGS de MPME es de sociedades no financieras); en Grandes queda como sector, en gris en la hoja,
+# y la dimensión «total_sin_sf» trae «Total sin servicios financieros» (aparte: «total» queda con un solo segmento).
 HOJAS = {
-    "mpme": (["Micro", "Pequeña", "Mediana"], ["porte", "sector", "institucion"], ("porte", "sector")),
-    "grandes": (["Grande"], ["sector", "institucion"], ("sector", "institucion")),
+    "mpme": (["Micro", "Pequeña", "Mediana"], ["porte", "sector", "institucion", "modalidad"], ("porte", "sector")),
+    "grandes": (["Grande"], ["sector", "institucion", "modalidad"], ("sector", "institucion")),
 }
+SIN_SERV_FIN = {"mpme"}          # hojas que excluyen el sector
+TOTAL_SIN_SERV_FIN = {"grandes"}  # hojas que agregan la línea total sin el sector
 MEDIDAS_SCR = PF.MEDIDAS_SCR
 
 
@@ -180,6 +195,7 @@ def preparar_cubo(cubo: pd.DataFrame) -> pd.DataFrame:
     c["porte"] = c["porte"].map(PORTES).fillna(SIN_PORTE)
     c["sector"] = c["cnae_ocupacao"].map(SECTORES).fillna(OTROS_SECTORES)
     c["institucion"] = c["segmento"].map(INSTITUCIONES).fillna("Otros")
+    c["modalidad"] = c["producto"]          # en el cubo PJ, «producto» es la modalidad (scr_modalidades_pj.json)
     c["total"] = "Total"
     return c
 
@@ -190,7 +206,7 @@ def _orden(dimension):
 
 
 def construir_hoja_scr(c: pd.DataFrame, dims: list[str], celda: tuple[str, str],
-                       deflactor: pd.Series) -> list[pd.DataFrame]:
+                       deflactor: pd.Series, total_sin_sf: bool = False) -> list[pd.DataFrame]:
     """Filas largas de una hoja (``c`` ya filtrado a sus portes). Sin columna hoja."""
     a, b = celda
     c = c.assign(**{f"{a}_{b}": c[a] + " · " + c[b]})
@@ -219,6 +235,8 @@ def construir_hoja_scr(c: pd.DataFrame, dims: list[str], celda: tuple[str, str],
         agregar(dimension, segmento, "ticket_real", tick / deflactor.reindex(meses))
 
     niveles("total", "Total", total)
+    if total_sin_sf:
+        niveles("total_sin_sf", TOTAL_SIN_SF, c[c["sector"] != SERV_FIN].groupby("mes")[MEDIDAS_SCR].sum().reindex(meses))
     for dimension in dims + [f"{a}_{b}"]:
         g = c.groupby(["mes", dimension])[MEDIDAS_SCR].sum()
         for segmento in sorted(set(g.index.get_level_values(1)), key=_orden(dimension)):
@@ -262,9 +280,11 @@ def construir_scr(cubo: pd.DataFrame, deflactor: pd.Series) -> pd.DataFrame:
     out = []
     for hoja, (portes, dims, celda) in HOJAS.items():
         x = c[c["porte"].isin(portes)]
+        if hoja in SIN_SERV_FIN:
+            x = x[x["sector"] != SERV_FIN]
         if x.empty:
             raise ValueError(f"el cubo SCR no tiene empresas de porte {portes}")
-        for df in construir_hoja_scr(x, dims, celda, deflactor):
+        for df in construir_hoja_scr(x, dims, celda, deflactor, total_sin_sf=hoja in TOTAL_SIN_SERV_FIN):
             out.append(df.assign(hoja=hoja))
     df = pd.concat(out, ignore_index=True)
     return df[["hoja", "dimension", "segmento", "medida", "fecha", "valor"]]
@@ -272,15 +292,15 @@ def construir_scr(cubo: pd.DataFrame, deflactor: pd.Series) -> pd.DataFrame:
 
 def main(argv: list[str] | None = None) -> int:
     sgs_df = construir_sgs()
-    defs, version = SP.definiciones()
-    cubo = SP.cubo(defs, version, DESDE_SCR)
+    defs, version = SP.definiciones(DEF_MODALIDADES)
+    cubo = SP.cubo(defs, version, DESDE_SCR, raiz=CACHE_PJ, solo_cliente="PJ")
     deflactor = SG.deflactor(SG.serie_mensual(SG.CODIGOS["ipca"]))
     fin = pd.to_datetime(cubo["fecha"]).max().to_period("M")
     deflactor = deflactor / deflactor.get(fin, np.nan)        # R$ del último mes del SCR
     scr_df = construir_scr(cubo, deflactor)
     for nombre, df, fuente, desde in (
             ("bk_empresas_m", sgs_df, "bcb_sgs", [f"crudo/{SG.FUENTE}"]),
-            ("bk_empresas_scr_m", scr_df, "bcb_scr", ["crudo/bcb_scr/scrdata", f"intermedio/scr_productos/{version}",
+            ("bk_empresas_scr_m", scr_df, "bcb_scr", ["crudo/bcb_scr/scrdata", f"intermedio/scr_empresas/{version}",
                                                       f"crudo/{SG.FUENTE}"])):
         A.publicar_gold(nombre, df, fuente=fuente, dataset=DATASET, desde=desde,
                         nota="Hojas de empresas MPME y Grandes (frente 13)")

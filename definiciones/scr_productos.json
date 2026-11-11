@@ -1,6 +1,6 @@
 {
-  "_descripcion": "Mapa de submodalidades del SCR.data a productos. Se aplica en orden: la primera regla que calza gana; lo que no calza va a «Otros». Comparación sin mayúsculas sobre 'modalidade' y 'submodalidade'. Validado contra los saldos PF de ago-26 (tarjeta 760,6; consignado 813,7; personal 379,9; vehículos 428,0 mil millones).",
-  "_actualizado": "2026-11-06",
+  "_descripcion": "Mapa de submodalidades del SCR.data a productos. Se aplica en orden: la primera regla que calza gana (una regla no calza si la submodalidade contiene alguna de sus claves de «excluir»); lo que no calza va a «Otros». Comparación sin mayúsculas sobre 'modalidade' y 'submodalidade'. Validado contra los saldos PF de ago-26 (tarjeta 760,6; consignado 813,7; personal 379,9; vehículos 428,0 mil millones).",
+  "_actualizado": "2026-11-11",
   "productos": [
     {
       "producto": "Tarjeta",
@@ -31,7 +31,11 @@
       "slug": "vehiculos",
       "submodalidade": [
         "veículos automotores"
-      ]
+      ],
+      "excluir": [
+        "exceto veículos"
+      ],
+      "_excluir": "«Arrendamento financeiro exceto veículos automotores e imóveis» contiene «veículos automotores» pero no es de vehículos: va a Otros (R$ 21,3 mil millones PJ y 0,45 PF a sep-26). Corregido el 11-nov (decisión de Pablo)."
     },
     {
       "producto": "Inmobiliario",

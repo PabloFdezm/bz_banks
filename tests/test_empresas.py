@@ -72,12 +72,14 @@ def _cubo_sintetico(meses=26, semilla=5):
     for i, mes in enumerate(pd.period_range("2018-01", periods=meses, freq="M")):
         for porte in ["Micro", "Pequeno", "Médio", "Grande", "Indisponível"]:
             for seg in ["Banco", "Cooperativa", "Desenvolvimento/Fomento"]:
-                for cnae in ["Indústrias de transformação", "Construção", "Outra cosa"]:
+                for cnae in ["Indústrias de transformação", "Construção", "Outra cosa",
+                             "Atividades financeiras, de seguros e serviços relacionados"]:
                     if seg == "Cooperativa" and cnae == "Construção" and i < 14:     # celda nueva a mitad de la historia
                         continue
                     cart = rng.uniform(50, 150)
                     filas.append(dict(fecha=mes.to_timestamp(), cliente="PJ", segmento=seg, porte=porte,
-                                      cnae_ocupacao=cnae, producto="Otros", carteira_ativa=cart,
+                                      cnae_ocupacao=cnae, producto=["Capital de giro", "Otros"][i % 2],
+                                      carteira_ativa=cart,
                                       carteira_inadimplencia=cart * rng.uniform(0, 0.2),
                                       vencido_de_15_ate_90_dias=cart * rng.uniform(0, 0.1),
                                       ativo_problematico=cart * rng.uniform(0, 0.3),
@@ -178,3 +180,21 @@ def test_gold_sgs_identidades(gold_sgs):
     # libres + direccionados = total de empresas (± 2 R$ millones por redondeo)
     s = lambda sub: v.xs(("empresas", sub, "saldo"), level=["segmento", "sub", "medida"])
     assert (s("libres") + s("direccionados") - s("total")).dropna().abs().max() <= 2
+
+
+def test_scr_servicios_financieros(scr_sintetico):
+    """Decisión de Pablo (11-nov): MPME sin «Servicios financieros»; Grandes lo conserva y agrega el total sin él."""
+    mp = scr_sintetico[scr_sintetico.hoja == "mpme"]
+    gr = scr_sintetico[scr_sintetico.hoja == "grandes"]
+    assert E.SERV_FIN not in set(mp[mp.dimension == "sector"].segmento)
+    assert E.SERV_FIN in set(gr[gr.dimension == "sector"].segmento)
+    assert "total_sin_sf" not in set(mp.dimension)
+    sal = lambda df, dim, seg: df[(df.dimension == dim) & (df.segmento == seg) & (df.medida == "saldo")].set_index("fecha")["valor"]
+    dif = sal(gr, "total", "Total") - sal(gr, "sector", E.SERV_FIN) - sal(gr, "total_sin_sf", E.TOTAL_SIN_SF)
+    assert dif.abs().max() < 1e-6
+
+
+def test_scr_modalidad(scr_sintetico):
+    for hoja in E.HOJAS:
+        x = scr_sintetico[(scr_sintetico.hoja == hoja) & (scr_sintetico.dimension == "modalidad")]
+        assert set(x.segmento) == {"Capital de giro", "Otros"}

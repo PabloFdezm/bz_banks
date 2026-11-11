@@ -18,7 +18,7 @@ TABLAS (datos/gold/)
 - bk_pyb: cod_inst, periodo (AAAAMM), trimestre («2T26»), seccion, linea, medida, valor.
   Clave: cod_inst, periodo, linea, medida.
   * seccion ``pyl``: medidas ``rs_trim`` (R$ del trimestre), ``rs_12m`` (R$, suma de cuatro trimestres
-    consecutivos; si falta uno, no hay fila) y ``pct_activo_medio_12m`` (rs_12m / ativo_medio_ttm de bk_panel,
+    consecutivos; si falta uno, no hay fila; en las líneas «comparable»: false no hay fila de 1T25 a 3T25) y ``pct_activo_medio_12m`` (rs_12m / ativo_medio_ttm de bk_panel,
     en fracción).
   * secciones ``activo`` y ``pasivo``: ``rs`` (saldo a fin de trimestre, R$) y ``pct_activo`` (rs / activo total,
     fracción). El pasivo se divide por el activo total (= pasivo total).
@@ -30,11 +30,12 @@ TABLAS (datos/gold/)
     fondeo medio (líneas ``fondeo`` de la definición); ``cf_pct`` = cf_qa / Selic efectiva media del trimestre.
 - bk_pyb_grupo: grupo, periodo, trimestre, seccion, linea, medida, valor, n_bancos.
   Clave: grupo, periodo, linea, medida.
-  * ``grupo`` = modelo de negocio de bk_panel: mediana de los bancos del grupo con dato (n_bancos = cuántos).
+  * ``grupo`` = modelo de negocio de bk_panel: mediana de los bancos del grupo con dato (n_bancos = cuántos), sin los
+    banco-trimestres de FUERA_DE_MEDIANA (Original 4T24).
   * ``grupo`` = «Panel»: razón de sumas de los bancos con numerador y denominador (no promedio de razones):
     Σ rs_12m / Σ ativo_medio_ttm, Σ rs / Σ activo total, ROE = Σ utilidad 12m / Σ pl_medio_ttm. Capital: los
-    índices cp, bas, dens, hol y req_cp se toman de bk_capital_grupo («Total panel», sus n_bancos) y apalancamiento
-    y crecimientos son razón de sumas de los bancos de bk_pyb (decisión pendiente: unificar en 31 o 34 bancos).
+    índices cp, bas, dens, hol, req_cp, apalancamiento y crecimientos son razón de sumas de los bancos de bk_pyb
+    (34; decisión de Pablo del 11-nov: un solo universo, no el «Total panel» de 31 de bk_capital_grupo).
     Sensibilidad: Σ(mfb × 4) / Σ activo medio, Σ(−captación × 4) / Σ fondeo medio y su cociente con la Selic.
   * ``grupo`` = «Referencia»: linea ``selic`` (seccion sensibilidad), promedio de los meses del trimestre de la
     Selic efectiva anualizada (bk_producto_pf_m, referencia/selic, SGS 4189), en fracción.
@@ -73,9 +74,12 @@ CAPITAL_FRACCION = {"cp": "indice_cp", "bas": "basilea", "n1": "indice_nivel1", 
                     "dens": "densidad_rwa"}
 CAPITAL_RS = {"var_cp": "var_cp_4t", "luc": "lucro_ttm", "otr": "otros_var_cp_4t"}
 CAPITAL_MEDIANA = ["cp", "bas", "hol", "apal", "dens", "rwa_aa", "cred_aa", "req_cp"]
-CAPITAL_DE_GRUPO = {"cp": "indice_cp", "bas": "basilea", "dens": "densidad_rwa", "hol": "holgura_cp_pp",
-                    "req_cp": "requerimiento_cp"}      # panel tomado de bk_capital_grupo («Total panel»)
 COLUMNAS = ["cod_inst", "periodo", "trimestre", "seccion", "linea", "medida", "valor"]
+# 12m que mezclan los dos planes contables (Res. 4.966 desde 1T25): ventanas que terminan en 1T25, 2T25 o 3T25.
+MEZCLA_12M = {"202503", "202506", "202509"}
+# Banco-trimestres fuera de la mediana de su grupo (decisión de Pablo, 11-nov): Original 4T24 sale de desacumular un
+# semestre de dos perímetros distintos (PicPay estuvo dentro de Original de 3T23 a 3T24).
+FUERA_DE_MEDIANA = {("C0080903", "202412")}
 COLUMNAS_GRUPO = ["grupo", "periodo", "trimestre", "seccion", "linea", "medida", "valor", "n_bancos"]
 
 
@@ -240,6 +244,10 @@ def construir(hechos: pd.DataFrame, panel: pd.DataFrame, capital: pd.DataFrame, 
         index=["cod_inst", "periodo"], columns="metrica", values="valor", aggfunc="first").reindex(L.index)
     q = L[pyl]
     t = suma_12m(q)
+    # Líneas brutas («comparable»: false): el 12m que mezcla planes no se publica (ni su % del activo medio).
+    no_comp = [l["linea"] for l in defn["lineas"] if l["seccion"] in SECCIONES_PYL and l.get("comparable") is False]
+    mezcla = t.index.get_level_values(1).isin(MEZCLA_12M)
+    t.loc[mezcla, no_comp] = np.nan
     partes = [_largo(q, seccion, "rs_trim"), _largo(t, seccion, "rs_12m"),
               _largo(t.div(pv["ativo_medio_ttm"], axis=0), seccion, "pct_activo_medio_12m"),
               _largo(L[bal], seccion, "rs"), _largo(L[bal].div(L["activo"], axis=0), seccion, "pct_activo"),
@@ -288,6 +296,7 @@ def construir_grupo(pyb: pd.DataFrame, panel: pd.DataFrame, capital: pd.DataFram
                  | ((pyb["seccion"] == "capital") & pyb["linea"].isin(CAPITAL_MEDIANA))
                  | (pyb["seccion"] == "sensibilidad")]
     r = ratios.assign(grupo=ratios["cod_inst"].map(mod)).dropna(subset=["grupo"])
+    r = r[~pd.Series(list(zip(r["cod_inst"], r["periodo"])), index=r.index).isin(FUERA_DE_MEDIANA)]
     med = (r.groupby(["grupo", "periodo", "seccion", "linea", "medida"])["valor"]
            .agg(valor="median", n_bancos="count").reset_index())
 
@@ -355,10 +364,22 @@ def panel_capital(pyb: pd.DataFrame, capital: pd.DataFrame, capital_grupo: pd.Da
     cb = pv["credito_bruto"].dropna()
     cb = cb[cb.index.get_level_values(0).isin(bancos)]
     out["cred_aa"] = (aa(cb.groupby(level=1).sum()), cb.groupby(level=1).count())
-    tp = capital_grupo[capital_grupo["optica"] == "Total panel"].assign(periodo=lambda d: d["periodo"].astype(str))
-    tp = tp.set_index("periodo")
-    for k, col in CAPITAL_DE_GRUPO.items():
-        out[k] = (tp[col], tp["n_bancos"])
+    # Índices del panel (decisión de Pablo, 11-nov): razón de sumas sobre los bancos de bk_pyb (34), como capital.py
+    # para sus grupos, y no el «Total panel» de bk_capital_grupo (31): un solo universo en toda la sección.
+    base = c[c["capital_principal"].notna() & c["rwa_total"].gt(0)]
+    sb = base.groupby("periodo")
+    rwa = sb["rwa_total"].sum()
+    nb = sb["cod_inst"].count()
+    out["cp"] = (sb["capital_principal"].sum() / rwa, nb)
+    out["bas"] = (sb["pr"].sum(min_count=1) / rwa, nb)
+    act = base[base["ativo_total"].gt(0)].groupby("periodo")
+    out["dens"] = (act["rwa_total"].sum() / act["ativo_total"].sum(), act["cod_inst"].count())
+    # El requerimiento del panel solo si todos sus bancos tienen ACP (misma regla que capital.agregar_grupos).
+    acp = (base["acp_pct"] * base["rwa_total"]).groupby(base["periodo"]).sum(min_count=1)
+    completo = sb["acp_pct"].count().eq(nb)
+    req = (sb["min_cp"].first() + acp / rwa).where(completo)
+    out["req_cp"] = (req, nb)
+    out["hol"] = (out["cp"][0] - req, nb)
     filas = []
     for k, (v, nb) in out.items():
         x = pd.DataFrame({"valor": v, "n_bancos": nb.reindex(v.index)}).dropna(subset=["valor"])

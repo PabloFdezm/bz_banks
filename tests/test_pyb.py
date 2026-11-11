@@ -223,12 +223,18 @@ def test_12m_son_cuatro_trimestres_consecutivos_o_vacio(pyb):
     n = P.n_trimestre(pd.Series(q.index.get_level_values(1))).to_numpy()
     clave = {(c, k): i for i, (c, k) in enumerate(zip(q.index.get_level_values(0), n))}
     vals = q.to_numpy()
+    # líneas brutas: el 12m que mezcla los dos planes contables (1T25–3T25) no se publica (decisión del 11-nov)
+    no_comp = [l["linea"] for l in P.definiciones()["lineas"] if l.get("comparable") is False and l["linea"] in q.columns]
+    mascara = np.array([c in no_comp for c in q.columns])
     for i, (c, k) in enumerate(zip(q.index.get_level_values(0), n)):
         prev = [clave.get((c, k - j)) for j in range(4)]
         if any(x is None for x in prev):
             assert t.iloc[i].isna().all(), q.index[i]
         else:
             esperado = vals[prev].sum(axis=0)
+            if q.index[i][1] in P.MEZCLA_12M:
+                assert t.iloc[i][no_comp].isna().all(), q.index[i]
+                esperado = np.where(mascara, np.nan, esperado)
             assert np.allclose(t.iloc[i].to_numpy(), esperado, atol=TOL_RS, equal_nan=True), q.index[i]
 
 
@@ -253,6 +259,7 @@ def test_mediana_del_grupo_recalculada(pyb, grupo, panel):
     mod = P.modelos(panel.assign(periodo=panel["periodo"].astype(str)))
     for medida in ("pct_activo_medio_12m", "pct_activo"):
         x = pyb[pyb["medida"] == medida].assign(grupo=lambda d: d["cod_inst"].map(mod))
+        x = x[~pd.Series(list(zip(x["cod_inst"], x["periodo"])), index=x.index).isin(P.FUERA_DE_MEDIANA)]
         med = x.groupby(["grupo", "periodo", "linea"])["valor"].median()
         g = grupo[(grupo["medida"] == medida) & (grupo["grupo"] != P.PANEL)].set_index(
             ["grupo", "periodo", "linea"])["valor"]
@@ -293,3 +300,13 @@ def test_signos_de_gastos(pyb):
     for linea in ("pers", "adm", "trib", "capt"):
         v = q.loc[q["linea"] == linea, "valor"]
         assert (v > TOL_RS).mean() < 0.01, linea
+
+
+@pytest.mark.integracion
+def test_panel_de_capital_con_los_bancos_de_bk_pyb(pyb, grupo):
+    """Decisión del 11-nov: los índices de capital del panel salen de los mismos bancos que el resto de la hoja."""
+    cp = grupo[(grupo["grupo"] == P.PANEL) & (grupo["linea"] == "cp")].set_index("periodo")
+    bancos = pyb[(pyb["linea"] == "cp") & (pyb["seccion"] == "capital")].groupby("periodo")["cod_inst"].nunique()
+    j = pd.concat([cp["n_bancos"], bancos], axis=1, keys=["panel", "pyb"]).dropna()
+    assert len(j) > 20
+    assert (j["panel"] == j["pyb"]).all()

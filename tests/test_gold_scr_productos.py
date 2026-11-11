@@ -39,3 +39,17 @@ def test_total_personas_calza_con_bk_scr(t):
     fila = t[(t.bloque == "saldo") & (t.producto == "Total personas") & t.destacar].iloc[0]
     assert fila["corte"] == periodos.mes_corto(ult.to_period("M")),         "bk_scr y bk_scr_tablas tienen distinto último mes: correr actualizar.py (paso scr)"
     assert abs(fila["ultimo"] - total_scr) / total_scr < 1e-6
+
+
+def test_mapa_producto_arrendamiento_no_es_vehiculos():
+    """«Arrendamento financeiro exceto veículos automotores e imóveis» contiene «veículos automotores»: la regla
+    «excluir» de Vehículos lo manda a Otros (11-nov). El arrendamiento de vehículos sí es Vehículos."""
+    import preparar_gold_bancos_scr_productos as SP
+    defs, _ = SP.definiciones()
+    pares = pd.DataFrame([
+        ("Operações de arrendamento", "Arrendamento financeiro exceto veículos automotores e imóveis"),
+        ("Operações de arrendamento", "Arrendamento financeiro de veículos automotores"),
+        ("Financiamentos", "Aquisição de bens - veículos automotores"),
+    ], columns=["modalidade", "submodalidade"])
+    m = SP.mapa_producto(defs, pares)
+    assert list(m.values()) == ["Otros", "Vehículos", "Vehículos"]

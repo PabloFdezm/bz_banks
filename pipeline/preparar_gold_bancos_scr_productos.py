@@ -80,8 +80,10 @@ SECTOR_SIN_DATO = "No informado"
 TRAMOS_CON_RENTA = 7          # los primeros 7 tramos de tramos_pf; después vienen «Sin dato» y «Sin renta»
 
 
-def definiciones() -> tuple[dict, str]:
-    defs = json.loads(DEF.read_bytes())
+def definiciones(ruta=DEF) -> tuple[dict, str]:
+    """Reglas de producto y versión del caché. ``ruta`` permite otro mapa con el mismo formato (p. ej. las
+    modalidades PJ de definiciones/scr_modalidades_pj.json, frente 13)."""
+    defs = json.loads(ruta.read_bytes())
     # la versión del caché depende solo de lo que cambia el agregado (las reglas de producto)
     clave = json.dumps([defs["productos"], defs["otros"]], ensure_ascii=False, sort_keys=True)
     return defs, hashlib.sha256(clave.encode("utf-8")).hexdigest()[:10]
@@ -94,6 +96,8 @@ def mapa_producto(defs: dict, pares: pd.DataFrame) -> dict:
         ml, sl = str(m).lower(), str(s).lower()
         prod = defs["otros"]["producto"]
         for r in defs["productos"]:
+            if any(k in sl for k in r.get("excluir", [])):     # p. ej. «arrendamento ... exceto veículos»
+                continue
             if any(k in sl for k in r.get("submodalidade", [])) or any(k in ml for k in r.get("modalidade", [])):
                 prod = r["producto"]
                 for parte in r.get("partes", []):          # la primera parte que calza; la última es el resto
@@ -127,9 +131,11 @@ def descargar_vigentes() -> None:
         Z.descargar(anio, no_menos_meses=True)
 
 
-def agregar_mes(z: zipfile.ZipFile, nombre: str, defs: dict) -> pd.DataFrame:
+def agregar_mes(z: zipfile.ZipFile, nombre: str, defs: dict, solo_cliente: str | None = None) -> pd.DataFrame:
     partes = []
     for ch in Z.leer_csv(z, nombre, COLS, keep_default_na=False):
+        if solo_cliente:
+            ch = ch[ch["cliente"] == solo_cliente].copy()
         for c in NUM:
             ch[c] = Z.numero(ch[c])
         ops = pd.to_numeric(ch["numero_de_operacoes"], errors="raise")
@@ -142,8 +148,10 @@ def agregar_mes(z: zipfile.ZipFile, nombre: str, defs: dict) -> pd.DataFrame:
     return pd.concat(partes).groupby(DIMS, as_index=False)[MEDIDAS].sum()
 
 
-def cubo(defs: dict, version: str, desde: int) -> pd.DataFrame:
-    cache = CACHE_RAIZ / version
+def cubo(defs: dict, version: str, desde: int, raiz=CACHE_RAIZ, solo_cliente: str | None = None) -> pd.DataFrame:
+    """Cubo mensual con caché por versión del mapa. ``raiz`` y ``solo_cliente`` sirven a otros cubos con el mismo
+    esquema (el de empresas: intermedio/scr_empresas, solo PJ)."""
+    cache = raiz / version
     cache.mkdir(parents=True, exist_ok=True)
     zips = sorted(p for p in Z.CRUDO.glob("scrdata_*.zip") if int(p.stem[-4:]) >= desde)
     if not zips:
@@ -155,7 +163,7 @@ def cubo(defs: dict, version: str, desde: int) -> pd.DataFrame:
                 destino = cache / f"scr_{nombre[8:14]}.parquet"   # los CSV del ZIP se llaman scrdata_AAAAMM.csv
                 if not destino.exists() or destino.stat().st_mtime < zp.stat().st_mtime:
                     t = time.time()
-                    g = agregar_mes(z, nombre, defs)
+                    g = agregar_mes(z, nombre, defs, solo_cliente)
                     A.escribir_parquet(g, destino)
                     print(f"   {nombre}: {len(g):,} filas ({time.time() - t:.1f} s)")
                 partes.append(pd.read_parquet(destino))

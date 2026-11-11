@@ -1,0 +1,31 @@
+{
+  "_descripcion": "Mapa de modalidade/submodalidade del SCR.data a modalidades de crédito a empresas (PJ), para las hojas MPME y Grandes (frente 13, parte B). Mismo formato y misma lógica que scr_productos.json (preparar_gold_bancos_scr_productos.mapa_producto): se aplica en orden, la primera regla que calza gana, una regla no calza si la submodalidade contiene una clave de «excluir», y lo que no calza va a «Otros». El orden importa: «Financiamento de projeto» dentro de inmobiliario o exportación va a esas modalidades, no a Inversión. Validado contra sep-26 (R$ mil millones, de 2.969,9 de PJ): capital de giro 801,6; inversión y proyectos 646,7; comercio exterior 316,4; descuento y recebíveis 196,1; rural 169,5; vehículos 164,6; inmobiliario 92,2; cuenta garantizada y sobregiro 66,6; tarjeta 64,5; otros 451,7. El SCR no separa libres de direccionados: el capital de giro incluye el del BNDES.",
+  "_actualizado": "2026-11-11",
+  "productos": [
+    {"producto": "Descuento y recebíveis", "slug": "descuento",
+     "modalidade": ["direitos creditórios descontados"],
+     "submodalidade": ["recebíveis adquiridos", "antecipação de fatura"]},
+    {"producto": "Tarjeta", "slug": "tarjeta",
+     "submodalidade": ["cartão de crédito", "cartao de credito"]},
+    {"producto": "Comercio exterior", "slug": "comex",
+     "modalidade": ["exportação", "importação"]},
+    {"producto": "Rural", "slug": "rural",
+     "modalidade": ["rura"],
+     "submodalidade": ["agroindustria"]},
+    {"producto": "Inmobiliario", "slug": "inmobiliario",
+     "modalidade": ["imobiliário"],
+     "submodalidade": ["home equity", "arrendamento financeiro imobiliário"]},
+    {"producto": "Vehículos", "slug": "vehiculos",
+     "submodalidade": ["veículos autom"],
+     "excluir": ["exceto veículos"]},
+    {"producto": "Capital de giro", "slug": "giro",
+     "submodalidade": ["capital de giro"]},
+    {"producto": "Cuenta garantizada y sobregiro", "slug": "cuenta",
+     "modalidade": ["adiantamentos a depositantes"],
+     "submodalidade": ["conta garantida", "cheque especial"]},
+    {"producto": "Inversión y proyectos", "slug": "inversion",
+     "modalidade": ["infraestrutura", "interveniência"],
+     "submodalidade": ["financiamento de projeto", "aquisição de bens", "arrendamento"]}
+  ],
+  "otros": {"producto": "Otros", "slug": "otros"}
+}
