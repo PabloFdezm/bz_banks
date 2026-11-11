@@ -94,3 +94,18 @@ Menores:
       Agrandar; «Eje horizontal: mes.» repetido en las seis tarjetas.
 - [ ] Ideas para discutir: sección 02 como un solo par (tasa y spread con la Selic) mientras falten los cortes; subir la
       mora como cifra de entrada.
+
+## Tercera revisión (11-nov, 26/40; informe en .impeccable/critique/2026-11-11T15-11-58Z…)
+Hecho y publicado el 11-nov:
+- [x] P1 Total siempre en la escala por defecto (12 hojas; solo «Ajustar eje» lo saca).
+- [x] P1 MPME E1/E3: series del SCR en el calendario mensual completo (antes cortadas en sep-22).
+- [x] P1 Agrandar en celular: cabecera que baja de línea y tabla con desplazamiento horizontal.
+- [x] P2 Portada: franja de entrada con cinco cifras y enlace a su par (aprobada).
+- [x] Tablas de página con saldo, share y a/a donde el gráfico muestra el a/a del saldo (aprobada; 5 hojas).
+Pendiente (P2 y menores):
+- [ ] Una sola regla de rótulos del eje X (2 rótulos en Tarjeta/MPME contra 8 en la Portada al mismo ancho).
+- [ ] «Reclasificación» recortada en las bandas de MPME (12 gráficos): texto corto o mismo mecanismo que «Res. 4.966».
+- [ ] Notas de P&L de ~270 caracteres por línea: ancho máximo ~75.
+- [ ] Tablas cortas que estiran la tarjeta; botones Excel con el nombre del gráfico; SVG de trazado con aria-hidden.
+- [ ] Colores fuera de DESIGN.md (#4F5B6B, #1B2433, #3B4656) y escala tipográfica real (11–26 px) por documentar.
+- [ ] MPME y Grandes: tabla de volumen con saldo y share (falta el saldo en R$ por porte en el par).
