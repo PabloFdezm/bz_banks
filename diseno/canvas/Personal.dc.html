@@ -132,6 +132,7 @@ class Component extends DCLogic {
     const pp = (v) => v == null ? '—' : (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v).toFixed(2).replace('.', ',');
     const pc = (v) => v == null ? '—' : (v < 0 ? '−' : '') + Math.abs(v).toFixed(1).replace('.', ',') + ' %';
     const FMT = { pct: pc, pp };
+    const rsm = (v) => v == null ? '—' : (v < 0 ? '−' : '') + Math.abs(v).toFixed(1).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
     const ultI = (a) => { let k = a.length - 1; while (k >= 0 && a[k] == null) k--; return k; };
     const zz = (a, n) => { const w = a.filter((x) => x != null).slice(-n); if (w.length < 12) return null; const m = w.reduce((x, y) => x + y, 0) / w.length, s = Math.sqrt(w.reduce((x, y) => x + (y - m) ** 2, 0) / (w.length - 1)); return s ? (w[w.length - 1] - m) / s : null; };
     const ticks = (lab, d, h) => { const r = [], n = h - d + 1, mens = lab[0].length > 4; for (let i = d; i <= h; i++) { const e = lab[i]; if (mens ? (e.startsWith('ene') && (n <= 60 || +e.slice(4) % 2 === 0)) : (e.startsWith('1T') && (n <= 24 || +e.slice(2) % 2 === 0))) r.push(i - d); } return r; };
@@ -254,10 +255,15 @@ class Component extends DCLogic {
         fijo: Math.min(h, Math.max(d, st.fijo[key] == null ? h : st.fijo[key])) - d, hover: st.hover[key] != null && st.hover[key] >= d && st.hover[key] <= h ? st.hover[key] - d : null,
         onFijar: (i) => this.setState({ fijo: { ...this.state.fijo, [key]: i + d }, hover: {} }), onHover: (i) => this.setState({ hover: i == null ? {} : { [key]: i + d } }), onSerie: toggle }, D.div);
       const leyenda = series.map((s) => ({ nombre: s.nombre, pres: sel.includes(s.id) ? 'true' : 'false', sw: marca(AP_, s), est: (sel.includes(s.id) ? 'border-color:#2E5C8A;background:#E8EEF5;' : '') + (on(s.id) ? '' : 'color:#6B7684;--atenuado:0.45;'), click: (e) => toggle(s.id, multi(e)) }));
+      // Con «tniv» (el gráfico muestra el a/a del saldo y hay saldo en R$ para todas sus series): la tabla trae el saldo,
+      // su share y el a/a, lo que el gráfico no muestra (crítica 3, aprobado por Pablo el 11-nov).
+      const niv = D.tniv && series.every((q) => D.tniv[q.nombre]) ? D.tniv : null, totN = niv ? (series.find((q) => q.tot) || series[0]).nombre : null;
       const filas = series.map((s) => { const a = s.datos, i = ultI(a);
-        return { nombre: s.nombre, corte: i >= 0 ? lab[i] : '—', v: i < 0 ? ['—', '—'] : [FMT[D.fmt](a[i]), dl(D.fmt, a, i, i - lag)], cls: s.tot ? 'tot' : '', pres: sel.includes(s.id) ? 'true' : 'false', sw: marca(AP_, s),
+        const nv = niv && niv[s.nombre], nt = niv && niv[totN], j = nv ? ultI(nv) : -1;
+        const v = i < 0 ? (niv ? ['—', '—', '—'] : ['—', '—']) : niv ? [rsm(nv && nv[j]), nv && nt && nt[j] ? pc(nv[j] / nt[j] * 100) : '—', (a[i] > 0 ? '+' : '') + FMT[D.fmt](a[i])] : [FMT[D.fmt](a[i]), dl(D.fmt, a, i, i - lag)];
+        return { nombre: s.nombre, corte: i >= 0 ? lab[i] : '—', v, cls: s.tot ? 'tot' : '', pres: sel.includes(s.id) ? 'true' : 'false', sw: marca(AP_, s),
           est: sel.includes(s.id) ? 'background:#E8EEF5' : on(s.id) ? '' : '--atenuado:0.4', click: (e) => { if (e) e.stopPropagation(); toggle(s.id, multi(e)); } }; });
-      return { titulo: P.titulo, sub: P.sub, fuente: P.fuente, nota: P.nota, nota: P.nota, tTitulo: P.tTitulo, tSub: P.tSub, cols: ['Último', 'Δ a/a'], leyenda, cfg, filas,
+      return { titulo: P.titulo, sub: P.sub, fuente: P.fuente, nota: P.nota, nota: P.nota, tTitulo: P.tTitulo, tSub: niv ? 'Último: saldo en R$ mil millones · Share del total · a/a en %' : P.tSub, cols: niv ? ['Último', 'Share', 'a/a'] : ['Último', 'Δ a/a'], leyenda, cfg, filas,
         sinSel: sel.length === 0, ajustar: () => this.setState({ aj: { ...this.state.aj, [key]: !this.state.aj[key] } }), ajusteTxt: 'Ajustar eje', ajustePres: aj ? 'true' : 'false', ajusteEst: aj ? 'background:#E8EEF5;border-color:#2E5C8A;color:#1F3F60;font-weight:600' : '' };
     };
     const bloque = (v, j, Bq) => {
