@@ -185,3 +185,12 @@ Para hacer en pipeline:
    imóveis» cae en Vehículos por coincidencia de texto (R$ 21,3 mil millones PJ y 0,45 PF a sep-26). Reprocesar el
    cubo y verificar que Personas y Mora (`bk_scr_tablas`, `bk_scr_series`) cambien solo en Vehículos y Otros.
 3. Cubo de modalidades PJ (Parte B): Pablo aprueba el costo estimado en el sondeo; ejecutarlo.
+
+## Decisiones de Pablo (11-nov, desde el celular)
+- Parte B: **autorizado** el cubo PJ por modalidad (~9 min, ~14 MB).
+- «Servicios financieros»: **fuera de MPME**; en Grandes, **segmento aparte en gris** con línea «Total sin servicios
+  financieros».
+- `scr_productos.json`: **corregir** «Arrendamento financeiro exceto veículos» (sale de Vehículos) y reprocesar el cubo,
+  Personas y Mora.
+- Aplicar: bandas en sep-25, mar–abr-26 y jul-26 (saldo) y nov-25 (operaciones); ticket de Grandes en escala
+  logarítmica; tasa libre ponderada por saldo.

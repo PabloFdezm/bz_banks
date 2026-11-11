@@ -64,3 +64,12 @@ Para hacer:
 2. `pipeline/ref.py`: completar `unidad = "R$"` en 1.2.1.1.a, 1.2.1.5, 1.2.1.7 y 1.2.1.10, y agregar una clave estable
    por título del gráfico además del número (la numeración cambia entre ediciones).
 3. Buscar la partida que falta para cerrar M3 (códigos 27792–27804) antes de mostrar la composición de M3/M4.
+
+## Decisiones de Pablo (11-nov, desde el celular)
+- «Desarrollo» **fuera del gráfico** crédito/depósitos; queda en la tabla con nota «fondeo no depositario (FAT, Tesoro)».
+- Residuo de M3: **buscar la partida** en el SGS (27792–27804) antes de mostrar la composición de M3/M4; mientras,
+  «en preparación».
+- Tasas de captación por inversionista: **usar el REF 1.2.1.4** (% del DI por segmento) con nota de fuente y rezago
+  mientras el SGS no responda.
+- Poupança **como componente de M2**; bloque «Componentes de M2, a/a».
+- Técnico (sin decisión): `ref.py` completa `unidad = "R$"` en 1.2.1.1.a, 1.2.1.5, 1.2.1.7 y 1.2.1.10 y agrega clave por título.

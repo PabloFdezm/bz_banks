@@ -58,3 +58,10 @@ Leer antes `CLAUDE.md`, `tareas/README.md` y `tareas/12_hoja_tarjeta.md` (mismo 
 ## Terminado cuando
 A y B en verde (catálogo, gold, tests), C informado en `tareas/borradores/inmobiliario_verificaciones.md`, y la hoja
 regenerada desde gold sin series «en preparación». Nada se commitea sin pedirlo a Pablo.
+
+## Decisiones de Pablo (11-nov, desde el celular)
+- IVG-R (21340) **a Calidad** y captación líquida de poupança SBPE (240) **a Fondeo**.
+- Cobertura poupança / crédito: **«en preparación»** hasta tener el saldo de la poupança SBPE sin la rural; denominador
+  PF + PJ (20612 + 20600). No estimar.
+- LCI / LCA: P6 como **cota superior con nota**; sin fuente nueva.
+- **Sacar** la vista por tipo de institución del canvas (bancos = 99,3 % del saldo).

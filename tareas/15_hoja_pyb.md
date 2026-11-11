@@ -145,3 +145,15 @@ Para hacer en pipeline:
 3. Panel de capital: unificar en 34 bancos, con razón de sumas desde `bk_capital` (hoy la hoja usa el panel de
    `bk_capital_grupo`, de 31 bancos, para índices, holgura y densidad, y 34 para apalancamiento y crecimientos).
    Revisar también la hoja «Bancos · agregados», que usa el mismo panel de 31.
+
+## Decisiones de Pablo (11-nov, desde el celular)
+- Líneas brutas (tesorería, captación, servicios, pagos, otros de intermediación, otros operacionales; en balance otros
+  activos, otros pasivos, deuda elegible, otras op. de crédito, pagos): **12m y % del activo vacíos en 1T25–3T25**;
+  el 12m vale desde 4T25 (cuatro trimestres del plan nuevo) y su a/a desde 4T26 (4T26 contra 4T25). Marca
+  «comparable entre épocas» por línea en `pyb_lineas.json`. Las netas quedan con la banda «Res. 4.966».
+- Crédito: **«Crédito bruto» como línea comparable**; «otras op. con características de crédito» y «pagos» solo desde
+  1T25, con banda.
+- Panel de capital: **unificar en 34 bancos**, razón de sumas desde `bk_capital`.
+- Aplicar: nota PicPay/Original (Original 4T24 fuera de la mediana del grupo); nota BRB «no publica desde 4T25»;
+  en el grupo Pagos, «Recebíveis y otros activos realizáveis» en vez de «Otros activos»; impuesto con su signo y nota
+  «positivo = crédito fiscal».
