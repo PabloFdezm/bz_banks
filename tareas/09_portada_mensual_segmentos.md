@@ -1,7 +1,7 @@
 # Frente 9 · Portada mensual: completar los segmentos «en preparación» y llevar a gold lo del canvas
 
-Estado al 10-nov-2026: **en curso**. A1 hecha el 9-nov (commit e8d4654: `bk_concesiones`, `bk_concesiones_tablas`);
-falta el resto. Encargo pensado para que lo ejecute otra sesión u otra LLM sin contexto previo.
+Estado al 11-nov-2026: **terminado** (sin publicar al escribir esto). A1 el 9-nov (commit e8d4654); A2, A3, B y la
+recarga de la Portada el 11-nov (ver «Hecho el 11-nov» al final). Encargo pensado para que lo ejecute otra sesión u otra LLM sin contexto previo.
 Leer antes `CLAUDE.md`, `spec/README.md`, `spec/08_estado_pendientes_y_riesgos.md` y `tareas/README.md`.
 Reemplaza a la versión anterior de este frente (solo concesiones libres).
 
@@ -134,3 +134,16 @@ Encontrados en el catálogo del repo macro (`Dashboard/definiciones/bcb_sgs__ser
 Otros: spread personas 20785; spreads 20783–20787, 20809, 20825, 20826; ICC 25351–25359 (personas 25353); atraso 15–90 días 21003–21010.
 
 Faltan en el crudo hoy (bajar): 20579, 20680, 20681, 22023, 22024, 20744–20746, 20742, 20743, 20610, 20611, 20607, 20608, 20699, 20700, 20769, 20770, 21146, 21147, 20785. Mientras falten, la página los muestra «en preparación»; el consignado total se arma sumando 20576 + 20577 + 20578.
+
+## Hecho el 11-nov
+- Barrido de 250 códigos con nombre oficial: `tareas/borradores/portada_sgs_barrido.md`. Existen los nueve segmentos
+  de tasa, ICC, mora y atraso; el spread dirigido de personas no se publica (decisión de Pablo: el selector muestra lo
+  que existe y una línea «el BCB no publica este corte»). 25 códigos nuevos en `sgs.CODIGOS` y en el catálogo.
+- Gold `bk_portada_m` y `bk_portada_m_tablas` (secciones 02 y 03; la 01 sigue en `bk_concesiones`), paso
+  `portada_m` en `actualizar.py`, `tests/test_portada_m.py` (contraste del canvas exacto; la mora dirigida oficial
+  calza con la derivación por saldos a < 0,03 pp desde 2015).
+- `herramientas/portada_desde_gold.py`: recarga los datos incrustados de Seccion01–03 desde gold (correrlo después de
+  `actualizar.bat` y antes de `publicar.bat`). La Portada queda sin «en preparación».
+- Cambio de lectura en la sección 02: el Total del spread es ahora el de toda la cartera (SGS 20783) y «libre» es un
+  segmento; el bloque contra la mora sigue con el spread libre (20786) y la mora libre (21085).
+- A4 (IBC-Br en `CODIGOS`): ya estaba (`ibc_br`, 24364).

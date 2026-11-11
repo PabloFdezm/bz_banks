@@ -1190,6 +1190,156 @@
    "nombre": "Captação líquida diária de depósitos de poupança - SBPE",
    "unidad": "u.m.c. (mil)",
    "periodicidad": "D"
+  },
+  "tasa_libre": {
+   "codigo": 20717,
+   "nombre": "Taxa média de juros das operações de crédito com recursos livres - Total",
+   "unidad": "% a.a.",
+   "periodicidad": "M"
+  },
+  "tasa_pf_libre": {
+   "codigo": 20740,
+   "nombre": "Taxa média de juros das operações de crédito com recursos livres - Pessoas físicas - Total",
+   "unidad": "% a.a.",
+   "periodicidad": "M"
+  },
+  "tasa_direccionado": {
+   "codigo": 20756,
+   "nombre": "Taxa média de juros das operações de crédito com recursos direcionados - Total",
+   "unidad": "% a.a.",
+   "periodicidad": "M"
+  },
+  "tasa_pf_direccionado": {
+   "codigo": 20768,
+   "nombre": "Taxa média de juros das operações de crédito com recursos direcionados - Pessoas físicas - Total",
+   "unidad": "% a.a.",
+   "periodicidad": "M"
+  },
+  "spread_total": {
+   "codigo": 20783,
+   "nombre": "Spread médio das operações de crédito - Total",
+   "unidad": "p.p.",
+   "periodicidad": "M"
+  },
+  "spread_pf": {
+   "codigo": 20785,
+   "nombre": "Spread médio das operações de crédito - Pessoas físicas - Total",
+   "unidad": "p.p.",
+   "periodicidad": "M"
+  },
+  "spread_pj_libre": {
+   "codigo": 20787,
+   "nombre": "Spread médio das operações de crédito com recursos livres - Pessoas jurídicas - Total",
+   "unidad": "p.p.",
+   "periodicidad": "M"
+  },
+  "spread_pf_libre": {
+   "codigo": 20809,
+   "nombre": "Spread médio das operações de crédito com recursos livres - Pessoas físicas - Total",
+   "unidad": "p.p.",
+   "periodicidad": "M"
+  },
+  "spread_direccionado": {
+   "codigo": 20825,
+   "nombre": "Spread médio das operações de crédito com recursos direcionados - Total",
+   "unidad": "p.p.",
+   "periodicidad": "M"
+  },
+  "spread_pj_direccionado": {
+   "codigo": 20826,
+   "nombre": "Spread médio das operações de crédito com recursos direcionados - Pessoas jurídicas - Total",
+   "unidad": "p.p.",
+   "periodicidad": "M"
+  },
+  "atraso15_90_total": {
+   "codigo": 21003,
+   "nombre": "Percentual da carteira de crédito com atraso entre 15 e 90 dias - Total",
+   "unidad": "%",
+   "periodicidad": "M"
+  },
+  "atraso15_90_libre": {
+   "codigo": 21006,
+   "nombre": "Percentual da carteira de crédito com recursos livres com atraso entre 15 e 90 dias - Total",
+   "unidad": "%",
+   "periodicidad": "M"
+  },
+  "atraso15_90_pj_libre": {
+   "codigo": 21007,
+   "nombre": "Percentual da carteira de crédito com recursos livres com atraso entre 15 e 90 dias - Pessoas jurídicas - Total",
+   "unidad": "%",
+   "periodicidad": "M"
+  },
+  "atraso15_90_pf_libre": {
+   "codigo": 21033,
+   "nombre": "Percentual da carteira de crédito com recursos livres com atraso entre 15 e 90 dias - Pessoas físicas - Total",
+   "unidad": "%",
+   "periodicidad": "M"
+  },
+  "atraso15_90_direccionado": {
+   "codigo": 21053,
+   "nombre": "Percentual da carteira de crédito com recursos direcionados com atraso entre 15 e 90 dias - Total",
+   "unidad": "%",
+   "periodicidad": "M"
+  },
+  "atraso15_90_pj_direccionado": {
+   "codigo": 21054,
+   "nombre": "Percentual da carteira de crédito com recursos direcionados com atraso entre 15 e 90 dias - Pessoas jurídicas - Total",
+   "unidad": "%",
+   "periodicidad": "M"
+  },
+  "atraso15_90_pf_direccionado": {
+   "codigo": 21066,
+   "nombre": "Percentual da carteira de crédito com recursos direcionados com atraso entre 15 e 90 dias - Pessoas físicas - Total",
+   "unidad": "%",
+   "periodicidad": "M"
+  },
+  "mora90_pf_direccionado": {
+   "codigo": 21145,
+   "nombre": "Inadimplência da carteira de crédito com recursos direcionados - Pessoas físicas - Total",
+   "unidad": "%",
+   "periodicidad": "M"
+  },
+  "icc_pf": {
+   "codigo": 25353,
+   "nombre": "Indicador de Custo do Crédito - ICC - Pessoas físicas - Total",
+   "unidad": "% a.a.",
+   "periodicidad": "M"
+  },
+  "icc_libre": {
+   "codigo": 25354,
+   "nombre": "Indicador de Custo do Crédito - ICC - Recursos livres - Total",
+   "unidad": "% a.a.",
+   "periodicidad": "M"
+  },
+  "icc_pj_libre": {
+   "codigo": 25355,
+   "nombre": "Indicador de Custo do Crédito - ICC - Recursos livres - Pessoas jurídicas - Total",
+   "unidad": "% a.a.",
+   "periodicidad": "M"
+  },
+  "icc_pf_libre": {
+   "codigo": 25356,
+   "nombre": "Indicador de Custo do Crédito - ICC - Recursos livres - Pessoas físicas - Total",
+   "unidad": "% a.a.",
+   "periodicidad": "M"
+  },
+  "icc_direccionado": {
+   "codigo": 25357,
+   "nombre": "Indicador de Custo do Crédito - ICC - Recursos direcionados - Total",
+   "unidad": "% a.a.",
+   "periodicidad": "M"
+  },
+  "icc_pj_direccionado": {
+   "codigo": 25358,
+   "nombre": "Indicador de Custo do Crédito - ICC - Recursos direcionados - Pessoas jurídicas - Total",
+   "unidad": "% a.a.",
+   "periodicidad": "M"
+  },
+  "icc_pf_direccionado": {
+   "codigo": 25359,
+   "nombre": "Indicador de Custo do Crédito - ICC - Recursos direcionados - Pessoas físicas - Total",
+   "unidad": "% a.a.",
+   "periodicidad": "M"
   }
  }
 }

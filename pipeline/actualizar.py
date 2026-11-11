@@ -35,6 +35,7 @@ PASOS = [
     ("portada", "preparar_gold_bancos_portada", [], False),           # usa bk_grupo, bk_sistema_m
     ("pag_credito", "preparar_gold_bancos_pag_credito", [], False),
     ("concesiones", "preparar_gold_bancos_concesiones", [], False),   # usa sgs (20631–20662, 24364, 433) → bk_concesiones
+    ("portada_m", "preparar_gold_bancos_portada_m", [], False),       # usa sgs (tasa, ICC, spread, mora, atraso) → bk_portada_m
     ("scr_productos", "preparar_gold_bancos_scr_productos", ["--descargar"], True),
     ("scr", "preparar_gold_bancos_scr", [], False),                   # con caché por ZIP
     ("producto_pf", "preparar_gold_bancos_producto_pf", [], False),   # usa sgs y el cubo de scr_productos → bk_producto_pf_*

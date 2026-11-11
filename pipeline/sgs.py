@@ -121,6 +121,17 @@ CODIGOS = {
     # inmobiliario (frente 16, decisión de Pablo del 11-nov): valor de las garantías (índice, mensual) y captación
     # líquida de poupança SBPE (R$ mil, DIARIA: se suma por mes, no se toma el último dato).
     "ivg_r": 21340, "captacion_sbpe_diaria": 240,
+    # Portada mensual (frente 9, barrido del 11-nov en tareas/borradores/portada_sgs_barrido.md): los nueve segmentos
+    # de tasa, ICC, spread, mora y atraso. El spread dirigido de personas no se publica.
+    "tasa_libre": 20717, "tasa_pf_libre": 20740, "tasa_direccionado": 20756,
+    "tasa_pf_direccionado": 20768, "spread_total": 20783, "spread_pf": 20785,
+    "spread_pj_libre": 20787, "spread_pf_libre": 20809, "spread_direccionado": 20825,
+    "spread_pj_direccionado": 20826, "atraso15_90_total": 21003, "atraso15_90_libre": 21006,
+    "atraso15_90_pj_libre": 21007, "atraso15_90_pf_libre": 21033, "atraso15_90_direccionado": 21053,
+    "atraso15_90_pj_direccionado": 21054, "atraso15_90_pf_direccionado": 21066, "mora90_pf_direccionado": 21145,
+    "icc_pf": 25353, "icc_libre": 25354, "icc_pj_libre": 25355,
+    "icc_pf_libre": 25356, "icc_direccionado": 25357, "icc_pj_direccionado": 25358,
+    "icc_pf_direccionado": 25359,
 }
 
 

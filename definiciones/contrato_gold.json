@@ -29,6 +29,14 @@
    "columnas": ["edicion", "hoja", "grafico", "titulo", "clave", "unidad", "tipo", "serie", "orden", "fecha_ref", "categoria", "valor"],
    "clave": ["edicion", "hoja", "serie", "orden"]
   },
+  "bk_portada_m": {
+   "columnas": ["seccion", "indicador", "segmento", "fecha", "valor"],
+   "clave": ["indicador", "segmento", "fecha"]
+  },
+  "bk_portada_m_tablas": {
+   "columnas": ["seccion", "indicador", "orden", "fila", "segmento", "ultimo", "d1", "d3", "d12", "dventana", "corte", "z120", "p25", "p50", "p75", "minimo", "maximo"],
+   "clave": ["indicador", "segmento"]
+  },
   "bk_ref_sitio": {
    "columnas": ["edicion", "hoja", "grafico", "titulo", "clave", "unidad", "tipo", "serie", "orden", "fecha_ref", "categoria", "valor"],
    "clave": ["edicion", "hoja", "serie", "orden"]
