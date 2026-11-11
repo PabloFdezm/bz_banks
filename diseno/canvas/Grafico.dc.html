@@ -183,7 +183,9 @@ class Component extends DCLogic {
       if (s.tipo === 'barras') return;
       let iM = -1, iN = -1;
       s.valores.forEach((v, i) => { if (v == null) return; if (v > c.max && (iM < 0 || v > s.valores[iM])) iM = i; if (v < c.min && (iN < 0 || v < s.valores[iN])) iN = i; });
-      const chip = (i, arriba, k) => ({ texto: (arriba ? '▲ ' : '▼ ') + (s.valores[i] < 0 ? '−' : '') + Math.abs(s.valores[i]).toFixed(c.decimales ?? 1).replace('.', ',') + (c.sufijo || ''), style: 'position:absolute;pointer-events:none;white-space:nowrap;border-radius:4px;padding:0 5px;font-family:IBM Plex Mono,monospace;font-size:11px;font-weight:600;line-height:16px;background:#FFFFFF;border:1px solid ' + s.color + ';color:' + s.color + ';left:' + F(Math.max(L, Math.min(R - 80, x(i) - 30))) + 'px;top:' + F(arriba ? T + 2 + k * 19 : B - 20 - k * 19) + 'px' + (on(s.id) ? '' : ';opacity:0.55') });
+      // Texto del chip en tinta (o texto suave si la serie está atenuada): en el color de la serie daba 4,0:1 y, atenuado
+      // con opacidad, 2,0:1 (crítica 4). El color de la serie queda en el borde, más grueso a la izquierda.
+      const chip = (i, arriba, k) => ({ texto: (arriba ? '▲ ' : '▼ ') + (s.valores[i] < 0 ? '−' : '') + Math.abs(s.valores[i]).toFixed(c.decimales ?? 1).replace('.', ',') + (c.sufijo || ''), style: 'position:absolute;pointer-events:none;white-space:nowrap;border-radius:4px;padding:0 5px;font-family:IBM Plex Mono,monospace;font-size:11px;font-weight:600;line-height:16px;background:#FFFFFF;border:1px solid ' + s.color + ';border-left-width:3px;color:' + (on(s.id) ? '#24324A' : '#5B6573') + ';left:' + F(Math.max(L, Math.min(R - 80, x(i) - 30))) + 'px;top:' + F(arriba ? T + 2 + k * 19 : B - 20 - k * 19) + 'px' + (on(s.id) ? '' : ';border-style:dashed;border-left-style:solid') });
       if (iM >= 0) fuera.push(chip(iM, true, nArr++));
       if (iN >= 0) fuera.push(chip(iN, false, nAb++));
     });

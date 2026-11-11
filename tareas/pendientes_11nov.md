@@ -29,8 +29,11 @@ Todo lo de hoy está publicado en https://banks-bz.pages.dev. Detalle de cada fr
 - [x] Crítica 4 (25/40; `.impeccable/critique/2026-11-11T18-23-35Z__…`). Hechos sus dos P1: unidad bajo «Último» y «Δ a/a»
       en todas las tablas de página, Total siempre al final, prefijos de sección numéricos (01, 02…); encabezados
       h1/h2/h3 (role=heading), caption y scope en las tablas, «Agrandar: título» y grupo con nombre en los períodos.
-- [ ] Crítica 4, P2: contraste de los chips ▲▼ (acero 4,0:1 y gris atenuado 2,0:1); «Mora > 90» vs «Mora mayor a 90»;
-      «el gráfico de la izquierda» en celular; cobre en «Tramos con renta» (Tarjeta 05–06); paleta de 8 tramos.
+- [x] Crítica 4, P2: chips ▲▼ en tinta (borde en el color de la serie); «Mora > 90 días» en todo el sitio; «el gráfico
+      de la izquierda» → «el gráfico de mora > 90 días de esta sección»; «Tramos con renta» en gris referencia.
+- [ ] Paleta de 8 tramos (renta, ocupación) en DESIGN.md: vecinos navy/gris no se distinguen (diseño: canvas primero).
+- [ ] Crédito: varias series no Total en cobre (Vehículos, Sobregiro, «Atraso 15–90 días»…); revisar si son el Total
+      de su tarjeta o hay que pasarlas a la paleta.
 - [ ] Crítica 4, P3: título de continuación en gris en Presentar (navy + «cont.»), señal de fin del deck; nota de
       5 líneas de MPME a Agrandar; franja de la Portada con Z o percentil en vez de repetir el Total.
 
