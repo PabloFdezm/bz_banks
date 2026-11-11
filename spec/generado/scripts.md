@@ -269,7 +269,7 @@ Uso:
     python -X utf8 pipeline/diccionario_ifdata.py [-o ifdata_diccionario.html]
 ```
 
-## `pipeline/exportar_web_bancos.py` (189 líneas)
+## `pipeline/exportar_web_bancos.py` (194 líneas)
 
 Importa del pipeline: `almacen`, `bancos`, `reglas_gold`
 
@@ -856,12 +856,13 @@ REGLAS
   activos y crédito total desde bk_panel (share_ativo, share_credito). Solo conglomerados del panel.
 ```
 
-## `pipeline/preparar_gold_bancos_producto_pf.py` (368 líneas)
+## `pipeline/preparar_gold_bancos_producto_pf.py` (382 líneas)
 
 Importa del pipeline: `almacen`, `preparar_gold_bancos_scr_productos`, `sgs`, `tabla_estandar`
 
 ```text
-Hojas por producto de personas (frente 12): tarjeta, personal sin planilla, descuento por planilla y vehículos.
+Hojas por producto de personas (frentes 12 y 16): tarjeta, personal sin planilla, descuento por planilla, vehículos
+e inmobiliario.
 
 Lleva a gold las cifras que el canvas de rediseño calculaba con el borrador `extraer_producto.py`. Dos tablas largas,
 genéricas por producto (columna ``producto``), en vez de una tabla por hoja.
@@ -881,7 +882,7 @@ TABLAS (datos/gold/)
     R$, último dato del mes y arrastrado a los meses sin cambio).
 - bk_producto_pf_scr_m (SCR.data, mensual desde ene-18): producto, dimension, segmento, medida, fecha, valor.
   Clave: producto, dimension, segmento, medida, fecha. Productos: tarjeta, tarjeta_interes, tarjeta_contado,
-  personal, planilla y vehiculos. Las instituciones de pago tienen solo tarjeta al contado: la mora por institución
+  personal, planilla, vehiculos e inmobiliario. Las instituciones de pago tienen solo tarjeta al contado: la mora por institución
   de la tarjeta se lee en tarjeta_interes (verificaciones del 10-nov).
   * Dimensiones: ``total`` (segmento «Total»), ``renta`` (7 tramos + «Sin renta / N.D.»), ``institucion``,
     ``ocupacion``, ``renta_institucion`` y ``renta_ocupacion`` (celdas «tramo · institución» y «tramo · ocupación») y ``tope_3sm`` («Hasta 3 SM»,
@@ -906,6 +907,9 @@ REGLAS
 - SGS: el personal no consignado TOTAL (20574, 20666, 20742, 21114) ya incluye la renegociación (20575, 20667,
   20743, 21115); el total de la hoja personal es personal + sobregiro y la renegociación es una parte, nunca un
   sumando (validado el 10-nov: 20580 = 20574 + 20579).
+- Inmobiliario (frente 16): total = 20612 / 20704 / 20774 / 21151, partes con tasa de mercado (20610 / 20702 / 20772 /
+  21149) y regulada (20611 / 20703 / 20773 / 21150); 20610 + 20611 = 20612 y 20702 + 20703 = 20704 (±1 por redondeo).
+  En el SCR los bancos son el 99 % del saldo; fintechs, financieras e instituciones de pago van a «Otros».
 - Tarjeta: 22024 incluye el contado a tasa 0 y no se reconstruye con 22022/22023; la descomposición se hace contra la
   tasa media reconstruida (rotativo + cuotas ponderadas por concesiones), que no es 22024.
 - Aportes: si un segmento no existe en t o en t−12, su tasa faltante toma la del otro período (todo su aporte cae en
@@ -1248,7 +1252,7 @@ ZIP anuales del SCR.data (``datos/crudo/bcb_scr/scrdata/actual/scrdata_<año>.zi
 - Valores con coma decimal y sin separador de miles.
 ```
 
-## `pipeline/sgs.py` (213 líneas)
+## `pipeline/sgs.py` (218 líneas)
 
 Importa del pipeline: `almacen`, `bcb_api`, `certificados`, `red`
 
@@ -1287,6 +1291,26 @@ Compara celda por celda dos carpetas de parquets gold (misma forma, mismas colum
 Uso: python -X utf8 herramientas/comparar_gold.py <carpeta_a> <carpeta_b>
 Los floats se comparan con tolerancia relativa 1e-12 (solo ruido de redondeo); todo lo demás exacto.
 `bk_manifiesto` se compara sin bytes ni sha256.
+```
+
+## `herramientas/construir_v2.py` (170 líneas)
+
+```text
+Construye el sitio v2 (rediseño) desde las hojas del canvas.
+
+Entrada:
+- `diseno/canvas/*.dc.html`: hojas del canvas «Rediseño de gráficos v3» (plantilla x-dc + clase Component). Los datos
+  que el canvas lleva incrustados (`const X = {...};`) se ignoran: la página los lee de `sitio/data/v2/<slug>.json`.
+- `diseno/canvas/paginas.json`: páginas del sitio (ruta, título, grupo del menú) y las hojas que monta cada una.
+- Datos: `tareas/borradores/_salida/v2/<hoja>.json` (fuera de git: los datos de cada hoja tal como están en el canvas
+  aprobado) → `sitio/data/v2/<hoja>.json`. Las hojas de la Portada traen sus datos dentro (const D) y no usan JSON.
+
+Salida (todo dentro de `sitio/`, que publica `publicar.bat`):
+- `assets/v2/componentes/<Nombre>.js` y `assets/v2/paginas/<Nombre>.js`: módulos ES con la plantilla y la clase.
+- `v2/<ruta>/index.html`: página con el menú común.
+- `data/v2/<slug>.json`.
+
+    Set-Location C:\dev\bz_banks; python -X utf8 herramientas/construir_v2.py
 ```
 
 ## `herramientas/convertir_crudo_parquet.py` (53 líneas)

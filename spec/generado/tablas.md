@@ -681,28 +681,28 @@ Carpeta `datos/gold/`.
 
 ### `bk_producto_pf_m`
 
-15,532 filas · 5 columnas · fecha: 2000-01-31 → 2026-09-30 · 0.12 MB
+19,181 filas · 5 columnas · fecha: 2000-01-31 → 2026-09-30 · 0.14 MB
 
 | Columna | Tipo | % nulos | Ejemplo | Valores distintos |
 |---|---|---|---|---|
-| `producto` | str | 0 | tarjeta | 6 |
-| `sub` | str | 0 | total | 13 |
+| `producto` | str | 0 | tarjeta | 7 |
+| `sub` | str | 0 | total | 15 |
 | `medida` | str | 0 | saldo | 10 |
 | `fecha` | str | 0 | 2007-03-31 | 321 |
-| `valor` | float64 | 0 | 31285.0 | 13325 |
+| `valor` | float64 | 0 | 31285.0 | 16000 |
 
 ### `bk_producto_pf_scr_m`
 
-965,957 filas · 6 columnas · fecha: 2018-01-31 → 2026-09-30 · 7.85 MB
+1,106,404 filas · 6 columnas · fecha: 2018-01-31 → 2026-09-30 · 9.08 MB
 
 | Columna | Tipo | % nulos | Ejemplo | Valores distintos |
 |---|---|---|---|---|
-| `producto` | str | 0 | tarjeta | 6 |
+| `producto` | str | 0 | tarjeta | 7 |
 | `dimension` | str | 0 | total | 9 |
 | `segmento` | str | 0 | Total | 114 |
 | `medida` | str | 0 | saldo | 25 |
 | `fecha` | str | 0 | 2018-01-31 | 105 |
-| `valor` | float64 | 0 | 203907904862.24 | 911723 |
+| `valor` | float64 | 0 | 203907904862.24 | 1048207 |
 
 ### `bk_publicado`
 

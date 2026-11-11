@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-"""Hojas por producto de personas (frente 12): tarjeta, personal sin planilla, descuento por planilla y vehículos.
+"""Hojas por producto de personas (frentes 12 y 16): tarjeta, personal sin planilla, descuento por planilla, vehículos
+e inmobiliario.
 
 Lleva a gold las cifras que el canvas de rediseño calculaba con el borrador `extraer_producto.py`. Dos tablas largas,
 genéricas por producto (columna ``producto``), en vez de una tabla por hoja.
@@ -19,7 +20,7 @@ TABLAS (datos/gold/)
     R$, último dato del mes y arrastrado a los meses sin cambio).
 - bk_producto_pf_scr_m (SCR.data, mensual desde ene-18): producto, dimension, segmento, medida, fecha, valor.
   Clave: producto, dimension, segmento, medida, fecha. Productos: tarjeta, tarjeta_interes, tarjeta_contado,
-  personal, planilla y vehiculos. Las instituciones de pago tienen solo tarjeta al contado: la mora por institución
+  personal, planilla, vehiculos e inmobiliario. Las instituciones de pago tienen solo tarjeta al contado: la mora por institución
   de la tarjeta se lee en tarjeta_interes (verificaciones del 10-nov).
   * Dimensiones: ``total`` (segmento «Total»), ``renta`` (7 tramos + «Sin renta / N.D.»), ``institucion``,
     ``ocupacion``, ``renta_institucion`` y ``renta_ocupacion`` (celdas «tramo · institución» y «tramo · ocupación») y ``tope_3sm`` («Hasta 3 SM»,
@@ -44,6 +45,9 @@ REGLAS
 - SGS: el personal no consignado TOTAL (20574, 20666, 20742, 21114) ya incluye la renegociación (20575, 20667,
   20743, 21115); el total de la hoja personal es personal + sobregiro y la renegociación es una parte, nunca un
   sumando (validado el 10-nov: 20580 = 20574 + 20579).
+- Inmobiliario (frente 16): total = 20612 / 20704 / 20774 / 21151, partes con tasa de mercado (20610 / 20702 / 20772 /
+  21149) y regulada (20611 / 20703 / 20773 / 21150); 20610 + 20611 = 20612 y 20702 + 20703 = 20704 (±1 por redondeo).
+  En el SCR los bancos son el 99 % del saldo; fintechs, financieras e instituciones de pago van a «Otros».
 - Tarjeta: 22024 incluye el contado a tasa 0 y no se reconstruye con 22022/22023; la descomposición se hace contra la
   tasa media reconstruida (rotativo + cuotas ponderadas por concesiones), que no es 22024.
 - Aportes: si un segmento no existe en t o en t−12, su tasa faltante toma la del otro período (todo su aporte cae en
@@ -107,13 +111,21 @@ PRODUCTOS_SGS: dict[str, dict[str, dict[str, str | tuple[str, ...]]]] = {
         "total": dict(saldo="credito_pf_vehiculos", concesiones="conc_pf_vehiculos",
                       tasa="tasa_pf_vehiculos", mora90="mora90_vehiculos"),
     },
+    "inmobiliario": {
+        "total": dict(saldo="credito_pf_inmobiliario", concesiones="conc_pf_inmobiliario_total",
+                      tasa="tasa_pf_inmobiliario_total", mora90="mora90_inmobiliario_total"),
+        "mercado": dict(saldo="credito_pf_inmobiliario_mercado", concesiones="conc_pf_inmobiliario_mercado",
+                        tasa="tasa_pf_inmobiliario_mercado", mora90="mora90_inmobiliario_mercado"),
+        "regulada": dict(saldo="credito_pf_inmobiliario_regulada", concesiones="conc_pf_inmobiliario_regulada",
+                         tasa="tasa_pf_inmobiliario_regulada", mora90="mora90_inmobiliario_dirigido"),  # 21150 = reguladas
+    },
     "personas": {
         "total": dict(saldo="credito_pf", concesiones="concesiones_pf", tasa="tasa_pf_total", mora90="mora90_pf"),
     },
 }
 # Submodalidades de la descomposición de la tasa media (peso = concesiones del mes).
 DESCOMPONER = {"tarjeta": ["rotativo", "cuotas"], "personal": ["personal", "sobregiro"],
-               "planilla": ["privados", "publico", "inss"]}
+               "planilla": ["privados", "publico", "inss"], "inmobiliario": ["mercado", "regulada"]}
 EN_PORCENTAJE = {"tasa", "mora90"}
 
 # --- SCR -----------------------------------------------------------------------------------------------------------
@@ -121,7 +133,8 @@ EN_PORCENTAJE = {"tasa", "mora90"}
 # con interés (rotativo, cuotas o saque financiado, «não migrado») y contado (sin interés; casi sin mora).
 PRODUCTOS_SCR = {"tarjeta": ["Tarjeta · con interés", "Tarjeta · contado"],
                  "tarjeta_interes": ["Tarjeta · con interés"], "tarjeta_contado": ["Tarjeta · contado"],
-                 "personal": ["Personal no consignado"], "planilla": ["Consignado"], "vehiculos": ["Vehículos"]}
+                 "personal": ["Personal no consignado"], "planilla": ["Consignado"], "vehiculos": ["Vehículos"],
+                 "inmobiliario": ["Inmobiliario"]}
 TRAMOS = {"Até 1 salário mínimo": "Hasta 1 SM", "Mais de 1 a 2 salários mínimos": "1–2 SM",
           "Mais de 2 a 3 salários mínimos": "2–3 SM", "Mais de 3 a 5 salários mínimos": "3–5 SM",
           "Mais de 5 a 10 salários mínimos": "5–10 SM", "Mais de 10 a 20 salários mínimos": "10–20 SM",
@@ -142,7 +155,8 @@ OCUPACIONES = {"Aposentado/pensionista": "Jubilados", "Empregado de empresa priv
                "Empresário": "Empresarios y microempresarios", "MEI": "Empresarios y microempresarios"}
 # Instituciones que se suman a «Otros» en un producto: en personal las IP son R$ 0,14 mil millones (0,04 %), todo
 # con renta «Sem rendimento» y mora ~32 %; aparte solo distraen (verificaciones del 10-nov, punto 6).
-OTROS_INSTITUCION = {"personal": ["Inst. de pago"]}
+# Inmobiliario: bancos 99,3 % del saldo (sep-26); fintechs 0,03 % (mora ~37 %) y financieras 0,002 %.
+OTROS_INSTITUCION = {"personal": ["Inst. de pago"], "inmobiliario": ["Inst. de pago", "Fintechs", "Financieras"]}
 # múltiplo del salario mínimo por tramo: (punto medio, piso, techo)
 MULTIPLO_SM = {"Hasta 1 SM": (0.75, 0.5, 1), "1–2 SM": (1.5, 1, 2), "2–3 SM": (2.5, 2, 3), "3–5 SM": (4, 3, 5),
                "5–10 SM": (7.5, 5, 10), "10–20 SM": (15, 10, 20), "Más de 20 SM": (20, 20, 20)}
@@ -359,7 +373,7 @@ def main(argv: list[str] | None = None) -> int:
             ("bk_producto_pf_scr_m", scr_df, "bcb_scr", ["crudo/bcb_scr/scrdata", f"intermedio/scr_productos/{version}",
                                                          f"crudo/{SG.FUENTE}"])):
         A.publicar_gold(nombre, df, fuente=fuente, dataset=DATASET, desde=desde,
-                        nota="Hojas por producto de personas (frente 12)")
+                        nota="Hojas por producto de personas (frentes 12 y 16)")
         print(f"{nombre}: {len(df):,} filas")
     return 0
 

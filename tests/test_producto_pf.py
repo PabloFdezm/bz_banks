@@ -191,7 +191,8 @@ def test_gold_sgs_totales_cuadran(gold_sgs):
     assert d.abs().max() == 0
     assert (s("personal", "renegociacion", "saldo") < s("personal", "personal", "saldo")).all()
     # planilla y tarjeta: las partes suman el total publicado (± 1 R$ millón por redondeo)
-    for p, partes in (("planilla", ["privados", "publico", "inss"]), ("tarjeta", ["rotativo", "cuotas", "contado"])):
+    for p, partes in (("planilla", ["privados", "publico", "inss"]), ("tarjeta", ["rotativo", "cuotas", "contado"]),
+                      ("inmobiliario", ["mercado", "regulada"])):
         for m in ("saldo", "concesiones"):
             d = sum(s(p, x, m) for x in partes) - s(p, "total", m)
             assert d.dropna().abs().max() <= 1, (p, m)
@@ -207,3 +208,17 @@ def test_gold_scr_tarjeta_es_con_interes_mas_contado(gold_scr):
     ip = gold_scr[(gold_scr.producto == "tarjeta_interes") & (gold_scr.dimension == "institucion")
                   & (gold_scr.segmento == "Inst. de pago") & (gold_scr.medida == "peso")]
     assert ip.empty or ip["valor"].max() < 0.01
+
+
+@pytest.mark.integracion
+def test_gold_inmobiliario_scr_calza_con_sgs(gold_sgs, gold_scr):
+    # mismo orden de magnitud que el SGS (PF, tasas de mercado y reguladas): el SCR incluye otras modalidades
+    # habitacionales, así que se pide solo ±15 % en el último mes común
+    sgs = gold_sgs[(gold_sgs.producto == "inmobiliario") & (gold_sgs["sub"] == "total")
+                   & (gold_sgs.medida == "saldo")].set_index("fecha")["valor"]
+    scr = gold_scr[(gold_scr.producto == "inmobiliario") & (gold_scr.dimension == "total")
+                   & (gold_scr.medida == "saldo")].set_index("fecha")["valor"]
+    f = sgs.index.intersection(scr.index).max()
+    assert abs(scr[f] / 1e6 / sgs[f] - 1) < 0.15
+    inst = set(gold_scr[(gold_scr.producto == "inmobiliario") & (gold_scr.dimension == "institucion")].segmento)
+    assert not inst & {"Fintechs", "Financieras", "Inst. de pago"}

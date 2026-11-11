@@ -65,12 +65,12 @@
 - `usados`: objeto con 2 claves
 - `sitio`: objeto con 2 claves
 
-## `bcb_sgs__catalogo.json` (41 kB)
+## `bcb_sgs__catalogo.json` (43 kB)
 
 - `fuente`: Servicio web público del SGS (FachadaWSSGS.getUltimoValorXML)
 - `descripcion`: Nombre, unidad y periodicidad oficiales de cada serie de sgs.CODIGOS. Lo escribe herramientas/validar_sgs.py --escribir; la correspondencia clave ↔ nombre se r…
 - `validado`: 2026-11-10
-- `series`: objeto con 188 claves
+- `series`: objeto con 196 claves
 
 ## `contrato_gold.json` (9 kB)
 
