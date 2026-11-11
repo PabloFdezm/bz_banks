@@ -44,10 +44,24 @@ button:focus-visible,select:focus-visible{outline:2px solid #2E5C8A;outline-offs
 .bs{font-size:12px;line-height:16px;color:#5B6573}
 .g12{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:16px;row-gap:12px}
 .c3{grid-column:span 3}.c6{grid-column:span 6}.c9{grid-column:span 9}.c12{grid-column:span 12}
+.rf{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:16px;margin:0 0 10px}
+.rf-i{display:flex;flex-direction:column;gap:4px;padding:14px 16px;background:#FFFFFF;border:1px solid #E1E6EC;border-radius:4px;text-decoration:none;color:#24324A;min-width:0}
+.rf-i:hover{border-color:#2E5C8A}.rf-i:focus-visible{outline:2px solid #2E5C8A;outline-offset:2px}
+.rf-n{font-size:13px;line-height:18px;color:#5B6573}
+.rf-v{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:26px;line-height:32px;color:#24324A}
+.rf-d{font-family:"IBM Plex Mono",monospace;font-size:13px;line-height:18px;color:#5B6573}
+.rf-u{margin-left:6px;font-family:"IBM Plex Sans",sans-serif;font-size:13px;font-weight:400;color:#5B6573}
+.rf-c::before{content:" · "}
+@media (max-width:640px){.rf{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.rf-i:first-child{grid-column:span 2}.rf-v{font-size:20px;line-height:26px}.rf-c{display:block}.rf-c::before{content:none}}
 .dlg{position:absolute;left:24px;width:1552px;box-sizing:border-box;background:#FFFFFF;border-radius:4px;padding:20px 28px 24px;display:flex;flex-direction:column;gap:12px}
 </style>
 </helmet>
 <div style="position: relative; width: 1600px; height: 1440px; box-sizing: border-box; padding: 48px; background: #F6F7F8; color: #24324A; font-family: 'IBM Plex Sans', system-ui, sans-serif; display: flex; flex-direction: column; gap: 14px;">
+  <nav class="rf" aria-label="Cifras de entrada de la Portada">
+    <sc-for list="{{resumen}}" as="r" hint-placeholder-count="5">
+      <a class="rf-i" href="{{r.href}}"><span class="rf-n">{{r.nombre}}</span><span class="rf-v">{{r.valor}}<span class="rf-u">{{r.unidad}}</span></span><span class="rf-d">{{r.cambio}}<span class="rf-c">{{r.corte}}</span></span></a>
+    </sc-for>
+  </nav>
   <div class="sh" style="border-top: 2px solid #24324A; padding-top: 10px;">
     <span style="font-family: 'IBM Plex Mono', monospace; font-size: 15px; color: #5B6573;">01</span>
     <span style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 26px; color: #2E5C8A;">Crédito: colocaciones y ciclo</span>
@@ -168,6 +182,8 @@ class Component extends DCLogic {
     const COL = { pf: '#2E5C8A', pj: '#6C819B', li: '#2E5C8A', di: '#6C819B', pfli: '#2E5C8A', pfdi: '#8FB0D0', pjli: '#6C819B', pjdi: '#2F7A86' };
     const CORTE_TXT = { pfpj: 'Personas / Empresas', lidi: 'Libre / Dirigido', pfld: 'Personas: libre / dirigido', todos: 'Todos' };
     const FALTA = [];
+    // Cifras de entrada (franja sobre 01; herramientas/portada_desde_gold.py las carga del gold): último, cambio y corte.
+    const RES = [{"nombre":"Concesiones de crédito, 12 meses","valor":"8.507,8","unidad":"R$ mil mill.","cambio":"a/a +10,5 %","corte":"sep-26","href":"#seccion-1"},{"nombre":"Tasa media de las operaciones","valor":"32,36 %","unidad":"","cambio":"Δ a/a +0,89 pp","corte":"sep-26","href":"#seccion-2"},{"nombre":"Spread de las operaciones","valor":"21,61 pp","unidad":"","cambio":"Δ a/a +1,08 pp","corte":"sep-26","href":"#seccion-2"},{"nombre":"Mora > 90 días","valor":"4,98 %","unidad":"","cambio":"Δ a/a +0,89 pp","corte":"sep-26","href":"#seccion-3"},{"nombre":"Atraso de 15 a 90 días","valor":"4,86 %","unidad":"","cambio":"Δ a/a +0,68 pp","corte":"sep-26","href":"#seccion-3"}];
     const VACIO = new Array(NM).fill(null);
     const RAYA = ['—', '—', '—', '—', '—', '—', '—'];
     // Regla de la sección 02: un corte con algún segmento sin dato no se ofrece (opción deshabilitada, «en preparación»),
@@ -278,7 +294,7 @@ class Component extends DCLogic {
       d.atajoOk = dd === P.n - P.def && hh === P.n - 1;
     }
     return {
-      pares, d, opc, corte: st.corte, abierto: !!v,
+      pares, d, opc, resumen: RES, corte: st.corte, abierto: !!v,
       elegirCorte: (e) => this.setState({ corte: e.target.value, sel: { ...this.state.sel, va: [] }, aj: { ...this.state.aj, va: false } }),
       atajo: v && d.atajoOk ? 'def' : 'pers',
       elegirAtajo: (e) => { if (e.target.value === 'def' && v) { const P = PARES[v]; this.setState({ desde: P.n - P.def, hasta: P.n - 1 }); } },

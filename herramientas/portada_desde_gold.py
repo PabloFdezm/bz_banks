@@ -93,7 +93,29 @@ def seccion01(texto: str) -> str:
                       pct_signo(r["d12"]), pct_signo(r["dventana"])]
     texto = poner_const(texto, "D", D)
     texto = poner_const(texto, "LARGO", largo)
+    texto = poner_const(texto, "RES", resumen(t))
     return poner_const(texto, "FALTA", [])
+
+
+def pp_signo(x: float) -> str:
+    return ("+" if x > 0 else "−" if x < 0 else "") + num_es(abs(x), 2) + " pp"
+
+
+def resumen(conc12) -> list[dict]:
+    """Franja de entrada de la Portada: cinco cifras con su cambio a/a y su corte, cada una con enlace a su par."""
+    tot = conc12.iloc[0]
+    tab = pd.read_parquet(GOLD / "bk_portada_m_tablas.parquet").set_index(["indicador", "segmento"])
+    out = [{"nombre": "Concesiones de crédito, 12 meses", "valor": num_es(tot["ultimo"]), "unidad": "R$ mil mill.",
+            "cambio": "a/a " + pct_signo(tot["d12"]), "corte": tot["corte"], "href": "#seccion-1"}]
+    for ind, nombre, href in (("tasa", "Tasa media de las operaciones", "#seccion-2"),
+                              ("spread", "Spread de las operaciones", "#seccion-2"),
+                              ("mora90", "Mora > 90 días", "#seccion-3"),
+                              ("atraso15_90", "Atraso de 15 a 90 días", "#seccion-3")):
+        r = tab.loc[(ind, "tot")]
+        unidad = " pp" if ind == "spread" else " %"
+        out.append({"nombre": nombre, "valor": num_es(r["ultimo"] * 100, 2) + unidad, "unidad": "",
+                    "cambio": "Δ a/a " + pp_signo(r["d12"]), "corte": r["corte"], "href": href})
+    return out
 
 
 # ---------------------------------------------------------------- secciones 02 y 03

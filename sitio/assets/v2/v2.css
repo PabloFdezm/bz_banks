@@ -166,3 +166,6 @@ html.v2-dialogo { overflow: hidden; }
       radial-gradient(farthest-side at 0 50%, rgba(27,36,51,0.18), rgba(27,36,51,0)), radial-gradient(farthest-side at 100% 50%, rgba(27,36,51,0.18), rgba(27,36,51,0)) 100% 0;
     background-repeat: no-repeat; background-size: 24px 100%, 24px 100%, 10px 100%, 10px 100%; background-attachment: local, local, scroll, scroll; }
 }
+
+/* Presentar: la franja de cifras de la Portada no entra en las láminas (una lámina = un par). */
+.v2-presentando #v2-raiz .rf { visibility: hidden; }
